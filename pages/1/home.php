@@ -128,7 +128,7 @@
 							</div>
 							<div class="project-info-right">
 								<span class="no text-light-green weight-500 font-24"><?php echo $contoffer>0 ? $contoffer : "0" ; ?></span>
-								<p class="weight-400 font-18">Bekleyen Teklif Sayısı  67</p>
+								<p class="weight-400 font-18">Bekleyen Teklif Sayısı</p>
 							</div>
 						</div>
 						<div class="project-info-progress">
