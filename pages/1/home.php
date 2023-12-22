@@ -188,7 +188,7 @@
 							</div>
 							<div class="project-info-right">
 								<span class="no text-light-purple weight-500 font-24"><?php echo $tdq;?></span>
-								<p class="weight-400 font-18">Yapılacaklar Listesi </p>
+								<p class="weight-400 font-18">Yapılacaklar Listesi 67</p>
 							</div>
 						</div>
 						<div class="project-info-progress">
