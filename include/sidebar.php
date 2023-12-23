@@ -9,7 +9,7 @@
 				<ul id="accordion-menu">
 					<li class="dropdown">
 						<a href="index.php?p=home" class="dropdown-toggle no-arrow">
-							<span class="fa fa-home"></span><span class="mtext">Genel Bakış</span>
+							<span class="fa fa-home"></span><span class="mtext">Ana Sayfa</span>
 						</a>
 						
 					</li>
@@ -149,6 +149,19 @@
 							<?php } ?>
 						</ul>
 
+					</li>
+					<li class="dropdown">
+						<a href="javascript:;" class="dropdown-toggle">
+						
+							<span class="fa fa-folder-open"></span><span class="mtext">Evrak Takip</span>
+						</a>
+						<ul class="submenu">
+
+							<?php if(permtrue("docoutadd")){ ?><li><a href="index.php?p=new-outdocument">Giden Evrak Ekle</a></li><?php } ?>
+							<?php if(permtrue("docinadd")){ ?><li><a href="index.php?p=new-indocument">Gelen Evrak Ekle</a></li><?php } ?>
+							<li><a href="index.php?p=document-list">Evrakları Görüntüle</a></li>
+
+						</ul>
 					</li>
 					<?php if(permtrue("misadd") OR permtrue("mistake") OR permtrue("allmisview")){?>
 					<li class="dropdown">

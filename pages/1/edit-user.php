@@ -122,7 +122,7 @@
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
 				<label><font color="red">(*)</font>Kimlik No</label>
-				<input required type="text" id="utc" value="<?php echo $cc["tckimlikno"] ;?>" name="utc" class="form-control" maxlength="11">
+				<input required type="text" value="<?php echo $cc["tckimlikno"] ;?>" name="utc" class="form-control">
 			</div>
 		</div>
 	
@@ -193,21 +193,21 @@
 						<div class="col-md-6 col-sm-12">
 							<div class="form-group">
 								<label>Doğum Tarihi</label>
-								<input name="udgmtarihi" value="<?php echo $cc["dogumtarihi"] ;?>" type="text" class="form-control date-picker" placeholder="dd.mm.yyyy">
+								<input name="udgmtarihi" value="<?php echo $cc["dogumtarihi"] ;?>" type="text" class="form-control">
 							</div>
 						</div>
 					</div>
 						<div class="row">
-		<div class="col-md-3 col-sm-12">
+		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
 				<label>İşe Başlama Tarihi</label>
-				<input name="ugiristarihi" value="<?php echo $cc["giristarihi"] ;?>" type="text" class="form-control date-picker" placeholder="dd.mm.yyyy">
+				<input name="ugiristarihi" value="<?php echo $cc["giristarihi"] ;?>" type="text" class="form-control">
 			</div>
 		</div>
-		<div class="col-md-3 col-sm-12">
+		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
 				<label>İşten Çıkış Tarihi</label>
-				<input name="ucikistarihi" value="<?php echo $cc["cikistarihi"] ;?>" type="text" class="form-control date-picker" placeholder="dd.mm.yyyy">
+				<input name="ucikistarihi" value="<?php echo $cc["cikistarihi"] ;?>" type="text" class="form-control">
 			</div>
 		</div>
 		
@@ -228,9 +228,9 @@
 							</div>
 						</div>
 	</div><br><br>
-						<div class="col-md-4 col-sm-12">
+						<div class="col-md-5 col-sm-12">
 						<div class="form-group">
-							<input type="submit" value="Kaydet"class="form-control text-white btn btn-primary">
+							<input type="submit" value="Kullanıcıyı Kaydet"class="form-control btn-outline-success">
 						</div>
 						</div>
 					</form>
@@ -241,8 +241,6 @@
 					</div>
 				</div>
 				<!-- Input Validation End -->
-				<script>
-					handleInputValidation("utc"); // Parametre olarak input alanının ID'sini verin
-				</script>
+
 			</div>
 			<?php include('include/footer.php'); ?>
