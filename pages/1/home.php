@@ -104,7 +104,7 @@
 							</div>
 							<div class="project-info-right">
 								<span class="no text-blue weight-500 font-24"><?php echo $contproject != 0 ? $contproject : "0"; ?></span>
-								<p class="weight-400 font-18">Devam eden proje 2112898 </p>
+								<p class="weight-400 font-18">Devam eden proje 211 </p>
 							</div>
 						</div>
 						<div class="project-info-progress">
