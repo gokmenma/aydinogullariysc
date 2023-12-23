@@ -151,10 +151,6 @@ if (@$_GET["st"] == "newsuccess") {
 			<a href="index.php?p=view-sales-c&id=<?php echo $cc["id"]; ?>"><button class="btn btn-success" style="float:right">Ödemeleri Görüntüle</button></a>
 			<input type="submit" id="submitButton" value="Kaydet" class="float-right mr-2 btn btn-primary">
 		</div>
-
-
-
-
 	</div>
 
 
