@@ -194,10 +194,5 @@ if (@$_GET["st"] == "empties") {
 </div>
 
 
-<script>
-    document.getElementById("submitButton").addEventListener('click', function() {
-        var form = document.getElementById('myForm');
-        form.submit();
-    })
-</script>
+<script><?php include('include/app.js'); ?></script>
 <?php include 'include/footer.php'; ?>

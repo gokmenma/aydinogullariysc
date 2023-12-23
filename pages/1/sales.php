@@ -13,31 +13,28 @@ if ($pids && @$_GET["mode"] == "delete") {
 
 
 ?>
+
+<?php
+if (@$_GET["st"] == "newsuccess") {
+
+  showAlert('success', 'Kayıt başarıyla oluşturuldu. Ödemeler sayfasından ödeme takibini yapabilirsiniz.');
+}
+if (@$_GET["type"] == "delete" and @$_GET["cid"]) {
+?>
+  <div class="alert alert-success" role="alert">
+    <?php echo "#" . $_GET["pid"]; ?> no'lu hizmetinize ait bilgiler başarıyla silindi.
+  </div>
+<?php
+}
+?>
 <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-  <?php
-  if (@$_GET["st"] == "newsuccess") {
-
-
-
-  ?>
-    <div class="alert alert-success" role="alert">
-      Kayıt başarıyla oluşturuldu. Ödemeler sayfasından ödeme takibini yapabilirsiniz.
-    </div>
-  <?php
-  }
-  if (@$_GET["type"] == "delete" and @$_GET["cid"]) {
-  ?>
-    <div class="alert alert-success" role="alert">
-      <?php echo "#" . $_GET["pid"]; ?> no'lu hizmetinize ait bilgiler başarıyla silindi.
-    </div>
-  <?php
-  }
-  ?>
-  <div class="clearfix mb-20">
+  <div class="clearfix mb-20">git
     <div class="pull-left">
       <h5 class="text-blue">Satışlar</h5>
-
     </div>
+
+    <a href="index.php?p=new-sales&cc=087s3"><button style="float:right;" type="button" class="btn btn-success">Yeni Satış Girişi Yap</button></a> <br><br><?php ?>
+
   </div>
   <table class="data-table stripe hover">
     <thead>
@@ -53,8 +50,6 @@ if ($pids && @$_GET["mode"] == "delete") {
       </tr>
     </thead>
     <tbody>
-      <?php if (permtrue("sadd")) { ?>
-        <a href="index.php?p=new-sales&cc=087s3"><button style="float:right;" type="button" class="btn btn-success">Yeni Satış Girişi Yap</button></a> <br><br><?php } ?>
       <?php
       $cq = $ac->prepare("SELECT * FROM sales WHERE deleted = ? ORDER by id ASC");
       $cq->execute(array(0));

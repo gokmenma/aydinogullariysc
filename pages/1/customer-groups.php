@@ -127,7 +127,5 @@ if (@$_GET["type"] == "delete") {
 
 
 
-<script>
-	<?php include('include/app.js'); ?>
-</script>
+<script><?php include('include/app.js'); ?></script>
 <?php include('include/footer.php'); ?>

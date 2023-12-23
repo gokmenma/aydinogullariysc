@@ -14,22 +14,42 @@
 
 					</li>
 
-					<li class="dropdown">
-						<a href="javascript:;" class="dropdown-toggle">
-							<span class="fa fa-pencil"></span><span class="mtext">Müşteri Yönetimi</span>
-						</a>
-						<ul class="submenu">
 
-							<?php if (permtrue("cadd")) { ?><li><a href="index.php?p=new-customer">Yeni Müşteri</a></li><?php } ?>
-							<li><a href="index.php?p=customer-list">Müşteri Listesi</a></li>
-							<?php if (permtrue("cedit")) {
-							?>
-								<li><a href="index.php?p=customer-groups">Müşteri Grupları</a></li>
-							<?php
-							} ?>
 
-						</ul>
-					</li>
+					<?php if (permtrue("oview")) {
+					?>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="fa fa-file-o"></span><span class="mtext">Teklifler</span>
+							</a>
+							<ul class="submenu">
+
+								<?php if (permtrue("oadd")) { ?><li><a href="index.php?p=new-offer">Yeni Teklif Oluştur</a></li><?php } ?>
+								<li><a href="index.php?p=all-offers">Teklifleri Görüntüle</a></li>
+								<?php if (sesset("permission") == 1) { ?>
+									<li><a href="index.php?p=units">Teklif Birimleri</a></li>
+								<?php } ?>
+
+							</ul>
+						</li>
+					<?php
+					} ?>
+					<?php if (permtrue("servview")) {
+					?>
+						<li class="dropdown">
+							<a href="javascript:;" class="dropdown-toggle">
+								<span class="fa fa-gear"></span><span class="mtext">Servisler</span>
+							</a>
+							<ul class="submenu">
+							
+								<?php if (permtrue("servadd")) { ?><li><a href="index.php?p=new-service">Yeni Servis Oluştur</a></li><?php } ?>
+								<li><a href="index.php?p=all-services">Servisleri Görüntüle</a></li>
+
+							</ul>
+						</li>
+					<?php
+					} ?>
+
 					<li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
 							<span class="fa fa-table"></span><span class="mtext">Proje Yönetimi</span>
@@ -52,25 +72,25 @@
 
 						</ul>
 					</li>
-					<?php if (permtrue("oview")) {
-					?>
-						<li class="dropdown">
-							<a href="javascript:;" class="dropdown-toggle">
-								<span class="fa fa-file-o"></span><span class="mtext">Teklifler</span>
-							</a>
-							<ul class="submenu">
 
-								<?php if (permtrue("oadd")) { ?><li><a href="index.php?p=new-offer">Yeni Teklif Oluştur</a></li><?php } ?>
-								<li><a href="index.php?p=all-offers">Teklifleri Görüntüle</a></li>
-								<?php if (sesset("permission") == 1) { ?>
-									<li><a href="index.php?p=units">Teklif Birimleri</a></li>
-								<?php } ?>
 
-							</ul>
-						</li>
-					<?php
-					} ?>
 
+					<li class="dropdown">
+						<a href="javascript:;" class="dropdown-toggle">
+							<span class="fa fa-pencil"></span><span class="mtext">Müşteri Yönetimi</span>
+						</a>
+						<ul class="submenu">
+
+							<?php if (permtrue("cadd")) { ?><li><a href="index.php?p=new-customer">Yeni Müşteri</a></li><?php } ?>
+							<li><a href="index.php?p=customer-list">Müşteri Listesi</a></li>
+							<?php if (permtrue("cedit")) {
+							?>
+								<li><a href="index.php?p=customer-groups">Müşteri Grupları</a></li>
+							<?php
+							} ?>
+
+						</ul>
+					</li>
 					<li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
 							<span class="fa fa-paint-brush"></span><span class="mtext">Ürün/Hizmetler</span>
@@ -149,7 +169,7 @@
 
 
 
-					
+
 
 
 
