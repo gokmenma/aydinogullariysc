@@ -4,25 +4,24 @@ require "configs/index.php";
 
 if (set("system_statu") == 1) {
 
-    if (!isset($_SESSION["login"])) {
-        include "login.php";
-        exit;
-
-    }
+	if (!isset($_SESSION["login"])) {
+		include "login.php";
+		exit;
+	}
 } else {
-    exit;
+	exit;
 }
 if (@$_GET["login"] == "true" and @$_GET["success"] == "true") {
-    header("Location: index.php?statu=newlogin001456");
+	header("Location: index.php?statu=newlogin001456");
 }
 $skid = sesset("perm");
 
 $plink = @$_GET["p"];
 
 if ($plink) {
-    $ttlinks = $plink;
+	$ttlinks = $plink;
 } else {
-    header("Location:index.php?p=home");
+	header("Location:index.php?p=home");
 }
 
 $pquery = $ac->prepare("SELECT * FROM pages WHERE p_link = ?");
@@ -32,30 +31,34 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
 
 	<!-- <link rel="stylesheet" type="text/css" href="src/plugins/switchery/dist/switchery.css"> -->
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
-	<?php include 'include/head.php';?>
-</head>
-<body>
-	<?php include 'include/header.php';?>
-	<?php include 'include/sidebar.php';?>
-	<?php
-if (sesset("permission") != $_SESSION["perm"]) {
-    header("Location: logout.php");
-    exit;
-}
-if ($plink == "home") {
+	<?php include 'include/head.php'; ?>
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 
-} else {
-    ?>
-<div class="main-container">
-		<div class="pd-ltr-20 xs-pd-20-10">
-			<div class="min-height-200px">
-				<!-- <div class="page-header">
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+
+</head>
+
+<body>
+	<?php include 'include/header.php'; ?>
+	<?php include 'include/sidebar.php'; ?>
+	<?php
+	if (sesset("permission") != $_SESSION["perm"]) {
+		header("Location: logout.php");
+		exit;
+	}
+	if ($plink == "home") {
+	} else {
+	?>
+		<div class="main-container">
+			<div class="pd-ltr-20 xs-pd-20-10">
+				<div class="min-height-200px">
+					<!-- <div class="page-header">
 					<div class="row">
 						<div class="col-md-12 col-sm-12">
 							<div class="title">
@@ -74,40 +77,38 @@ if ($plink == "home") {
 					</div>
 				</div> -->
 				<?php
-}
-?>
+			}
+				?>
+				<?php
+
+				if ($plink) {
+					$pl = $ac->prepare("SELECT * FROM pages WHERE p_link = ?");
+					$pl->execute(array($plink));
+					$pn = $pl->fetch(PDO::FETCH_ASSOC);
+					if ($pn) {
+						$pln = $pn["p_link"];
+						if (file_exists("pages/1/" . $pln . ".php")) {
+							include "pages/" . $skid . "/" . $pln . ".php";
+						} else {
+							header("Location:404.php");
+						}
+					} else {
+						header("Location:index.php?p=home&code=0121");
+					}
+				} else {
+					include "pages/" . $skid . "/home.php";
+				}
+				if (!$plink || $plink == "home") {
+				} else {
+				?>
+				</div>
+			</div>
+		</div>
 	<?php
 
-if ($plink) {
-    $pl = $ac->prepare("SELECT * FROM pages WHERE p_link = ?");
-    $pl->execute(array($plink));
-    $pn = $pl->fetch(PDO::FETCH_ASSOC);
-    if ($pn) {
-        $pln = $pn["p_link"];
-        if (file_exists("pages/1/" . $pln . ".php")) {
-            include "pages/" . $skid . "/" . $pln . ".php";
-        } else {
-            header("Location:404.php");
-        }
-
-    } else {
-        header("Location:index.php?p=home&code=0121");
-    }
-} else {
-    include "pages/" . $skid . "/home.php";
-}
-if (!$plink || $plink == "home") {
-
-} else {
-    ?>
-		</div>
-		</div>
-	</div>
-	<?php
-
-}
-?>
-	<?php include 'include/script.php';?>
+				}
+	?>
+	<?php include 'include/script.php'; ?>
 
 	<script src="src/plugins/datatables/media/js/button/dataTables.buttons.js"></script>
 	<script src="src/plugins/datatables/media/js/button/buttons.bootstrap4.js"></script>
@@ -119,7 +120,7 @@ if (!$plink || $plink == "home") {
 	<script src="src/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 	<script src="src/plugins/datatables/media/js/dataTables.bootstrap4.js"></script>
 	<script src="src/plugins/datatables/media/js/dataTables.responsive.js"></script>
-		<script src="src/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 	<script src="src/plugins/datatables/media/js/dataTables.bootstrap4.js"></script>
 	<script src="src/plugins/datatables/media/js/dataTables.responsive.js"></script>
 	<script src="src/plugins/datatables/media/js/responsive.bootstrap4.js"></script>
@@ -134,7 +135,7 @@ if (!$plink || $plink == "home") {
 	<!-- buttons for Export datatable -->
 
 	<script>
-		$('document').ready(function(){
+		$('document').ready(function() {
 			$('.data-table').DataTable({
 				scrollCollapse: true,
 				autoWidth: false,
@@ -143,16 +144,19 @@ if (!$plink || $plink == "home") {
 					targets: "datatable-nosort",
 					orderable: false,
 				}],
-				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tümü"]],
+				"lengthMenu": [
+					[10, 25, 50, -1],
+					[10, 25, 50, "Tümü"]
+				],
 				"language": {
 					"info": "_TOTAL_ kayıttan _START_ - _END_ kayıt gösteriliyor.",
 					"sLengthMenu": "Sayfada _MENU_ kayıt göster",
 					"oPaginate": {
-                "sFirst": "İlk",
-                "sLast": "Son",
-                "sNext": "Sonraki",
-                "sPrevious": "Önceki"
-            },
+						"sFirst": "İlk",
+						"sLast": "Son",
+						"sNext": "Sonraki",
+						"sPrevious": "Önceki"
+					},
 					searchPlaceholder: "Arama"
 
 				},
@@ -165,35 +169,37 @@ if (!$plink || $plink == "home") {
 					targets: "datatable-nosort",
 					orderable: false,
 				}],
-				"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tümü"]],
+				"lengthMenu": [
+					[10, 25, 50, -1],
+					[10, 25, 50, "Tümü"]
+				],
 				"language": {
 					"info": "_TOTAL_ kayıttan _START_ - _END_ kayıt gösteriliyor.",
 					"sLengthMenu": "Sayfada _MENU_ kayıt göster",
 					"oPaginate": {
-                "sFirst": "İlk",
-                "sLast": "Son",
-                "sNext": "Sonraki",
-                "sPrevious": "Önceki"
-            },
+						"sFirst": "İlk",
+						"sLast": "Son",
+						"sNext": "Sonraki",
+						"sPrevious": "Önceki"
+					},
 					searchPlaceholder: "Arama"
 				},
 				dom: 'Bfrtip',
 				buttons: [
-				'copy', 'csv', 'pdf', 'print'
+					'copy', 'csv', 'pdf', 'print'
 				]
 			});
 			var table = $('.select-row').DataTable();
-			$('.select-row tbody').on('click', 'tr', function () {
+			$('.select-row tbody').on('click', 'tr', function() {
 				if ($(this).hasClass('selected')) {
 					$(this).removeClass('selected');
-				}
-				else {
+				} else {
 					table.$('tr.selected').removeClass('selected');
 					$(this).addClass('selected');
 				}
 			});
 			var multipletable = $('.multiple-select-row').DataTable();
-			$('.multiple-select-row tbody').on('click', 'tr', function () {
+			$('.multiple-select-row tbody').on('click', 'tr', function() {
 				$(this).toggleClass('selected');
 			});
 		});
@@ -234,8 +240,8 @@ if (!$plink || $plink == "home") {
 					to: 6.5,
 				}],
 				gridLineDashStyle: 'longdash',
-                gridLineWidth: 1,
-                crosshair: true
+				gridLineWidth: 1,
+				crosshair: true
 			},
 			yAxis: {
 				title: {
@@ -358,8 +364,7 @@ if (!$plink || $plink == "home") {
 				}, {
 					borderWidth: 0,
 					outerRadius: '107%'
-				}, {
-				}, {
+				}, {}, {
 					backgroundColor: '#fff',
 					borderWidth: 0,
 					outerRadius: '105%',
@@ -436,8 +441,7 @@ if (!$plink || $plink == "home") {
 				}, {
 					borderWidth: 0,
 					outerRadius: '107%'
-				}, {
-				}, {
+				}, {}, {
 					backgroundColor: '#fff',
 					borderWidth: 0,
 					outerRadius: '105%',
@@ -535,4 +539,5 @@ if (!$plink || $plink == "home") {
 		});
 	</script>
 </body>
+
 </html>
