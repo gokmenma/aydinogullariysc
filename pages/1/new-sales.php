@@ -4,7 +4,7 @@
  if(set("sale_view") != "1"){
   ?>
  <div class="alert alert-warning" role="alert">
-                <b>Dikkat!</b> Yeni satış olurduğunuzda, belirlediğiniz başlangıç - bitiş tarihleri arasında otomatik ödeme planları oluşturulur. Ödemeler sayfasından takibini yapabilirsiniz. Oluşturulan satışa ait bilgiler düzenlenemez. Bu mesaj sadece 1 kez gösterilir.
+                <b>Dikkat!</b> Yeni satış oluşturduğunuzda, belirlediğiniz başlangıç - bitiş tarihleri arasında otomatik ödeme planları oluşturulur. Ödemeler sayfasından takibini yapabilirsiniz. Oluşturulan satışa ait bilgiler düzenlenemez. Bu mesaj sadece 1 kez gösterilir.
 </div>
   <?php
 
@@ -185,24 +185,18 @@ if($_POST){
 }
 
 if(@$_GET["st"] == "empties"){
-		?>
-			<div class="alert alert-danger" role="alert">
-								(*) ile işaretli alanları boş bırakmadan tekrar deneyin.
-							</div>
-		<?php
+
+		showAlert('alert', "(*) ile işaretli alanları boş bırakmadan tekrar deneyin.");
+
 	}
 	if(@$_GET["st"] == "newsuccess" ){
-		?>
-	<div class="alert alert-success" role="alert">
-									Bilgiler kaydedildi.
-								</div>
-		<?php
+
+		showAlert('success',"Bilgiler kaydedildi.");
+
 	}else if(@$_GET["st"] == "numericerror"){
-		?>
-			<div class="alert alert-danger" role="alert">
-								Fiyat kısmına sadece rakamlardan oluşan değer girebilirsiniz.
-							</div>
-		<?php
+
+		showAlert('warning',"Fiyat kısmına sadece rakamlardan oluşan değer girebilirsiniz.");
+
 	}
 ?>
 
@@ -212,9 +206,12 @@ if(@$_GET["st"] == "empties"){
 							<h4 class="text-blue"><?php echo $pdat["p_title"];?></h4>
 							<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br>Not: Satışlarınız, gelir-gider sayfasına otomatik olarak yansımaktadır. <br><font color="red">Tarih kısımlarını "gg-aa-yyyy" formatına uygun şekilde girmeye özen göstermelisiniz.</font></p>
 						</div>
-						
+						<div class="form-group">
+							<input type="submit" id="submitbutton" value="Satış Yap" style="float:right" class="btn btn-success"><br><br>
+						</div>
 					</div>
-<form method="POST" action="">
+
+<form method="POST" id="myform" action="">
 	
 	<div class="row">
 		<div class="col-md-6 col-sm-12">
@@ -328,6 +325,12 @@ if(@$_GET["st"] == "empties"){
 	
 
 
-<input type="submit" value="Satış Yap" style="float:right" class="col-md-6 form-control btn-outline-success"><br><br>
+
 </form>
 							</div>
+<script>
+	document.getElementById("submitbutton").addEventListener("click",function(){
+		var form=document.getElementById("myform");
+		form.submit();
+	})
+</script>
