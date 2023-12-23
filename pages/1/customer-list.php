@@ -45,63 +45,63 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 	}
 	?>
 
-	<div class="pd-ltr-10 xs-pd-10-10">
-		<div class="clearfix mb-20">
-			<div class="pull-left">
-				<h5 class="text-blue">Müşteri Listesi</h5>
-				<p class="font-14"> </p>
-			</div>
-			<?php if (permtrue("cadd")) { ?>
-				<a href="index.php?p=new-customer&cc=0014s1"><button type="button" class="btn btn-success float-right">Yeni Müşteri</button></a><br> <br><br><?php } ?>
+	<div class="clearfix mb-20">
+		<div class="pull-left">
+			<h5 class="text-blue">Müşteri Listesi</h5>
+			<p class="font-14"> </p>
 		</div>
-		<table class="data-table stripe hover">
-			<thead>
+		<?php if (permtrue("cadd")) { ?>
+			<a href="index.php?p=new-customer&cc=0014s1"><button type="button" class="btn btn-success float-right">Yeni Müşteri</button></a><?php } ?>
+	</div>
+	<table class="data-table stripe hover">
+		<thead>
+			<tr>
+				<th scope="col">#</th>
+				<th>Ad-Soyad</th>
+				<th>Grup</th>
+				<th>Teklif/Proje Sayısı</th>
+				<th>E-Posta Adresi</th>
+				<th>GSM</th>
+				<th class="datatable-nosort">İşlem</th>
+
+			</tr>
+		</thead>
+		<tbody>
+
+			<?php
+			$cq = $ac->prepare("SELECT * FROM customers ORDER by id DESC");
+			$cq->execute();
+			while ($as = $cq->fetch(PDO::FETCH_ASSOC)) {
+				$tqm = $ac->prepare("SELECT * FROM offers WHERE cid = ?");
+				$tqm->execute(array($as["id"]));
+				$tsay = $tqm->rowCount();
+
+				$pqm = $ac->prepare("SELECT * FROM projects WHERE pcid = ?");
+				$pqm->execute(array($as["id"]));
+				$psay = $pqm->rowCount();
+
+				$tsayi = $tsay > 0 ? $tsay : "0";
+				$psayi = $psay > 0 ? $psay : "0";
+				$tps = $tsayi . " / " . $psayi;
+
+				$grcek = $ac->prepare("SELECT * FROM cgroups WHERE id = ?");
+				$grcek->execute(array($as["grp"]));
+				$gaar = $grcek->fetch(PDO::FETCH_ASSOC);
+			?>
 				<tr>
-					<th scope="col">#</th>
-					<th>Ad-Soyad</th>
-					<th>Grup</th>
-					<th>Teklif/Proje Sayısı</th>
-					<th>E-Posta Adresi</th>
-					<th>GSM</th>
-					<th class="datatable-nosort">İşlem</th>
+					<td scope="row"><?php echo $as["id"]; ?></td>
+					<td><?php echo $as["name"]; ?></td>
+					<td><?php echo $gaar["title"]; ?></td>
+					<td><?php echo $tps; ?></td>
+					<td><?php echo $as["email"]; ?></td>
+					<td><?php echo $as["gsm"]; ?></td>
+					<?php $ptr = permtrue("cedit"); ?>
+					<td><?php echo $ptr ? "<a href='index.php?p=edit-customer&cid=" . $as["id"] . "'><span class='badge badge-primary'>Görüntüle/Düzenle</span></a>" : ""; ?>
+						<?php if (permtrue("cdelete")) { ?><a onClick="return confirm('Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?')" href="index.php?p=customer-list&mode=delete&code=3222891&reg=true&md=active&cid=<?php echo $as["id"]; ?>"><span class="badge badge-danger">Sil</span></a><?php } ?></th>
 
 				</tr>
-			</thead>
-			<tbody>
-
-				<?php
-				$cq = $ac->prepare("SELECT * FROM customers ORDER by id DESC");
-				$cq->execute();
-				while ($as = $cq->fetch(PDO::FETCH_ASSOC)) {
-					$tqm = $ac->prepare("SELECT * FROM offers WHERE cid = ?");
-					$tqm->execute(array($as["id"]));
-					$tsay = $tqm->rowCount();
-
-					$pqm = $ac->prepare("SELECT * FROM projects WHERE pcid = ?");
-					$pqm->execute(array($as["id"]));
-					$psay = $pqm->rowCount();
-
-					$tsayi = $tsay > 0 ? $tsay : "0";
-					$psayi = $psay > 0 ? $psay : "0";
-					$tps = $tsayi . " / " . $psayi;
-
-					$grcek = $ac->prepare("SELECT * FROM cgroups WHERE id = ?");
-					$grcek->execute(array($as["grp"]));
-					$gaar = $grcek->fetch(PDO::FETCH_ASSOC);
-				?>
-					<tr>
-						<td scope="row"><?php echo $as["id"]; ?></td>
-						<td><?php echo $as["name"]; ?></td>
-						<td><?php echo $gaar["title"]; ?></td>
-						<td><?php echo $tps; ?></td>
-						<td><?php echo $as["email"]; ?></td>
-						<td><?php echo $as["gsm"]; ?></td>
-						<?php $ptr = permtrue("cedit"); ?>
-						<td><?php echo $ptr ? "<a href='index.php?p=edit-customer&cid=" . $as["id"] . "'><span class='badge badge-primary'>Görüntüle/Düzenle</span></a>" : ""; ?>
-							<?php if (permtrue("cdelete")) { ?><a onClick="return confirm('Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?')" href="index.php?p=customer-list&mode=delete&code=3222891&reg=true&md=active&cid=<?php echo $as["id"]; ?>"><span class="badge badge-danger">Sil</span></a><?php } ?></th>
-
-					</tr>
-				<?php } ?>
-			</tbody>
-		</table>
-	</div>
+			<?php } ?>
+		</tbody>
+	</table>
+</div>
+<?php include('include/footer.php'); ?>

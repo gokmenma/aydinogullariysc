@@ -76,14 +76,26 @@ section {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--font-family-sans-serif);
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
   text-align: left;
   background-color: #fff;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  /* Footer'ı sabit tutmak için grid kullanımı */
+  min-height: 100vh;
+ 
 }
+
+footer {
+  font-weight: 500;
+  text-align: center;
+  padding: 15px 0;
+}
+
 
 [tabindex="-1"]:focus {
   outline: 0 !important;
@@ -5321,6 +5333,7 @@ tbody.collapse.show {
   white-space: nowrap;
   vertical-align: baseline;
   border-radius: 0.25rem;
+  padding: 6px;
 }
 
 .badge:empty {
@@ -24089,7 +24102,7 @@ input[type="submit"] {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
-  /* font-family: 'Work Sans', sans-serif; 
+  /* font-family: var(--font-family-sans-serif); 
   font-weight: 400;
   width: 100%;
   min-height: 100%;
@@ -24119,7 +24132,7 @@ textarea,
 select {
   outline: none;
   resize: none;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
 }
 
 a,
@@ -24142,7 +24155,7 @@ h6 {
   padding: 0;
   font-weight: normal;
   color: #131e22;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
 }
 
 img {
@@ -24522,7 +24535,7 @@ p {
   font-weight: 400;
   padding: 0.55rem 1rem;
   color: #667f87;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
@@ -24534,7 +24547,7 @@ p {
 }
 
 .form-control {
-  /* font-family: 'Work Sans', sans-serif; */
+  /* font-family: var(--font-family-sans-serif); */
   color: #131e22;
   font-weight: 500;
   height: 38px;
@@ -24668,8 +24681,9 @@ textarea.form-control {
 
 /* ---------------- form validation class -------------*/
 .btn {
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
   letter-spacing: 0.035em;
+  font-weight: 600;
 }
 
 .btn-lg,
@@ -24858,7 +24872,7 @@ textarea.form-control {
   font-weight: 400;
   padding: 0.55rem 1rem;
   color: #667f87;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
@@ -24984,6 +24998,7 @@ textarea.form-control {
   display: none;
 }
 
+
 .user-info-dropdown {
   float: right;
   padding: 10px 20px 10px 0;
@@ -25013,7 +25028,7 @@ textarea.form-control {
   vertical-align: middle;
   margin-left: 5px;
   color: #131e22;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
 }
 
 .user-info-dropdown .dropdown-item {
@@ -25068,7 +25083,7 @@ textarea.form-control {
   min-height: 75px;
   color: #33484f;
   font-size: 15px;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
 }
 
 .notification-list ul li a img {
@@ -25086,7 +25101,7 @@ textarea.form-control {
   font-size: 18px;
   color: #33484f;
   font-weight: 500;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
 }
 
 .notification-list ul li a h3 span {
@@ -25108,12 +25123,12 @@ textarea.form-control {
 ==============================================================*/
 .footer-wrap {
   width: 100%;
-  position: fixed;
   left: 0;
   bottom: 0;
   /*height: 44px;*/
   text-align: center;
-  font-weight: 500;
+
+
 }
 
 /*==============================================================
@@ -25209,7 +25224,7 @@ textarea.form-control {
   letter-spacing: 0.050em;
   font-weight: 500;
   line-height: 45px;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
   padding: 0px 20px 0px;
   text-align: center;
 }
@@ -25277,7 +25292,7 @@ textarea.form-control {
   color: #131e22;
   font-weight: 500;
   position: relative;
-  /* font-family: 'Work Sans', sans-serif; */
+  /* font-family: var(--font-family-sans-serif); */
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
@@ -25367,7 +25382,7 @@ textarea.form-control {
   color: #131e22;
   font-weight: 500;
   position: relative;
-  /* font-family: 'Work Sans', sans-serif; */
+  /* font-family: var(--font-family-sans-serif); */
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
@@ -25506,7 +25521,7 @@ textarea.form-control {
   font-weight: 400;
   padding: 0.55rem 1rem;
   color: #667f87;
-  font-family: 'Work Sans', sans-serif;
+  font-family: var(--font-family-sans-serif);
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
 }
@@ -26837,6 +26852,7 @@ textarea.form-control {
   font-size: 16px;
   padding: 7px 11px;
   margin: 3px 0;
+  padding: 5px;
 }
 
 .contact-directory-box .contact-skill .badge.badge-primary {
@@ -26844,6 +26860,7 @@ textarea.form-control {
   border-color: #55a8fd;
   -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+
 }
 
 .contact-directory-box .profile-sort-desc {
@@ -27351,7 +27368,6 @@ textarea.form-control {
 
   .footer-wrap {
     width: 100%;
-    position: fixed;
     left: 0;
     bottom: 0;
   }
@@ -27399,7 +27415,6 @@ textarea.form-control {
 
   .footer-wrap {
     width: 100%;
-    position: fixed;
     left: 0;
     bottom: 0;
   }
