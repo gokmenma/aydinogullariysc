@@ -104,7 +104,7 @@
 							</div>
 							<div class="project-info-right">
 								<span class="no text-blue weight-500 font-24"><?php echo $contproject != 0 ? $contproject : "0"; ?></span>
-								<p class="weight-400 font-18">Devam eden projeler tamamlandı </p>
+								<p class="weight-400 font-18">Devam eden proje </p>
 							</div>
 						</div>
 						<div class="project-info-progress">
@@ -188,7 +188,7 @@
 							</div>
 							<div class="project-info-right">
 								<span class="no text-light-purple weight-500 font-24"><?php echo $tdq;?></span>
-								<p class="weight-400 font-18">Yapılacaklar Listesi 67</p>
+								<p class="weight-400 font-18">Yapılacaklar Listesi</p>
 							</div>
 						</div>
 						<div class="project-info-progress">
