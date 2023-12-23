@@ -142,24 +142,12 @@ if (@$_GET["st"] == "newsuccess") {
 <!-- Default Basic Forms Start -->
 <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
 	<div class="clearfix">
-		<!-- <h6> <span style="font-weight: bold; color:brown">Toplam Proje Sayısı:</span>
-			<font color="" style="font-size: 18px; font-weight: bold"> <?php echo $pjs; ?></font><br>
-			<span style="font-weight: bold; color:brown">Toplam Teklif Sayısı:</span>
-			<font color="" style="font-size: 18px; font-weight: bold"> <?php echo $ojs; ?></font><br><br>
-			<span style="font-weight: bold; color:brown">Son Oluşturulan Teklif:</span><a href="index.php?p=offer&oid=<?php echo $ojsx["id"]; ?>">
-				<font color="" style="font-size: 16px; font-weight: bold"> <u>#<?php echo $ojsx["id"]; ?></font>
-			</a></u><br>
-			<span style="font-weight: bold; color:brown">Son Oluşturulan Proje:</span><a href="index.php?p=edit-project&pid=<?php echo $ojsp["id"]; ?>">
-				<font color="" style="font-size: 16px; font-weight: bold"> <u><?php echo $ojsp["ptitle"]; ?></font>
-			</a></u><br>
-
-		</h6><br> -->
 		<div class="pull-left">
 			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4><br>
 			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
 		</div>
 		<div class="form-group">
-			
+
 			<a href="index.php?p=view-sales-c&id=<?php echo $cc["id"]; ?>"><button class="btn btn-success" style="float:right">Ödemeleri Görüntüle</button></a>
 			<input type="submit" id="submitButton" value="Kaydet" class="float-right mr-2 btn btn-primary">
 		</div>
@@ -323,14 +311,11 @@ if (@$_GET["st"] == "newsuccess") {
 			<div class="col-sm-12 col-md-10"><input value="<?php echo $cc["vno"]; ?>" name="vno" type="text" class="form-control">
 			</div>
 		</div>
-		<div class="form-group">
-			<label>
-				<font color="red"></font>Notlar
-			</label>
-			<textarea name="cnotes" value="" placeholder="Müşteri hakkında yöneticilerin görebileceği bir not ekleyebilirsiniz." class="form-control"><?php echo $cc["cdesc"]; ?></textarea>
-		</div>
-		<div class="form-group">
-			<input type="submit" value="Müşteriyi Kaydet" class="form-control btn-outline-success">
+		<div class="form-group row">
+		<label class="col-sm-12 col-md-2 col-form-label"> Notlar :</label>
+			<div class="col-sm-12 col-md-10">
+				<textarea name="cnotes" value="" placeholder="Müşteri hakkında yöneticilerin görebileceği bir not ekleyebilirsiniz." class="form-control"><?php echo $cc["cdesc"]; ?></textarea>
+			</div>
 		</div>
 
 </div>
@@ -342,10 +327,6 @@ if (@$_GET["st"] == "newsuccess") {
 </form>
 
 
-
-</div>
-</div>
-</div>
 <!-- Input Validation End -->
 
 </div>

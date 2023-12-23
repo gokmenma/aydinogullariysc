@@ -74,9 +74,8 @@ if (@$_GET["st"] == "empties") {
             <p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
                 bırakmayın..<br></p>
         </div>
-        <div class="form-group">
-            <input type="submit" id="submitButton" value="Kaydet" class="float-right btn btn-primary">
-        </div>
+        <input type="submit" id="submitButton" value="Kaydet" class="float-right btn btn-primary">
+
     </div>
     <form enctype="multipart/form-data" action="" id="myForm" method="POST">
 
@@ -84,8 +83,13 @@ if (@$_GET["st"] == "empties") {
             <label class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> Ad-Soyad:
             </label>
-            <div class="col-sm-12 col-md-10">
+            <div class="col-sm-12 col-md-4">
                 <input required name="cname" type="text" class="form-control">
+            </div>
+            <label class="col-sm-12 col-md-2 col-form-label">
+                <font color="red">(*)</font> E-Posta:
+            </label>
+            <div class="col-sm-12 col-md-4"><input required name="cemail" type="text" class="form-control">
             </div>
         </div>
 
@@ -93,7 +97,7 @@ if (@$_GET["st"] == "empties") {
             <label class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> Grup:
             </label>
-            <div class="col-sm-12 col-md-10">
+            <div class="col-sm-12 col-md-4">
                 <select name="grp" class="form-control">
                     <?php $cek = $ac->prepare("SELECT * FROM cgroups WHERE statu = ?");
                     $cek->execute(array(1));
@@ -109,34 +113,34 @@ if (@$_GET["st"] == "empties") {
 
 
 
-        <div class="form-group row">
+        <!-- <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> E-Posta:
             </label>
-            <div class="col-sm-12 col-md-10"><input required name="cemail" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input required name="cemail" type="text" class="form-control">
             </div>
-        </div>
+        </div> -->
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">Şirket İsmi:</label>
-            <div class="col-sm-12 col-md-10"><input name="ccompany" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input name="ccompany" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">Sektör:</label>
-            <div class="col-sm-12 col-md-10"><input name="csector" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input name="csector" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label"> Adres:</label>
-            <div class="col-sm-12 col-md-10"><input name="caddress" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input name="caddress" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">Şehir:</label>
-            <div class="col-sm-12 col-md-10"><input name="ccity" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input name="ccity" type="text" class="form-control">
             </div>
         </div>
 
@@ -156,12 +160,12 @@ if (@$_GET["st"] == "empties") {
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label"> Yetkili Ad-Soyad:</label>
-            <div class="col-sm-12 col-md-10"><input name="yetkili" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input name="yetkili" type="text" class="form-control">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label"> Şirket Unvanı:</label>
-            <div class="col-sm-12 col-md-10"><input name="sunvan" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4"><input name="sunvan" type="text" class="form-control">
             </div>
         </div>
         <div class="form-group row">
@@ -191,8 +195,8 @@ if (@$_GET["st"] == "empties") {
 
 
 <script>
-    document.getElementById("submitButton").addEventListener('click',function(){
-        var form=document.getElementById('myForm');
+    document.getElementById("submitButton").addEventListener('click', function() {
+        var form = document.getElementById('myForm');
         form.submit();
     })
 </script>
