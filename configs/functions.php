@@ -216,7 +216,7 @@
 		} 
 	
 		if ($alertClass && $message) {
-			echo '<div class="alert alert-dismissible ' . $alertClass . '">
+			echo '<div id="myAlert" class="alert alert-dismissible ' . $alertClass . ' fade show">
 					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
 					<strong>' . ucfirst($firstLetter) . '!</strong> ' . $message . '
 				  </div>';

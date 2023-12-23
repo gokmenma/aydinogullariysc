@@ -132,7 +132,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	<script src="src/plugins/datatables/media/js/button/buttons.flash.js"></script>
 	<script src="src/plugins/datatables/media/js/button/pdfmake.min.js"></script>
 	<script src="src/plugins/datatables/media/js/button/vfs_fonts.js"></script>
-	<!-- buttons for Export datatable -->
+	<!--buttons for Export datatable -->
 
 	<script>
 		$('document').ready(function() {
@@ -157,7 +157,9 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 						"sNext": "Sonraki",
 						"sPrevious": "Önceki"
 					},
-					searchPlaceholder: "Arama"
+					searchPlaceholder: "Arama",
+					zeroRecords: 'Hiç kayıt bulunamadı!',
+					infoEmpty: ''
 
 				},
 			});
@@ -186,7 +188,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 				},
 				dom: 'Bfrtip',
 				buttons: [
-					'copy', 'csv', 'pdf', 'print'
+					'copy', 'csv', 'pdf', 'xls', 'print'
 				]
 			});
 			var table = $('.select-row').DataTable();
