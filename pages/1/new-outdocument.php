@@ -1,54 +1,29 @@
 <?php
 permcontrol("docoutadd");
-//define("MAXSX", set("max_sr"));
+define("MAXSX", set("max_sr"));
 
 if ($_POST) {
 
-    //if (!$_POST["cname"] || !$_POST["cemail"]) {
-      //  header("Location: index.php?p=new-customer&st=empties");
-        //exit;
-    //}
+    if (!$_POST["d_cname"] || !$_POST["d_cemail"]) {
+     header("Location: index.php?p=new-outdocument&st=empties");
+    exit;
+    }
 
-    $cname = @$_POST["cname"];
-    $cemail = @$_POST["cemail"];
-    $ccompany = @$_POST["ccompany"];
-    $csector = @$_POST["csector"];
-    $caddress = @$_POST["caddress"];
-    $ccity = @$_POST["ccity"];
-    $cnotes = @$_POST["cnotes"];
-    $cgsm = @$_POST["cgsm"];
-    $cgsm2 = @$_POST["cgsm2"];
-    $yetkiliadi = @$_POST["yetkili"];
-    $sunvan = @$_POST["sunvan"];
-    $vdaire = @$_POST["vdaire"];
-    $vno = @$_POST["vno"];
-    $pword = "abc";
-    $grp = @$_POST["grp"];
 
-    $regg = $ac->prepare("INSERT INTO customers SET
-	grp = ?,
-    name = ?,
-    email = ?,
-    company = ?,
-    sector = ?,
-    address = ?,
-    city = ?,
-    cdesc = ?,
-    gsm = ?,
-    gsm2 = ?,
-    yetkili = ?,
-    sunvan = ?,
-    vdaire = ?,
-    vno = ?,
-    reg_date = ?,
-    creativer = ?");
 
-    $asdfa = $regg->execute(array($grp, $cname, $cemail, $ccompany, $csector, $caddress, $ccity, $cnotes, $cgsm, $cgsm2, $yetkiliadi, $sunvan, $vdaire, $vno, TODAY, sesset("id")));
+    $d_cname = @$_POST["d_cname"];
 
-    $lidx = $ac->lastInsertId();
-    if ($asdfa) {
+    $regg = $ac->prepare("INSERT INTO documents SET 
+                                                    d_cname =  ?,
+                                                    createtime= ?,
+                                                    uid= ?");
 
-        header("Location: index.php?p=new-customer&st=newsuccess");
+    $isRecord = $regg->execute(array($d_cname, TODAY, sesset("id")));
+
+    //$lidx = $ac->lastInsertId();
+    if ($isRecord) {
+
+        header("Location: index.php?p=new-outdocument&st=newsuccess");
     } else {
     }
 }
@@ -56,7 +31,7 @@ if ($_POST) {
 if (@$_GET["st"] == "empties") {
     showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
 } elseif (@$_GET["st"] == "newsuccess") {
-    showAlert('success', 'Müşteri başarıyla eklendi!');
+    showAlert('success',  'kl Müşteri başarıyla eklendi!');
 } elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "name") {
     showAlert('alert', 'Aynı adda bir dosya bulunuyor, lütfen ismini değiştirerek projeyi tekrar oluşturmayı deneyin.');
 } elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "size") {
@@ -82,24 +57,24 @@ if (@$_GET["st"] == "empties") {
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">
-                <font color="red">(*)</font> Ad-Soyad:
+                <font color="red">(*)</font> Alıcı Adı :
             </label>
             <div class="col-sm-12 col-md-10">
-                <input required name="cname" type="text" class="form-control">
+                <input required name="d_cname" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">
-                <font color="red">(*)</font> Grup:
+                <font color="red">(*)</font> Firma Adı :
             </label>
             <div class="col-sm-12 col-md-10">
                 <select name="grp" class="form-control">
-                    <?php $cek = $ac->prepare("SELECT * FROM cgroups WHERE statu = ?");
-                    $cek->execute(array(1));
+                    <?php $cek = $ac->prepare("SELECT * FROM customers");
+                    $cek->execute();
                     while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
                     ?>
-                        <option value="<?php echo $dat["id"]; ?>"><?php echo $dat["title"]; ?></option>
+                        <option value="<?php echo $dat["id"]; ?>"><?php echo $dat["company"]; ?></option>
                     <?php
                     }
                     ?>
@@ -191,8 +166,8 @@ if (@$_GET["st"] == "empties") {
 
 
 <script>
-    document.getElementById("submitButton").addEventListener('click',function(){
-        var form=document.getElementById('myForm');
+    document.getElementById("submitButton").addEventListener('click', function() {
+        var form = document.getElementById('myForm');
         form.submit();
     })
 </script>
