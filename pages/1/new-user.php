@@ -62,153 +62,147 @@ if (@$_GET["st"] == "empties") {
 
 
 
-<div class="pd-ltr-20 xs-pd-20-10">
-	<div class="min-height-200px">
 
-		<!-- Default Basic Forms Start -->
-		<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-			<div class="clearfix">
-				<div class="pull-left">
-					<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
-					<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
-				</div>
+<!-- Default Basic Forms Start -->
+<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+	<div class="clearfix">
+		<div class="pull-left">
+			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
+			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
+		</div>
+		<div class="form-group">
+			<input type="submit" id="submitbutton" value="Kaydet" class="float-right btn btn-primary">
+		</div>
+	</div>
+	<form enctype="multipart/form-data" id="myform" action="" method="POST">
+		<div class="row">
+
+			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<input type="submit" id="submitbutton" value="Kaydet" class="float-right btn btn-primary">
+					<label>
+						<font color="red">(*)</font>Kimlik No
+					</label>
+					<input required type="text" id="utc" name="utc" class="form-control" maxlength="11">
 				</div>
 			</div>
-			<form enctype="multipart/form-data" id="myform" action="" method="POST">
-				<div class="row">
 
-					<div class="col-md-6 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font>Kimlik No
-							</label>
-							<input required type="text" id="utc" name="utc" class="form-control" maxlength="11">
-						</div>
-					</div>
-
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font> Ad:
-							</label>
-							<input required type="text" name="uname" class="form-control">
-						</div>
-					</div>
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font> Soyad:
-							</label>
-							<input required type="text" name="usurname" class="form-control">
-						</div>
-					</div>
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font> Ad:
+					</label>
+					<input required type="text" name="uname" class="form-control">
 				</div>
-				<div class="row">
-					<div class="col-md-6 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font> E-Posta:
-							</label>
-							<input required name="uemail" type="text" class="form-control">
-						</div>
-					</div>
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font> Kullanıcı Adı
-							</label>
-							<input required type="text" name="uusername" class="form-control">
-						</div>
-					</div>
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font> Parola:
-							</label>
-							<input required name="upassword" type="text" class="form-control">
-						</div>
-					</div>
-
+			</div>
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font> Soyad:
+					</label>
+					<input required type="text" name="usurname" class="form-control">
 				</div>
-				<div class="row">
-
-					<div class="col-md-6 col-sm-12">
-						<div class="form-group">
-							<label> Adres:</label>
-							<input name="uaddress" type="text" class="form-control">
-						</div>
-					</div>
-					<div class="col-md-6 col-sm-12">
-						<div class="form-group">
-							<label> Şehir:</label>
-							<input name="ucity" type="text" class="form-control">
-						</div>
-					</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font> E-Posta:
+					</label>
+					<input required name="uemail" type="text" class="form-control">
 				</div>
-
-
-				<div class="row">
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label> Telefon:</label>
-							<input name="ugsm" type="text" class="form-control">
-						</div>
-					</div>
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label> Telefon 2:</label>
-							<input name="ugsm2" type="text" class="form-control">
-						</div>
-					</div>
-					<div class="col-md-6 col-sm-12">
-						<div class="form-group">
-							<label>Doğum Tarihi</label>
-							<input name="udgmtarihi" class="form-control date-picker" placeholder="dd.mm.yyyy">
-						</div>
-					</div>
+			</div>
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font> Kullanıcı Adı
+					</label>
+					<input required type="text" name="uusername" class="form-control">
 				</div>
-				<div class="row">
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label>İşe Başlama Tarihi</label>
-							<input name="ugiristarihi" class="form-control date-picker" placeholder="dd.mm.yyyy">
-						</div>
-					</div>
-					<div class="col-md-3 col-sm-12">
-						<div class="form-group">
-							<label>İşten Çıkış Tarihi</label>
-							<input name="ucikistarihi" class="form-control date-picker" placeholder="dd.mm.yyyy">
-						</div>
-					</div>
+			</div>
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font> Parola:
+					</label>
+					<input required name="upassword" type="text" class="form-control">
+				</div>
+			</div>
 
-					<div class="col-md-6 col-sm-12">
-						<div class="form-group">
-							<label>
-								<font color="red">(*)</font> Pozisyon:
-							</label>
-							<select name="permission" class="custom-select col-12">
-								<?php
-								$pquery = $ac->prepare("SELECT * FROM perms ");
-								$pquery->execute();
-								while ($pm = $pquery->fetch(PDO::FETCH_ASSOC)) {
-								?>
+		</div>
+		<div class="row">
 
-									<option value="<?php echo $pm["id"]; ?>"><?php echo $pm["p_title"]; ?></option>
-								<?php } ?>
-
-							</select>
-						</div>
-					</div>
-
-				</div><br><br>
-			</form>
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label> Adres:</label>
+					<input name="uaddress" type="text" class="form-control">
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label> Şehir:</label>
+					<input name="ucity" type="text" class="form-control">
+				</div>
+			</div>
 		</div>
 
 
-	</div>
-</div>
+		<div class="row">
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label> Telefon:</label>
+					<input name="ugsm" type="text" class="form-control">
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label> Telefon 2:</label>
+					<input name="ugsm2" type="text" class="form-control">
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label>Doğum Tarihi</label>
+					<input name="udgmtarihi" class="form-control date-picker" placeholder="dd.mm.yyyy">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label>İşe Başlama Tarihi</label>
+					<input name="ugiristarihi" class="form-control date-picker" placeholder="dd.mm.yyyy">
+				</div>
+			</div>
+			<div class="col-md-3 col-sm-12">
+				<div class="form-group">
+					<label>İşten Çıkış Tarihi</label>
+					<input name="ucikistarihi" class="form-control date-picker" placeholder="dd.mm.yyyy">
+				</div>
+			</div>
+
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font> Pozisyon:
+					</label>
+					<select name="permission" class="custom-select col-12">
+						<?php
+						$pquery = $ac->prepare("SELECT * FROM perms ");
+						$pquery->execute();
+						while ($pm = $pquery->fetch(PDO::FETCH_ASSOC)) {
+						?>
+
+							<option value="<?php echo $pm["id"]; ?>"><?php echo $pm["p_title"]; ?></option>
+						<?php } ?>
+
+					</select>
+				</div>
+			</div>
+
+		</div><br><br>
+	</form>
+
 </div>
 <!-- Input Validation End -->
 
