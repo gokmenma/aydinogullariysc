@@ -24253,10 +24253,13 @@ p {
   padding: 20px;
 }
 
-.pd-ltr-20 {
-  padding: 20px 20px 0;
+.pd-ltr-20-10 {
+  padding: 20px 10px 0;
 }
 
+.pd-ltr-10 {
+  padding: 10px 10px 0;
+}
 .pd-30 {
   padding: 30px;
 }
@@ -24842,6 +24845,15 @@ textarea.form-control {
   color: #000;
 }
 
+.renk{
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  border: 1px solid #000;
+}
+.mavi{
+  background-color: #005cbf;
+}
 .bootstrap-select.btn-group .dropdown-menu.inner {
   display: block;
 }
@@ -25446,7 +25458,7 @@ textarea.form-control {
 	Login End
 ==============================================================*/
 .main-container {
-  padding: 70px 0 0px 250px;
+  padding: 45px 0 0px 250px;
   height: 100vh;
 }
 
@@ -25581,6 +25593,7 @@ textarea.form-control {
   border-radius: 100%;
   line-height: 50px;
   text-align: center;
+  padding :15px;
   font-size: 20px;
 }
 
@@ -27393,7 +27406,9 @@ textarea.form-control {
   .xs-mb-20 {
     margin-bottom: 20px;
   }
-
+  .xs-mb-10 {
+    margin-bottom: 10px;
+  }
   h1,
   .h1 {
     font-size: 2rem;

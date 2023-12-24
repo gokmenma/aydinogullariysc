@@ -55,15 +55,11 @@ if ($_POST) {
 
 if (@$_GET["st"] == "empties") {
     showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
+    
 } elseif (@$_GET["st"] == "newsuccess") {
-    showAlert('success', 'Müşteri başarıyla eklendi!');
-} elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "name") {
-    showAlert('alert', 'Aynı adda bir dosya bulunuyor, lütfen ismini değiştirerek projeyi tekrar oluşturmayı deneyin.');
-} elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "size") {
-    showAlert('alert', 'Yüklediğiniz dosyanın boyutu <b>3 MB</b>\'dan daha büyük olamaz. Proje oluşturulamadı, tekrar deneyin.');
-} elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "erno") {
-    showAlert('warning', 'Proje oluşturuldu ancak, dosya yüklenirken bir problem yaşandı.');
-}
+   showAlert('success', 'Müşteri başarıyla eklendi!');
+ 
+} 
 
 ?>
 <!-- Default Basic Forms Start -->
@@ -194,5 +190,5 @@ if (@$_GET["st"] == "empties") {
 </div>
 
 
-<script><?php include('include/app.js'); ?></script>
+<?php include 'include/app.js'; ?>
 <?php include 'include/footer.php'; ?>
