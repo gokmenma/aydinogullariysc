@@ -56,7 +56,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	} else {
 	?>
 		<div class="main-container">
-			<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="pd-ltr-10 xs-pd-10-10">
 				<div class="min-height-200px">
 					<!-- <div class="page-header">
 					<div class="row">

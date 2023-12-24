@@ -41,7 +41,7 @@
 								<span class="fa fa-gear"></span><span class="mtext">Servisler</span>
 							</a>
 							<ul class="submenu">
-							
+
 								<?php if (permtrue("servadd")) { ?><li><a href="index.php?p=new-service">Yeni Servis Oluştur</a></li><?php } ?>
 								<li><a href="index.php?p=all-services">Servisleri Görüntüle</a></li>
 
@@ -63,7 +63,7 @@
 					</li>
 					<li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
-							<span class="fa fa-arrow-right"></span><span class="mtext">Satış</span>
+							<span class="fa fa-shopping-cart"></span><span class="mtext">Satış</span>
 						</a>
 						<ul class="submenu">
 
@@ -77,7 +77,7 @@
 
 					<li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
-							<span class="fa fa-pencil"></span><span class="mtext">Müşteri Yönetimi</span>
+							<span class="fa fa-user-plus"></span><span class="mtext">Müşteri Yönetimi</span>
 						</a>
 						<ul class="submenu">
 
@@ -140,7 +140,7 @@
 					<?php if (permtrue("payview")) { ?>
 						<li class="dropdown">
 							<a href="javascript:;" class="dropdown-toggle">
-								<span class="fa fa-dollar"></span><span class="mtext">Ödemeler</span>
+								<span class="fa fa-credit-card"></span><span class="mtext">Ödemeler</span>
 							</a>
 							<ul class="submenu">
 
@@ -231,7 +231,7 @@
 					?>
 						<li class="dropdown">
 							<a href="javascript:;" class="dropdown-toggle">
-								<span class="fa fa-wpexplorer"></span><span class="mtext">Mail & SMS</span>
+								<span class="fa fa-envelope"></span><span class="mtext">Mail & SMS</span>
 							</a>
 							<ul class="submenu">
 
@@ -264,7 +264,7 @@
 
 					<li class="dropdown">
 						<a href="javascript:;" class="dropdown-toggle">
-							<span class="fa fa-clone"></span><span class="mtext">Ekip</span>
+							<span class="fa fa-user"></span><span class="mtext">Ekip</span>
 						</a>
 						<ul class="submenu">
 

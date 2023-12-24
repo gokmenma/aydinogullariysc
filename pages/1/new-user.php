@@ -186,7 +186,7 @@ if (@$_GET["st"] == "empties") {
 					<label>
 						<font color="red">(*)</font> Pozisyon:
 					</label>
-					<select name="permission" class="custom-select col-12">
+					<select name="permission" class="selectpicker col-12">
 						<?php
 						$pquery = $ac->prepare("SELECT * FROM perms ");
 						$pquery->execute();
@@ -207,10 +207,5 @@ if (@$_GET["st"] == "empties") {
 <!-- Input Validation End -->
 
 </div>
-<script>
-	document.getElementById("submitbutton").addEventListener("click", function() {
-		var form = document.getElementById("myform");
-		form.submit();
-	})
-</script>
+<?php include 'include/app.js'; ?>
 <?php include 'include/footer.php'; ?>

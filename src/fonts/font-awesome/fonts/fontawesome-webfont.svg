@@ -49,6 +49,10 @@ d="M224 112h448v1312h-448v-1312zM112 0v1536h672v-1536h-672z" />
  />
     <glyph glyph-name="notequal" unicode="&#x2260;" horiz-adv-x="1792" 
  />
+
+ <glyph glyph-name="user-group" unicode="&#xf0c0;" horiz-adv-x="1792" 
+ />
+ 
     <glyph glyph-name="glass" unicode="&#xf000;" horiz-adv-x="1792" 
 d="M1699 1350q0 -35 -43 -78l-632 -632v-768h320q26 0 45 -19t19 -45t-19 -45t-45 -19h-896q-26 0 -45 19t-19 45t19 45t45 19h320v768l-632 632q-43 43 -43 78q0 23 18 36.5t38 17.5t43 4h1408q23 0 43 -4t38 -17.5t18 -36.5z" />
     <glyph glyph-name="music" unicode="&#xf001;" 

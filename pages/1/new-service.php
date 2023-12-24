@@ -4,7 +4,7 @@ define("MAXSX", set("max_sr"));
 
 if ($_POST) {
 
-	if (!$_POST["Firma"] || !$_POST["Marka"] ) {
+	if (!$_POST["Firma"] || !$_POST["Marka"]) {
 		header("Location: index.php?p=new-service&st=empties");
 		exit;
 	}
@@ -46,10 +46,10 @@ if ($_POST) {
 									");
 
 	$isRecord = $regg->execute(array(
-									$Firma,$SubeAdresi,$Cihaz,
-									$Marka,$Model,$Kategori,
-									$BaslamaTarihi,$BitisTarihi
-								));
+		$Firma, $SubeAdresi, $Cihaz,
+		$Marka, $Model, $Kategori,
+		$BaslamaTarihi, $BitisTarihi
+	));
 
 	$lidx = $ac->lastInsertId();
 	if ($isRecord) {
@@ -138,6 +138,33 @@ if (@$_GET["st"] == "empties") {
 		</div>
 
 		<div class="form-group row">
+			<label class="col-sm-12 col-md-2 col-form-label">
+				<font color="red">(*)</font> Personel Adı:
+			</label>
+			<div class="col-sm-12 col-md-4">
+				<select name="Personel" class="form-control">
+					<?php $cek = $ac->prepare("SELECT * FROM users");
+					$cek->execute();
+					while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
+					?>
+						<option value="<?php echo $dat["id"]; ?>">
+							<?php echo $dat["name"] . " " . $dat["surname"]; ?>
+						</option>
+					<?php
+					}
+					?>
+				</select>
+			</div>
+
+
+
+			<label class="col-sm-12 col-md-2 col-form-label">Garanti Süresi Gün:</label>
+			<div class="col-sm-12 col-md-4">
+				<input name="GarantiSuresiGun" type="text" class="form-control">
+			</div>
+
+		</div>
+		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label"> Başlama Tarihi:</label>
 			<div class="col-sm-12 col-md-4">
 				<input name="BaslamaTarihi" type="text" class="form-control date-picker" placeholder="Başlama Tarihini giriniz!">
@@ -149,23 +176,7 @@ if (@$_GET["st"] == "empties") {
 		</div>
 
 
-		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">
-				<font color="red">(*)</font> Personel Adı:
-			</label>
-			<div class="col-sm-12 col-md-4">
-				<select name="Personel" class="form-control">
-					<?php $cek = $ac->prepare("SELECT * FROM users");
-					$cek->execute();
-					while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
-					?>
-						<option value="<?php echo $dat["id"]; ?>"><?php echo $dat["name"] . " " . $dat["surname"]; ?></option>
-					<?php
-					}
-					?>
-				</select>
-			</div>
-		</div>
+
 		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label">Şikayet Tanım:</label>
 			<div class="col-sm-12 col-md-4">
@@ -180,13 +191,7 @@ if (@$_GET["st"] == "empties") {
 
 		</div>
 
-		<div class="form-group row">
 
-			<label class="col-sm-12 col-md-2 col-form-label">Garanti Süresi Gün:</label>
-			<div class="col-sm-12 col-md-4">
-				<input name="GarantiSuresiGun" type="text" class="form-control">
-			</div>
-		</div>
 		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label">Ücret:</label>
 
@@ -220,7 +225,5 @@ if (@$_GET["st"] == "empties") {
 </div>
 
 
-<script>
-	<?php include('include/app.js'); ?>
-</script>
+<?php include('include/app.js'); ?>
 <?php include 'include/footer.php'; ?>
