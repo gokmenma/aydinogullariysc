@@ -8,13 +8,6 @@ permcontrol("seradd");
 if ($_POST) {
 
 
-	// if (empty($Adi) || empty($Turu)) {
-	// 	header("Location: index.php?p=new-product&st=empties");
-	// 	exit;
-	// }
-
-
-
 	$Adi = @$_POST["Adi"];
 	$Turu = @$_POST["Turu"];
 	$TedarikciID = @$_POST["TedarikciID"];
@@ -64,30 +57,17 @@ if ($_POST) {
 
 
 
-$insq = $ac->prepare("INSERT INTO products SET Adi = ? , 
+	$insq = $ac->prepare("INSERT INTO products SET Adi = ? , 
 												Turu = ? ,
 												StokKodu = ? , 
 												UrunGrubu = ? , 
 												Birimi = ? , 
 												OlusturmaTarihi = ?");
-	$insq->execute(array($Adi, $Turu,$StokKodu,$UrunGrubu,$Birimi, TODAY));
-	if ($insq) {
-		header("Location: index.php?p=new-product&st=newsuccess");
-	}
-}
+	$insq->execute(array($Adi, $Turu, $StokKodu, $UrunGrubu, $Birimi, TODAY));
+} ?>
 
 
-if (@$_GET["st"] == "empties") {
-	showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
-}
-if (@$_GET["st"] == "newsuccess") {
-	showAlert('success', 'Ürün Kaydedildi');
-} else if (@$_GET["st"] == "numericerror") {
-	showAlert('alert', 'Fiyat kısmına sadece rakamlardan oluşan değer girebilirsiniz.');
-}
-?>
-
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div id="maincontainer" class="pd-20 bg-white border-radius-4 box-shadow mb-30">
 	<div class="clearfix">
 		<div class="pull-left">
 			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
@@ -96,8 +76,10 @@ if (@$_GET["st"] == "newsuccess") {
 
 		<div class="form-group">
 			<div class="row float-right">
-				<input type="submit" id="submitButton" value="Kaydet" class="btn btn-primary mr-2">
+				<button class="btn btn-primary mr-2" onclick="requiredFieldControl()">Kaydet</button>
+
 				<a href="index.php?p=products">
+
 					<input type="submit" value="Ürünleri Listele" class="btn btn-success  mr-3">
 				</a>
 
@@ -133,8 +115,8 @@ if (@$_GET["st"] == "newsuccess") {
 			<div class="col-sm-12 col-md-4">
 				<select required name="Turu" class="custom-select col-12">
 					<option disabled selected="">Kategori Seçimi</option>
-					<option value="">Ürün</option>
-					<option value="">Hizmet</option>
+					<option value="Ürün">Ürün</option>
+					<option value="Hizmet">Hizmet</option>
 				</select>
 			</div>
 		</div>
@@ -260,18 +242,6 @@ if (@$_GET["st"] == "newsuccess") {
 		<hr>
 		<br>
 
-
-		<!-- = ? , 
- = ? , 
- = ? , 
- ExtraMaliyet= ? , 
- = ? , 
- = ? , 
- = ? , 
- = ? , 
- = ? , 
-OlusturmaTarihi = ? -->
-
 		<div class="form-group row">
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group row">
@@ -301,7 +271,7 @@ OlusturmaTarihi = ? -->
 						</label>
 					</div>
 					<div class="col-md-8 col-sm-12">
-						<input required name="RafKodu" value="" class="form-control date-picker" type="text">
+						<input required name="RafKodu" value="Raf Kodu" class="form-control date-picker" type="text">
 					</div>
 				</div>
 
@@ -368,5 +338,21 @@ OlusturmaTarihi = ? -->
 
 	</form>
 </div>
-<?php include('include/app.js'); ?>
+
+<script>
+	
+	function requiredFieldControl() {
+		$(document).ready(function() {
+			var StokKoduval = $('[name="StokKodu"]').val().trim();
+
+			if (StokKoduval == '') {
+				showMessage('Stok Kodu boş olamaz!', 'alert');
+			} else {
+				validateForm();
+			};
+		});
+	};
+</script>
+
+
 <?php include('include/footer.php'); ?>
