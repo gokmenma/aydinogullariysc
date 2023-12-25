@@ -70,19 +70,20 @@ if (@$_GET["st"] == "empties") {
             <p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
                 bırakmayın..<br></p>
         </div>
-        <input type="submit" id="submitButton" value="Kaydet" class="float-right btn btn-primary">
+        <input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary">
 
     </div>
     <form enctype="multipart/form-data" action="" id="myForm" method="POST">
 
         <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
+          
+            <label for="cname" class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> Ad-Soyad:
             </label>
             <div class="col-sm-12 col-md-4">
-                <input required name="cname" type="text" class="form-control">
+                <input required name="cname"  type="text" class="form-control">
             </div>
-            <label class="col-sm-12 col-md-2 col-form-label">
+            <label for="cemail" class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> E-Posta:
             </label>
             <div class="col-sm-12 col-md-4"><input required name="cemail" type="text" class="form-control">
@@ -90,7 +91,7 @@ if (@$_GET["st"] == "empties") {
         </div>
 
         <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
+            <label for="grp" class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> Grup:
             </label>
             <div class="col-sm-12 col-md-4">
@@ -189,6 +190,4 @@ if (@$_GET["st"] == "empties") {
     </form>
 </div>
 
-
-<?php include 'include/app.js'; ?>
 <?php include 'include/footer.php'; ?>

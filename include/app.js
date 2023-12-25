@@ -5,9 +5,16 @@ function validateForm() {
 
     for (var i = 0; i < elements.length; i++) {
         if (elements[i].hasAttribute('required') && elements[i].value.trim() === '') {
-            emptyFields.push(elements[i].name);
+            
+            var label = document.querySelector('label[for="' + elements[i].getAttribute('name') + '"]');
+            var labelText = label ? label.textContent.trim() : elements[i].getAttribute('name'); // Eğer label varsa içeriğini al, yoksa input'un name özelliğini kullan
+            // var labelText = label.textContent.trim(); // Label içeriğini alıyoruz
+            emptyFields.push(labelText);
+            // emptyFields.push(elements[i].name);
+            
         }
     }
+//console.log(emptyFields);
 
     if (emptyFields.length > 0) {
         var errorMessage = 'Lütfen zorunlu alanları doldurun: ' + emptyFields.join(', ');
@@ -21,11 +28,6 @@ function validateForm() {
 
 function SubmitForm() {
     var form = document.getElementById("myForm");
-
-    // Prevent default form submission behavior
-    event.preventDefault ? event.preventDefault() : (event.returnValue = false);
-    
-    // Show success message after a delay
     setTimeout(function() {
        
        form.submit(); // Formu gönder 

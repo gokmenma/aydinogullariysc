@@ -91,7 +91,7 @@
 			}
 ?> 
 
-<div class="main-container">
+<div class="main-container" id="content">
 		 <div class="pd-ltr-10 xs-pd-10-10"> 
 			<div class="row clearfix progress-box">
 				<div class="col-lg-3 col-md-6 col-sm-12 mb-30">

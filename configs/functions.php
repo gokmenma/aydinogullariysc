@@ -220,7 +220,7 @@
 		}
 
 		if ($alertClass && $message) {
-			
+
 			echo '<div id="myAlert" class="alert alert-dismissible ' . $alertClass . ' fade show">
 					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
 					<strong>' . ucfirst($firstLetter) . '!</strong> ' . $message . '
@@ -230,10 +230,10 @@
 
 
 
-	
+
 	function ParaBirimleri($name)
 	{
-		echo '<select required name='. $name .' class="custom-select col-12">
+		echo '<select required name=' . $name . ' class="custom-select col-12">
 					<option disabled >Para Birimi Seçiniz </option>
 					<option selected="" value="TL">TL</option>
 					<option value="Dolar">Dolar</option>
@@ -242,7 +242,7 @@
 	}
 	function KdvOranları($name)
 	{
-		echo '<select required name='.$name.' class="custom-select col-12">
+		echo '<select required name=' . $name . ' class="custom-select col-12">
 					<option disabled >Oran Seçiniz </option>
 					<option selected="" value="%20">%20</option>
 					<option value="%18">%18</option>
@@ -277,20 +277,21 @@
 
 		$columns = '';
 		$field = '';
-		$insquery ='';
+		$insquery = '';
 		while ($row = $ttquery->fetch(PDO::FETCH_ASSOC)) {
 			if ($row['COLUMN_NAME'] != "ID") {
 				$columns .= '$' . $row['COLUMN_NAME'] . ' = @$_POST["' . $row['COLUMN_NAME'] . '"];' . "\n";
 				$field .= $row['COLUMN_NAME'] . ' = ? , ' . "\n";
-				$insquery .= '$' . $row['COLUMN_NAME'] . ',' ;
+				$insquery .= '$' . $row['COLUMN_NAME'] . ',';
 			}
 		}
-		return $columns . "\n" . 
-					'$insq = $ac->prepare("INSERT INTO ' . $tableName . ' SET ' . $field . '");' . "\n" . 
-					'$insq->execute(array('. $insquery.'));';
+		return $columns . "\n" .
+			'$insq = $ac->prepare("INSERT INTO ' . $tableName . ' SET ' . $field . '");' . "\n" .
+			'$insq->execute(array(' . $insquery . '));';
 	}
 	//Kullanımı
-	//<?php echo getTableColumns('products');?> 
-
-
-	?>
+	// <!-- <script>
+    //  var columns = <?php echo json_encode(getTableColumns("products")); ?>;
+    <!-- //  console.log(columns); -->
+    <!-- // </script> ?>--> 
+ 
