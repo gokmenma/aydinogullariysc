@@ -25030,6 +25030,7 @@ textarea.form-control {
   border: 1px solid #0288D1;
   color: #0288D1;
   line-height: 30px;
+  padding: 7px;
   text-align: center;
   display: inline-block;
   vertical-align: middle;
@@ -25143,6 +25144,33 @@ textarea.form-control {
   text-align: center;
 
 
+}
+
+#preloader {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff; /* Preloader arkaplan rengi */
+  z-index: 9999; /* Diğer öğelerden üstte olacak */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader {
+  border: 4px solid #f3f3f3; /* Yüklenme animasyonu rengi */
+  border-top: 4px solid #3498db; /* Yüklenme animasyonu rengi */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite; /* Dönme animasyonu */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /*==============================================================
@@ -25462,6 +25490,7 @@ textarea.form-control {
 .main-container {
   padding: 45px 0 0px 250px;
   height: 100vh;
+  display: none;
 }
 
 .page-header .dropdown-menu {

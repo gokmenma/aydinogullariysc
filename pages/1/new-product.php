@@ -56,15 +56,33 @@ if ($_POST) {
 	// 												");
 
 
-
 	$insq = $ac->prepare("INSERT INTO products SET Adi = ? , 
-												Turu = ? ,
-												StokKodu = ? , 
-												UrunGrubu = ? , 
-												Birimi = ? , 
-												OlusturmaTarihi = ?");
-	$insq->execute(array($Adi, $Turu, $StokKodu, $UrunGrubu, $Birimi, TODAY));
-} ?>
+													Turu = ? , 
+													TedarikciID = ? , 
+													StokKodu = ? , 
+													UrunGrubu = ? , 
+													Birimi = ? , 
+													AlisFiyati = ? , 
+													AlisParaBirimi = ? , 
+													AlisKDV = ? , 
+													AlisIskonto = ? , 
+													SatisFiyati = ? , 
+													SatisParaBirimi = ? , 
+													SatisKDV = ? , 
+													SatisIskonto = ? , 
+													ExtraMaliyet = ? , 
+													Barkod = ? , 
+													Teslimat = ? , 
+													RafKodu = ? , 
+													MinStok = ? , 
+													Aciklama = ? , 
+													Durum = ? , 
+													OlusturmaTarihi = ?
+													");
+	$insq->execute(array($Adi,$Turu,$TedarikciID,$StokKodu,$UrunGrubu,$Birimi,$AlisFiyati,$AlisParaBirimi,$AlisKDV,$AlisIskonto,$SatisFiyati,$SatisParaBirimi,$SatisKDV,$SatisIskonto,$ExtraMaliyet,$Barkod,$Teslimat,$RafKodu,$MinStok,$Aciklama,$Durum,TODAY));
+	
+}
+?>
 
 
 <div id="maincontainer" class="pd-20 bg-white border-radius-4 box-shadow mb-30">
@@ -149,8 +167,9 @@ if ($_POST) {
 				</label>
 			</div>
 			<div class="col-md-4 col-sm-12">
-				<select name="TedarikciID" class="form-control">
+				<select required name="TedarikciID" class="form-control">
 					<option disabled selected value="">Tedarikçiyi seçiniz!</option>
+					<option value="1">Ahmet Şansal</option>
 				</select>
 			</div>
 
@@ -284,7 +303,7 @@ if ($_POST) {
 				</label>
 			</div>
 			<div class="col-md-4 col-sm-12">
-				<textarea required name="Aciklama" value="" class="form-control" type="textarea">	</textarea>
+				<textarea name="Aciklama" value="" class="form-control" type="textarea">	</textarea>
 			</div>
 
 		</div>
@@ -339,8 +358,8 @@ if ($_POST) {
 	</form>
 </div>
 
+
 <script>
-	
 	function requiredFieldControl() {
 		$(document).ready(function() {
 			var StokKoduval = $('[name="StokKodu"]').val().trim();
