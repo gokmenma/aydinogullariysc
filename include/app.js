@@ -1,17 +1,75 @@
-<script>
-    document.getElementById("submitButton").addEventListener("click",function(){
-		var form=document.getElementById("myForm");
-    form.submit();
-	})
+function validateForm() {
+    var form = document.getElementById('myForm');
+    var elements = form.elements;
+    var emptyFields = [];
 
-    $(document).ready(function(){
+    for (var i = 0; i < elements.length; i++) {
+        if (elements[i].hasAttribute('required') && elements[i].value.trim() === '') {
+            emptyFields.push(elements[i].name);
+        }
+    }
+
+    if (emptyFields.length > 0) {
+        var errorMessage = 'Lütfen zorunlu alanları doldurun: ' + emptyFields.join(', ');
+        showMessage(errorMessage, 'alert');
+    } else {
+       
+        SubmitForm();
+
+    }
+}
+
+function SubmitForm() {
+    var form = document.getElementById("myForm");
+
+    // Prevent default form submission behavior
+    event.preventDefault ? event.preventDefault() : (event.returnValue = false);
+    
+    // Show success message after a delay
+    setTimeout(function() {
+       
+       form.submit(); // Formu gönder 
+    }, 2000); // 2000 milisaniye (2 saniye) sonra göster
+    showMessage("İşlem Başarı ile tamamlandı!", "success"); // Mesajı göster
+    
+}
+
+function showMessage(message, type) {
+    var alertClass = '';
+    var firstLetter = '';
+
+    if (type === 'success') {
+        alertClass = 'alert-success';
+        firstLetter = "Başarılı!";
+    } else if (type === 'alert') {
+        alertClass = 'alert-danger';
+        firstLetter = "Uyarı!";
+    } else if (type === 'error') {
+        alertClass = 'alert-warning';
+        firstLetter = "Hata";
+    } else if (type === 'info') {
+        alertClass = 'alert-info';
+        firstLetter = "Bilgi";
+    }
+
+    if (alertClass && message) {
+        var alertMessage = $('<div class="message alert ' + alertClass + ' alert-dismissible fade show">' +
+            '<strong>' + firstLetter + '</strong> ' + message +
+            '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+            '</div>');
+
+        $('#maincontainer').before(alertMessage);
+
         window.setTimeout(function () {
-            $("#myAlert").fadeTo(500, 0).slideUp(500, function () {
+            alertMessage.fadeTo(500, 0).slideUp(500, function () {
                 $(this).remove();
-
             });
         }, 3000);
-       
-       
-    });
-</script>
+    }
+}
+
+
+
+
+
+

@@ -220,6 +220,7 @@
 		}
 
 		if ($alertClass && $message) {
+			
 			echo '<div id="myAlert" class="alert alert-dismissible ' . $alertClass . ' fade show">
 					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
 					<strong>' . ucfirst($firstLetter) . '!</strong> ' . $message . '
@@ -227,6 +228,9 @@
 		};
 	}
 
+
+
+	
 	function ParaBirimleri($name)
 	{
 		echo '<select required name='. $name .' class="custom-select col-12">

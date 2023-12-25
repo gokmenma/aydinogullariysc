@@ -41,6 +41,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+	
 
 </head>
 
@@ -55,9 +56,9 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	if ($plink == "home") {
 	} else {
 	?>
-		<div class="main-container">
-			<div class="pd-ltr-10 xs-pd-10-10">
-				<div class="min-height-200px">
+		<div  class="main-container">
+			<div id="maincontainer" class="pd-ltr-10 xs-pd-10-10">
+				<div  class="min-height-200px">
 					<!-- <div class="page-header">
 					<div class="row">
 						<div class="col-md-12 col-sm-12">
@@ -109,7 +110,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 				}
 	?>
 	<?php include 'include/script.php'; ?>
-
+	<script src="include/app.js"></script>		
 	<script src="src/plugins/datatables/media/js/button/dataTables.buttons.js"></script>
 	<script src="src/plugins/datatables/media/js/button/buttons.bootstrap4.js"></script>
 	<script src="src/plugins/datatables/media/js/button/buttons.print.js"></script>
