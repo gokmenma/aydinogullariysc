@@ -49,7 +49,7 @@ if ($_POST) {
 
 	if ($regg) {
 
-		header("Location:index.php?p=all-users&st=newsuccess");
+		header("Location:index.php?p=all-users&st=newsuccess"); 
 	} else {
 		//header("Location: index.php?p=all-customers&st=newerror&code=acmd008");
 	}
@@ -71,7 +71,8 @@ if (@$_GET["st"] == "empties") {
 			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
 		</div>
 		<div class="form-group">
-			<input type="submit" id="submitbutton" value="Kaydet" class="float-right btn btn-primary">
+			
+			<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary">
 		</div>
 	</div>
 	<form enctype="multipart/form-data" id="myform" action="" method="POST">
@@ -207,5 +208,4 @@ if (@$_GET["st"] == "empties") {
 <!-- Input Validation End -->
 
 </div>
-<?php include 'include/app.js'; ?>
 <?php include 'include/footer.php'; ?>

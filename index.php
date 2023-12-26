@@ -33,33 +33,38 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 <html>
 
 <head>
-	<link href="https://cdn.datatables.net/v/bs5/dt-1.13.8/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.11.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.css" rel="stylesheet">
+	<!-- <link href="https://cdn.datatables.net/v/bs5/dt-1.13.8/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.11.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.css" rel="stylesheet"> -->
 
 
 	<!-- <link rel="stylesheet" type="text/css" href="src/plugins/switchery/dist/switchery.css"> -->
-	<!-- <?php include 'include/head.php'; ?>
+	<?php include 'include/head.php'; ?>
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script> -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
 
 </head>
 
-	<body>
-		<div id="preloader">
-			<div class="loader"></div>
-		</div>
+<body>
+	<div id="preloader">
+		<div class="loader"></div>
+    </div>
+	<!-- <div id="preloader">
+		<div class="triple-spinner"></div>
+	</div> -->
 
-		<?php include 'include/header.php'; ?>
-		<?php include 'include/sidebar.php'; ?>
-		<?php
-		if (sesset("permission") != $_SESSION["perm"]) {
-			header("Location: logout.php");
-			exit;
-		}
-		if ($plink == "home") {
-		} else {
-		?>
+
+
+	<?php include 'include/header.php'; ?>
+	<?php include 'include/sidebar.php'; ?>
+	<?php
+	if (sesset("permission") != $_SESSION["perm"]) {
+		header("Location: logout.php");
+		exit;
+	}
+	if ($plink == "home") {
+	} else {
+	?>
 		<div class="main-container" id="content">
 			<div id="maincontainer" class="pd-ltr-10 xs-pd-10-10">
 				<div class="min-height-200px">
@@ -109,23 +114,23 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 				</div>
 			</div>
 		</div>
-		<?php
+	<?php
 
 				}
-		?>
-		<?php include 'include/script.php'; ?>
+	?>
+	<?php include 'include/script.php'; ?>
 	<script src="include/app.js"></script>
 
 	<script>
-    // Sayfa yüklendiğinde içeriği göster, preloader'ı gizle
-    window.addEventListener('load', function () {
-      var preloader = document.getElementById('preloader');
-      var content = document.getElementById('content');
+		// Sayfa yüklendiğinde içeriği göster, preloader'ı gizle
+		window.addEventListener('load', function() {
+			var preloader = document.getElementById('preloader');
+			var content = document.getElementById('content');
 
-      preloader.style.display = 'none';
-      content.style.display = 'block';
-    });
-  </script>
+			preloader.style.display = 'none';
+			content.style.display = 'block';
+		});
+	</script>
 	<script src="https://cdn.datatables.net/v/bs5/dt-1.13.8/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.11.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.js"></script>
 	<!-- <script src="src/plugins/datatables/media/js/button/dataTables.buttons.js"></script>
 	<script src="src/plugins/datatables/media/js/button/buttons.bootstrap4.js"></script>

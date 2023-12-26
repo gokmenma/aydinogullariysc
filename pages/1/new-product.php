@@ -31,31 +31,6 @@ if ($_POST) {
 	$Durum = @$_POST["Durum"];
 
 
-	// $insq = $ac->prepare("INSERT INTO products SET Adi = ? , 
-	// 												Turu = ? , 
-	// 												TedarikciID = ? , 
-	// 												StokKodu = ? , 
-	// 												UrunGrubu = ? , 
-	// 												Birimi = ? , 
-	// 												AlisFiyati = ? , 
-	// 												AlisParaBirimi = ? , 
-	// 												AlisKDV = ? , 
-	// 												AlisIskonto = ? , 
-	// 												SatisFiyati = ? , 
-	// 												SatisParaBirimi = ? , 
-	// 												SatisKDV = ? , 
-	// 												SatisIskonto = ? , 
-	// 												ExtraMaliyet = ? , 
-	// 												Barkod = ? , 
-	// 												Teslimat = ? , 
-	// 												RafKodu = ? , 
-	// 												MinStok = ? , 
-	// 												Aciklama = ? , 
-	// 												Durum = ? , 
-	// 												OlusturmaTarihi = ? 
-	// 												");
-
-
 	$insq = $ac->prepare("INSERT INTO products SET Adi = ? , 
 													Turu = ? , 
 													TedarikciID = ? , 
