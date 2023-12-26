@@ -5,22 +5,23 @@ function validateForm() {
 
     for (var i = 0; i < elements.length; i++) {
         if (elements[i].hasAttribute('required') && elements[i].value.trim() === '') {
-            
+
             var label = document.querySelector('label[for="' + elements[i].getAttribute('name') + '"]');
-            var labelText = label ? label.textContent.trim() : elements[i].getAttribute('name'); // Eğer label varsa içeriğini al, yoksa input'un name özelliğini kullan
+            var labelText = label ? label.textContent.trim().replace(/[:\(\*\)]/g, '') : elements[i].getAttribute('name');
+            // var labelText = label ? label.textContent.trim() : elements[i].getAttribute('name'); // Eğer label varsa içeriğini al, yoksa input'un name özelliğini kullan
             // var labelText = label.textContent.trim(); // Label içeriğini alıyoruz
             emptyFields.push(labelText);
             // emptyFields.push(elements[i].name);
-            
+
         }
     }
-//console.log(emptyFields);
+    //console.log(emptyFields);
 
     if (emptyFields.length > 0) {
         var errorMessage = 'Lütfen zorunlu alanları doldurun: ' + emptyFields.join(', ');
         showMessage(errorMessage, 'alert');
     } else {
-       
+
         SubmitForm();
 
     }
@@ -28,12 +29,12 @@ function validateForm() {
 
 function SubmitForm() {
     var form = document.getElementById("myForm");
-    setTimeout(function() {
-       
-       form.submit(); // Formu gönder 
+    setTimeout(function () {
+
+        form.submit(); // Formu gönder 
     }, 2000); // 2000 milisaniye (2 saniye) sonra göster
     showMessage("İşlem Başarı ile tamamlandı!", "success"); // Mesajı göster
-    
+
 }
 
 function showMessage(message, type) {
@@ -68,6 +69,53 @@ function showMessage(message, type) {
             });
         }, 3000);
     }
+}
+
+
+function deleteRecord(msg, ID) {
+    console.log(ID);
+    Swal.fire({
+        title: "Emin misiniz?",
+        text: msg,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Evet,Sil!",
+        cancelButtonText: "Vazgeç!"
+
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, trigger AJAX request to delete product
+            $.ajax({
+                type: "POST",
+                url: "index.php?p=all-services&mode=delete&code=04md177&reg=true&md=active&id=" + ID, // PHP script for deletion
+                data: {
+                    id: ID
+                },
+                success: function (response) {
+                    // Handle success response (optional)
+                    Swal.fire({
+                        title: "Başarılı!",
+                        text: "Servis Başarılı ile silindi!",
+                        icon: "success"
+                    }).then(() => {
+                        // Redirect to products page
+                        window.location.href = "index.php?p=all-services";
+                    });
+                },
+                error: function (xhr, status, error) {
+                    // Handle error if deletion fails (optional)
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        title: "Hata!",
+                        text: "Bir şeyler ters gitti!",
+                        icon: "error"
+                    });
+                }
+            });
+        }
+    });
 }
 
 

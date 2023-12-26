@@ -87,7 +87,7 @@ body {
   grid-template-rows: auto 1fr auto;
   /* Footer'ı sabit tutmak için grid kullanımı */
   min-height: 100vh;
- 
+
 }
 
 footer {
@@ -2581,9 +2581,12 @@ select.form-control-lg:not([size]):not([multiple]),
   font-size: 80%;
   color: #dc3545;
 }
-.message{
+
+.message {
   margin: 10px;
+
 }
+
 .invalid-tooltip {
   position: absolute;
   top: 100%;
@@ -5471,7 +5474,7 @@ tbody.collapse.show {
 .alert {
   position: relative;
   padding: 0.75rem 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: 3px;
   border: 1px solid transparent;
   border-radius: 0.25rem;
 }
@@ -21613,7 +21616,8 @@ ul.wysihtml5-toolbar .fa {
   border-radius: 4px;
   -webkit-box-sizing: content-box;
   box-sizing: content-box;
-  font-family: Tahoma, sans-serif;
+  /* font-family: Tahoma, sans-serif; */
+  font-family: var(--font-family-sans-serif);
   font-size: 14px;
   color: #4a4a4a;
   width: 250px;
@@ -22025,7 +22029,8 @@ ul.wysihtml5-toolbar .fa {
 .datepicker--time-current-minutes {
   line-height: 1;
   font-size: 19px;
-  font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+  /* font-family:  "Century Gothic", CenturyGothic, AppleGothic, sans-serif; */
+  font-family: var(--font-family-sans-serif);
   position: relative;
   z-index: 1;
 }
@@ -24260,8 +24265,9 @@ p {
 }
 
 .pd-ltr-10 {
-  padding: 10px 10px 0;
+  padding: 10px;
 }
+
 .pd-30 {
   padding: 30px;
 }
@@ -24847,15 +24853,17 @@ textarea.form-control {
   color: #000;
 }
 
-.renk{
+.renk {
   width: 20px;
   height: 20px;
   margin-right: 5px;
   border: 1px solid #000;
 }
-.mavi{
+
+.mavi {
   background-color: #005cbf;
 }
+
 .bootstrap-select.btn-group .dropdown-menu.inner {
   display: block;
 }
@@ -25030,7 +25038,6 @@ textarea.form-control {
   border: 1px solid #0288D1;
   color: #0288D1;
   line-height: 30px;
-  padding: 7px;
   text-align: center;
   display: inline-block;
   vertical-align: middle;
@@ -25146,32 +25153,87 @@ textarea.form-control {
 
 }
 
-#preloader {
+ #preloader {
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  background-color: #fff; /* Preloader arkaplan rengi */
-  z-index: 9999; /* Diğer öğelerden üstte olacak */
+  background-color: #fff; 
+  z-index: 9999; 
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .loader {
-  border: 4px solid #f3f3f3; /* Yüklenme animasyonu rengi */
-  border-top: 4px solid #3498db; /* Yüklenme animasyonu rengi */
+  border: 4px solid #f3f3f3; 
+  border-top: 4px solid #3498db;  
   border-radius: 50%;
   width: 50px;
   height: 50px;
-  animation: spin 2s linear infinite; /* Dönme animasyonu */
+  animation: spin 2s linear infinite; 
+}
+
+/* @keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}   */
+
+
+
+
+/* TRIPLE SPINNER */
+.triple-spinner {
+  display: block;
+  position: relative;
+  width: 125px;
+  height: 125px;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top: 4px solid #FF5722;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  
+}
+
+.triple-spinner::before,
+.triple-spinner::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 4px solid transparent;
+}
+.triple-spinner::before {
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border-top-color: #FF9800;
+  -webkit-animation: spin 3s linear infinite;
+  animation: spin 3.5s linear infinite;
+}
+.triple-spinner::after {
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border-top-color: #FFC107;
+  -webkit-animation: spin 1.5s linear infinite;
+  animation: spin 1.75s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
+
 
 /*==============================================================
 	Footer End
@@ -25488,7 +25550,7 @@ textarea.form-control {
 	Login End
 ==============================================================*/
 .main-container {
-  padding: 45px 0 0px 250px;
+  padding: 70px 0 0px 250px;
   height: 100vh;
   display: none;
 }
@@ -25624,7 +25686,6 @@ textarea.form-control {
   border-radius: 100%;
   line-height: 50px;
   text-align: center;
-  padding :15px;
   font-size: 20px;
 }
 
@@ -27430,16 +27491,18 @@ textarea.form-control {
     background-size: 43%;
   }
 
-  .xs-pd-20-10 {
-    padding: 20px 10px;
+  .xs-pd-10-10 {
+    padding: 10px 10px;
   }
 
   .xs-mb-20 {
     margin-bottom: 20px;
   }
+
   .xs-mb-10 {
     margin-bottom: 10px;
   }
+
   h1,
   .h1 {
     font-size: 2rem;

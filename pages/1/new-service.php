@@ -52,18 +52,14 @@ if ($_POST) {
 	));
 
 	$lidx = $ac->lastInsertId();
-	if ($isRecord) {
-
-		header("Location: index.php?p=new-service&st=newsuccess");
-	} else {
-	}
 }
 
-if (@$_GET["st"] == "empties") {
-	showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
-} elseif (@$_GET["st"] == "newsuccess") {
-	showAlert('success', 'Servis kaydı başarıyla eklendi!');
-} ?>
+// if (@$_GET["st"] == "empties") {
+// 	showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
+// } elseif (@$_GET["st"] == "newsuccess") {
+// 	showAlert('success', 'Servis kaydı başarıyla eklendi!');
+// } 
+?>
 <!-- Default Basic Forms Start -->
 <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
 	<div class="clearfix">
@@ -72,19 +68,22 @@ if (@$_GET["st"] == "empties") {
 			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
 				bırakmayın..<br></p>
 		</div>
-		<input type="submit" id="submitButton" value="Kaydet" class="float-right btn btn-primary">
+		<a href="index.php?p=all-services">
+			<input type="submit" value="Servisleri Listele" class="btn btn-success float-right">
+		</a>
+		<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary mr-2">
 
 	</div>
 	<form enctype="multipart/form-data" action="" id="myForm" method="POST">
 
 		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">
+			<label for="Firma" class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Firma Adı:
 			</label>
 			<div class="col-sm-12 col-md-4">
 				<input required name="Firma" type="text" class="form-control">
 			</div>
-			<label class="col-sm-12 col-md-2 col-form-label">
+			<label for="SubeAdresi" class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Şube Adresi :
 			</label>
 			<div class="col-sm-12 col-md-4"><input required name="SubeAdresi" type="text" class="form-control">
@@ -92,7 +91,7 @@ if (@$_GET["st"] == "empties") {
 		</div>
 
 		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">
+			<label for="Cihaz" class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Ürün Adı:
 			</label>
 			<div class="col-sm-12 col-md-4">
@@ -116,7 +115,7 @@ if (@$_GET["st"] == "empties") {
 
 
 		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">
+			<label for="Marka" class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Marka :
 			</label>
 			<div class="col-sm-12 col-md-4"><input required name="Marka" type="text" class="form-control">
@@ -138,7 +137,7 @@ if (@$_GET["st"] == "empties") {
 		</div>
 
 		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">
+			<label for="Personel" class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Personel Adı:
 			</label>
 			<div class="col-sm-12 col-md-4">
@@ -165,9 +164,11 @@ if (@$_GET["st"] == "empties") {
 
 		</div>
 		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label"> Başlama Tarihi:</label>
+			<label for="BaslamaTarihi" class="col-sm-12 col-md-2 col-form-label">
+				<font color="red">(*)</font>Başlama Tarihi:
+			</label>
 			<div class="col-sm-12 col-md-4">
-				<input name="BaslamaTarihi" type="text" class="form-control date-picker" placeholder="Başlama Tarihini giriniz!">
+				<input required name="BaslamaTarihi" type="text" class="form-control date-picker" placeholder="Başlama Tarihini giriniz!">
 			</div>
 			<label class="col-sm-12 col-md-2 col-form-label"> Bitiş Tarihi:</label>
 			<div class="col-sm-12 col-md-4">
@@ -217,13 +218,6 @@ if (@$_GET["st"] == "empties") {
 				<input name="Durum" type="text" class="form-control">
 			</div>
 		</div>
-
-
-
-
 	</form>
 </div>
-
-
-<?php include('include/app.js'); ?>
 <?php include 'include/footer.php'; ?>

@@ -289,9 +289,5 @@
 			'$insq = $ac->prepare("INSERT INTO ' . $tableName . ' SET ' . $field . '");' . "\n" .
 			'$insq->execute(array(' . $insquery . '));';
 	}
-	//Kullanımı
-	// <!-- <script>
-    //  var columns = <?php echo json_encode(getTableColumns("products")); ?>;
-    <!-- //  console.log(columns); -->
-    <!-- // </script> ?>--> 
+
  

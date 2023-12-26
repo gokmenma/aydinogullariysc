@@ -46,11 +46,7 @@ if ($_POST) {
     $asdfa = $regg->execute(array($grp, $cname, $cemail, $ccompany, $csector, $caddress, $ccity, $cnotes, $cgsm, $cgsm2, $yetkiliadi, $sunvan, $vdaire, $vno, TODAY, sesset("id")));
 
     $lidx = $ac->lastInsertId();
-    if ($asdfa) {
 
-        header("Location: index.php?p=new-customer&st=newsuccess");
-    } else {
-    }
 }
 
 if (@$_GET["st"] == "empties") {
