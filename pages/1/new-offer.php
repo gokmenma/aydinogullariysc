@@ -288,7 +288,7 @@ if (@$_GET["st"] == "empties") {
 						<font color="red">(*)</font>Şirket:
 					</label>
 					<div class="col-sm-12 col-md-10">
-						<input disabled class="form-control" value="<?php echo set("company_name"); ?>" type="email">
+						<input disabled class="form-control" value="<?php echo set("company_name"); ?>" type="text">
 					</div>
 				</div><br>
 

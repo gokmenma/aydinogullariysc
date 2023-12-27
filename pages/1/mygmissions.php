@@ -1,12 +1,12 @@
  <?php
 
-permcontrol("misadd");
-	$nid = @$_GET["nid"];
+permcontrol("misdelete");
+$nid = @$_GET["nid"];
 
-if(@$_GET["mid"] && @$_GET["types"] == "delete"){
+if(@$_GET["id"] && @$_GET["mode"] == "delete"){
 
   $six = $ac->prepare("UPDATE missions SET deleted = ? WHERE creativer = ? AND id = ? ");
-  $six->execute(array("yes",sesset("id"),$_GET["mid"]));
+  $six->execute(array("yes",sesset("id"),$_GET["id"]));
   header("Location: index.php?p=mygmissions&delete=true");
 }
 
@@ -94,10 +94,10 @@ if(@$_GET["mid"] && @$_GET["types"] == "delete"){
       <td <?php echo $frk <= 1 && $as["statu"] == 0 ? "style='color:red;'" : ""; ?>><?php echo $as["statu"] == 1 ? "<s>" : ""; ?><?php echo $as["lastdate"];?></td>
       
       <td>&nbsp;&nbsp;  
-      	<?php?>
+      	
       		<a href="index.php?p=view-mission&mid=<?php echo $as["id"];?>"><span class="badge badge-info">Görüntüle</span></a>
-          <a onClick="return confirm('Silmek istediginize emin misiniz?')" href="index.php?p=mygmissions&mid=<?php echo $as["id"];?>&types=delete"><span class="badge badge-danger">Sil</span></a>
-
+          <a href="#" onclick="deleteRecord('Görev silinecektir!.Devam etmek istiyor musunuz?','<?php echo $as['id'];?>','mygmissions')"><span class="badge badge-danger">Sil</span></a>
+         
       
 		
       </td>

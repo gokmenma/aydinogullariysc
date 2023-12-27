@@ -67,7 +67,7 @@
       <td scope="row"><?php echo $kx; ?></td>
       <td><?php echo $px["p_title"]; ?></td>
       <td><?php echo $px["cadd"] ? "Müşteri ekle, " : ""; ?><?php echo $px["cedit"] ? "Müşteri düzenle, " : ""; ?><?php echo $px["cdelete"] ? "Müşteri sil, " : ""; ?><?php echo $px["sadd"] ? "Satış oluştur, " : ""; ?><?php echo $px["sedit"] ? "Satış Düzenle, " : ""; ?><?php echo $px["sdelete"] ? "Satış sil... " : "..."; ?></td>
-      <td> <a href="index.php?p=edit-perm&reg=true&md=update&pid=<?php echo $px["id"]; ?>"><span class="badge badge-info">Düzenle</span></a>
+      <td> <a href="index.php?p=edit-perm&reg=true&md=update&id=<?php echo $px["id"]; ?>"><span class="badge badge-info">Düzenle</span></a>
 
       	&nbsp;&nbsp; <a onClick="return confirm('Bu yetkiyi silmenizle birlikte, bu yetkiye sahip tüm kullanıcıların hesapları dondurulacaktır. Üye düzenleme sayfasından tekrar aktifleştirebilirsiniz.')"href="index.php?p=permission-settings&mode=delete&pid=<?php echo $px["id"]; ?>"><span class="badge badge-danger">Sil</span></a></td></tr>
 <?php $kx++;

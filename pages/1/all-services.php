@@ -68,7 +68,7 @@ if ($ID && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 						&nbsp;&nbsp;
 
 						<!-- <?php if (permtrue("serdelete")) { ?><a onClick="return confirm('<?php echo $as["Adi"]; ?> isimli ürün/hizmeti sistemden kaldırmak istediğinize emin misiniz?')" href="index.php?p=products&mode=delete&code=04md177&reg=true&md=active&pid=<?php echo $as["id"]; ?>"><span class="badge badge-danger">Sil</span></a><?php } ?></td> -->
-						<a href="#" onClick="deleteRecord('<?php echo $as["Firma"]; ?>',<?php echo $as["id"]; ?>)"><span class="badge badge-danger">Sil</span></a>
+						<a href="#" onClick="deleteRecord('<?php echo $as['Firma']; ?>','<?php echo $as['id']; ?>','all-services')"><span class="badge badge-danger">Sil</span></a>
 
 				</tr>
 			<?php
@@ -85,61 +85,4 @@ if ($ID && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
 
-<script>
-function deleteRecord(msg,ID){
-	var pLink="all-services";
-	deleteRecord()
-}
 
-</script>
-
-
-
-
-<script>
-	function deleteRecord(msg, ID) {
-		console.log(ID);
-		Swal.fire({
-			title: "Emin misiniz?",
-			text: msg,
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#3085d6",
-			cancelButtonColor: "#d33",
-			confirmButtonText: "Evet,Sil!",
-			cancelButtonText: "Vazgeç!"
-
-		}).then((result) => {
-			if (result.isConfirmed) {
-				// If confirmed, trigger AJAX request to delete product
-				$.ajax({
-					type: "POST",
-					url: "index.php?p=" + +  "&mode=delete&code=04md177&reg=true&md=active&id=" + ID, // PHP script for deletion
-					data: {
-						id: ID
-					},
-					success: function(response) {
-						// Handle success response (optional)
-						Swal.fire({
-							title: "Başarılı!",
-							text: "Servis Başarılı ile silindi!",
-							icon: "success"
-						}).then(() => {
-							// Redirect to products page
-							window.location.href = "index.php?p=all-services";
-						});
-					},
-					error: function(xhr, status, error) {
-						// Handle error if deletion fails (optional)
-						console.error(xhr.responseText);
-						Swal.fire({
-							title: "Hata!",
-							text: "Bir şeyler ters gitti!",
-							icon: "error"
-						});
-					}
-				});
-			}
-		});
-	}
-</script>

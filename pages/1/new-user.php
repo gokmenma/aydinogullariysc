@@ -49,7 +49,7 @@ if ($_POST) {
 
 	if ($regg) {
 
-		header("Location:index.php?p=all-users&st=newsuccess"); 
+		header("Location:index.php?p=all-users&st=newsuccess");
 	} else {
 		//header("Location: index.php?p=all-customers&st=newerror&code=acmd008");
 	}
@@ -71,25 +71,25 @@ if (@$_GET["st"] == "empties") {
 			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
 		</div>
 		<div class="form-group">
-			
+
 			<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary">
 		</div>
 	</div>
-	<form enctype="multipart/form-data" id="myform" action="" method="POST">
+	<form enctype="multipart/form-data" id="myForm" action="" method="POST">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="utc">
 						<font color="red">(*)</font>Kimlik No
 					</label>
-					<input required type="text" id="utc" name="utc" class="form-control" maxlength="11">
+					<input required type="text" name="utc" class="form-control" maxlength="11">
 				</div>
 			</div>
 
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="uname">
 						<font color="red">(*)</font> Ad:
 					</label>
 					<input required type="text" name="uname" class="form-control">
@@ -97,7 +97,7 @@ if (@$_GET["st"] == "empties") {
 			</div>
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="usurname">
 						<font color="red">(*)</font> Soyad:
 					</label>
 					<input required type="text" name="usurname" class="form-control">
@@ -107,7 +107,7 @@ if (@$_GET["st"] == "empties") {
 		<div class="row">
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="uemail">
 						<font color="red">(*)</font> E-Posta:
 					</label>
 					<input required name="uemail" type="text" class="form-control">
@@ -115,7 +115,7 @@ if (@$_GET["st"] == "empties") {
 			</div>
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="uusername">
 						<font color="red">(*)</font> Kullanıcı Adı
 					</label>
 					<input required type="text" name="uusername" class="form-control">
@@ -123,7 +123,7 @@ if (@$_GET["st"] == "empties") {
 			</div>
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="upassword">
 						<font color="red">(*)</font> Parola:
 					</label>
 					<input required name="upassword" type="text" class="form-control">
@@ -135,7 +135,7 @@ if (@$_GET["st"] == "empties") {
 
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<label> Adres:</label>
+					<label for="uaddress"> Adres:</label>
 					<input name="uaddress" type="text" class="form-control">
 				</div>
 			</div>
@@ -151,7 +151,7 @@ if (@$_GET["st"] == "empties") {
 		<div class="row">
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label> Telefon:</label>
+					<label for="ugsm"> Telefon:</label>
 					<input name="ugsm" type="text" class="form-control">
 				</div>
 			</div>
@@ -207,5 +207,4 @@ if (@$_GET["st"] == "empties") {
 </div>
 <!-- Input Validation End -->
 
-</div>
 <?php include 'include/footer.php'; ?>
