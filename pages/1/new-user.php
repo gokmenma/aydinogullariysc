@@ -1,8 +1,21 @@
 <?php
 permcontrol("uadd");
+
 if ($_POST) {
+	$contpid = $ac->prepare("SELECT username FROM users");
+	$contpid->execute();
+	$cc = $contpid->fetch(PDO::FETCH_ASSOC);
+	echo '<script> console.log(`' . json_encode($contpid->rowCount()) . ' -- toplam kayıt`); </script>';
+
+	if ($contpid->rowCount() > 0) {
+
+		header("Location: index.php?p=new-user");
+		showAlert('alert', $username . " adında bir kullanıcı mevcut!");
+		exit;
+	};
 
 	if (!$_POST["uusername"] || !$_POST["uemail"] || !$_POST["uname"] || !$_POST["usurname"] || !$_POST["upassword"]) {
+
 		header("Location: index.php?p=new-user&st=empties");
 		exit;
 	}
@@ -25,33 +38,20 @@ if ($_POST) {
 	$ulinked = @$_POST["ulinked"];
 
 	$regg = $ac->prepare("INSERT INTO users SET
-    username = ?,
-	tckimlikno = ?,
-    password = ?,
-    avatar_link = ?,
-    email = ?,
-    gsm = ?,
-	gsm2 = ?,
-    city = ?,
-    address = ?,
-    name = ?,
-    surname = ?,
-    regdate = ?,
-    creativer = ?,
-    giristarihi = ?,
-    dogumtarihi = ?,
-    cikistarihi = ?,
-    perm = ?,
-    permission = ?,
-    statu = ?");
+										username = ?, 	tckimlikno = ?, password = ?,
+										avatar_link = ?, email = ?, gsm = ?,
+										gsm2 = ?, city = ?, address = ?,
+										name = ?, surname = ?, regdate = ?,
+										creativer = ?, giristarihi = ?, dogumtarihi = ?,
+										cikistarihi = ?, perm = ?, permission = ?, statu = ?");
 
-	$regg->execute(array($uusername, $utc, $upassword, "vendors/images/photo2.jpg", $uemail, $ugsm, $ugsm, $ucity, $uaddress, $uname, $usurname, TODAY, sesset("id"), $ugiristarihi, $udgmtarihi, $ucikistarihi, $uperm, $uprs, 1));
+
+
 
 	if ($regg) {
-
-		header("Location:index.php?p=all-users&st=newsuccess");
+		$regg->execute(array($uusername, $utc, $upassword, "vendors/images/photo2.jpg", $uemail, $ugsm, $ugsm, $ucity, $uaddress, $uname, $usurname, TODAY, sesset("id"), $ugiristarihi, $udgmtarihi, $ucikistarihi, $uperm, $uprs, 1));
+		// header("Location:index.php?p=new-user");
 	} else {
-		//header("Location: index.php?p=all-customers&st=newerror&code=acmd008");
 	}
 }
 
@@ -75,7 +75,7 @@ if (@$_GET["st"] == "empties") {
 			<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary">
 		</div>
 	</div>
-	<form enctype="multipart/form-data" id="myForm" action="" method="POST">
+	<form enctype="multipart/form-data" id="myForm" method="POST">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12">

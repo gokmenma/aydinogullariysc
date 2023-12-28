@@ -12,7 +12,7 @@ function validateForm() {
 
         }
     }
-    console.log(emptyFields);
+    // console.log(emptyFields);
 
     if (emptyFields.length > 0) {
         var errorMessage = 'Lütfen zorunlu alanları doldurun: ' + emptyFields.join(', ');
@@ -114,9 +114,4 @@ function showMessage(message, type) {
 			}
 		});
 	}
-
-
-
-
-
 
