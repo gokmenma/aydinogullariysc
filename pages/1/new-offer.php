@@ -227,7 +227,7 @@ if (@$_GET["st"] == "empties") {
 
 
 				<div class="table-responsive">
-					<table id="kalem_ekle" class="table ">
+					<table id="kalem_ekle" class="table table-bordered">
 						<thead col-md-12>
 							<tr>
 								<p id="ekle"><a href="#" class="float-right btn btn-primary mb-2">&raquo; Kalem Ekle </a>
@@ -239,6 +239,7 @@ if (@$_GET["st"] == "empties") {
 								<th class="col-md-2">Birim</th>
 								<th class="col-md-2">Miktar</th>
 								<th class="col-md-2">Adet</th>
+								<th class="col-md-2">İşlem</th>
 							</tr>
 						</thead>
 
@@ -277,26 +278,17 @@ if (@$_GET["st"] == "empties") {
 								<td class="col-md-1"></td>
 							</tr>
 						</tbody>
-
-
-						<tfoot>
-							<th></th>
-							<td></td>
-							<td>
-								</p>
-							</td>
-
-						</tfoot>
 					</table>
 				</div>
-
+<hr>
+<br>
 
 				<div class="form-group row">
 					<label class="col-sm-12 col-md-2 col-form-label">
 						<font color="red">(*)</font>Şirket:
 					</label>
 					<div class="col-sm-12 col-md-10">
-						<input disabled class="form-control" value="<?php echo set("company_name"); ?>" type="email">
+						<input disabled class="form-control" value="<?php echo set("company_name"); ?>" type="text">
 					</div>
 				</div><br>
 

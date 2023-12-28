@@ -285,9 +285,13 @@
 				$insquery .= '$' . $row['COLUMN_NAME'] . ',';
 			}
 		}
-		return $columns . "\n" .
+		$result = $columns . "\n" .
 			'$insq = $ac->prepare("INSERT INTO ' . $tableName . ' SET ' . $field . '");' . "\n" .
 			'$insq->execute(array(' . $insquery . '));';
+			
+			
+			echo '<script> console.log(`' . addslashes($result) . '`); </script>';
+	
 	}
-
- 
+	
+	

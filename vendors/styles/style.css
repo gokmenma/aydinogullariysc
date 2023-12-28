@@ -24789,7 +24789,7 @@ textarea.form-control {
   cursor: pointer;
 }
 
-.custom-control-label::before {
+.custom-control-label::before  {
   width: 20px;
   height: 20px;
   top: 2px;
@@ -24811,6 +24811,15 @@ textarea.form-control {
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
   background-color: #00bcf2;
+ 
+}
+
+.custom-radio .custom-control-input:checked~.custom-control-label::before {
+  background-color: #00bcf2;
+ }
+
+.custom-checkbox .custom-control-input:disabled:checked~.custom-control-label::before {
+  border: 2px solid rgba(0, 123, 255, 0);
 }
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::after {
@@ -24819,13 +24828,7 @@ textarea.form-control {
   background-position: center center;
 }
 
-.custom-radio .custom-control-input:checked~.custom-control-label::before {
-  background-color: #00bcf2;
-}
 
-.custom-checkbox .custom-control-input:disabled:checked~.custom-control-label::before {
-  border: 2px solid rgba(0, 123, 255, 0);
-}
 
 .highcharts-legend-item .highcharts-graph {
   display: none;

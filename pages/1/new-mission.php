@@ -13,31 +13,33 @@
 		foreach ($_POST["permings"] as $autx) {
 
 			$insq = $ac->prepare("INSERT INTO missions SET
-	title = ?,
-	mdesc = ?,
-	regdate = ?,
-	lastdate = ?,
-	authors = ?,
-	creativer = ?,
-	urgency = ?,
-	okeydate = ?,
-	statu = ?");
+												title = ?,
+												mdesc = ?,
+												regdate = ?,
+												lastdate = ?,
+												authors = ?,
+												creativer = ?,
+												urgency = ?,
+												okeydate = ?,
+												statu = ?");
 
 			$insq->execute(array(@$_POST["title"], @$_POST["desc"], date_tr(@$_POST["startdate"]), date_tr(@$_POST["lastdate"]), $autx, sesset("id"), $urg, "-", 0));
 		}
 
 
-		if ($reggs) {
-			header("Location: index.php?p=new-mission&st=newsuccess");
+		if ($insq) {
+			header("Location: index.php?p=new-mission");
 		} else {
 		}
 		// header("Location: index.php?p=new-mission&st=newsuccess");
 	}
 
 	if (@$_GET["st"] == "empties") {
-		showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');}
+		showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
+	}
 	if (@$_GET["st"] == "newsuccess") {
-		showAlert('success', 'Görev oluşturuldu.');	}
+		showAlert('success', 'Görev oluşturuldu.');
+	}
 	?>
 
  <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
@@ -47,7 +49,7 @@
  			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
  		</div>
  		<div class="form-group">
- 			<input type="submit" id="submitButton" value="Kaydet" class="btn btn-primary float-lg-right ">
+ 			<button type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="btn btn-primary float-lg-right ">Kaydet</button<>
  		</div>
  		<!-- <input type="submit" value="Kaydet" id="submitButton" class="float-right btn btn-primary"><br><br> -->
 
@@ -57,7 +59,7 @@
  		<div class="row">
  			<div class="col-md-12 col-sm-12">
  				<div class="form-group">
- 					<label>
+ 					<label for="title">
  						<font color="red">(*)</font>Başlık
  					</label>
  					<input name="title" value="" class="form-control" required type="text">
@@ -74,15 +76,16 @@
  			<div class="col-md-6 col-sm-12">
  				<div class="form-group">
 
- 					<label>Son Tarih</label>
- 					<input required name="lastdate" class="form-control date-picker" value="" placeholder="Tarih Seçin" type="text">
+ 					<label for="lastdate">Son Tarih</label>
+ 					<input name="lastdate" class="form-control date-picker" value="" placeholder="Tarih Seçin" type="text">
  				</div>
  			</div>
 
 
  			<div class="col-md-6 col-sm-12">
  				<div class="form-group">
- 					<font color="red">(*)</font><label>Görevin Atanacağı Kullanıcılar:</label>
+ 					<font color="red">(*)</font>
+ 					<label for="permings[]">Görevin Atanacağı Kullanıcılar:</label>
  					<select required name="permings[]" class="selectpicker form-control" data-style="btn-outline-secondary" multiple data-actions-box="true" data-selected-text-format="count">
  						<?php
 							$permq = $ac->prepare("SELECT * FROM perms ");
@@ -130,21 +133,16 @@
  			</div>
 
  			<div class="col-md-12 col-sm-12">
- 				<div class="html-editor pd-20 bg-white border-radius-4 box-shadow mb-30">
+ 				<div class="html-editor">
  					<h3 class="weight-500">Görev Açıklaması</h3>
  					<p></p>
- 					<textarea name="desc" required class="textarea_editor form-control border-radius-0" placeholder="Bir şeyler yaz ..."></textarea><br>
+ 					<textarea name="desc" class="textarea_editor form-control border-radius-0" placeholder="Bir şeyler yaz ..."></textarea><br>
  				</div>
  			</div>
  		</div><br>
  		<!-- <input type="submit" value="Değişiklikleri Kaydet" style="float:right" class="col-md-6 form-control btn-outline-success"><br><br> -->
  	</form>
-</div>
- 	<script>
- 		document.getElementById("submitButton").addEventListener("click", function() {
- 			var form = document.getElementById("myForm");
- 			form.submit();
- 		});
- 	</script>
- 
-<?php include('include/footer.php'); ?>
+ </div>
+
+
+ <?php include('include/footer.php'); ?>

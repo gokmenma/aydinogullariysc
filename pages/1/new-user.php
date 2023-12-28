@@ -1,8 +1,21 @@
 <?php
 permcontrol("uadd");
+
 if ($_POST) {
+	$contpid = $ac->prepare("SELECT username FROM users");
+	$contpid->execute();
+	$cc = $contpid->fetch(PDO::FETCH_ASSOC);
+	echo '<script> console.log(`' . json_encode($contpid->rowCount()) . ' -- toplam kayıt`); </script>';
+
+	if ($contpid->rowCount() > 0) {
+
+		header("Location: index.php?p=new-user");
+		showAlert('alert', $username . " adında bir kullanıcı mevcut!");
+		exit;
+	};
 
 	if (!$_POST["uusername"] || !$_POST["uemail"] || !$_POST["uname"] || !$_POST["usurname"] || !$_POST["upassword"]) {
+
 		header("Location: index.php?p=new-user&st=empties");
 		exit;
 	}
@@ -25,33 +38,20 @@ if ($_POST) {
 	$ulinked = @$_POST["ulinked"];
 
 	$regg = $ac->prepare("INSERT INTO users SET
-    username = ?,
-	tckimlikno = ?,
-    password = ?,
-    avatar_link = ?,
-    email = ?,
-    gsm = ?,
-	gsm2 = ?,
-    city = ?,
-    address = ?,
-    name = ?,
-    surname = ?,
-    regdate = ?,
-    creativer = ?,
-    giristarihi = ?,
-    dogumtarihi = ?,
-    cikistarihi = ?,
-    perm = ?,
-    permission = ?,
-    statu = ?");
+										username = ?, 	tckimlikno = ?, password = ?,
+										avatar_link = ?, email = ?, gsm = ?,
+										gsm2 = ?, city = ?, address = ?,
+										name = ?, surname = ?, regdate = ?,
+										creativer = ?, giristarihi = ?, dogumtarihi = ?,
+										cikistarihi = ?, perm = ?, permission = ?, statu = ?");
 
-	$regg->execute(array($uusername, $utc, $upassword, "vendors/images/photo2.jpg", $uemail, $ugsm, $ugsm, $ucity, $uaddress, $uname, $usurname, TODAY, sesset("id"), $ugiristarihi, $udgmtarihi, $ucikistarihi, $uperm, $uprs, 1));
+
+
 
 	if ($regg) {
-
-		header("Location:index.php?p=all-users&st=newsuccess"); 
+		$regg->execute(array($uusername, $utc, $upassword, "vendors/images/photo2.jpg", $uemail, $ugsm, $ugsm, $ucity, $uaddress, $uname, $usurname, TODAY, sesset("id"), $ugiristarihi, $udgmtarihi, $ucikistarihi, $uperm, $uprs, 1));
+		// header("Location:index.php?p=new-user");
 	} else {
-		//header("Location: index.php?p=all-customers&st=newerror&code=acmd008");
 	}
 }
 
@@ -71,25 +71,25 @@ if (@$_GET["st"] == "empties") {
 			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
 		</div>
 		<div class="form-group">
-			
+
 			<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary">
 		</div>
 	</div>
-	<form enctype="multipart/form-data" id="myform" action="" method="POST">
+	<form enctype="multipart/form-data" id="myForm" method="POST">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="utc">
 						<font color="red">(*)</font>Kimlik No
 					</label>
-					<input required type="text" id="utc" name="utc" class="form-control" maxlength="11">
+					<input required type="text" name="utc" class="form-control" maxlength="11">
 				</div>
 			</div>
 
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="uname">
 						<font color="red">(*)</font> Ad:
 					</label>
 					<input required type="text" name="uname" class="form-control">
@@ -97,7 +97,7 @@ if (@$_GET["st"] == "empties") {
 			</div>
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="usurname">
 						<font color="red">(*)</font> Soyad:
 					</label>
 					<input required type="text" name="usurname" class="form-control">
@@ -107,7 +107,7 @@ if (@$_GET["st"] == "empties") {
 		<div class="row">
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="uemail">
 						<font color="red">(*)</font> E-Posta:
 					</label>
 					<input required name="uemail" type="text" class="form-control">
@@ -115,7 +115,7 @@ if (@$_GET["st"] == "empties") {
 			</div>
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="uusername">
 						<font color="red">(*)</font> Kullanıcı Adı
 					</label>
 					<input required type="text" name="uusername" class="form-control">
@@ -123,7 +123,7 @@ if (@$_GET["st"] == "empties") {
 			</div>
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label>
+					<label for="upassword">
 						<font color="red">(*)</font> Parola:
 					</label>
 					<input required name="upassword" type="text" class="form-control">
@@ -135,7 +135,7 @@ if (@$_GET["st"] == "empties") {
 
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group">
-					<label> Adres:</label>
+					<label for="uaddress"> Adres:</label>
 					<input name="uaddress" type="text" class="form-control">
 				</div>
 			</div>
@@ -151,7 +151,7 @@ if (@$_GET["st"] == "empties") {
 		<div class="row">
 			<div class="col-md-3 col-sm-12">
 				<div class="form-group">
-					<label> Telefon:</label>
+					<label for="ugsm"> Telefon:</label>
 					<input name="ugsm" type="text" class="form-control">
 				</div>
 			</div>
@@ -207,5 +207,4 @@ if (@$_GET["st"] == "empties") {
 </div>
 <!-- Input Validation End -->
 
-</div>
 <?php include 'include/footer.php'; ?>
