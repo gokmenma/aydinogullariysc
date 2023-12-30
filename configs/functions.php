@@ -294,4 +294,10 @@
 	
 	}
 	
-	
+	function NewCategorySave($categoryName) {
+		global $ac;
+		
+		$insq = $ac->prepare("INSERT INTO missioncategory SET categoryName = ? ");
+		$insq->execute(array($categoryName));
+
+	}

@@ -1,24 +1,26 @@
 <?php
 permcontrol("uadd");
 
+
 if ($_POST) {
-	$contpid = $ac->prepare("SELECT username FROM users");
-	$contpid->execute();
-	$cc = $contpid->fetch(PDO::FETCH_ASSOC);
-	echo '<script> console.log(`' . json_encode($contpid->rowCount()) . ' -- toplam kayıt`); </script>';
-
-	if ($contpid->rowCount() > 0) {
-
-		header("Location: index.php?p=new-user");
-		showAlert('alert', $username . " adında bir kullanıcı mevcut!");
-		exit;
-	};
 
 	if (!$_POST["uusername"] || !$_POST["uemail"] || !$_POST["uname"] || !$_POST["usurname"] || !$_POST["upassword"]) {
 
 		header("Location: index.php?p=new-user&st=empties");
 		exit;
 	}
+
+	// $contpid = $ac->prepare("SELECT username FROM users Where username = ?");
+	// $username=$_POST["uusername"];
+	// $contpid->execute(array($username));
+	// $result = $contpid->fetch(PDO::FETCH_ASSOC);
+
+	if ($result > 0) {
+		showAlert('alert', 'bu adda kullanıcı mevcut');
+		die;
+	}
+
+
 
 	$uusername = @$_POST["uusername"];
 	$utc = @$_POST["utc"];
@@ -51,13 +53,12 @@ if ($_POST) {
 	if ($regg) {
 		$regg->execute(array($uusername, $utc, $upassword, "vendors/images/photo2.jpg", $uemail, $ugsm, $ugsm, $ucity, $uaddress, $uname, $usurname, TODAY, sesset("id"), $ugiristarihi, $udgmtarihi, $ucikistarihi, $uperm, $uprs, 1));
 		// header("Location:index.php?p=new-user");
-	} else {
 	}
-}
 
-if (@$_GET["st"] == "empties") {
-	showAlert('alert', "(*) ile işaretli alanları boş bırakmadan tekrar deneyin.");
-}
+	if (@$_GET["st"] == "empties") {
+		showAlert('alert', "(*) ile işaretli alanları boş bırakmadan tekrar deneyin.");
+	}
+};
 ?>
 
 
@@ -72,7 +73,7 @@ if (@$_GET["st"] == "empties") {
 		</div>
 		<div class="form-group">
 
-			<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right btn btn-primary">
+			<input type="submit" id="submitButton" onclick="validateForm()" data-toggle="tooltip" data-placement="top" title="Kaydet" value="Kaydet" class="float-right btn btn-primary">
 		</div>
 	</div>
 	<form enctype="multipart/form-data" id="myForm" method="POST">
@@ -201,10 +202,40 @@ if (@$_GET["st"] == "empties") {
 				</div>
 			</div>
 
-		</div><br><br>
+		</div>
 	</form>
 
 </div>
 <!-- Input Validation End -->
 
 <?php include 'include/footer.php'; ?>
+
+<!-- 
+<script>
+	$(document).ready(function() {
+    $("#submitButton").click(function() {
+        var username = $("#uusername").val(); // Kullanıcı adını formdan al
+
+        $.ajax({
+            type: "POST",
+            url: "index.php?p=k", // Kullanıcı adını kontrol edecek PHP dosyasının yolu
+            data: { uusername: username }, // POST isteği ile kullanıcı adını gönder
+            success: function(response) {
+                console.log(response); // PHP'den gelen cevabı konsola yazdır
+
+                if (response > 0) {
+                    // Sonuç > 0 ise formu validate etme
+                    //
+                } else {
+                    // Sonuç <= 0 ise istediğiniz işlemi yapma
+                    // Örnek olarak başka bir işlem veya form gönderme
+                     //validateForm(); // Eğer işlem yapılmasını istemiyorsanız burada çağırmayabilirsiniz
+                     // Formu gönderme
+					 $("#myForm").submit();
+                }
+            }
+        });
+    });
+});
+
+</script> -->

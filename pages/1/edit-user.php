@@ -31,7 +31,6 @@ if ($_POST) {
 
 	$username = @$_POST["username"];
 	$tckimlikno = @$_POST["tckimlikno"];
-	$password = @$_POST["password"];
 	$email = @$_POST["email"];
 	$gsm = @$_POST["gsm"];
 	$gsm2 = @$_POST["gsm2"];
@@ -64,12 +63,12 @@ if ($_POST) {
 	));
 	//echo '<script> console.log(`' . json_encode($insq) . '`); </script>';
 
-	if (permtrue("uperm") and $uid != sesset("id")) {
-		$uplk = $ac->prepare("UPDATE users SET permission = ? WHERE id = ?");
-		$uplk->execute(array($uprs, $uid));
-	}
+	// if (permtrue("uperm") and $uid != sesset("id")) {
+	// 	$uplk = $ac->prepare("UPDATE users SET permission = ? WHERE id = ?");
+	// 	$uplk->execute(array($uprs, $uid));
+	// }
 	if ($insq) {
-		header("Location:index.php?p=edit-user&id=$uid");
+		header("Location:index.php?p=all-users");
 	}
 }
 
@@ -142,7 +141,7 @@ if ($_POST) {
 					<label>
 						<font color="red">(*)</font> Parola:
 					</label>
-					<input required id="passwordField" name="password" type="password" value="<?php echo $cc["password"]; ?>" class="form-control">
+					<input required id="passwordField" name="password" type="password" value="<?php echo $cc["username"]; ?>" class="form-control">
 				</div>
 			</div>
 
@@ -203,7 +202,7 @@ if ($_POST) {
 					<label>
 						<font color="red">(*)</font> Pozisyon:
 					</label>
-					<select name="permission" class="selectpicker col-12">
+					<select name="permission" class="form-control">
 						<?php
 						$pquery = $ac->prepare("SELECT * FROM perms ");
 						$pquery->execute();

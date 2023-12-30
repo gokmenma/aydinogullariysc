@@ -86,7 +86,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="UrunGurubu">
 					<font color="red">(*)</font>Ana Ürün:
 				</label>
 			</div>
@@ -101,7 +101,7 @@ if ($_POST) {
 
 
 			<div class="col-sm-12 col-md-2">
-				<label>
+				<label for="Turu">
 					<font color="red">(*)</font>Kategori Seçimi
 				</label>
 			</div>
@@ -116,7 +116,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="Adi">
 					<font color="red">(*)</font>Ürün/Hizmet Adı
 				</label>
 			</div>
@@ -125,7 +125,7 @@ if ($_POST) {
 			</div>
 
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="StokKodu">
 					<font color="red">(*)</font>Stok Kodu :
 				</label>
 			</div>
@@ -137,7 +137,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="TedarikciID">
 					<font color="red">(*)</font>Tedarikci :
 				</label>
 			</div>
@@ -149,7 +149,7 @@ if ($_POST) {
 			</div>
 
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="Birimi">
 					<font color="red">(*)</font>Birimi :
 				</label>
 			</div>
@@ -165,7 +165,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="AlisFiyati">
 					<font color="red">(*)</font>Alış Fiyat :
 				</label>
 			</div>
@@ -179,7 +179,7 @@ if ($_POST) {
 
 
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="SatişFiyati">
 					<font color="red">(*)</font>Satış Fiyat :
 				</label>
 			</div>
@@ -196,7 +196,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="AlisIskonto">
 					<font color="red">(*)</font>Alış İskonto / KDV :
 				</label>
 			</div>
@@ -209,7 +209,7 @@ if ($_POST) {
 
 			<!-- Satış Para Biriimi-->
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="SatisIskonto">
 					<font color="red">(*)</font>Satış İskonto / KDV :
 				</label>
 			</div>
@@ -224,7 +224,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="EkstraMaliyet">
 					Eksrta Maliyet:
 				</label>
 			</div>
@@ -240,7 +240,7 @@ if ($_POST) {
 			<div class="col-md-6 col-sm-12">
 				<div class="form-group row">
 					<div class="col-md-4 col-sm-12">
-						<label>
+						<label for="Barkod">
 							<font color="red">(*)</font>Barkod :
 						</label>
 					</div>
@@ -250,7 +250,7 @@ if ($_POST) {
 				</div>
 				<div class="form-group row">
 					<div class="col-md-4 col-sm-12">
-						<label>
+						<label for="Teslimat">
 							<font color="red">(*)</font>Teslimat Gün :
 						</label>
 					</div>
@@ -260,7 +260,7 @@ if ($_POST) {
 				</div>
 				<div class="form-group row">
 					<div class="col-md-4 col-sm-12">
-						<label>
+						<label for="RafKodu">
 							<font color="red">(*)</font>Raf Kodu :
 						</label>
 					</div>
@@ -286,7 +286,7 @@ if ($_POST) {
 
 		<div class="form-group row">
 			<div class="col-md-2 col-sm-12">
-				<label>
+				<label for="MinStok">
 					<font color="red">(*)</font>Minimum Stok
 				</label>
 			</div>

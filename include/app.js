@@ -1,4 +1,5 @@
 function validateForm() {
+
     var form = document.getElementById('myForm');
     var elements = form.elements;
     var emptyFields = [];
@@ -69,49 +70,55 @@ function showMessage(message, type) {
 }
 
 
-	function deleteRecord(msg, ID, pLink) {
-		// console.log(ID);
-		Swal.fire({
-			title: "Emin misiniz?",
-			text: msg,
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#3085d6",
-			cancelButtonColor: "#d33",
-			confirmButtonText: "Evet,Sil!",
-			cancelButtonText: "Vazgeç!"
+function deleteRecord(msg, ID, pLink) {
+    // console.log(ID);
+    Swal.fire({
+        title: "Emin misiniz?",
+        text: msg,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Evet,Sil!",
+        cancelButtonText: "Vazgeç!"
 
-		}).then((result) => {
-			if (result.isConfirmed) {
-				// If confirmed, trigger AJAX request to delete product
-				$.ajax({
-					type: "POST",
-					url: "index.php?p=" + pLink +  "&mode=delete&code=04md177&reg=true&md=active&id=" + ID, // PHP script for deletion
-					data: {
-						id: ID
-					},
-					success: function(response) {
-						// Handle success response (optional)
-						Swal.fire({
-							title: "Başarılı!",
-							text: name + " isimli kayıt başarı ile silindi!",
-							icon: "success"
-						}).then(() => {
-							// Redirect to page
-							window.location.href = "index.php?p=" + pLink ;
-						});
-					},
-					error: function(xhr, status, error) {
-						// Handle error if deletion fails (optional)
-						console.error(xhr.responseText);
-						Swal.fire({
-							title: "Hata!",
-							text: "Bir şeyler ters gitti!",
-							icon: "error"
-						});
-					}
-				});
-			}
-		});
-	}
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, trigger AJAX request to delete product
+            $.ajax({
+                type: "POST",
+                url: "index.php?p=" + pLink + "&mode=delete&code=04md177&reg=true&md=active&id=" + ID, // PHP script for deletion
+                data: {
+                    id: ID
+                },
+                success: function (response) {
+                    // Handle success response (optional)
+                    Swal.fire({
+                        title: "Başarılı!",
+                        text: name + " isimli kayıt başarı ile silindi!",
+                        icon: "success"
+                    }).then(() => {
+                        // Redirect to page
+                        window.location.href = "index.php?p=" + pLink;
+                    });
+                },
+                error: function (xhr, status, error) {
+                    // Handle error if deletion fails (optional)
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        title: "Hata!",
+                        text: "Bir şeyler ters gitti!",
+                        icon: "error"
+                    });
+                }
+            });
+        }
+    });
+}
+
+
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
+
 
