@@ -179,5 +179,4 @@ $kx = $kx+1;
 				<!-- Input Validation End -->
 
 			</div>
-			<?php include('include/footer.php'); ?>
-}
+

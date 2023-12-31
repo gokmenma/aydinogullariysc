@@ -226,6 +226,8 @@
 					<strong>' . ucfirst($firstLetter) . '!</strong> ' . $message . '
 				  </div>';
 		};
+
+		
 	}
 
 

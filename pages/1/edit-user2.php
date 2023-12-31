@@ -257,4 +257,3 @@ if (@$_GET["st"] == "newsuccess") {
   });
 </script>
 
-<?php include('include/footer.php'); ?>

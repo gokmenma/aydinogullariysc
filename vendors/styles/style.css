@@ -93,7 +93,9 @@ body {
 footer {
   font-weight: 500;
   text-align: center;
-  padding: 15px 0;
+  padding: 15px;
+  bottom: 0;
+
 }
 
 
@@ -1945,20 +1947,20 @@ pre code {
 .table {
   width: 100%;
   max-width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   background-color: transparent;
 }
 
 .table th,
 .table td {
-  padding: 0.75rem;
+  padding: .3rem;
   vertical-align: top;
   border-top: 1px solid #dee2e6;
 }
 
 .table thead th {
   vertical-align: bottom;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
 }
 
 .table tbody+tbody {
@@ -8367,6 +8369,13 @@ button.bg-dark:focus {
 .pr-1,
 .px-1 {
   padding-right: 0.25rem !important;
+}
+
+.ppx-1 {
+  padding: 1px;
+}
+.ppx-2 {
+  padding: 2px;
 }
 
 .pb-1,
@@ -25585,6 +25594,9 @@ textarea.form-control {
   padding: 70px 0 0px 250px;
   height: 100vh;
   display: none;
+}
+.content{
+  min-height : 94%;
 }
 
 .page-header .dropdown-menu {

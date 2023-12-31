@@ -26,10 +26,7 @@
 
 								<?php if (permtrue("oadd")) { ?><li><a href="index.php?p=new-offer">Yeni Teklif Oluştur</a></li><?php } ?>
 								<li><a href="index.php?p=all-offers">Teklifleri Görüntüle</a></li>
-								<?php if (sesset("permission") == 1) { ?>
-									<li><a href="index.php?p=units">Teklif Birimleri</a></li>
-								<?php } ?>
-
+								
 							</ul>
 						</li>
 					<?php
@@ -83,11 +80,7 @@
 
 							<?php if (permtrue("cadd")) { ?><li><a href="index.php?p=new-customer">Yeni Müşteri</a></li><?php } ?>
 							<li><a href="index.php?p=customer-list">Müşteri Listesi</a></li>
-							<?php if (permtrue("cedit")) {
-							?>
-								<li><a href="index.php?p=customer-groups">Müşteri Grupları</a></li>
-							<?php
-							} ?>
+					
 
 						</ul>
 					</li>
@@ -277,7 +270,18 @@
 
 						</ul>
 					</li>
+					<li class="dropdown">
+						<a href="javascript:;" class="dropdown-toggle">
+							<span class="fa fa-gears"></span><span class="mtext">Tanımlamalar</span>
+						</a>
+						<ul class="submenu">
+							<?php if (sesset("permission") == 1) { ?>
+									<li><a href="index.php?p=units">Birim Tanımlama</a></li>
+								<?php } ?>
 
+
+						</ul>
+					</li>				
 
 
 

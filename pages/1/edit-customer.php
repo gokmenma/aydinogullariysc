@@ -326,4 +326,3 @@ if (@$_GET["st"] == "newsuccess") {
 <!-- Input Validation End -->
 
 </div>
-<?php include('include/footer.php'); ?>

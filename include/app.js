@@ -13,7 +13,7 @@ function validateForm() {
 
         }
     }
-    // console.log(emptyFields);
+    console.log(emptyFields);
 
     if (emptyFields.length > 0) {
         var errorMessage = 'Lütfen zorunlu alanları doldurun: ' + emptyFields.join(', ');
@@ -122,3 +122,32 @@ $(function () {
 })
 
 
+
+function SaveNewKategory(p_name, selectName) {
+    var Addcategory = document.getElementById('Addcategory').value;
+    if (Addcategory != "") {
+
+
+        fetch('index.php?p=' + p_name, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'Addcategory=' + encodeURIComponent(Addcategory),
+        })
+            .then(response => {
+
+                var selectElement = document.getElementById(selectName);
+                var newOption = document.createElement('option');
+                newOption.value = Addcategory;
+                newOption.textContent = Addcategory;
+                selectElement.appendChild(newOption);
+                document.getElementById('Addcategory').value = '';
+
+            })
+            .catch(error => {
+                // Hata durumunda burada işlemler yapabilirsiniz
+            });
+         
+    }
+}

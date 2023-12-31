@@ -16,7 +16,7 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 
 
 ?>
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="pd-20 bg-white border-radius-8 box-shadow mb-30">
 	<?php
 	if (@$_GET["st"] == "newsuccess") {
 
@@ -45,7 +45,7 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 			<a href="index.php?p=new-product&cc=087s3"><button type="button" class="btn btn-success float-right"> Yeni </button></a>
 		<?php } ?><br><br>
 	</div>
-	<table class="data-table table-bordered table- hover">
+	<table class=" table table-hover table-bordered data-table">
 		<thead>
 			<tr>
 				<th scope="col">#Sıra</th>

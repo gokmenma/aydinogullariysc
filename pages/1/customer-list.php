@@ -24,7 +24,7 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 
 ?>
 
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-8 box-shadow mb-30">
 	<?php
 	if (@$_GET["st"] == "newsuccess") {
 
@@ -53,7 +53,7 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 		<?php if (permtrue("cadd")) { ?>
 			<a href="index.php?p=new-customer&cc=0014s1"><button type="button" class="btn btn-success float-right">Yeni Müşteri</button></a><?php } ?>
 	</div>
-	<table class="data-table table-bordered table-hover">
+	<table class="data-table select-row table-bordered table-hover">
 		<thead>
 			<tr>
 				<th scope="col">#</th>
@@ -104,4 +104,4 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 		</tbody>
 	</table>
 </div>
-<?php include('include/footer.php'); ?>
+

@@ -60,7 +60,7 @@ if ($_POST) {
 ?>
 
 
-<div id="maincontainer" class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div id="maincontainer" class="pd-20 bg-white border-radius-8 box-shadow mb-30">
 	<div class="clearfix">
 		<div class="pull-left">
 			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
@@ -347,6 +347,3 @@ if ($_POST) {
 		});
 	};
 </script>
-
-
-<?php include('include/footer.php'); ?>

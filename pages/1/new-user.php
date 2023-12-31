@@ -207,35 +207,3 @@ if ($_POST) {
 
 </div>
 <!-- Input Validation End -->
-
-<?php include 'include/footer.php'; ?>
-
-<!-- 
-<script>
-	$(document).ready(function() {
-    $("#submitButton").click(function() {
-        var username = $("#uusername").val(); // Kullanıcı adını formdan al
-
-        $.ajax({
-            type: "POST",
-            url: "index.php?p=k", // Kullanıcı adını kontrol edecek PHP dosyasının yolu
-            data: { uusername: username }, // POST isteği ile kullanıcı adını gönder
-            success: function(response) {
-                console.log(response); // PHP'den gelen cevabı konsola yazdır
-
-                if (response > 0) {
-                    // Sonuç > 0 ise formu validate etme
-                    //
-                } else {
-                    // Sonuç <= 0 ise istediğiniz işlemi yapma
-                    // Örnek olarak başka bir işlem veya form gönderme
-                     //validateForm(); // Eğer işlem yapılmasını istemiyorsanız burada çağırmayabilirsiniz
-                     // Formu gönderme
-					 $("#myForm").submit();
-                }
-            }
-        });
-    });
-});
-
-</script> -->

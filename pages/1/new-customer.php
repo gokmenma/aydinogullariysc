@@ -1,8 +1,10 @@
 <?php
 permcontrol("cadd");
 define("MAXSX", set("max_sr"));
-
+getTableColumns('cgroups'); 
 if ($_POST) {
+    
+    
 
     if (!$_POST["cname"] || !$_POST["cemail"]) {
         header("Location: index.php?p=new-customer&st=empties");
@@ -46,20 +48,17 @@ if ($_POST) {
     $asdfa = $regg->execute(array($grp, $cname, $cemail, $ccompany, $csector, $caddress, $ccity, $cnotes, $cgsm, $cgsm2, $yetkiliadi, $sunvan, $vdaire, $vno, TODAY, sesset("id")));
 
     $lidx = $ac->lastInsertId();
-
 }
 
 if (@$_GET["st"] == "empties") {
     showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
-    
 } elseif (@$_GET["st"] == "newsuccess") {
-   showAlert('success', 'Müşteri başarıyla eklendi!');
- 
-} 
+    showAlert('success', 'Müşteri başarıyla eklendi!');
+}
 
 ?>
 <!-- Default Basic Forms Start -->
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-8 box-shadow mb-30">
     <div class="clearfix">
         <div class="pull-left">
             <h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
@@ -72,12 +71,12 @@ if (@$_GET["st"] == "empties") {
     <form enctype="multipart/form-data" action="" id="myForm" method="POST">
 
         <div class="form-group row">
-          
+
             <label for="cname" class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> Ad-Soyad:
             </label>
             <div class="col-sm-12 col-md-4">
-                <input required name="cname"  type="text" class="form-control">
+                <input required name="cname" type="text" class="form-control">
             </div>
             <label for="cemail" class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> E-Posta:
@@ -90,8 +89,8 @@ if (@$_GET["st"] == "empties") {
             <label for="grp" class="col-sm-12 col-md-2 col-form-label">
                 <font color="red">(*)</font> Grup:
             </label>
-            <div class="col-sm-12 col-md-4">
-                <select name="grp" class="form-control">
+            <div class="input-group col-md-4">
+                <select required name="categoryName" id="categoryName" class="form-control">
                     <?php $cek = $ac->prepare("SELECT * FROM cgroups WHERE statu = ?");
                     $cek->execute(array(1));
                     while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
@@ -101,39 +100,71 @@ if (@$_GET["st"] == "empties") {
                     }
                     ?>
                 </select>
+
+                <?php if (permtrue("cedit")) { ?>
+                    <div class="chooseitem">
+                        <!-- Button trigger modal -->
+
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                            <i class="fa fa-plus-circle"></i>
+                        </button>
+
+
+
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Kategori Adı:</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body m-2">
+                                        <input type="text" required class="form-control" value="" name="Addcategory" id="Addcategory" placeholder="Eklenecek kategori adını yazınız...">
+                                    </div>
+                                    <div class="modal-footer mb-2">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+
+                                        <button type="button" id="ModalSaveButton" onclick="SaveNewKategory('customer-groups','categoryName')" data-bs-dismiss="modal" class="btn btn-primary">Kaydet</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal -->
+                    </div>
+                <?php  } ?>
             </div>
         </div>
 
 
-
-        <!-- <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
-                <font color="red">(*)</font> E-Posta:
-            </label>
-            <div class="col-sm-12 col-md-4"><input required name="cemail" type="text" class="form-control">
-            </div>
-        </div> -->
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">Şirket İsmi:</label>
-            <div class="col-sm-12 col-md-4"><input name="ccompany" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4">
+                <input name="ccompany" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">Sektör:</label>
-            <div class="col-sm-12 col-md-4"><input name="csector" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4">
+                <input name="csector" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label"> Adres:</label>
-            <div class="col-sm-12 col-md-4"><input name="caddress" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4">
+                <input name="caddress" type="text" class="form-control">
             </div>
         </div>
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label">Şehir:</label>
-            <div class="col-sm-12 col-md-4"><input name="ccity" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4">
+                <input name="ccity" type="text" class="form-control">
             </div>
         </div>
 
@@ -153,12 +184,14 @@ if (@$_GET["st"] == "empties") {
 
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label"> Yetkili Ad-Soyad:</label>
-            <div class="col-sm-12 col-md-4"><input name="yetkili" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4">
+                <input name="yetkili" type="text" class="form-control">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-12 col-md-2 col-form-label"> Şirket Unvanı:</label>
-            <div class="col-sm-12 col-md-4"><input name="sunvan" type="text" class="form-control">
+            <div class="col-sm-12 col-md-4">
+                <input name="sunvan" type="text" class="form-control">
             </div>
         </div>
         <div class="form-group row">
@@ -185,5 +218,3 @@ if (@$_GET["st"] == "empties") {
 
     </form>
 </div>
-
-<?php include 'include/footer.php'; ?>

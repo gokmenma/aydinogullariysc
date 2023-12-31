@@ -355,6 +355,3 @@ if (@$_GET["st"] == "empties") {
 	</div>
 </div>
 <!-- Input Validation End -->
-
-</div>
-<?php include('include/footer.php'); ?>

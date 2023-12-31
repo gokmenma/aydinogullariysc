@@ -349,4 +349,4 @@ $regxs = $ac->prepare("UPDATE offers SET
 				<!-- Input Validation End -->
 
 			</div>
-			<?php include('include/footer.php'); ?>
+

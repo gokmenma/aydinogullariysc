@@ -103,7 +103,7 @@ if (@$_GET["st"] == "empties") {
 		</div>
 
 		<div class="form-group">
-			<input type="submit" id="submitButton" value="Kaydet" class="btn btn-primary float-lg-right ">
+			<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="btn btn-primary float-lg-right ">
 		</div>
 	</div>
 
@@ -239,10 +239,9 @@ if (@$_GET["st"] == "empties") {
 </div>
 <!-- Input Validation End -->
 
-<script>
+<!-- <script>
 	document.getElementById("submitButton").addEventListener("click", function() {
 		var form = document.getElementById("myForm");
 		form.submit();
 	});
-</script>
-<?php include('include/footer.php'); ?>
+</script> -->
