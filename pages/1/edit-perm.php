@@ -193,7 +193,7 @@ if ($insq) {
   header("Location:index.php?p=edit-perm&reg=true&md=update&id=$id");
 }
 ?>
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
 
   <div class="clearfix mb-20">
     <div class="pull-left">
@@ -209,10 +209,10 @@ if ($insq) {
   </div>
   <form enctype="multipart/form-data" id="myForm" action="" method="POST" action="">
 
-    <div class="row">
+    <!-- <div class="row"> -->
       <br><br>
 
-      <div class="col-sm-12 col-md-12">
+      <!-- <div class="col-sm-12 col-md-12"> -->
 
 
 
@@ -401,6 +401,7 @@ if ($insq) {
 
 
               </div>
+
               <div class="col-md-4 col-sm-12">
                 <!-- Servis Yönetimi -->
                 <div class="custom-control custom-checkbox mb-5">
@@ -478,6 +479,6 @@ if ($insq) {
 
 
             </div>
-          </div>
+          </div> 
   </form>
 </div>

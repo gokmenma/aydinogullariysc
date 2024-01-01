@@ -89,7 +89,7 @@ if (@$_GET["st"] == "empties") {
 
 
 ?>
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
 	<!-- <div class="min-height-200px"> -->
 
 	<!-- Default Basic Forms Start -->

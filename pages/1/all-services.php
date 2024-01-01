@@ -16,7 +16,7 @@ if ($ID && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 
 
 ?>
-<div class="content pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
 	<div class="clearfix mb-20">
 		<div class="pull-left">
 			<h5 class="text-blue">Servis Listesi</h5>

@@ -41,7 +41,7 @@ if (@$_GET["id"] && @$_GET["mode"] == "updatest") {
 }
 
 ?>
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
 	<?php
 	
 	if (@$_GET["st"] == "cannotdeleted") {

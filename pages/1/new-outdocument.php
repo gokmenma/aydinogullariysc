@@ -42,7 +42,7 @@ if (@$_GET["st"] == "empties") {
 
 ?>
 <!-- Default Basic Forms Start -->
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
     <div class="clearfix">
         <div class="pull-left">
             <h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>

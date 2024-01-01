@@ -45,7 +45,7 @@ if (@$_GET["type"] == "delete" and @$_GET["cid"]) {
 <?php
 }
 ?>
-<div class="content pd-20 bg-white border-radius-8 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
 	<div class="clearfix mb-20">
 		<div class="pull-left">
 			<h5 class="text-blue">Müşteri Listesi</h5>
