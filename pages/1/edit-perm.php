@@ -481,4 +481,3 @@ if ($insq) {
           </div>
   </form>
 </div>
-<?php include 'include/footer.php'; ?>

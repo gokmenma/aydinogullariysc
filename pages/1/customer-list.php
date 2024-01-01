@@ -1,13 +1,14 @@
 <?php
 
-if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") {
+if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 	permcontrol("cdelete");
-	$cdid = $_GET["cid"];
+	$cdid = $_GET["id"];
 	$contq = $ac->prepare("SELECT * FROM customers WHERE id = ?");
 	$contq->execute(array($cdid));
 	if ($contq->fetch(PDO::FETCH_ASSOC)) {
 		$deletq = $ac->prepare("DELETE FROM customers WHERE id = ?");
 		$deletq->execute(array($cdid));
+		
 
 		$deletqp = $ac->prepare("DELETE FROM projects WHERE pcid = ?");
 		$deletqp->execute(array($cdid));
@@ -17,34 +18,34 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 
 
 		if ($deletq) {
-			header("Location: index.php?p=customer-list&cid=$cdid&type=delete");
+			header("Location: index.php?p=customer-list&id=$cdid&type=delete");
 		}
 	}
 }
 
 ?>
 
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-	<?php
-	if (@$_GET["st"] == "newsuccess") {
+
+<?php
+if (@$_GET["st"] == "newsuccess") {
 
 
 
-	?>
-		<div class="alert alert-success" role="alert">
-			Müşteri başarıyla sisteme eklendi. Aşağıdaki listeden görüntüleyebilirsiniz.
-		</div>
-	<?php
-	}
-	if (@$_GET["type"] == "delete" and @$_GET["cid"]) {
-	?>
-		<div class="alert alert-success" role="alert">
-			<?php echo "#" . $_GET["cid"]; ?> numaralı müşteri bilgileri başarıyla silindi.
-		</div>
-	<?php
-	}
-	?>
-
+?>
+	<div class="alert alert-success" role="alert">
+		Müşteri başarıyla sisteme eklendi. Aşağıdaki listeden görüntüleyebilirsiniz.
+	</div>
+<?php
+}
+if (@$_GET["type"] == "delete" and @$_GET["cid"]) {
+?>
+	<div class="alert alert-success" role="alert">
+		<?php echo "#" . $_GET["cid"]; ?> numaralı müşteri bilgileri başarıyla silindi.
+	</div>
+<?php
+}
+?>
+<div class="content pd-20 bg-white border-radius-8 box-shadow mb-30">
 	<div class="clearfix mb-20">
 		<div class="pull-left">
 			<h5 class="text-blue">Müşteri Listesi</h5>
@@ -53,7 +54,7 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 		<?php if (permtrue("cadd")) { ?>
 			<a href="index.php?p=new-customer&cc=0014s1"><button type="button" class="btn btn-success float-right">Yeni Müşteri</button></a><?php } ?>
 	</div>
-	<table class="data-table table-bordered table-hover">
+	<table class="data-table select-row table-bordered table-hover">
 		<thead>
 			<tr>
 				<th scope="col">#</th>
@@ -90,18 +91,31 @@ if (@$_GET["cid"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "3222891") 
 			?>
 				<tr>
 					<td scope="row"><?php echo $as["id"]; ?></td>
-					<td><?php echo $as["name"]; ?></td>
+					<td><a data-toggle="tooltip" data-placement="top" title="Şirket ismi : <?php echo $as["company"]; ?>"><?php echo $as["name"]; ?></a></td>
 					<td><?php echo $gaar["title"]; ?></td>
 					<td><?php echo $tps; ?></td>
 					<td><?php echo $as["email"]; ?></td>
 					<td><?php echo $as["gsm"]; ?></td>
+
 					<?php $ptr = permtrue("cedit"); ?>
-					<td><?php echo $ptr ? "<a href='index.php?p=edit-customer&cid=" . $as["id"] . "'><span class='badge badge-primary'>Görüntüle/Düzenle</span></a>" : ""; ?>
-						<?php if (permtrue("cdelete")) { ?><a onClick="return confirm('Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?')" href="index.php?p=customer-list&mode=delete&code=3222891&reg=true&md=active&cid=<?php echo $as["id"]; ?>"><span class="badge badge-danger">Sil</span></a><?php } ?></th>
+					<td><a href="index.php?p=edit-customer&cid=<?php echo $as["id"]; ?>" data-toggle="tooltip" data-placement="top" title="Görüntüle-Düzenle">
+							<span class="badge badge-info">
+								<i class="fa fa-edit"></i>
+							</span>
+						</a>
+
+						<?php if (permtrue("cdelete")) { ?>
+							
+							<a href="#" data-toggle="tooltip" data-placement="top" title="Sil" 
+								onClick="deleteRecord('Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?','<?php echo $as['id']; ?>','customer-list')">
+								<span class="badge badge-danger">
+									<i class="fa fa-trash"></i>
+								</span>
+							</a><?php } ?>
+						</th>
 
 				</tr>
 			<?php } ?>
 		</tbody>
 	</table>
 </div>
-<?php include('include/footer.php'); ?>

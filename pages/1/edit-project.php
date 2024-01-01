@@ -276,4 +276,4 @@ permcontrol("pedit");
 				<!-- Input Validation End -->
 
 			</div>
-			<?php include('include/footer.php'); ?>
+

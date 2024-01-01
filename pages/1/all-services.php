@@ -16,7 +16,7 @@ if ($ID && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 
 
 ?>
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
+<div class="content pd-20 bg-white border-radius-4 box-shadow mb-30">
 	<div class="clearfix mb-20">
 		<div class="pull-left">
 			<h5 class="text-blue">Servis Listesi</h5>
@@ -77,12 +77,5 @@ if ($ID && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 		</tbody>
 	</table>
 </div>
-
-
-
-<!-- Include SweetAlert and jQuery -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-
 
 

@@ -96,7 +96,5 @@
 				
 				<!-- Export Datatable End -->
 			</div>
-			<?php include('include/footer.php'); ?>
-
 		</div>
 	</div>

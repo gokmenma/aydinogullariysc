@@ -221,12 +221,5 @@ if ($_POST) {
 
 </div>
 <!-- Input Validation End -->
-<script>
-	document.getElementById("passwordField").addEventListener("change", function() {
-		// Şifre alanı değiştirildiğinde yapılacak işlemler
-		alert("Şifre alanını değiştiremezsiniz!");
-		// veya istediğiniz işlemi gerçekleştirin (örneğin, input alanını geri dönüştürün)
-	});
-</script>
 
-<?php include('include/footer.php'); ?>
+

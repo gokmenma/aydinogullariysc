@@ -38,6 +38,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 
 	<!-- <link rel="stylesheet" type="text/css" href="src/plugins/switchery/dist/switchery.css"> -->
 	<?php include 'include/head.php'; ?>
+
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
@@ -49,6 +50,9 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	<div id="preloader">
 		<div class="loader"></div>
     </div>
+	<!-- tek kullanımlık kod : 3066 47d5 4657 1e01 -->
+	
+	
 	<!-- <div id="preloader">
 		<div class="triple-spinner"></div>
 	</div> -->
@@ -66,9 +70,9 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	} else {
 	?>
 		<div class="main-container" id="content">
-			<div id="maincontainer" class="pd-ltr-10 xs-pd-10-10">
-				<div class="min-height-200px">
-					<!-- <div class="page-header">
+			<div id="maincontainer" class="content pd-ltr-10 xs-pd-10-10">
+				<!--<div class="min-height-200px">
+					 <div class="page-header">
 					<div class="row">
 						<div class="col-md-12 col-sm-12">
 							<div class="title">
@@ -111,14 +115,21 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 				if (!$plink || $plink == "home") {
 				} else {
 				?>
-				</div>
+			
 			</div>
+
+	<?php include('include/footer.php'); ?>
+			
 		</div>
+			
 	<?php
 
 				}
 	?>
+
 	<?php include 'include/script.php'; ?>
+
+	
 	<script src="include/app.js"></script>
 
 	<script>
@@ -563,6 +574,8 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 			postfix: "post"
 		});
 	</script>
+
+
 </body>
 
 </html>

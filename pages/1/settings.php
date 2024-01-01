@@ -282,4 +282,3 @@ if (@$_GET["st"] == "empties") {
 	})
 </script>
 
-<?php include('include/footer.php'); ?>

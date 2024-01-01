@@ -59,8 +59,3 @@ if ($_POST && $_GET["mode"] == "new") {
 	</form>
 
 </div>
-<script>
-	<?php include('include/app.js'); ?>
-</script>
-
-<?php include('include/footer.php'); ?>

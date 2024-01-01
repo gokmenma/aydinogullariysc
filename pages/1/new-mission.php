@@ -285,6 +285,8 @@
 
 
  </div>
+
+
  <script>
  	function Sec() {
  		// Seçilen değeri al
@@ -295,28 +297,26 @@
 
  	}
 
+ 	// function SaveNewKategory() {
+ 	// 	var Addcategory = document.getElementById('Addcategory').value; 
 
-
- 	function SaveNewKategory() {
- 		var Addcategory = document.getElementById('Addcategory').value; 
-
- 		fetch('index.php?p=categoryAdd', {
- 				method: 'POST',
- 				headers: {
- 					'Content-Type': 'application/x-www-form-urlencoded',
- 				},
- 				body: 'Addcategory=' + encodeURIComponent(Addcategory),
- 			})
- 			.then(response => {
- 				var selectElement = document.getElementById('categoryName');
- 				var newOption = document.createElement('option');
- 				newOption.value = Addcategory;
- 				newOption.textContent = Addcategory;
- 				selectElement.appendChild(newOption);
- 			})
- 			.catch(error => {
- 				// Hata durumunda burada işlemler yapabilirsiniz
- 			});
- 	}
+ 	// 	fetch('index.php?p=categoryAdd', {
+ 	// 			method: 'POST',
+ 	// 			headers: {
+ 	// 				'Content-Type': 'application/x-www-form-urlencoded',
+ 	// 			},
+ 	// 			body: 'Addcategory=' + encodeURIComponent(Addcategory),
+ 	// 		})
+ 	// 		.then(response => {
+ 	// 			var selectElement = document.getElementById('categoryName');
+ 	// 			var newOption = document.createElement('option');
+ 	// 			newOption.value = Addcategory;
+ 	// 			newOption.textContent = Addcategory;
+ 	// 			selectElement.appendChild(newOption);
+ 	// 		})
+ 	// 		.catch(error => {
+ 	// 			// Hata durumunda burada işlemler yapabilirsiniz
+ 	// 		});
+ 	// }
  </script>
  <?php include('include/footer.php'); ?>

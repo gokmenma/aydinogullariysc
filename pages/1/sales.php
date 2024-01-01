@@ -27,8 +27,8 @@ if (@$_GET["type"] == "delete" and @$_GET["cid"]) {
 <?php
 }
 ?>
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-  <div class="clearfix mb-20">git
+<div class="content pd-20 bg-white border-radius-8 box-shadow mb-30">
+  <div class="clearfix mb-20">
     <div class="pull-left">
       <h5 class="text-blue">Satışlar</h5>
     </div>

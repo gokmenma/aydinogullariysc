@@ -13,31 +13,31 @@ function validateForm() {
 
         }
     }
-    // console.log(emptyFields);
+    console.log(emptyFields);
 
     if (emptyFields.length > 0) {
         var errorMessage = 'Lütfen zorunlu alanları doldurun: ' + emptyFields.join(', ');
         showMessage(errorMessage, 'alert');
     } else {
-
-        SubmitForm();
+        var form = document.getElementById("myForm");
+        form.submit(); // Formu gönder 
+        //SubmitForm();
 
     }
 }
 
 function SubmitForm() {
-    var form = document.getElementById("myForm");
-    setTimeout(function () {
+      setTimeout(function () {
+         showMessage("İşlem Başarı ile tamamlandı!", "success"); // Mesajı göster 
+    }, 3000); // 2000 milisaniye (2 saniye) sonra göster
 
-        form.submit(); // Formu gönder 
-    }, 2000); // 2000 milisaniye (2 saniye) sonra göster
-    showMessage("İşlem Başarı ile tamamlandı!", "success"); // Mesajı göster
 
 }
 
 function showMessage(message, type) {
     var alertClass = '';
     var firstLetter = '';
+//console.log(message);
 
     if (type === 'success') {
         alertClass = 'alert-success';
@@ -67,6 +67,7 @@ function showMessage(message, type) {
             });
         }, 3000);
     }
+    
 }
 
 
@@ -74,7 +75,7 @@ function deleteRecord(msg, ID, pLink) {
     // console.log(ID);
     Swal.fire({
         title: "Emin misiniz?",
-        text: msg,
+        text: ID + ' numaralı ' + msg,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -95,7 +96,7 @@ function deleteRecord(msg, ID, pLink) {
                     // Handle success response (optional)
                     Swal.fire({
                         title: "Başarılı!",
-                        text: name + " isimli kayıt başarı ile silindi!",
+                        text: "Kayıt başarı ile silindi!",
                         icon: "success"
                     }).then(() => {
                         // Redirect to page
@@ -122,3 +123,32 @@ $(function () {
 })
 
 
+
+function SaveNewKategory(p_name, selectName) {
+    var Addcategory = document.getElementById('Addcategory').value;
+    if (Addcategory != "") {
+
+
+        fetch('index.php?p=' + p_name, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'Addcategory=' + encodeURIComponent(Addcategory),
+        })
+            .then(response => {
+
+                var selectElement = document.getElementById(selectName);
+                var newOption = document.createElement('option');
+                newOption.value = Addcategory;
+                newOption.textContent = Addcategory;
+                selectElement.appendChild(newOption);
+                document.getElementById('Addcategory').value = '';
+
+            })
+            .catch(error => {
+                // Hata durumunda burada işlemler yapabilirsiniz
+            });
+         
+    }
+}
