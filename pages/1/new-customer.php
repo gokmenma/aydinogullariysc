@@ -48,12 +48,16 @@ if ($_POST) {
     $asdfa = $regg->execute(array($grp, $cname, $cemail, $ccompany, $csector, $caddress, $ccity, $cnotes, $cgsm, $cgsm2, $yetkiliadi, $sunvan, $vdaire, $vno, TODAY, sesset("id")));
 
     $lidx = $ac->lastInsertId();
+    if ($lidx){
+        header("Location: index.php?p=new-customer&st=newsuccess");
+    }
 }
 
 if (@$_GET["st"] == "empties") {
-    showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
-} elseif (@$_GET["st"] == "newsuccess") {
-    showAlert('success', 'Müşteri başarıyla eklendi!');
+    showAlert("alert", "(*) ile işaretli alanları boş bırakmadan tekrar deneyin.");
+} 
+if (@$_GET["st"] == "newsuccess") {
+    showAlert("success", "İşlem Başarı ile tamamlandı!");
 }
 
 ?>
@@ -123,7 +127,7 @@ if (@$_GET["st"] == "empties") {
                                         </button>
                                     </div>
                                     <div class="modal-body m-2">
-                                        <input type="text" required class="form-control" value="" name="Addcategory" id="Addcategory" placeholder="Eklenecek kategori adını yazınız...">
+                                        <input type="text" class="form-control" value="" name="Addcategory" id="Addcategory" placeholder="Eklenecek kategori adını yazınız...">
                                     </div>
                                     <div class="modal-footer mb-2">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>

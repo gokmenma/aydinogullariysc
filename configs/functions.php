@@ -200,36 +200,45 @@
 		}
 	}
 
-	function showAlert($type, $message)
-	{
-		$alertClass = '';
-		$firstLetter = '';
-
-		if ($type === 'success') {
-			$alertClass = 'alert-success';
-			$firstLetter = "Başarılı!";
-		} elseif ($type === 'alert') {
-			$alertClass = 'alert-danger';
-			$firstLetter = "Uyarı";
-		} elseif ($type === 'error') {
-			$alertClass = 'alert-warning';
-			$firstLetter = "Uyarı";
-		} elseif ($type === 'info') {
-			$alertClass = 'alert-info';
-			$firstLetter = "Bilgi!";
-		}
-
-		if ($alertClass && $message) {
-
-			echo '<div id="myAlert" class="alert alert-dismissible ' . $alertClass . ' fade show">
-					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-					<strong>' . ucfirst($firstLetter) . '!</strong> ' . $message . '
-				  </div>';
-		};
-
-		
+	function showAlert($type, $message) {
+	?>
+	<script>
+		showMessage('<?php echo $message ?>','<?php echo $type ?>');
+	</script>
+	<?php
+	//echo '<script> console.log(`' . addslashes($message) . '`); </script>';
 	}
+	
 
+
+	// function showMessage( $type,$message)
+
+	// {
+	// 	$alertClass = '';
+	// 	$firstLetter = '';
+
+	// 	if ($type === 'success') {
+	// 		$alertClass = 'alert-success';
+	// 		$firstLetter = "Başarılı!";
+	// 	} elseif ($type === 'alert') {
+	// 		$alertClass = 'alert-danger';
+	// 		$firstLetter = "Uyarı";
+	// 	} elseif ($type === 'error') {
+	// 		$alertClass = 'alert-warning';
+	// 		$firstLetter = "Uyarı";
+	// 	} elseif ($type === 'info') {
+	// 		$alertClass = 'alert-info';
+	// 		$firstLetter = "Bilgi!";
+	// 	}
+
+	// 	if ($alertClass && $message) {
+
+	// 		echo '<div id="myAlert" class="alert alert-dismissible ' . $alertClass . ' fade show">
+	// 				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+	// 				<strong>' . ucfirst($firstLetter) . '!</strong> ' . $message . '
+	// 			  </div>';
+	// 	};
+	// }
 
 
 
@@ -290,16 +299,15 @@
 		$result = $columns . "\n" .
 			'$insq = $ac->prepare("INSERT INTO ' . $tableName . ' SET ' . $field . '");' . "\n" .
 			'$insq->execute(array(' . $insquery . '));';
-			
-			
-			echo '<script> console.log(`' . addslashes($result) . '`); </script>';
-	
+
+
+		echo '<script> console.log(`' . addslashes($result) . '`); </script>';
 	}
-	
-	function NewCategorySave($categoryName) {
+
+	function NewCategorySave($categoryName)
+	{
 		global $ac;
-		
+
 		$insq = $ac->prepare("INSERT INTO missioncategory SET categoryName = ? ");
 		$insq->execute(array($categoryName));
-
 	}

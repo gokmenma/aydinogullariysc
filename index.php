@@ -38,6 +38,7 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 
 	<!-- <link rel="stylesheet" type="text/css" href="src/plugins/switchery/dist/switchery.css"> -->
 	<?php include 'include/head.php'; ?>
+
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />

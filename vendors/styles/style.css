@@ -2180,6 +2180,9 @@ pre code {
   .table-responsive-sm>.table-bordered {
     border: 0;
   }
+
+ 
+ 
 }
 
 @media (max-width: 767.98px) {
@@ -2194,6 +2197,7 @@ pre code {
   .table-responsive-md>.table-bordered {
     border: 0;
   }
+  
 }
 
 @media (max-width: 991.98px) {
@@ -2207,6 +2211,9 @@ pre code {
 
   .table-responsive-lg>.table-bordered {
     border: 0;
+  }
+  .clerfix{
+    width: 100%;
   }
 }
 
@@ -2789,6 +2796,19 @@ select.form-control-lg:not([size]):not([multiple]),
   .form-inline .custom-control-label {
     margin-bottom: 0;
   }
+}
+.btn-mini {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  padding: 0.175rem  0.4rem;
+  font-size: 0.8rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  
 }
 
 .btn {
@@ -6893,6 +6913,13 @@ button.bg-dark:focus {
   border-radius: 0 !important;
 }
 
+
+
+
+.z-9999{
+  z-index: 9999;
+}
+
 .clearfix::after {
   display: block;
   clear: both;
@@ -8245,7 +8272,15 @@ button.bg-dark:focus {
 .my-2 {
   margin-top: 0.5rem !important;
 }
-
+.mt-20{
+margin-top: 2rem;
+}
+.mt-60{
+  margin-top: 6rem !important;
+}
+.mt-70{
+  margin-top: 7rem !important;
+}
 .mr-2,
 .mx-2 {
   margin-right: 0.5rem !important;
@@ -12299,6 +12334,10 @@ ul.wysihtml5-toolbar .fa {
 
 .fa-eject:before {
   content: "\f052";
+}
+
+.fa-chevron-left:before {
+  content: "\f053";
 }
 
 .fa-chevron-left:before {
@@ -25597,6 +25636,7 @@ textarea.form-control {
 }
 .content{
   min-height : 94%;
+  width: 100%;
 }
 
 .page-header .dropdown-menu {

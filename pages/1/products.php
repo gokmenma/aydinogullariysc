@@ -83,7 +83,7 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 						&nbsp;&nbsp;
 
 						<!-- <?php if (permtrue("serdelete")) { ?><a onClick="return confirm('<?php echo $as["Adi"]; ?> isimli ürün/hizmeti sistemden kaldırmak istediğinize emin misiniz?')" href="index.php?p=products&mode=delete&code=04md177&reg=true&md=active&pid=<?php echo $as["id"]; ?>"><span class="badge badge-danger">Sil</span></a><?php } ?></td> -->
-						<a href="#" onClick="deleteProduct('<?php echo $as["Adi"]; ?> isimli ürün/hizmeti sistemden kaldırmak istediğinize emin misiniz?',<?php echo $as["ID"]; ?>)"><span class="badge badge-danger">Sil</span></a>
+						<a href="#" onClick="deleteRecord('<?php echo $as["Adi"]; ?> isimli ürün/hizmeti sistemden kaldırmak istediğinize emin misiniz?',<?php echo $as["ID"]; ?>,'products')"><span class="badge badge-danger">Sil</span></a>
 						<!-- <button class="badge badge-info" onclick="deleteProduct('<?php echo $as["Adi"]; ?> isimli ürün/hizmeti sistemden kaldırmak istediğinize emin misiniz?',<?php echo $as["ID"]; ?>)">swal</button> -->
 
 				</tr>
@@ -99,7 +99,7 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 <!-- Include SweetAlert and jQuery -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-
+<!-- 
 <script>
     function deleteProduct(msg,ID) {
 		console.log(ID);
@@ -144,4 +144,4 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
             }
         });
     }
-</script>
+</script> -->

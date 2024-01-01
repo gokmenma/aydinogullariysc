@@ -20,6 +20,7 @@
 	<link rel="stylesheet" type="text/css" href="src/plugins/datatables/media/css/responsive.dataTables.css">
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<link rel="stylesheet" href="vendors/styles/style.css">
+	<script src="include/app.js"></script>
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-119386393-1"></script>
 	<!-- Styles -->
 	<script>

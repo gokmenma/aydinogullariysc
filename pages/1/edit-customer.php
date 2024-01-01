@@ -60,7 +60,7 @@ if ($_POST) {
 	$vdaire = @$_POST["vdaire"];
 	$vno = @$_POST["vno"];
 	$cpass = "abccc";
-	$grra = @$_POST["grp"];
+	$grra = @$_POST["categoryName"];
 
 	$ahce = $ac->prepare("UPDATE customers SET
 	grp = ?,
@@ -80,84 +80,67 @@ if ($_POST) {
 
 	$ahce->execute(array($grra, $cname, $cemail, $ccompany, $csector, $caddress, $ccity, $cnotes, $cgsm, $cgsm2, $yetkiliadi, $sunvan, $vdaire, $vno, $cid));
 
-	if ($cpass) {
+	// if ($cpass) {
 
-		$sifre = md5(md5(md5($cpass)));
-		$upcus = $ac->prepare("UPDATE customers SET password = ? WHERE id = ?");
-		$upcus->execute(array($sifre, $cid));
+	// 	$sifre = md5(md5(md5($cpass)));
+	// 	$upcus = $ac->prepare("UPDATE customers SET password = ? WHERE id = ?");
+	// 	$upcus->execute(array($sifre, $cid));
 
-		$upcus = $ac->prepare("UPDATE users SET password = ? WHERE cid = ?");
-		$upcus->execute(array($sifre, $cid));
-	}
+	// 	$upcus = $ac->prepare("UPDATE users SET password = ? WHERE cid = ?");
+	// 	$upcus->execute(array($sifre, $cid));
+	// }
 
 
 	if ($ahce) {
-
-
 		header("Location:index.php?p=edit-customer&cid=$cid&st=newsuccess");
 	} else {
-		//header("Location: index.php?p=all-customers&st=newerror&code=acmd008");
 	}
 }
 
-
+//Uyarı mesajları
 if (@$_GET["st"] == "empties") {
-?>
-	<div class="alert alert-danger" role="alert">
-		(*) ile işaretli alanları boş bırakmadan tekrar deneyin.
-	</div>
-<?php
+	showAlert("alert", "(*) ile işaretli alanları boş bırakmadan tekrar deneyin.");
 }
+
 if (@$_GET["st"] == "newsuccess") {
-
-
-
-?>
-	<div class="alert alert-success" role="alert">
-		Bilgiler kaydedildi.
-	</div>
-<?php
+	showAlert("success", "İşlem Başarı ile tamamlandı!");
 } elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "name") {
-?>
-	<div class="alert alert-warning" role="alert">
-		Aynı adda bir dosya bulunuyor, lütfen ismini değiştirerek projeyi tekrar oluşturmayı deneyin.
-	</div>
-<?php
+	showAlert("alert", "Aynı adda bir dosya bulunuyor, lütfen ismini değiştirerek projeyi tekrar oluşturmayı deneyin.");
 } elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "size") {
-?>
-	<div class="alert alert-warning" role="alert">
-		Yüklediğiniz dosyaın boyutu <b>3 MB</b>'dan daha büyük olamaz. Proje oluşturulamadı, tekrar deneyin.
-	</div>
-<?php
+	showAlert("alert", "Yüklediğiniz dosyaın boyutu <b>3 MB</b>'dan daha büyük olamaz. Proje oluşturulamadı, tekrar deneyin.");
 } elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "erno") {
-?>
-	<div class="alert alert-danger" role="alert">
-		Proje oluşturuldu ancak, dosya yüklenirken bir problem yaşandı.
-	</div>
-<?php
+	showAlert("alert", "Proje oluşturuldu ancak, dosya yüklenirken bir problem yaşandı.");
 }
-
-
 ?>
+
+
 <!-- Default Basic Forms Start -->
 <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-	<div class="clearfix">
+	<div class="clearfix ">
+
 		<div class="pull-left">
-			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4><br>
+			<div class="d-flex">
+				<a href="index.php?p=customer-list">
+					<button class="btn-mini btn-info" data-toggle="tooltip" data-placement="top" title="Listeye Geri Dön">
+						<i class="fa fa-arrow-left"></i>
+					</button>
+				</a>
+				<h4 class="text-blue ml-2"><?php echo $pdat["p_title"]; ?></h4><br>
+			</div>
+
 			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
 		</div>
-		<div class="form-group">
 
-			<a href="index.php?p=view-sales-c&id=<?php echo $cc["id"]; ?>"><button class="btn btn-success" style="float:right">Ödemeleri Görüntüle</button></a>
-			<input type="submit" id="submitButton" value="Kaydet" class="float-right mr-2 btn btn-primary">
-		</div>
+
+		<a href="index.php?p=view-sales-c&id=<?php echo $cc["id"]; ?>"><button class="btn btn-success" style="float:right">Ödemeleri Görüntüle</button></a>
+		<input type="submit" id="submitButton" onclick="validateForm()" value="Kaydet" class="float-right mr-2 btn btn-primary">
+
 	</div>
-
 
 	<div class="row">
 		<div class="col-lg-3 col-md-6 col-sm-12 mb-30">
 			<div class="bg-white pd-20 box-shadow border-radius-5 height-100-p">
-				<div class="project-info clearfix">
+				<div class="project-info">
 					<div class="project-info-left">
 						<div class="icon box-shadow bg-blue text-white">
 							<i class="fa fa-briefcase"></i>
@@ -172,7 +155,7 @@ if (@$_GET["st"] == "newsuccess") {
 		</div>
 		<div class="col-lg-3 col-md-6 col-sm-12 mb-30">
 			<div class="bg-white pd-20 box-shadow border-radius-5 height-100-p">
-				<div class="project-info clearfix">
+				<div class="project-info">
 					<div class="project-info-left">
 						<div class="icon box-shadow bg-light-green text-white">
 							<i class="fa fa-handshake-o"></i>
@@ -189,8 +172,8 @@ if (@$_GET["st"] == "newsuccess") {
 			<div class="bg-white pd-20 box-shadow border-radius-5 height-100-p">
 				<div class="project-info clearfix">
 					<div class="project-info-left">
-						<div class="icon box-shadow bg-blue text-white">
-							<i class="fa fa-briefcase"></i>
+						<div class="icon box-shadow bg-danger text-white">
+							<i class="fa fa-truck"></i>
 						</div>
 					</div>
 					<div class="project-info-right">
@@ -204,7 +187,7 @@ if (@$_GET["st"] == "newsuccess") {
 			<div class="bg-white pd-20 box-shadow border-radius-5 height-100-p">
 				<div class="project-info clearfix">
 					<div class="project-info-left">
-						<div class="icon box-shadow bg-light-green text-white">
+						<div class="icon box-shadow bg-light-orange text-white">
 							<i class="fa fa-handshake-o"></i>
 						</div>
 					</div>
@@ -219,20 +202,25 @@ if (@$_GET["st"] == "newsuccess") {
 
 
 
-	<form enctype="multipart/form-data" action="" method="POST">
+	<form enctype="multipart/form-data" id="myForm" action="" method="POST">
 		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Ad-Soyad:
 			</label>
-			<div class="col-sm-12 col-md-10"><input required name="cname" value="<?php echo $cc["name"]; ?>" type="text" class="form-control">
+			<div class="col-sm-12 col-md-4"><input required name="cname" value="<?php echo $cc["name"]; ?>" type="text" class="form-control">
+			</div>
+
+			<label class="col-sm-12 col-md-2 col-form-label">E-Posta:</label>
+			<div class="col-sm-12 col-md-4"><input name="cemail" value="<?php echo $cc["email"]; ?>" type="text" class="form-control">
 			</div>
 		</div>
+
 		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">
+			<label for="categoryName" class="col-sm-12 col-md-2 col-form-label">
 				<font color="red">(*)</font> Grup:
 			</label>
-			<div class="col-sm-12 col-md-10">
-				<select name="grp" class="form-control">
+			<div class="input-group col-md-4">
+				<select required name="categoryName" id="categoryName" class="form-control">
 					<?php $cek = $ac->prepare("SELECT * FROM cgroups WHERE statu = ?");
 					$cek->execute(array(1));
 					while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
@@ -241,14 +229,52 @@ if (@$_GET["st"] == "newsuccess") {
 					<?php
 					}
 					?>
+					?>
 				</select>
+
+				<?php if (permtrue("cedit")) { ?>
+					<div class="chooseitem">
+						<!-- Button trigger modal -->
+
+						<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+							<i class="fa fa-plus-circle"></i>
+						</button>
+
+
+
+
+						<!-- Modal -->
+						<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title" id="exampleModalLabel">Kategori Adı:</h5>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div class="modal-body m-2">
+										<input type="text" class="form-control" value="" name="Addcategory" id="Addcategory" placeholder="Eklenecek kategori adını yazınız...">
+									</div>
+									<div class="modal-footer mb-2">
+										<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+
+										<button type="button" id="ModalSaveButton" onclick="SaveNewKategory('customer-groups','categoryName')" data-bs-dismiss="modal" class="btn btn-primary">Kaydet</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Modal -->
+					</div>
+				<?php  } ?>
+			</div>
+
+			<label class="col-sm-12 col-md-2 col-form-label">Sektör:</label>
+			<div class="col-sm-12 col-md-4"><input name="csector" value="<?php echo $cc["sector"]; ?>" type="text" class="form-control">
 			</div>
 		</div>
-		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">E-Posta:</label>
-			<div class="col-sm-12 col-md-10"><input name="cemail" value="<?php echo $cc["email"]; ?>" type="text" class="form-control">
-			</div>
-		</div>
+
+
 
 		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label">Şirket İsmi:</label>
@@ -256,11 +282,6 @@ if (@$_GET["st"] == "newsuccess") {
 			</div>
 		</div>
 
-		<div class="form-group row">
-			<label class="col-sm-12 col-md-2 col-form-label">Sektör:</label>
-			<div class="col-sm-12 col-md-10"><input name="csector" value="<?php echo $cc["sector"]; ?>" type="text" class="form-control">
-			</div>
-		</div>
 
 
 
@@ -278,13 +299,11 @@ if (@$_GET["st"] == "newsuccess") {
 
 		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label">Telefon:</label>
-			<div class="col-sm-12 col-md-10"><input placeholder="05XXXXXXXXX" maxlength="11" minlength="11" name="cgsm" value="<?php echo $cc["gsm"]; ?>" type="text" class="form-control">
+			<div class="col-sm-12 col-md-4"><input placeholder="05XXXXXXXXX" maxlength="11" minlength="11" name="cgsm" value="<?php echo $cc["gsm"]; ?>" type="text" class="form-control">
 			</div>
-		</div>
 
-		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label"> Telefon 2:</label>
-			<div class="col-sm-12 col-md-10"><input name="cgsm2" value="<?php echo $cc["gsm2"]; ?>" type="text" class="form-control">
+			<div class="col-sm-12 col-md-4"><input name="cgsm2" value="<?php echo $cc["gsm2"]; ?>" type="text" class="form-control">
 			</div>
 		</div>
 		<div class="form-group row">
@@ -299,30 +318,25 @@ if (@$_GET["st"] == "newsuccess") {
 		</div>
 		<div class="form-group row">
 			<label class="col-sm-12 col-md-2 col-form-label"> Vergi Dairesi:</label>
-			<div class="col-sm-12 col-md-10"><input value="<?php echo $cc["vdaire"]; ?>" name="vdaire" type="text" class="form-control">
+			<div class="col-sm-12 col-md-4"><input value="<?php echo $cc["vdaire"]; ?>" name="vdaire" type="text" class="form-control">
 			</div>
-		</div>
-		<div class="form-group row">
+
 			<label class="col-sm-12 col-md-2 col-form-label"> Vergi No:</label>
-			<div class="col-sm-12 col-md-10"><input value="<?php echo $cc["vno"]; ?>" name="vno" type="text" class="form-control">
+			<div class="col-sm-12 col-md-4"><input value="<?php echo $cc["vno"]; ?>" name="vno" type="text" class="form-control">
 			</div>
 		</div>
 		<div class="form-group row">
-		<label class="col-sm-12 col-md-2 col-form-label"> Notlar :</label>
+			<label class="col-sm-12 col-md-2 col-form-label"> Notlar :</label>
 			<div class="col-sm-12 col-md-10">
 				<textarea name="cnotes" value="" placeholder="Müşteri hakkında yöneticilerin görebileceği bir not ekleyebilirsiniz." class="form-control"><?php echo $cc["cdesc"]; ?></textarea>
 			</div>
 		</div>
 
-</div>
 
 
+	</form>
 
 
-
-</form>
-
-
-<!-- Input Validation End -->
+	<!-- Input Validation End -->
 
 </div>
