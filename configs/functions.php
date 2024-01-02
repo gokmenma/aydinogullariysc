@@ -255,11 +255,11 @@
 	{
 		echo '<select required name=' . $name . ' class="custom-select col-12">
 					<option disabled >Oran Seçiniz </option>
-					<option selected="" value="%20">%20</option>
-					<option value="%18">%18</option>
-					<option value="%10">%10</option>
-					<option value="%8">%8</option>
-					<option value="%1">%1</option>
+					<option selected="" value="20">%20</option>
+					<option value="18">%18</option>
+					<option value="10">%10</option>
+					<option value="8">%8</option>
+					<option value="1">%1</option>
 				</select>';
 	}
 

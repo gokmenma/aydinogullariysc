@@ -38,8 +38,9 @@ if ($_POST) {
 	$customerx = $_POST["customers"];
 	$craetiverx = sesset("id");
 	$companyx = set("company_name");
-	$taxx = @$_POST["tax"];
-	if ($taxx != 0 and $taxx != 1 and $taxx != 8 and $taxx != 18) {
+	$taxx = $_POST["tax"];
+	$notesx = $_POST["notesx"];
+	if ($taxx != 0 and $taxx != 1 and $taxx != 8 and $taxx != 18 and $taxx != 20) {
 		header("Location: index.php");
 		exit;
 	}
@@ -50,59 +51,92 @@ if ($_POST) {
 	}
 
 
-	$notesx = $_POST["notesx"];
 
-	$tdg = 1;
+
+	// $tdg = 1;
+	// $tot = 0;
+	// while ($tdg <= MATROW) {
+	// 	$tektop = floatval($_POST["price$tdg"]) * floatval($_POST["amount$tdg"]);
+	// 	$tot = $tot + $tektop;
+	// 	$tdg++;
+	// }
 	$tot = 0;
-	while ($tdg <= MATROW) {
-		$tektop = floatval($_POST["price$tdg"]) * floatval($_POST["amount$tdg"]);
-		$tot = $tot + $tektop;
-		$tdg++;
+	$prices = $_POST['price'];
+	$amounts = $_POST['amount'];
+
+	for ($i = 0; $i < count($prices); $i++) {
+		$tektop = floatval($prices[$i]) * floatval($amounts[$i]);
+		$tot += $tektop;
 	}
 
 
-
 	$regxs = $ac->prepare("INSERT INTO offers SET
-                cid = ?,
-                total_price = ?,
-                mycompany = ?,
-                authors = ?,
-                reg_date = ?,
-                tax = ?,
-                creativer = ?,
-                notes = ?,
-                currency = ?,
-                statu = ?");
+	cid = ?,
+	total_price = ? ,
+	mycompany = ? ,
+	authors = ? ,
+	reg_date = ?,
+	tax = ? ,
+	creativer = ? ,
+	notes = ? ,
+	currency = ? ,
+	statu = ?");
 
 	$regxs->execute(array($customerx, $tot, $companyx, $pps, TODAY, $taxx, sesset("id"), $notesx, $cur,	0));
 	$lastid = $ac->lastInsertId();
 
 
 	$dg = 1;
-	while ($dg <= MATROW) {
+	// while ($dg <= MATROW) {
 
-		if (isset($_POST["matter$dg"]) && $_POST["matter$dg"]) {
+	// 	if (isset($_POST["matter$dg"]) && $_POST["matter$dg"]) {
+	// 		$regmatter = $ac->prepare("INSERT INTO offermatters SET
+	// 												xid = ?,
+	// 												oid = ?,
+	// 												title = ?,
+	// 												unit = ?,
+	// 												amount = ?,
+	// 												price = ?,
+	// 												total = ?");
+
+	// 		$totals = floatval($_POST["amount$dg"]) * floatval($_POST["price$dg"]);
+
+	// 		$regmatter->execute(array($dg, $lastid, $_POST["matter$dg"], $_POST["unit$dg"], $_POST["amount$dg"], $_POST["price$dg"], $totals));
+	// 	}
+	// 	$dg++;
+	// }
+
+	$matters = $_POST['matter'];
+	$units = $_POST['unit'];
+	for ($i = 0; $i < count($matters); $i++) {
+
+
+
+
+		if (isset($matters[$i]) ) {
 			$regmatter = $ac->prepare("INSERT INTO offermatters SET
-	xid = ?,
-	oid = ?,
-	title = ?,
-	unit = ?,
-	amount = ?,
-	price = ?,
-	total = ?");
+													xid = ?,
+													oid = ?,
+													title = ?,
+													unit = ?,
+													amount = ?,
+													price = ?,
+													total = ?");
 
-			$totals = floatval($_POST["amount$dg"]) * floatval($_POST["price$dg"]);
+			$totals = floatval($prices[$i]) * floatval($amounts[$i]);
 
-			$regmatter->execute(array($dg, $lastid, $_POST["matter$dg"], $_POST["unit$dg"], $_POST["amount$dg"], $_POST["price$dg"], $totals));
+			$regmatter->execute(array($dg, $lastid, $matters[$i], $units[$i], $amounts[$i], $prices[$i], $totals));
 		}
-		$dg++;
 	}
 
-	if ($regxs) {
-		header("Location: index.php?p=edit-offer&type=fileupload&insert=new&ccs=083y3&oid=$lastid&stx=newreg");
-	} else {
-		header("Location: index.php?p=all-offers&st=newerror&code=acmd008");
-	}
+
+
+if ($regxs) {
+	header("Location: index.php?p=edit-offer&type=fileupload&insert=new&ccs=083y3&oid=$lastid&stx=newreg");
+} else {
+	header("Location: index.php?p=all-offers&st=newerror&code=acmd008");
+}
+
 }
 
 
@@ -133,6 +167,9 @@ if (@$_GET["st"] == "empties") {
 }
 
 
+
+
+
 ?>
 
 
@@ -143,7 +180,7 @@ if (@$_GET["st"] == "empties") {
 		<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
 			<div class="clearfix">
 				<div class="pull-left">
-					<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
+					<h4 class="text-blue"><?php echo $pdat["p_title"] ?></h4>
 
 
 					<p class="mb-30 font-14">Oluşturduğunuz teklif'in excel dosyasını sisteme upload etmeyi unutmayınız.<br>Bu teklife özel olarak fiyatlarda değişiklik yapmak için, teklifi oluşturduktan sonra, teklif düzenleme sayfasına gidebilirsiniz.</p>
@@ -249,20 +286,20 @@ if (@$_GET["st"] == "empties") {
 								<!-- metin kutularını dizi olarak ekliyoruz (alanlar[]). -->
 								<th class="col-md-1"><strong>Kalem 1</strong></th>
 								<td class="col-md-4">
-									<select id="matter_" name="matter[]" class="form-control col-sm-12">
+									<select id="matter_1" name="matter[]" class="form-control col-sm-12">
 										<option value="" selected="">Seçiniz...</option>
 										<?php
-										$qcts = $ac->prepare("SELECT * FROM services ORDER BY id ASC");
+										$qcts = $ac->prepare("SELECT * FROM products ORDER BY id ASC");
 										$qcts->execute();
 										while ($svs = $qcts->fetch(PDO::FETCH_ASSOC)) {
 										?>
-											<option value="<?php echo $svs["Firma"]; ?>"><?php echo $svs["Firma"]; ?></option>
+											<option value="<?php echo $svs["Adi"]; ?>"><?php echo $svs["Adi"]; ?></option>
 										<?php }	?>
 									</select>
 								</td>
 
 								<td class="col-md-2">
-									<select id="unit_" name="unit[]" class="form-control col-sm-12">
+									<select id="unit_1" name="unit[]" class="form-control col-sm-12">
 										<option value="0" selected disabled>Birim seçiniz</option>
 										<?php
 										$unq = $ac->prepare("SELECT * FROM units ");
@@ -273,15 +310,15 @@ if (@$_GET["st"] == "empties") {
 										<?php } ?>
 									</select>
 								</td>
-								<td class="col-md-2"><input id="amount_" name="amount[]" type="text" class="form-control"></td>
-								<td class="col-md-2"><input id="price_" name="price[]" type="text" class="form-control"></td>
+								<td class="col-md-2"><input id="amount_1" name="amount[]" type="text" class="form-control"></td>
+								<td class="col-md-2"><input id="price_1" name="price[]" type="text" class="form-control"></td>
 								<td class="col-md-1"></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-<hr>
-<br>
+				<hr>
+				<br>
 
 				<div class="form-group row">
 					<label class="col-sm-12 col-md-2 col-form-label">
@@ -320,38 +357,87 @@ if (@$_GET["st"] == "empties") {
 
 
 
+			<!--buradan başlıyor-->
+			<?php
 
+			$qcts = $ac->prepare("SELECT * FROM products ORDER BY id ASC");
+			$qcts->execute();
+			$services =	$qcts->fetchAll(PDO::FETCH_ASSOC);
+			$jsonDataServices = json_encode($services);
+
+
+
+			$unq = $ac->prepare("SELECT * FROM units");
+			$unq->execute();
+			$units = $unq->fetchAll(PDO::FETCH_ASSOC);
+
+			// Diziyi JSON formatına dönüştürün
+			$jsonDataUnits = json_encode($units);
+
+			?>
 			<script type="text/javascript">
-				//ekle bağlantısına tıklandığında çalışacak jquery kodlarımız
-				//burada table ın tbody kısmına satır (tr) ekleme yöntemi ile ders için input ekliyoruz.
-				var sayac = 1; //kaçıncı ders bilgisini tutuyoruz
 				$(function() {
 					$('#ekle').click(function() {
-						sayac += 1;
-						$('#kalem_ekle tbody').append(
-							'<tr><th><strong>Kalem ' + sayac + '</strong></th>' +
-							'<td><select id="matter_' + sayac + '" name=matter[] class="form-control" >' +
-							'<option value= "" selected="">Seçiniz... </option>' +
-							' </select></td>' +
-							'<td><select id="unit_' + sayac + '" name="unit[]' + '"  class="form-control" >' +
-							'<option value= "" selected="">Birim Seçiniz... </option>' +
-							' </select></td>' +
-							'<td><input id="amount_' + sayac + '" name="amount[]' + '" type="text" class="form-control" /></td>' +
-							'<td><input id="price_' + sayac + '" name="price[]' + '" type="text" class="form-control" /></td>' +
-							'<td><a href="#" class="sil btn btn-danger">Sil</a></td></tr>');
+
+						var jsonDataServices = <?php echo $jsonDataServices; ?>;
+						var jsonDataUnits = <?php echo $jsonDataUnits; ?>; // JSON verilerini JavaScript değişkenine atama
+						fillSelectOptions(jsonDataServices, jsonDataUnits);
+
 					});
-					//sil bağlantısına tıklanınca çalışacak jquery kodumuz
-					//sil tıklandığında tablodaki bulunduğu tr yi siliyoruz
-					$('#kalem_ekle').on("click", ".sil", function(e) { //user click on remove text
-						e.preventDefault();
-						$(this).closest("tr").remove();
-
-					})
 				});
-			</script>
+				var sayac = 1;
 
+				function fillSelectOptions(services, units) {
+					sayac += 1;
+					var selectMatter = '<select id="matter_' + sayac + '" name="matter[]" class="form-control">';
+					var selectUnit = '<select id="unit_' + sayac + '" name="unit[]" class="form-control">';
+
+					selectMatter += '<option value="0" selected disabled>Seçiniz...</option>';
+					selectUnit += '<option value="0" selected disabled>Birim seçiniz</option>';
+
+					for (var i = 0; i < services.length; i++) {
+						selectMatter += '<option value="' + services[i].Adi + '">' + services[i].Adi + '</option>';
+
+					}
+
+					for (var i = 0; i < units.length; i++) {
+						selectUnit += '<option value="' + units[i].title + '">' + units[i].title + '</option>';
+					}
+
+					selectMatter += '</select>';
+					selectUnit += '</select>';
+
+					$('#kalem_ekle tbody').append(
+						'<tr><th><strong>Kalem ' + sayac + '</strong></th>' +
+						'<td>' + selectMatter + '</td>' +
+						'<td>' + selectUnit + '</td>' +
+						'<td><input id="amount_' + sayac + '" name="amount[]' + '" type="text" class="form-control" /></td>' +
+						'<td><input id="price_' + sayac + '" name="price[]' + '" type="text" class="form-control" /></td>' +
+						'<td><a href="#" class="sil btn btn-danger">Sil</a></td></tr>'
+					);
+				}
+				$('#kalem_ekle').on("click", ".sil", function(e) { //user click on remove text
+					e.preventDefault();
+					$(this).closest("tr").remove();
+
+				})
+
+
+				// $(document).ready(function() {
+				// 	$('form').submit(function(event) {
+				// 		event.preventDefault(); // Sayfanın yeniden yüklenmesini engellemek için form submit olayını durdur
+
+				// 		var prices = $('input[name="price[]"]').map(function() {
+				// 			return $(this).val(); // price[] inputlarının değerlerini al ve bir diziye ekle
+				// 		}).get();
+
+				// 		console.log(prices); // prices dizisini console'a yazdır
+
+				// 		// Diğer işlemleri buraya ekleyebilirsiniz
+				// 	});
+				// });
+			</script>
 
 		</div>
 	</div>
 </div>
-<!-- Input Validation End -->
