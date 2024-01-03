@@ -38,8 +38,9 @@ if ($xid && @$_GET["mode"] == "delete") {
   <div class="clearfix mb-20">
     <div class="pull-left">
       <h5 class="text-blue">Pozisyon Adlandırmaları & İzin Yönetimi</h5>
-
+      
     </div>
+    <a href="index.php?p=new-perm&cc=0014" class="float-right btn btn-success">Yeni Oluştur</a>
   </div>
 
   <table class="data-table table-bordered select-row table-hover ">
@@ -53,7 +54,7 @@ if ($xid && @$_GET["mode"] == "delete") {
       </tr>
     </thead>
     <tbody>
-      <a href="index.php?p=new-perm&cc=0014"><button style="float:right;" type="button" class="btn btn-success">Yeni Oluştur</button></a> <br><br>
+      
       <tr>
         <?php
         $pxc = $ac->prepare("SELECT * FROM perms");

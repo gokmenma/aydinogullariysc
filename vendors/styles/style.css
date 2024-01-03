@@ -95,6 +95,7 @@ footer {
   text-align: center;
   padding: 15px;
   bottom: 0;
+  background-color: #f0f0f0;
 
 }
 
@@ -24577,6 +24578,44 @@ p {
   border-radius: 10px;
 }
 
+.border-radius-12 {
+  border-radius: 12px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+}
+
+.border-radius-14 {
+  border-radius: 14px;
+  -webkit-border-radius: 14px;
+  -moz-border-radius: 14px;
+  -ms-border-radius: 14px;
+  -o-border-radius: 14px;
+}
+
+.border-radius-16 {
+  border-radius: 16px;
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -ms-border-radius: 16px;
+  -o-border-radius: 16px;
+}
+.border-radius-18 {
+  border-radius: 18px;
+  -webkit-border-radius: 18px;
+  -moz-border-radius: 18px;
+  -ms-border-radius: 18px;
+  -o-border-radius: 18px;
+}
+.border-radius-20 {
+  border-radius: 20px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
+}
+
 .border-radius-100 {
   border-radius: 100%;
 }
@@ -25637,7 +25676,14 @@ textarea.form-control {
 .content{
   min-height : 94%;
   width: 100%;
+  background-color: #f0f0f0;
+
 }
+
+.content-mdi{
+  background-color: #f0f0f0;
+}
+
 
 .page-header .dropdown-menu {
   border-radius: 5px;
