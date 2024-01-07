@@ -5391,6 +5391,10 @@ tbody.collapse.show {
   vertical-align: baseline;
   border-radius: 0.25rem;
   padding: 6px;
+
+}
+.badge:hover{
+    cursor: pointer;
 }
 
 .badge:empty {
@@ -24317,6 +24321,12 @@ p {
 .padding-top-10 {
   padding-top: 10px;
 }
+.padding-right-3 {
+  padding-right: 3px;
+}
+.padding-left-3 {
+  padding-left: 3px;
+}
 
 .padding-top-30 {
   padding-top: 30px;
@@ -25672,6 +25682,7 @@ textarea.form-control {
   padding: 70px 0 0px 250px;
   height: 100vh;
   display: none;
+  background-color: #f0f0f0;
 }
 .content{
   min-height : 94%;

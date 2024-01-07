@@ -27,8 +27,8 @@ function validateForm() {
 }
 
 function SubmitForm() {
-      setTimeout(function () {
-         showMessage("İşlem Başarı ile tamamlandı!", "success"); // Mesajı göster 
+    setTimeout(function () {
+        showMessage("İşlem Başarı ile tamamlandı!", "success"); // Mesajı göster 
     }, 3000); // 2000 milisaniye (2 saniye) sonra göster
 
 
@@ -37,7 +37,7 @@ function SubmitForm() {
 function showMessage(message, type) {
     var alertClass = '';
     var firstLetter = '';
-//console.log(message);
+    //console.log(message);
 
     if (type === 'success') {
         alertClass = 'alert-success';
@@ -66,10 +66,11 @@ function showMessage(message, type) {
                 $(this).remove();
             });
         }, 3000);
-    }
-    
-}
 
+
+    }
+
+}
 
 function deleteRecord(msg, ID, pLink) {
     // console.log(ID);
@@ -149,6 +150,12 @@ function SaveNewKategory(p_name, selectName) {
             .catch(error => {
                 // Hata durumunda burada işlemler yapabilirsiniz
             });
-         
+
     }
+}
+
+
+function offerControl (){
+    var customers =document.getElementById("customers");
+    showMessage("success",customers.value);
 }

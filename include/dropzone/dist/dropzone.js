@@ -489,7 +489,7 @@ function (_Emitter) {
         /**
          * If `addRemoveLinks` is true, the text to be used to remove a file.
          */
-        dictRemoveFile: "Remove file",
+        dictRemoveFile: "<span class='badge btn badge-danger p-2'>Sil!</span>",
 
         /**
          * If this is not null, then the user will be prompted before removing a file.
