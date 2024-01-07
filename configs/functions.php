@@ -244,24 +244,26 @@
 
 	function ParaBirimleri($name)
 	{
-		echo '<select required name=' . $name . ' class="custom-select col-12">
+		echo '<select required name=' . $name . ' class="selectpicker" data-style="btn-outline-secondary">
 					<option disabled >Para Birimi Seçiniz </option>
 					<option selected="" value="TL">TL</option>
 					<option value="Dolar">Dolar</option>
 					<option value="Euro">Euro</option>
 				</select>';
 	}
-	function KdvOranları($name)
-	{
-		echo '<select required name=' . $name . ' class="custom-select col-12">
-					<option disabled >Oran Seçiniz </option>
-					<option selected="" value="20">%20</option>
-					<option value="18">%18</option>
-					<option value="10">%10</option>
-					<option value="8">%8</option>
-					<option value="1">%1</option>
-				</select>';
-	}
+	
+
+	function KdvOranları($name, $val)
+{
+    echo '<select required name="' . $name . '" class="selectpicker" data-style="btn-outline-secondary">
+            <option disabled>Oran Seçiniz </option>
+            <option ' . ($val == 20 ? 'selected' : '') . ' value="20">%20</option>
+            <option ' . ($val == 18 ? 'selected' : '') . ' value="18">%18</option>
+            <option ' . ($val == 10 ? 'selected' : '') . ' value="10">%10</option>
+            <option ' . ($val == 8 ? 'selected' : '') . ' value="8">%8</option>
+            <option ' . ($val == 1 ? 'selected' : '') . ' value="1">%1</option>
+        </select>';
+}
 
 
 	function OlcuBirimleri($name)

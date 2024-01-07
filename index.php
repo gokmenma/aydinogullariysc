@@ -40,25 +40,18 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	<?php include 'include/head.php'; ?>
 
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
-
+	<link rel="canonical" href="https://aydinogullariysc.com/index.php?p=home"/>
 </head>
 
 <body>
 	<div id="preloader">
 		<div class="loader"></div>
     </div>
-	<!-- tek kullanımlık kod : 3066 47d5 4657 1e01 -->
 	
 	
-	<!-- <div id="preloader">
-		<div class="triple-spinner"></div>
-	</div> -->
-
-
-
 	<?php include 'include/header.php'; ?>
 	<?php include 'include/sidebar.php'; ?>
 	<?php
@@ -130,7 +123,6 @@ $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 	<?php include 'include/script.php'; ?>
 
 	
-	<script src="include/app.js"></script>
 
 	<script>
 		// Sayfa yüklendiğinde içeriği göster, preloader'ı gizle
