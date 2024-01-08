@@ -104,10 +104,10 @@
 							<span class="fa fa-folder-open"></span><span class="mtext">Evrak Takip</span>
 						</a>
 						<ul class="submenu">
-
-							<?php if (permtrue("docoutadd")) { ?><li><a href="index.php?p=new-outdocument">Giden Evrak Ekle</a></li><?php } ?>
-							<?php if (permtrue("docinadd")) { ?><li><a href="index.php?p=new-indocument">Gelen Evrak Ekle</a></li><?php } ?>
-							<li><a href="index.php?p=document-list">Evrakları Görüntüle</a></li>
+							<?php if (permtrue("docinadd")) { ?><li><a href="index.php?p=new-indocument">Evrak Ekle</a></li><?php } ?>
+							<?php if (permtrue("outdocview")) { ?><li><a href="index.php?p=view-outdocument">Giden Evrak Listesi</a></li><?php } ?>
+							<?php if (permtrue("indocview")) { ?><li><a href="index.php?p=view-indocument">Gelen Evrak Listesi</a></li><?php } ?>
+							<?php if (permtrue("indoccategories")) { ?><li><a href="index.php?p=indocument-categories">Kategoriler</a></li><?php } ?>
 
 						</ul>
 					</li>

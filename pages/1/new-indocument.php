@@ -1,199 +1,151 @@
 <?php
 permcontrol("docinadd");
-//define("MAXSX", set("max_sr"));
-
 if ($_POST) {
+    $firma = $_POST["firma"];
+    $evrakturu = $_POST["evrakturu"];
+    $kategori = $_POST["kategori"];
+    $adet = $_POST["adet"];
+    $teslimalan = sesset("id"); 
+    $teslimeden = $_POST["teslimeden"];
+    $aciklama = $_POST["aciklama"];
 
-    //if (!$_POST["cname"] || !$_POST["cemail"]) {
-      //  header("Location: index.php?p=new-customer&st=empties");
-        //exit;
-    //}
+    if (@$_POST["teslimtarihi"]) {
+		$teslimtarihi = $_POST["teslimtarihi"];
+	} else {
+		$teslimtarihi = TODAY;
+	}
 
-    $cname = @$_POST["cname"];
-    $cemail = @$_POST["cemail"];
-    $ccompany = @$_POST["ccompany"];
-    $csector = @$_POST["csector"];
-    $caddress = @$_POST["caddress"];
-    $ccity = @$_POST["ccity"];
-    $cnotes = @$_POST["cnotes"];
-    $cgsm = @$_POST["cgsm"];
-    $cgsm2 = @$_POST["cgsm2"];
-    $yetkiliadi = @$_POST["yetkili"];
-    $sunvan = @$_POST["sunvan"];
-    $vdaire = @$_POST["vdaire"];
-    $vno = @$_POST["vno"];
-    $pword = "abc";
-    $grp = @$_POST["grp"];
+    try {
+        $kyt = $ac->prepare("INSERT INTO evraktakip SET
+            firma = ?,
+            evrakturu = ?,
+            kategori = ?,
+            adet = ?,
+            teslimalan = ?,
+            teslimeden = ?,
+            teslimtarihi = ?,
+            aciklama = ?");
+        $kyt->execute(array($firma, $evrakturu, $kategori, $adet, $teslimalan, $teslimeden, $teslimtarihi, $aciklama));
 
-    $regg = $ac->prepare("INSERT INTO customers SET
-	grp = ?,
-    name = ?,
-    email = ?,
-    company = ?,
-    sector = ?,
-    address = ?,
-    city = ?,
-    cdesc = ?,
-    gsm = ?,
-    gsm2 = ?,
-    yetkili = ?,
-    sunvan = ?,
-    vdaire = ?,
-    vno = ?,
-    reg_date = ?,
-    creativer = ?");
-
-    $asdfa = $regg->execute(array($grp, $cname, $cemail, $ccompany, $csector, $caddress, $ccity, $cnotes, $cgsm, $cgsm2, $yetkiliadi, $sunvan, $vdaire, $vno, TODAY, sesset("id")));
-
-    $lidx = $ac->lastInsertId();
-    if ($asdfa) {
-
-        header("Location: index.php?p=new-customer&st=newsuccess");
-    } else {
+        if ($kyt->rowCount() > 0) {
+            header("Location: index.php?p=new-indocument&st=newsuccess");
+        } else {
+            header("Location: index.php?p=new-indocument&st=newerror&code=acmd008");
+        }
+    } catch (PDOException $e) {
+        echo "Veri kaydetme hatası: " . $e->getMessage();
     }
 }
 
 if (@$_GET["st"] == "empties") {
-    showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
-} elseif (@$_GET["st"] == "newsuccess") {
-    showAlert('success', 'Müşteri başarıyla eklendi!');
-} elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "name") {
-    showAlert('alert', 'Aynı adda bir dosya bulunuyor, lütfen ismini değiştirerek projeyi tekrar oluşturmayı deneyin.');
-} elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "size") {
-    showAlert('alert', 'Yüklediğiniz dosyanın boyutu <b>3 MB</b>\'dan daha büyük olamaz. Proje oluşturulamadı, tekrar deneyin.');
-} elseif (@$_GET["err"] == "upload" && @$_GET["errorbec"] == "erno") {
-    showAlert('warning', 'Proje oluşturuldu ancak, dosya yüklenirken bir problem yaşandı.');
+    ?>
+    <div class="alert alert-danger" role="alert">
+        (*) ile işaretli alanları boş bırakmadan tekrar deneyin.
+    </div>
+<?php
 }
 
+if (@$_GET["st"] == "newsuccess") {
+    showAlert("success", "İşlem Başarı ile tamamlandı!");
+}
 ?>
-<!-- Default Basic Forms Start -->
+
+
+<form  method="POST" action="index.php?p=new-indocument">
 <div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-    <div class="clearfix">
-        <div class="pull-left">
-            <h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
-            <p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
-                bırakmayın..<br></p>
-        </div>
-        <div class="form-group">
-            <input type="submit" id="submitButton" value="Kaydet" class="float-right btn btn-primary">
-        </div>
-    </div>
-    <form enctype="multipart/form-data" action="" id="myForm" method="POST">
+	<div class="clearfix">
+		<div class="pull-left">
+			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
+			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
+				bırakmayın..<br></p>
+		</div>
+		<input type="submit" id="submitbuton"  value="Kaydet" class="float-right btn btn-primary mr-2">
+		
+	</div>
+	
 
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
-                <font color="red">(*)</font> Ad-Soyad:
-            </label>
-            <div class="col-sm-12 col-md-10">
-                <input required name="cname" type="text" class="form-control">
-            </div>
-        </div>
+		<div class="row">
+        
+        <div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font>Firma
+					</label>
+					<input required name="firma"  placeholder="Firma adını giriniz" class="form-control" type="text">
 
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
-                <font color="red">(*)</font> Grup:
-            </label>
-            <div class="col-sm-12 col-md-10">
-                <select name="grp" class="form-control">
-                    <?php $cek = $ac->prepare("SELECT * FROM cgroups WHERE statu = ?");
-                    $cek->execute(array(1));
-                    while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
-                    ?>
-                        <option value="<?php echo $dat["id"]; ?>"><?php echo $dat["title"]; ?></option>
-                    <?php
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
+				</div>
+			</div>
 
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group"><label>
+						<font color="red">(*)</font>Evrak Türü
+					</label>
+					<select required name="evrakturu" class="custom-select col-12">
+						<option disabled selected>Seçim Yapınız</option>	
+                        <option value="Giden">Giden Evrak</option>
+                        <option value="Gelen">Gelen Evrak</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group">
+					<label>
+						<font color="red">(*)</font>Kategori
+					</label>
+					<input required name="kategori"  placeholder="Yapılan İşlem Türünü Seçiniz" class="form-control" type="text">
+				</div>
+			</div>
 
+			<div class="col-md-6 col-sm-12">
+				<div class="form-group"><label><font color="red">(*)</font>Adet</label>
+                <input required name="adet"  placeholder="Evrak sayısını girin" class="form-control" type="number">
+				</div>
+			</div>
+            <div class="col-md-4 col-sm-12">
+				<div class="form-group"><label>
+						<font color="red">(*)</font>Teslim Alan
+					</label>
+					<input disabled class="form-control" value="<?php echo sesset("username"); ?>" type="text">
+				</div>
+			</div>
+            <div class="col-md-4 col-sm-12">
+				<div class="form-group"><label>
+						<font color="red">(*)</font>Teslim Eden
+					</label>
+					<select name="teslimeden" title="Seçiniz" class="selectpicker form-control" data-style="btn-outline-secondary"  data-selected-text-format="count">
+							<?php
+							$permq = $ac->prepare("SELECT * FROM perms ");
+							$permq->execute();
+							while ($pp = $permq->fetch(PDO::FETCH_ASSOC)) {
+							?>
+								<optgroup label="<?php echo $pp["p_title"]; ?>">
+									<?php
+									$permx = $ac->prepare("SELECT * FROM users WHERE permission = ? ");
+									$permx->execute(array($pp["id"]));
+									while ($px = $permx->fetch(PDO::FETCH_ASSOC)) { ?>
+										<option value="<?php echo $px["id"]; ?>"><?php echo $px["username"]; ?></option>
+									<?php } ?>
+								</optgroup>
+							<?php } ?>
+						</select>
+				</div>
+			</div>
 
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
-                <font color="red">(*)</font> E-Posta:
-            </label>
-            <div class="col-sm-12 col-md-10"><input required name="cemail" type="text" class="form-control">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Şirket İsmi:</label>
-            <div class="col-sm-12 col-md-10"><input name="ccompany" type="text" class="form-control">
-            </div>
-        </div>
+            <div class="col-md-4 col-sm-12">
+				<div class="form-group"><label>Teslim Alma Tarihi</label>
+                <input name="teslimtarihi"	 type="text"  placeholder="Boş bırakırsanız otomatik bugün seçilir." class="custom-select col-12 date-picker" >
+				</div>
+			</div>
 
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Sektör:</label>
-            <div class="col-sm-12 col-md-10"><input name="csector" type="text" class="form-control">
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label"> Adres:</label>
-            <div class="col-sm-12 col-md-10"><input name="caddress" type="text" class="form-control">
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Şehir:</label>
-            <div class="col-sm-12 col-md-10"><input name="ccity" type="text" class="form-control">
-            </div>
-        </div>
-
-        <div class="form-group row">
-
-            <label class="col-sm-12 col-md-2 col-form-label">Telefon:</label>
-            <div class="col-sm-12 col-md-4">
-                <input placeholder="05XXXXXXXXX" maxlength="11" minlength="11" name="cgsm" type="text" class="form-control">
-            </div>
-
-            <label class="col-sm-12 col-md-2 col-form-label"> Telefon 2:</label>
-            <div class="col-sm-12 col-md-4">
-                <input name="cgsm2" type="text" class="form-control">
-            </div>
-
-        </div>
-
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label"> Yetkili Ad-Soyad:</label>
-            <div class="col-sm-12 col-md-10"><input name="yetkili" type="text" class="form-control">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label"> Şirket Unvanı:</label>
-            <div class="col-sm-12 col-md-10"><input name="sunvan" type="text" class="form-control">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label"> Vergi Dairesi:</label>
-            <div class="col-sm-12 col-md-4">
-                <input name="vdaire" type="text" class="form-control">
-            </div>
-
-            <label class="col-sm-12 col-md-2 col-form-label"> Vergi No:</label>
-            <div class="col-sm-12 col-md-4">
-                <input name="vno" type="text" class="form-control">
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">
-                Açıklama:
-            </label>
-            <div class="col-sm-12 col-md-10">
-                <textarea name="cnotes" placeholder="Müşteri hakkında yöneticilerin görebileceği bir not ekleyebilirsiniz." class="form-control"></textarea>
-            </div>
-        </div>
-
-
-    </form>
+			<div class="col-md-12 col-sm-6">
+				<div class="form-group">
+					<label>Açıklama </label>
+					<textarea name="aciklama"  class="form-control" type="text" placeholder="Evrakla ilgili açıklama girebilirsiniz"></textarea>
+				</div>
+				
+			</div>
+			
+		</div>
+		
+	</form>
 </div>
-
-
-<script>
-    document.getElementById("submitButton").addEventListener('click',function(){
-        var form=document.getElementById('myForm');
-        form.submit();
-    })
-</script>
-<?php include 'include/footer.php'; ?>
