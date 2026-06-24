@@ -102,7 +102,7 @@ if (@$_GET["st"] == "empties") {
                 <!-- Aciliyet -->
                 <div class="form-field">
                     <label for="urgency">Aciliyet</label>
-                    <select name="urgency" id="urgency" class="selectpicker form-control" data-style="border bg-white">
+                    <select name="urgency" id="urgency" class="selectpicker form-control" data-style="border bg-white" data-container="body">
                         <option value="Yüksek" <?php echo $urgencyFromDatabase == "Yüksek" ? "selected" : ""; ?>>Yüksek</option>
                         <option value="Orta" <?php echo $urgencyFromDatabase == "Orta" ? "selected" : ""; ?>>Orta</option>
                         <option value="Düşük" <?php echo $urgencyFromDatabase == "Düşük" ? "selected" : ""; ?>>Düşük</option>
@@ -112,7 +112,7 @@ if (@$_GET["st"] == "empties") {
                 <!-- Kategori -->
                 <div class="form-field">
                     <label for="cat">Kategori</label>
-                    <select name="cat" id="cat" class="selectpicker form-control" data-style="border bg-white">
+                    <select name="cat" id="cat" class="selectpicker form-control" data-style="border bg-white" data-container="body">
                         <?php
                         $nqu = $ac->prepare("SELECT * FROM note_categories");
                         $nqu->execute();

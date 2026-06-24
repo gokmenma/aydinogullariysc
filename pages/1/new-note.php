@@ -94,7 +94,7 @@ if (@$_GET["st"] == "newsuccess") {
                 <!-- Aciliyet -->
                 <div class="form-field">
                     <label for="urgency">Aciliyet</label>
-                    <select name="urgency" id="urgency" class="selectpicker form-control" data-style="border bg-white">
+                    <select name="urgency" id="urgency" class="selectpicker form-control" data-style="border bg-white" data-container="body">
                         <option value="Yüksek">Yüksek</option>
                         <option value="Orta" selected>Orta</option>
                         <option value="Düşük">Düşük</option>
@@ -104,7 +104,7 @@ if (@$_GET["st"] == "newsuccess") {
                 <!-- Kategori -->
                 <div class="form-field">
                     <label for="cat">Kategori</label>
-                    <select name="cat" id="cat" class="selectpicker form-control" data-style="border bg-white">
+                    <select name="cat" id="cat" class="selectpicker form-control" data-style="border bg-white" data-container="body">
                         <?php
                         $nqu = $ac->prepare("SELECT * FROM note_categories");
                         $nqu->execute();
