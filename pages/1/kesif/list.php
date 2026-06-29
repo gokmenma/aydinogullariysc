@@ -166,6 +166,98 @@ $start_time = microtime(true);
         border-radius: 10px;
         overflow: visible;
     }
+
+    /* ==========================================
+       DARK MODE ADJUSTMENTS
+       ========================================== */
+    .dark-mode #kesifModal .modal-content,
+    .dark-mode #detaylarModal .modal-content {
+        background-color: #2a2a2c;
+        border: 1px solid #3e3e42;
+    }
+
+    .dark-mode #kesifModal .modal-header,
+    .dark-mode #detaylarModal .modal-header {
+        background: #202022;
+        border-bottom: 1px solid #3e3e42;
+    }
+
+    .dark-mode #kesifModal .modal-title,
+    .dark-mode #detaylarModal .modal-title {
+        color: #f3f4f6;
+    }
+
+    .dark-mode #kesifModal .modal-header .close,
+    .dark-mode #detaylarModal .modal-header .close {
+        color: #ef4444;
+        opacity: 0.8;
+    }
+
+    .dark-mode #kesifModal .modal-header .close:hover,
+    .dark-mode #detaylarModal .modal-header .close:hover {
+        opacity: 1;
+    }
+
+    .dark-mode .form-section {
+        background: #343438;
+        border: 1px solid #48484f;
+    }
+
+    .dark-mode .section-title {
+        color: #e2e8f0;
+        border-bottom: 2px solid #48484f;
+    }
+
+    .dark-mode .section-title i {
+        color: #60a5fa;
+    }
+
+    .dark-mode #kesifModal .form-group label {
+        color: #cbd5e1;
+    }
+
+    .dark-mode #kesifModal .form-control {
+        background-color: #202022;
+        border-color: #48484f;
+        color: #f3f4f6;
+    }
+
+    .dark-mode #kesifModal .form-control:focus {
+        background-color: #1a1a1c;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    .dark-mode #kesifModal .modal-footer,
+    .dark-mode #detaylarModal .modal-footer {
+        background-color: #202022 !important;
+        border-top: 1px solid #3e3e42 !important;
+    }
+
+    .dark-mode #kesifModal .modal-footer .btn-light,
+    .dark-mode #detaylarModal .btn-secondary {
+        background-color: #3a3a3c;
+        border-color: #48484f;
+        color: #cbd5e1;
+    }
+
+    .dark-mode #kesifModal .modal-footer .btn-light:hover,
+    .dark-mode #detaylarModal .btn-secondary:hover {
+        background-color: #48484f;
+        color: #f3f4f6;
+    }
+
+    .dark-mode #detaylarModal .text-muted {
+        color: #9ca3af !important;
+    }
+
+    .dark-mode #detaylarModal p {
+        color: #f3f4f6;
+    }
+
+    .dark-mode #detaylarModal hr {
+        border-top: 1px solid #3e3e42;
+    }
 </style>
 <div class="bg-white premium-section-card box-shadow mb-4 animate-fade-in">
     <div class="row">
