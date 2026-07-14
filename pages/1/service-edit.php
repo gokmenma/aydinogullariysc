@@ -579,20 +579,12 @@ function kontrolEt() {
 
 $("#ServisKonusu").change(function() {
     var servisKonusu = $(this).find('option:selected').text().trim();
-    switch (servisKonusu) {
-        case 'YSC KONTROL/RAPORLAMA':
-            $("#contract_statu").val(1);
-            $(".wait-span").show();
-            break;
-        case 'SİSTEM KONTROL/RAPORLAMA':
-            $("#contract_statu").val(1);
-            $(".wait-span").show();
-            break;
-        default:
-            $("#contract_statu").val(4);
-            $(".wait-span").hide();
-
-            break;
+    if (servisKonusu.toLowerCase().includes('kontrol/raporlama')) {
+        $("#contract_statu").val(1);
+        $(".wait-span").show();
+    } else {
+        $("#contract_statu").val(4);
+        $(".wait-span").hide();
     }
     $("#contract_statu").selectpicker('refresh');
 });

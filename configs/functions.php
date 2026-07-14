@@ -791,6 +791,7 @@ function KdvOranları($name, $val)
             <option ' . ($val == 10 ? 'selected' : '') . ' value="10">%10</option>
             <option ' . ($val == 8 ? 'selected' : '') . ' value="8">%8</option>
             <option ' . ($val == 1 ? 'selected' : '') . ' value="1">%1</option>
+            <option ' . ($val !== null && $val !== '' && $val == 0 ? 'selected' : '') . ' value="0">%0</option>
         </select>';
 }
 

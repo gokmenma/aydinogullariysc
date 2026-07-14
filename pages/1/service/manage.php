@@ -1668,16 +1668,12 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     // ═══════ SERVİS KONUSU DEĞİŞİKLİĞİ ═══════
     $("#ServisKonusu").change(function () {
         var servisKonusu = $(this).find('option:selected').text().trim();
-        switch (servisKonusu) {
-            case 'YSC KONTROL/RAPORLAMA':
-            case 'SİSTEM KONTROL/RAPORLAMA':
-                $("#contract_statu").val(1);
-                $("#waitSpan").show();
-                break;
-            default:
-                $("#contract_statu").val(4);
-                $("#waitSpan").hide();
-                break;
+        if (servisKonusu.toLowerCase().includes('kontrol/raporlama')) {
+            $("#contract_statu").val(1);
+            $("#waitSpan").show();
+        } else {
+            $("#contract_statu").val(4);
+            $("#waitSpan").hide();
         }
         $("#contract_statu").selectpicker('refresh');
     });
