@@ -174,7 +174,33 @@ if ($_POST) {
         ));
 
         if ($upxsx) {
-            log_info("Servis Güncellendi: $service_number", "database", ['service_id' => $sid, 'company_id' => $company]);
+            audit_log(
+                "update",
+                "services",
+                "Servis güncellendi: $service_number",
+                "service",
+                $sid,
+                [
+                    'service_number' => $service_number,
+                    'customer_id' => (int) $company,
+                    'changed_fields' => audit_changes(
+                        $cc,
+                        [
+                            'pcid' => $company,
+                            'poid' => $offerno,
+                            'servicestype' => $servicestype,
+                            'collectiontype' => $collectiontype,
+                            'address' => $address,
+                            'region' => $region,
+                            'pstart_date' => $pstartdate,
+                            'price' => $price,
+                            'pstatu' => $pstatu,
+                            'contract_statu' => $contract_statu,
+                        ],
+                        ['pcid', 'poid', 'servicestype', 'collectiontype', 'address', 'region', 'pstart_date', 'price', 'pstatu', 'contract_statu']
+                    ),
+                ]
+            );
             header("Location: index.php?p=service/manage&id=$sid&st=updatesuccess");
         } else {
             header('Location: index.php?p=service/manage&id=$sid&st=newerror');
@@ -256,7 +282,14 @@ if ($_POST) {
 
         if ($regxs) {
             $last_id = $ac->lastInsertId();
-            log_info("Yeni Servis Oluşturuldu: $service_number", "database", ['service_id' => $last_id, 'company_id' => $company]);
+            audit_log(
+                "create",
+                "services",
+                "Yeni servis oluşturuldu: $service_number",
+                "service",
+                $last_id,
+                ['service_number' => $service_number, 'customer_id' => (int) $company]
+            );
             $getNumber += 1;
             $upquery = $ac->prepare("UPDATE define_numbers SET service = ?");
             $upquery->execute(array($getNumber));

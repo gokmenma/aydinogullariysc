@@ -24,23 +24,44 @@ class DatabaseHandler extends AbstractProcessingHandler
     protected function write(LogRecord $record): void
     {
         try {
+            $audit = $record->context['_audit'] ?? [];
+            $context = $record->context;
+            unset($context['_audit']);
+
+            $eventType = $audit['event_type'] ?? null;
+            $module = $audit['module'] ?? $record->channel;
+            $entityType = $audit['entity_type'] ?? null;
+            $entityId = $audit['entity_id'] ?? null;
+            $summary = $audit['summary'] ?? $record->message;
+
             $sql = "
-                INSERT INTO logs (user_id, action, details, level, ip_address, url, method, created_at)
-                VALUES (:user_id, :action, :details, :level, :ip_address, :url, :method, NOW())
+                INSERT INTO logs (
+                    user_id, action, event_type, module, entity_type, entity_id,
+                    summary, details, level, ip_address, url, method, created_at
+                )
+                VALUES (
+                    :user_id, :action, :event_type, :module, :entity_type, :entity_id,
+                    :summary, :details, :level, :ip_address, :url, :method, NOW()
+                )
             ";
 
             $stmt = $this->pdo->prepare($sql);
             
             $details = json_encode([
                 'channel' => $record->channel,
-                'message' => $record->formatted,
-                'context' => $record->context,
+                'message' => $record->message,
+                'context' => $context,
                 'extra' => $record->extra
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             $stmt->execute([
                 ':user_id' => $this->user_id,
-                ':action' => $record->channel . ' - ' . $this->user_name,
+                ':action' => $eventType ?: $record->channel,
+                ':event_type' => $eventType,
+                ':module' => $module,
+                ':entity_type' => $entityType,
+                ':entity_id' => $entityId,
+                ':summary' => $summary,
                 ':details' => $details,
                 ':level' => strtoupper($record->level->getName()),
                 ':ip_address' => $this->getClientIP(),

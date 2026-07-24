@@ -64,6 +64,14 @@ foreach ($params as $key => $value) {
 }
 $statement->execute();
 $customers = $statement->fetchAll(PDO::FETCH_ASSOC);
+audit_log(
+    'export',
+    'customers',
+    'Firma listesi Excel olarak dışa aktarıldı',
+    'customer_list',
+    null,
+    ['record_count' => count($customers), 'search' => $searchValue]
+);
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();

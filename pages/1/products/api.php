@@ -29,6 +29,14 @@ if ($_POST['action'] == 'save-product') {
         ];
 
         $lastInsertId = $Products->save($data) ?? $_POST['id'];
+        audit_log(
+            $id == 0 ? 'create' : 'update',
+            'products',
+            ($id == 0 ? 'Yeni ürün/hizmet oluşturuldu: ' : 'Ürün/hizmet güncellendi: ') . $data['Adi'],
+            'product',
+            $lastInsertId,
+            ['stock_code' => $data['StokKodu'], 'name' => $data['Adi']]
+        );
 
         $msg = $id == 0 ? "kaydedildi" : "güncellendi";
         $status = "success";
@@ -56,7 +64,9 @@ if ($_POST['action'] == 'delete-product') {
     $id = $_POST['id'];
 
     try {
-        $Products->delete(Security::decrypt($id));
+        $decryptedId = Security::decrypt($id);
+        $Products->delete($decryptedId);
+        audit_log("delete", "products", "Ürün/hizmet silindi", "product", $decryptedId);
         $status = "success";
         $message = "Ürün başarıyla silindi.";
     } catch (PDOException $ex) {

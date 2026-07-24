@@ -116,6 +116,14 @@ if ($_POST["page"] == "offers" && $_GET["mode"] == "delete" && @$_GET["code"] ==
         $deleteonet = $ac->prepare("DELETE FROM offermatters WHERE oid = ?");
         $deleteonet->execute(array($id));
 
+        audit_log(
+            "delete",
+            "offers",
+            "Teklif silindi: " . ($of['offerNumber'] ?? ('#' . $id)),
+            "offer",
+            $id,
+            ['offer_number' => $of['offerNumber'] ?? null]
+        );
 
         $res = array(
             "message" => "Başarılı", // Silme işlemi başarılı olduğunda başarılı mesajı döndürülür
@@ -176,6 +184,7 @@ if ($_POST["page"] == "reports/reports") {
             //RAPORUN KENDİSİ VERİTABANINNDAN SİLİNİR
             $delets = $ac->prepare("DELETE FROM reports WHERE id = ?");
             $delets->execute(array($ris));
+            audit_log("delete", "reports", "Rapor silindi", "report", $ris);
 
             $res = array(
                 "message" => "Başarılı", // Silme işlemi başarılı olduğunda başarılı mesajı döndürülür
@@ -215,9 +224,49 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
                 if (!$customer->softDelete($id, $_SESSION['lid'] ?? 0)) {
                     throw new RuntimeException("Firma bulunamadı veya daha önce silinmiş.");
                 }
+                audit_log("delete", "customers", "Firma pasife alındı", "customer", $id);
             } else {
-                $pdq = $ac->prepare("DELETE FROM " . $table . " WHERE id = ?");
+                $deleteTableMap = [
+                    'all-files' => 'upfiles',
+                    'categories' => 'mainservices',
+                    'all-users' => 'users',
+                    'all-services' => 'services',
+                    'all-projects' => 'projects',
+                    'services' => 'projects',
+                    'support-list' => 'support_requests',
+                    'view-outdocument' => 'evraktakip',
+                    'view-indocument' => 'evraktakip',
+                    'indocument-categories' => 'indocument_categories',
+                    'users' => 'users',
+                    'file-categories' => 'upfile_categories',
+                    'tasks' => 'todolist',
+                    'define-units' => 'units',
+                    'paytype' => 'units',
+                    'service-type' => 'units',
+                    'service-status' => 'units',
+                    'service-region' => 'units',
+                    'servicestype' => 'units',
+                    'offer-templates' => 'offertemplate',
+                    'purchases' => 'purchases',
+                    'products' => 'products',
+                    'products-categories' => 'products_categories',
+                    'send-mail-accounts' => 'mail_accounts',
+                ];
+                $pageKey = (string) $_POST["page"];
+                $resolvedTable = $deleteTableMap[$pageKey] ?? null;
+                if ($resolvedTable === null || ($table && $table !== $resolvedTable)) {
+                    throw new RuntimeException("Geçersiz silme hedefi.");
+                }
+
+                $pdq = $ac->prepare("DELETE FROM `" . $resolvedTable . "` WHERE id = ?");
                 $pdq->execute(array($id));
+                audit_log(
+                    "delete",
+                    $pageKey,
+                    "Kayıt silindi",
+                    $resolvedTable,
+                    $id
+                );
             }
 
             $res = array(

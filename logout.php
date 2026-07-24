@@ -2,7 +2,7 @@
 require_once 'bootstrap.php';
 
 if (isset($_SESSION['lid'])) {
-    log_info("Sistemden çıkış yaptı", "database");
+    audit_log("logout", "auth", "Sistemden çıkış yaptı", "user", $_SESSION['lid']);
 }
 
 session_destroy();

@@ -35,6 +35,11 @@ config.php
 # Database backups
 backups/
 *.sql
+!database/migrations/20260724_detailed_activity_logs.sql
+
+# Uygulama aktivite sayfası, çalışma zamanı log klasörü değildir.
+!pages/1/logs/
+!pages/1/logs/index.php
 
 # Session files
  session/

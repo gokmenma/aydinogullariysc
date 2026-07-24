@@ -15,6 +15,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 if (($_POST['action'] ?? '') == 'create') {
     $id = intval($_POST['company_id'] ?? 0);
+    $existingCustomer = null;
 
     $requiredPermission = $id > 0 ? 'customeredit' : 'customeradd';
     if (!permtrue($requiredPermission)) {
@@ -68,6 +69,25 @@ if (($_POST['action'] ?? '') == 'create') {
         }
 
         $lastInsertId = $Customer->save($data) ?? $id;
+        $eventType = $id > 0 ? 'update' : 'create';
+        $changes = $id > 0
+            ? audit_changes(
+                $existingCustomer,
+                $data,
+                ['company', 'email', 'address', 'city', 'ilce', 'gsm', 'yetkili', 'grp', 'OdemeVade', 'region', 'represant']
+            )
+            : [];
+        audit_log(
+            $eventType,
+            'customers',
+            ($id > 0 ? 'Firma güncellendi: ' : 'Yeni firma oluşturuldu: ') . $company,
+            'customer',
+            $lastInsertId,
+            [
+                'company' => $company,
+                'changed_fields' => $changes,
+            ]
+        );
         $status = 'success';
         $message = 'Firma işlemi başarı ile tamamlandı!';
 

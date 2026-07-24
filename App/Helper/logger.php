@@ -54,3 +54,68 @@ function log_debug($message, $module = 'app', $context = [])
 {
     \getLogger($module)->debug($message, $context);
 }
+
+/**
+ * Kullanıcı işlemlerini standart ve sorgulanabilir biçimde kaydeder.
+ *
+ * $context yalnızca işlemi açıklayan güvenli alanları içermelidir; parola,
+ * oturum anahtarı ve dosya geçici yolu gibi hassas veriler gönderilmemelidir.
+ */
+function audit_log(
+    string $eventType,
+    string $module,
+    string $summary,
+    ?string $entityType = null,
+    int|string|null $entityId = null,
+    array $context = [],
+    string $level = 'info'
+): void {
+    $allowedEvents = [
+        'view', 'login', 'logout', 'create', 'update', 'delete',
+        'export', 'copy', 'status_change', 'upload', 'download', 'error'
+    ];
+    $eventType = strtolower(trim($eventType));
+    if (!in_array($eventType, $allowedEvents, true)) {
+        $eventType = 'update';
+    }
+
+    $auditContext = [
+        '_audit' => [
+            'event_type' => $eventType,
+            'module' => mb_substr(trim($module), 0, 80),
+            'entity_type' => $entityType ? mb_substr(trim($entityType), 0, 80) : null,
+            'entity_id' => $entityId !== null ? mb_substr((string) $entityId, 0, 100) : null,
+            'summary' => mb_substr(trim($summary), 0, 255),
+        ],
+        'data' => $context,
+    ];
+
+    try {
+        $logger = \getLogger('database');
+        $level = strtolower($level);
+        if (!in_array($level, ['debug', 'info', 'warning', 'error', 'critical'], true)) {
+            $level = 'info';
+        }
+        $logger->{$level}($summary, $auditContext);
+    } catch (\Throwable $e) {
+        // Loglama problemi ana kullanıcı işlemini durdurmamalıdır.
+        error_log("Audit log hatası: " . $e->getMessage());
+    }
+}
+
+/**
+ * İzin verilen alanlarda değişen eski/yeni değerleri döndürür.
+ */
+function audit_changes(array|object|null $before, array $after, array $allowedFields): array
+{
+    $before = is_object($before) ? get_object_vars($before) : ($before ?? []);
+    $changes = [];
+    foreach ($allowedFields as $field) {
+        $oldValue = $before[$field] ?? null;
+        $newValue = $after[$field] ?? null;
+        if ((string) $oldValue !== (string) $newValue) {
+            $changes[$field] = ['old' => $oldValue, 'new' => $newValue];
+        }
+    }
+    return $changes;
+}

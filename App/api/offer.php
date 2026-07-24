@@ -26,7 +26,7 @@ if ($_POST['action'] == 'copyOffer') {
     }
 
     $offer->copyOffer($id);
-    log_info("Teklif Kopyalandı (Kaynak ID: $id)", "database", ['source_offer_id' => $id]);
+    audit_log("copy", "offers", "Teklif kopyalandı", "offer", $id, ['source_offer_id' => $id]);
     $res = [
         'status' => 200,
         'message' => 'Teklif kopyalandı.'
@@ -140,10 +140,22 @@ if ($_POST['action'] == 'saveOffer') {
 
         // Log action
         $logAction = ($id == 0) ? "Yeni Teklif Oluşturuldu" : "Teklif Güncellendi";
-        log_info("$logAction: $offerNumber", "database", [
-            'offer_id' => $lastInsertId,
-            'customer_id' => $_POST['customers']
-        ]);
+        audit_log(
+            $id == 0 ? "create" : "update",
+            "offers",
+            "$logAction: $offerNumber",
+            "offer",
+            $lastInsertId,
+            [
+                'offer_number' => $offerNumber,
+                'customer_id' => (int) $_POST['customers'],
+                'status' => (int) $_POST['offerstatu'],
+                'currency' => $_POST['currency'],
+                'item_count' => isset($_POST['urunAdi']) && is_array($_POST['urunAdi'])
+                    ? count($_POST['urunAdi'])
+                    : 0,
+            ]
+        );
 
 
         // Dosya yükleme işlemi
@@ -268,7 +280,7 @@ if ($_POST['action'] == 'deleteOffer') {
     try {
 
         $offer->deleteOffer($id);
-        log_info("Teklif Silindi (ID: $id)", "database", ['offer_id' => $id]);
+        audit_log("delete", "offers", "Teklif silindi", "offer", $id);
         $status = 'success';
         $message = 'Teklif başarı ile silindi.';
     } catch (PDOException $ex) {
@@ -293,7 +305,7 @@ if ($_POST['action'] == 'convertToTry') {
 
     try {
         $offer->convertToTry($id);
-        log_info("Teklif Para Birimi TL'ye Çevrildi (ID: $id)", "database", ['offer_id' => $id]);
+        audit_log("update", "offers", "Teklif para birimi TL'ye çevrildi", "offer", $id);
         $status = "success";
         $message = "Teklif TRY'ye çevrildi.";
 

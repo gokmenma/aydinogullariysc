@@ -20,7 +20,7 @@ if ($_POST) {
             $_SESSION['username'] = $conts['username'];
 
             // Log successful login
-            log_info("Sisteme giriş yaptı", "database");
+            audit_log("login", "auth", "Sisteme giriş yaptı", "user", $conts['id']);
 
 			// returnUrl parametresini kontrol edin ve varsayılan değeri ayarlayın
 			$redirectUri = isset($_GET['returnUrl']) && !empty($_GET['returnUrl']) ? $_GET['returnUrl'] : 'index.php?p=home';

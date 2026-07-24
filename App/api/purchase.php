@@ -18,6 +18,9 @@ if ($_POST['action'] == 'doneDemand') {
     try {
         $sql = $ac->prepare('UPDATE purchases SET state = 2 WHERE id = ?');
         $sql->execute(array($id));
+        audit_log("status_change", "purchases", "Satın alma talebi tamamlandı", "purchase", $id, [
+            'new_status' => 2,
+        ]);
 
         $status = 'success';
         $message = 'Talep başarıyla tamamlandı.';
@@ -42,6 +45,9 @@ if ($_POST['action'] == 'deleteItemFile') {
         // Clear both image and excel_file fields as we merged them in the UI
         $sql = $ac->prepare('UPDATE purchase_items SET image = NULL, excel_file = NULL WHERE id = ?');
         $sql->execute(array($itemId));
+        audit_log("delete", "purchases", "Satın alma kaleminin dosyası silindi", "purchase_item", $itemId, [
+            'purchase_id' => (int) $purchaseId,
+        ]);
 
         $status = 'success';
         $message = 'Dosya başarıyla silindi.';
@@ -61,6 +67,7 @@ if ($_POST['action'] == 'deleteItemFile') {
 if ($_POST['action'] == 'savePurchases') {
 
     $id = $_POST['id'];
+    $wasNewPurchase = ((int) $id === 0) || ((int) ($_POST['demand'] ?? 0) === 1);
     $demand = $_POST['demand'] ?? 0;
     
     //Eğer satın alma talebinden geliyorsa yeni bir satın alma işlemi oluşturulacak
@@ -229,6 +236,22 @@ if ($_POST['action'] == 'savePurchases') {
         $status = "success";
         $message = "İşlem başarıyla tamamlandı." ;
         $id = $lastInsertId;
+        $purchaseType = (int) ($_POST['type'] ?? 0) === 2 ? 'Fiyat talebi' : 'Satın alma';
+        audit_log(
+            $wasNewPurchase ? "create" : "update",
+            "purchases",
+            $purchaseType . ($wasNewPurchase ? " oluşturuldu: " : " güncellendi: ") . ($_POST['siparisNo'] ?? ''),
+            "purchase",
+            $lastInsertId,
+            [
+                'order_number' => $_POST['siparisNo'] ?? '',
+                'customer_id' => (int) ($_POST['customers'] ?? 0),
+                'item_count' => isset($_POST['urunAdi']) && is_array($_POST['urunAdi'])
+                    ? count($_POST['urunAdi'])
+                    : 0,
+                'type' => (int) ($_POST['type'] ?? 0),
+            ]
+        );
 
 
         //Bir sonraki sipariş numarasını belirle

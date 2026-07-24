@@ -8,7 +8,7 @@ if (!permtrue("serviceView") || !permtrue("data_export_service")) {
 }
 
 // Excel export logla
-log_info("Servis Listesini Excel'e Aktardı", "database", [
+audit_log("export", "services", "Servis listesi Excel olarak dışa aktarıldı", "service_list", null, [
     'search' => $_GET['search']['value'] ?? '',
     'cid' => $_GET['cid'] ?? null,
     'sid' => $_GET['sid'] ?? null

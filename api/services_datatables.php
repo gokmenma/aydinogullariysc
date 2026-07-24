@@ -81,6 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, action_at) VALUES (?, ?, ?, NOW())");
         $insertLog->execute([$serviceId, $newAction, $actionBy]);
+        audit_log(
+            "status_change",
+            "services",
+            $newAction === 'received'
+                ? "Servis muhasebe tarafından teslim alındı"
+                : "Servisin muhasebe teslim kaydı kaldırıldı",
+            "service",
+            $serviceId,
+            ['accounting_status' => $newAction]
+        );
 
         echo json_encode([
             'success' => true,
