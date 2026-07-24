@@ -388,8 +388,12 @@ $enc_id = Security::encrypt($oid);
                         <select required name="customers" id="customers" title="Seçiniz..." class="selectpicker form-control" data-style="bg-white" data-size="8" data-live-search="true">
                             <?php
                             $customer_id = $offer->cid ?? 0;
-                            $qct = $ac->prepare('SELECT * FROM customers ORDER BY id DESC');
-                            $qct->execute();
+                            $qct = $ac->prepare(
+                                'SELECT * FROM customers
+                                 WHERE deleted_at IS NULL OR id = ?
+                                 ORDER BY id DESC'
+                            );
+                            $qct->execute([$customer_id]);
                             while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
                                 ?>
                                 <option <?php echo $customer_id == $cscs['id'] ? ' selected' : '' ?> value="<?php echo $cscs['id']; ?>">

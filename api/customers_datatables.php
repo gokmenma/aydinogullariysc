@@ -45,13 +45,13 @@ $base_query = "
 ";
 
 // Count total records
-$count_query = "SELECT COUNT(*) as total " . $base_query;
+$count_query = "SELECT COUNT(*) as total " . $base_query . " WHERE c.deleted_at IS NULL";
 $count_stmt = $ac->prepare($count_query);
 $count_stmt->execute();
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 // Count filtered records
-$where_conditions = [];
+$where_conditions = ["c.deleted_at IS NULL"];
 $params = [];
 
 // Global search
@@ -177,7 +177,7 @@ foreach ($customers as $row_data) {
         </a>';
     }
     if ($canDel) {
-        $actions .= '<a href="#" class="btn btn-sm btn-danger" data-tooltip="Sil" onClick="deleteRecord(\'Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?\',\'' . $cid . '\',\'customers\')">
+        $actions .= '<a href="#" class="btn btn-sm btn-danger" data-tooltip="Sil" onClick="deleteRecord(\'Firma aktif müşteri listesinden kaldırılacaktır. Firmaya bağlı teklif ve servis kayıtları korunacaktır. Devam etmek istiyor musunuz?\',\'' . $cid . '\',\'customers\')">
                 <i class="fa fa-trash"></i>
         </a>';
     }
@@ -189,7 +189,7 @@ foreach ($customers as $row_data) {
             <i class="fa fa-ellipsis-v ml-1 mr-1"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_' . $cid . '">
-            <a href="index.php?p=customer-label" target="_blank" class="dropdown-item" type="button">
+            <a href="index.php?p=customer-label&id=' . $cid . '" target="_blank" class="dropdown-item" type="button">
                 <i class="fa fa-print mr-2"></i>
                 Etiket Göster</a>
             <a href="index.php?p=customer-label" target="_blank" class="dropdown-item" type="button">

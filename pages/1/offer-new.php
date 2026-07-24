@@ -292,7 +292,7 @@ if (@$_GET["st"] == "empties") {
                             class="selectpicker form-control" data-style="border bg-white" data-size="8"
                             data-live-search="true">
                             <?php
-                            $qct = $ac->prepare("SELECT * FROM customers ORDER BY id DESC");
+                            $qct = $ac->prepare("SELECT * FROM customers WHERE deleted_at IS NULL ORDER BY id DESC");
                             $qct->execute();
                             while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
                                 ?>

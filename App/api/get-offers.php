@@ -180,8 +180,13 @@ $recordsFiltered = $filtered_records_query->fetchColumn();
 
 
 // --- 5. Asıl Veriyi Çek (DÜZELTİLDİ) ---
-$data_query_sql = "SELECT * FROM $base_table " 
-                    . $where_clause . " " 
+$data_query_sql = "SELECT vo.*,
+                           (SELECT c.deleted_at
+                            FROM customers c
+                            WHERE c.id = vo.customer_id
+                            LIMIT 1) AS customer_deleted_at
+                    FROM $base_table vo "
+                    . $where_clause . " "
                     . "ORDER BY " . $order_column_name . " " . strtoupper($order_direction) . " "
                     . "LIMIT ? OFFSET ?";
 
@@ -264,12 +269,17 @@ foreach ($results as $of) {
         $islem_butonlari .='</div>
         </div>';
     
+    $customerName = htmlspecialchars(shorted($of["company_name"], 40));
+    $customerCell = !empty($of["customer_deleted_at"])
+        ? '<span class="text-muted">' . $customerName . ' <small class="badge badge-secondary">Silinmiş</small></span>'
+        : '<a href="index.php?p=customers/manage&id=' . $of["customer_id"] . '">' . $customerName . '</a>';
+
     // Data dizisine satırı ekle
     $data[] = [
         "sira_no"       => $sirano,
         "islem_tarihi"  => (!empty($of["created_at"]) ? (new DateTime($of["created_at"]))->format('d.m.Y H:i') : ''),
         "teklif_no"     => htmlspecialchars($of['offerNumber']),
-        "musteri"       => '<a href="index.php?p=customers/manage&id=' . $of["customer_id"] . '">' . htmlspecialchars(shorted($of["company_name"], 40)) . '</a>',
+        "musteri"       => $customerCell,
 //"toplam_tutar"  => tlFormat($of["total_price"] ?? 0) . " " . ($of["currency"] == "TRY" ? "₺" : ($of["currency"] == "dollar" ? "$" : "€")),
         "toplam_tutar"  => "₺ " . tlFormat($of["tl_toplam_karsilik"] ?? 0) ,
         "durum"         => $durum_badge,

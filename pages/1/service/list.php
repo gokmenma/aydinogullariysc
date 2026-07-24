@@ -45,9 +45,10 @@ try {
 // Optimize edilmiş tek sorgu ile tüm verileri çek
 if ($cid) {
     $query = $ac->prepare("
-        SELECT p.*, 
-               c.company as company_name, 
-               r.title as region_name, 
+        SELECT p.*,
+               c.company as company_name,
+               c.deleted_at as customer_deleted_at,
+               r.title as region_name,
                s.title as service_title, 
                u.username as creator_username,
              uu.username as updater_username,
@@ -82,9 +83,10 @@ if ($cid) {
     $query->execute(array($cid));
 } else if ($sid) {
     $query = $ac->prepare("
-        SELECT p.*, 
-               c.company as company_name, 
-               r.title as region_name, 
+        SELECT p.*,
+               c.company as company_name,
+               c.deleted_at as customer_deleted_at,
+               r.title as region_name,
                s.title as service_title, 
                u.username as creator_username,
              uu.username as updater_username,
@@ -119,9 +121,10 @@ if ($cid) {
     $query->execute(array($sid));
 } else {
     $query = $ac->prepare("
-        SELECT p.*, 
-               c.company as company_name, 
-               r.title as region_name, 
+        SELECT p.*,
+               c.company as company_name,
+               c.deleted_at as customer_deleted_at,
+               r.title as region_name,
                s.title as service_title, 
                u.username as creator_username,
              uu.username as updater_username,
@@ -169,72 +172,252 @@ if ($cid || $sid) {
 }
 
 ?>
-<div class="bg-white premium-section-card box-shadow mb-4 animate-fade-in">
-    <div class="row">
-        <!-- Bekleyen Servisler -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-4 mb-lg-0">
-            <div class="dashboard-card card-yellow">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Bekleyen Servis Sayısı</span>
-                        <span class="no text-warning weight-700 font-30">
-                            <?php echo $bekleyen_servis_sayisi; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-warning text-white box-shadow">
-                        <i class="fa fa-hourglass-o"></i>
-                    </div>
+<style>
+    /* Sağ Tık (Context Menu) Stilleri */
+    .custom-context-menu {
+        display: none;
+        position: fixed;
+        z-index: 99999;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.08);
+        padding: 8px 0;
+        min-width: 220px;
+        backdrop-filter: blur(8px);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .dark-mode .custom-context-menu {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    }
+    .custom-context-menu .cm-header {
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 4px;
+    }
+    .dark-mode .custom-context-menu .cm-header {
+        color: #94a3b8 !important;
+        border-bottom-color: #334155 !important;
+    }
+    .custom-context-menu a,
+    .custom-context-menu button {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 9px 16px;
+        font-size: 13.5px;
+        color: #334155;
+        background: transparent;
+        border: none;
+        text-align: left;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .dark-mode .custom-context-menu a,
+    .dark-mode .custom-context-menu button {
+        color: #e2e8f0 !important;
+    }
+    .custom-context-menu a:hover,
+    .custom-context-menu button:hover {
+        background: #f1f5f9;
+        color: #0284c7;
+    }
+    .dark-mode .custom-context-menu a:hover,
+    .dark-mode .custom-context-menu button:hover {
+        background: #334155 !important;
+        color: #38bdf8 !important;
+    }
+    .custom-context-menu a.cm-danger,
+    .custom-context-menu button.cm-danger {
+        color: #ef4444;
+    }
+    .custom-context-menu a.cm-danger:hover,
+    .custom-context-menu button.cm-danger:hover {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+    .dark-mode .custom-context-menu a.cm-danger:hover,
+    .dark-mode .custom-context-menu button.cm-danger:hover {
+        background: rgba(239, 68, 68, 0.15) !important;
+        color: #f87171 !important;
+    }
+    .custom-context-menu i {
+        width: 20px;
+        font-size: 14px;
+        margin-right: 10px;
+        text-align: center;
+    }
+    .custom-context-menu .cm-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 4px 0;
+    }
+    .dark-mode .custom-context-menu .cm-divider {
+        background: #334155 !important;
+    }
+    tr.context-menu-active {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .service-summary-grid {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        margin-right: -6px;
+        margin-left: -6px;
+        margin-bottom: 20px !important;
+    }
+
+    .service-summary-grid > [class*="col-"] {
+        display: flex;
+        padding-right: 6px;
+        padding-left: 6px;
+    }
+
+    .minimal-summary-card {
+        width: 100%;
+        height: 100%;
+        min-height: 64px;
+        padding: 10px 14px;
+        border: 1px solid #e8edf3;
+        border-left: 4px solid #ccc;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .minimal-summary-card .card-inner {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .minimal-summary-card:hover {
+        transform: none;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    .minimal-summary-card .summary-title {
+        margin-bottom: 2px !important;
+        font-size: 11.5px !important;
+        font-weight: 600;
+        color: #64748b !important;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        line-height: 1.2;
+    }
+
+    .minimal-summary-card .summary-number {
+        font-size: 20px !important;
+        font-weight: 800 !important;
+        line-height: 1;
+    }
+
+    .minimal-summary-card .icon {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none !important;
+    }
+
+    .minimal-summary-card:hover .icon {
+        transform: none;
+    }
+
+    .minimal-summary-card.card-yellow { border-left-color: #f7b500; }
+    .minimal-summary-card.card-blue { border-left-color: #1f8ef1; }
+    .minimal-summary-card.card-green { border-left-color: #20a144; }
+    .minimal-summary-card.card-red { border-left-color: #dc3545; }
+
+    @media (max-width: 991.98px) {
+        .service-summary-grid > [class*="col-"] {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<div class="row service-summary-grid">
+    <!-- Bekleyen Servisler -->
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-card minimal-summary-card card-yellow">
+            <div class="card-inner">
+                <div>
+                    <span class="d-block text-muted summary-title">Bekleyen Servis Sayısı</span>
+                    <span class="no text-warning summary-number">
+                        <?php echo $bekleyen_servis_sayisi; ?>
+                    </span>
+                </div>
+                <div class="icon bg-warning text-white">
+                    <i class="fa fa-hourglass-o"></i>
                 </div>
             </div>
         </div>
-        
-        <!-- Çalışılan Servisler -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-4 mb-lg-0">
-            <div class="dashboard-card card-blue">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Çalışılan Servis Sayısı</span>
-                        <span class="no text-blue weight-700 font-30">
-                            <?php echo $calisilan_servis_sayisi; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-blue text-white box-shadow">
-                        <i class="fa fa-wrench"></i>
-                    </div>
+    </div>
+    
+    <!-- Çalışılan Servisler -->
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-card minimal-summary-card card-blue">
+            <div class="card-inner">
+                <div>
+                    <span class="d-block text-muted summary-title">Çalışılan Servis Sayısı</span>
+                    <span class="no text-blue summary-number">
+                        <?php echo $calisilan_servis_sayisi; ?>
+                    </span>
+                </div>
+                <div class="icon bg-blue text-white">
+                    <i class="fa fa-wrench"></i>
                 </div>
             </div>
         </div>
-        
-        <!-- Tamamlanan Servisler -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-4 mb-md-0">
-            <div class="dashboard-card card-green">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Tamamlanan Servis Sayısı</span>
-                        <span class="no text-success weight-700 font-30">
-                            <?php echo $tamamlanan_servis_sayisi; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-success text-white box-shadow">
-                        <i class="fa fa-check"></i>
-                    </div>
+    </div>
+    
+    <!-- Tamamlanan Servisler -->
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-card minimal-summary-card card-green">
+            <div class="card-inner">
+                <div>
+                    <span class="d-block text-muted summary-title">Tamamlanan Servis Sayısı</span>
+                    <span class="no text-success summary-number">
+                        <?php echo $tamamlanan_servis_sayisi; ?>
+                    </span>
+                </div>
+                <div class="icon bg-success text-white">
+                    <i class="fa fa-check"></i>
                 </div>
             </div>
         </div>
-        
-        <!-- İptal Edilen Servisler -->
-        <div class="col-lg-3 col-md-6 col-sm-12">
-            <div class="dashboard-card card-red">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">İptal Edilen Servis Sayısı</span>
-                        <span class="no text-danger weight-700 font-30">
-                            <?php echo $iptal_servis_sayisi; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-danger text-white box-shadow">
-                        <i class="fa fa-close"></i>
-                    </div>
+    </div>
+    
+    <!-- İptal Edilen Servisler -->
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="dashboard-card minimal-summary-card card-red">
+            <div class="card-inner">
+                <div>
+                    <span class="d-block text-muted summary-title">İptal Edilen Servis Sayısı</span>
+                    <span class="no text-danger summary-number">
+                        <?php echo $iptal_servis_sayisi; ?>
+                    </span>
+                </div>
+                <div class="icon bg-danger text-white">
+                    <i class="fa fa-close"></i>
                 </div>
             </div>
         </div>
@@ -242,19 +425,21 @@ if ($cid || $sid) {
 </div>
 
 <div class="bg-white premium-section-card box-shadow mb-30 animate-fade-in">
-    <div class="d-flex justify-content-between align-items-center mb-30" style="flex-wrap: wrap; gap: 15px;">
+    <div class="d-flex justify-content-between align-items-center mb-20" style="flex-wrap: wrap; gap: 10px;">
         <div>
-            <h4 class="text-blue weight-600 mb-0">Oluşturulan Tüm Servisler</h4>
+            <h5 class="weight-600 mb-0">Oluşturulan Tüm Servisler</h5>
         </div>
         <div>
             <!-- Excele Aktar -->
             <?php if (permtrue("data_export_service")) { ?>
-                <a href="#" class="btn btn-outline-success mr-2" id="exportExcel"><i class="fa fa-file-excel-o mr-1"></i>
-                    Excel'e Aktar</a>
+                <a href="#" class="btn btn-outline-success btn-sm mr-2" id="exportExcel">
+                    <i class="fa fa-file-excel-o mr-1"></i> Excel'e Aktar
+                </a>
             <?php } ?>
             <?php if (permtrue("serviceAdd")) { ?>
-                <a href="index.php?p=service/manage" class="btn btn-primary"><i class="fa fa-plus-circle mr-1"></i> Yeni Servis
-                    Oluştur</a>
+                <a href="index.php?p=service/manage" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus-circle mr-1"></i> Yeni Servis Oluştur
+                </a>
             <?php } ?>
         </div>
     </div>
@@ -288,7 +473,14 @@ if ($cid || $sid) {
                             <td class="text-center"><?php echo $sirano; ?></td>
                             <td><?php echo $purc["service_number"]; ?></td>
                             <td data-tooltip="<?php echo $purc['company_name']; ?>">
-                                <?php echo shorted($purc['company_name'], 40); ?>
+                                <?php if (!empty($purc['customer_deleted_at'])): ?>
+                                    <span class="text-muted">
+                                        <?php echo htmlspecialchars(shorted($purc['company_name'], 40)); ?>
+                                        <small class="badge badge-secondary">Silinmiş</small>
+                                    </span>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars(shorted($purc['company_name'], 40)); ?>
+                                <?php endif; ?>
                             </td>
                             <td><?php echo $purc['region_name']; ?></td>
                             <td><?php echo $purc['service_title']; ?></td>
@@ -437,6 +629,141 @@ if ($cid || $sid) {
                     }
                 });
             }
+        }            dtOptions.ajax = {
+                url: '<?php echo $ajax_url; ?>',
+                type: 'GET'
+            };
+            dtOptions.columns = [{
+                data: null,
+                orderable: false,
+                className: 'text-center',
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            {
+                data: 1
+            }, // service_number
+            {
+                data: 2
+            }, // company_name
+            {
+                data: 3
+            }, // region_name
+            {
+                data: 4
+            }, // service_title
+            {
+                data: 5
+            }, // pregdate
+            {
+                data: 6
+            }, // pstart_date
+            {
+                data: 7
+            }, // contract_status
+            {
+                data: 8
+            }, // status
+            {
+                data: 9
+            }, // creator_username
+            {
+                data: 10
+            }, // updater_username
+            {
+                data: 11
+            }, // accounting status
+            {
+                data: 12,
+                orderable: false,
+                className: 'all text-nowrap',
+                responsivePriority: 1
+            } // actions
+            ];
+        }
+
+        $('#service-table').DataTable(dtOptions);
+    });
+</script>
+
+<div class="modal fade" id="accountingReceiptLogModal" tabindex="-1" role="dialog" aria-labelledby="accountingReceiptLogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="accountingReceiptLogModalLabel">Muhasebe Teslim Logları</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0" id="accountingReceiptLogTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>İşlem</th>
+                                <th>Yapan</th>
+                                <th>Tarih</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Kayıt bulunamadı.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var useServerSide = <?php echo $use_server_side ? 'true' : 'false'; ?>;
+        
+        var dtOptions = {
+            pageLength: 25,
+            lengthMenu: [10, 25, 50, 100],
+            language: {
+                url: 'include/js/tr.json',
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Yükleniyor...</span>'
+            },
+            responsive: true,
+            order: [
+                [0, 'desc']
+            ],
+            orderCellsTop: true,
+            initComplete: function () {
+                var api = this.api();
+                var tableId = api.table().node().id;
+                // Arama satırını <thead> içine ekle
+                $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
+
+                api.columns().every(function (index) { // Sütun index'ini al
+                    let column = this;
+                    let header = $(column.header());
+                    let title = header.text();
+
+                    // İşlem ve checkbox olmayan sütunlar için input oluştur
+                    if (header.find('input[type="checkbox"]').length === 0 && column.visible() && title && title.trim() !== 'İşlem' && title.trim() !== 'İşlemler') {
+
+                        let input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
+                            .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
+                            .on('keyup change clear', function () {
+                                // === ANAHTAR DEĞİŞİKLİK BURADA ===
+                                // Eğer sütunun arama değeri bu input'un değeriyle aynı değilse,
+                                // yeni değeri ata ve tabloyu yeniden çiz
+                                if (column.search() !== this.value) {
+                                    column.search(this.value).draw();
+                                }
+                            });
+                    } else {
+                        // Diğer sütunlar için boş bir <th> ekle
+                        $("#" + tableId + " .search-input-row").append('<th></th>');
+                    }
+                });
+            }
         };
 
         if (useServerSide) {
@@ -502,6 +829,26 @@ if ($cid || $sid) {
 
 <script src="include/js/data-table.js"></script>
 <script>
+    function showExportLoadingNotification() {
+        var swalObj = (typeof swal !== 'undefined') ? swal : ((typeof Swal !== 'undefined') ? Swal : null);
+        if (swalObj) {
+            swalObj.fire({
+                title: "Excel Dosyası Hazırlanıyor",
+                html: "Lütfen bekleyiniz, veriler indiriliyor...<br><small style='color:#888;'>İndirme işlemi birazdan otomatik başlayacaktır.</small>",
+                icon: "info",
+                showConfirmButton: false,
+                allowOutsideClick: true,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: function() {
+                    if (typeof swalObj.showLoading === 'function') {
+                        swalObj.showLoading();
+                    }
+                }
+            });
+        }
+    }
+
     $(document).ready(function () {
         function showSwal(options) {
             if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
@@ -530,6 +877,7 @@ if ($cid || $sid) {
         var t = hasDT ? $('#service-table').DataTable() : null;
         $('#exportExcel').off('click').on('click', function (e) {
             e.preventDefault();
+            showExportLoadingNotification();
             var params = {};
             if (hasDT) {
                 var order = t.order();
@@ -544,10 +892,8 @@ if ($cid || $sid) {
                     if (v) params['columns[' + index + '][search][value]'] = v;
                 });
             }
-        <?php if ($cid) { ?> params['cid'] = '<?php echo $cid; ?>';
-            <?php } ?>
-        <?php if ($sid) { ?> params['sid'] = '<?php echo $sid; ?>';
-            <?php } ?>
+            <?php if ($cid) { ?> params['cid'] = '<?php echo $cid; ?>'; <?php } ?>
+            <?php if ($sid) { ?> params['sid'] = '<?php echo $sid; ?>'; <?php } ?>
             var qs = $.param(params);
             window.location = 'api/services_export.php' + (qs ? ('?' + qs) : '');
         });
@@ -657,6 +1003,114 @@ if ($cid || $sid) {
             }).fail(function () {
                 $('#accountingReceiptLogTable tbody').html('<tr><td colspan="4" class="text-center text-danger">Loglar alınırken hata oluştu.</td></tr>');
             });
+        });
+
+        // Servisler Tablosunda Sağ Tık (Context Menu) İşlemleri
+        $(document).on('contextmenu', '#service-table tbody tr', function(e) {
+            if ($(this).find('td').length <= 1) return;
+
+            e.preventDefault();
+            
+            var $tr = $(this);
+            $('#service-table tbody tr').removeClass('context-menu-active');
+            $tr.addClass('context-menu-active');
+
+            var serviceNo = $tr.find('td:nth-child(2)').text().trim() || 'Servis İşlemleri';
+            var $actionTd = $tr.find('td:last-child');
+            
+            var menuHtml = '<div class="cm-header"><i class="fa fa-wrench mr-1"></i> ' + $('<div>').text(serviceNo).html() + '</div>';
+
+            // 1. Düzenle Butonu Varsa
+            var $editBtn = $actionTd.find('a[data-tooltip="Düzenle"], a.btn-outline-info');
+            if ($editBtn.length) {
+                menuHtml += '<a href="' + $editBtn.attr('href') + '"><i class="fa fa-pencil text-info mr-2"></i> Düzenle</a>';
+            }
+
+            // 2. Detay / Görüntüle Butonu Varsa
+            var $detailBtn = $actionTd.find('a[data-tooltip="Detay"], a.btn-secondary');
+            if ($detailBtn.length) {
+                menuHtml += '<a href="' + $detailBtn.attr('href') + '" target="_blank"><i class="fa fa-info-circle text-secondary mr-2"></i> Detay Bilgisi</a>';
+            }
+
+            // 3. Teslim Al / İade Al Butonu Varsa
+            var $accToggle = $actionTd.find('.js-accounting-receipt-toggle');
+            if ($accToggle.length) {
+                var serviceId = $accToggle.data('service-id');
+                var confirmMsg = $accToggle.attr('data-confirm') || '';
+                var btnText = $accToggle.text().trim();
+                var iconClass = btnText.indexOf('İade') !== -1 ? 'fa-undo text-warning' : 'fa-check text-success';
+                var classNames = $accToggle.attr('class') || '';
+
+                menuHtml += '<button type="button" class="' + classNames + '" data-service-id="' + serviceId + '" data-confirm="' + $('<div>').text(confirmMsg).html() + '"><i class="fa ' + iconClass + ' mr-2"></i> ' + $('<div>').text(btnText).html() + '</button>';
+            }
+
+            // 4. Muhasebe Teslim Log Butonu Varsa
+            var $accLog = $actionTd.find('.js-accounting-log');
+            if ($accLog.length) {
+                var logServiceId = $accLog.data('service-id');
+                var logServiceNum = $accLog.attr('data-service-number') || '';
+                menuHtml += '<button type="button" class="js-accounting-log" data-service-id="' + logServiceId + '" data-service-number="' + $('<div>').text(logServiceNum).html() + '"><i class="fa fa-history text-dark mr-2"></i> Muhasebe Logları</button>';
+            }
+
+            // 5. Sil Butonu Varsa
+            var $deleteBtn = $actionTd.find('button.btn-danger, a.btn-danger');
+            if ($deleteBtn.length) {
+                menuHtml += '<div class="cm-divider"></div>';
+                var onClickAttr = $deleteBtn.attr('onclick') || $deleteBtn.attr('onClick') || '';
+                menuHtml += '<button type="button" class="cm-danger" onclick="' + $('<div>').text(onClickAttr).html() + '; return false;"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>';
+            }
+
+            var $contextMenu = $('#customContextMenu');
+            if (!$contextMenu.length) {
+                $contextMenu = $('<div id="customContextMenu" class="custom-context-menu"></div>').appendTo('body');
+            }
+            
+            $contextMenu.html(menuHtml);
+
+            var mouseX = e.clientX;
+            var mouseY = e.clientY;
+            
+            $contextMenu.css({ display: 'block', visibility: 'hidden' });
+            var menuWidth = $contextMenu.outerWidth();
+            var menuHeight = $contextMenu.outerHeight();
+            var windowWidth = $(window).width();
+            var windowHeight = $(window).height();
+
+            if (mouseX + menuWidth > windowWidth) {
+                mouseX = windowWidth - menuWidth - 10;
+            }
+            if (mouseY + menuHeight > windowHeight) {
+                mouseY = windowHeight - menuHeight - 10;
+            }
+
+            $contextMenu.css({
+                top: mouseY + 'px',
+                left: mouseX + 'px',
+                visibility: 'visible',
+                opacity: '1'
+            });
+        });
+
+        // Menü dışına tıklanınca veya kaydırılınca kapat
+        $(document).on('click scroll', function(e) {
+            if (!$(e.target).closest('#customContextMenu').length) {
+                $('#customContextMenu').hide();
+                $('#service-table tbody tr').removeClass('context-menu-active');
+            }
+        });
+
+        // Menüdeki seçeneğe basılınca kapat
+        $(document).on('click', '#customContextMenu a, #customContextMenu button', function() {
+            $('#customContextMenu').hide();
+            $('#service-table tbody tr').removeClass('context-menu-active');
+        });
+
+        // ESC basılınca kapat
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                $('#customContextMenu').hide();
+                $('#service-table tbody tr').removeClass('context-menu-active');
+            }
         });
     });
 </script>

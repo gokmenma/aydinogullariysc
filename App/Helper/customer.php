@@ -10,8 +10,12 @@ class customer
     public static function getCustomerSelect($name="customers",$id = null)
     {
         global $ac;
-        $sql = $ac->prepare("SELECT * FROM customers");
-        $sql->execute();
+        $sql = $ac->prepare(
+            "SELECT * FROM customers
+             WHERE deleted_at IS NULL OR id = ?
+             ORDER BY company"
+        );
+        $sql->execute([(int) $id]);
         $customers = $sql->fetchAll(PDO::FETCH_OBJ);
         $select = "<select name='$name' id='$id' class='form-control selectpicker' data-style='bg-white' data-size='8'
                             data-live-search='true'>";

@@ -1,6 +1,7 @@
 <?php
-require_once '../../configs/config.php';
-require_once '../../configs/functions.php';
+require_once dirname(__DIR__, 2) . '/bootstrap.php';
+
+use App\Model\CustomerModel;
 
 $id = $_POST["id"] ?? null;
 $type = $_GET["type"] ?? null;
@@ -205,16 +206,29 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
         $id = @$_POST["id"];
         $table = $_POST["table"] ? $_POST["table"] : $_POST["page"];
         try {
-            $pdq = $ac->prepare("DELETE FROM " . $table . " WHERE id = ?");
-            $pdq->execute(array($id));
+            if ($_POST["page"] === "customers") {
+                if (!permtrue("customerdelete")) {
+                    throw new RuntimeException("Firma silme yetkiniz bulunmuyor.");
+                }
+
+                $customer = new CustomerModel();
+                if (!$customer->softDelete($id, $_SESSION['lid'] ?? 0)) {
+                    throw new RuntimeException("Firma bulunamadı veya daha önce silinmiş.");
+                }
+            } else {
+                $pdq = $ac->prepare("DELETE FROM " . $table . " WHERE id = ?");
+                $pdq->execute(array($id));
+            }
 
             $res = array(
-                "message" => "Başarılı", // Silme işlemi başarılı olduğunda başarılı mesajı döndürülür
+                "message" => $_POST["page"] === "customers"
+                    ? "Firma listeden kaldırıldı; ilişkili teklif ve servisler korundu."
+                    : "Başarılı",
                 "status" => 200 // Başarılı durum kodu
             );
             echo json_encode($res);
             return false;
-        } catch (PDOException $e) {
+        } catch (Throwable $e) {
             $res = array(
                 "message" => $e->getMessage(), // Hata mesajı döndürülür
                 "status" => 400 // Başarısız durum kodu
@@ -273,10 +287,10 @@ if (isset($_GET["action"]) && $_GET["action"] == "search-customers") {
         $q = isset($_GET["q"]) ? trim($_GET["q"]) : '';
         
         if ($q !== '') {
-            $sql = $ac->prepare("SELECT id, company FROM customers WHERE company LIKE ? AND company IS NOT NULL AND company != '' ORDER BY company ASC LIMIT 30");
+            $sql = $ac->prepare("SELECT id, company FROM customers WHERE deleted_at IS NULL AND company LIKE ? AND company IS NOT NULL AND company != '' ORDER BY company ASC LIMIT 30");
             $sql->execute(array("%" . $q . "%"));
         } else {
-            $sql = $ac->prepare("SELECT id, company FROM customers WHERE company IS NOT NULL AND company != '' ORDER BY company ASC LIMIT 30");
+            $sql = $ac->prepare("SELECT id, company FROM customers WHERE deleted_at IS NULL AND company IS NOT NULL AND company != '' ORDER BY company ASC LIMIT 30");
             $sql->execute();
         }
         
@@ -300,4 +314,4 @@ if (isset($_GET["action"]) && $_GET["action"] == "search-customers") {
         ]);
         return false;
     }
-}
+}

@@ -101,28 +101,53 @@ if (@$_GET["st"] == "success-mail") {
     /* Dashboard cards styling */
     .dashboard-card {
         background: #fff;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f0f0f0;
+        min-height: 72px;
+        border-radius: 10px;
+        padding: 12px 14px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        border: 1px solid #e8edf3;
+        border-left-width: 3px;
         position: relative;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
     
     .dashboard-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transform: none;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
     }
 
     .dashboard-card .icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 15px;
+        box-shadow: none !important;
     }
+
+    .dashboard-card .summary-title {
+        margin-bottom: 2px !important;
+        font-size: 12px !important;
+        line-height: 1.25;
+    }
+
+    .dashboard-card .summary-number {
+        font-size: 22px !important;
+        line-height: 1.1;
+    }
+
+    .dashboard-card:hover .icon {
+        transform: none;
+    }
+
+    .offer-summary-grid {
+        margin-bottom: 12px !important;
+    }
+
+    .dashboard-card.card-yellow { border-left-color: #f7b500; }
+    .dashboard-card.card-green { border-left-color: #20a144; }
 
     /* Form Card styling */
     .form-card {
@@ -252,14 +277,14 @@ if (@$_GET["st"] == "success-mail") {
     </div>
 
     <!-- Özet Bilgiler -->
-    <div class="row mb-4 mx-0">
+    <div class="row mx-0 offer-summary-grid">
         <!-- Bekleyen Teklif Sayısı -->
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-start">
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-2 mb-md-0">
+            <div class="dashboard-card card-yellow">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Bekleyen Teklif Sayısı</span>
-                        <span class="no text-warning weight-700 font-30">
+                        <span class="d-block text-muted weight-500 summary-title">Bekleyen Teklif Sayısı</span>
+                        <span class="no text-warning weight-700 summary-number">
                             <?php echo $bekleyen_teklif_sayisi; ?>
                         </span>
                     </div>
@@ -271,12 +296,12 @@ if (@$_GET["st"] == "success-mail") {
         </div>
 
         <!-- Tamamlanan Teklif Sayısı -->
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-start">
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-2 mb-md-0">
+            <div class="dashboard-card card-green">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Tamamlanan Teklif Sayısı</span>
-                        <span class="no text-success weight-700 font-30">
+                        <span class="d-block text-muted weight-500 summary-title">Tamamlanan Teklif Sayısı</span>
+                        <span class="no text-success weight-700 summary-number">
                             <?php echo $tamamlanan_teklif_sayisi; ?>
                         </span>
                     </div>
@@ -401,6 +426,100 @@ table.dataTable {
 table.data-table,
 table.dataTable {
     overflow: visible !important;
+}
+
+/* Sağ Tık (Context Menu) Stilleri */
+.custom-context-menu {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 0;
+    min-width: 220px;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.dark-mode .custom-context-menu {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+.custom-context-menu .cm-header {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 4px;
+}
+.dark-mode .custom-context-menu .cm-header {
+    color: #94a3b8 !important;
+    border-bottom-color: #334155 !important;
+}
+.custom-context-menu a,
+.custom-context-menu button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 9px 16px;
+    font-size: 13.5px;
+    color: #334155;
+    background: transparent;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.dark-mode .custom-context-menu a,
+.dark-mode .custom-context-menu button {
+    color: #e2e8f0 !important;
+}
+.custom-context-menu a:hover,
+.custom-context-menu button:hover {
+    background: #f1f5f9;
+    color: #0284c7;
+}
+.dark-mode .custom-context-menu a:hover,
+.dark-mode .custom-context-menu button:hover {
+    background: #334155 !important;
+    color: #38bdf8 !important;
+}
+.custom-context-menu a.cm-danger,
+.custom-context-menu button.cm-danger {
+    color: #ef4444;
+}
+.custom-context-menu a.cm-danger:hover,
+.custom-context-menu button.cm-danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.dark-mode .custom-context-menu a.cm-danger:hover,
+.dark-mode .custom-context-menu button.cm-danger:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+.custom-context-menu i {
+    width: 20px;
+    font-size: 14px;
+    margin-right: 10px;
+    text-align: center;
+}
+.custom-context-menu .cm-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 4px 0;
+}
+.dark-mode .custom-context-menu .cm-divider {
+    background: #334155 !important;
+}
+tr.context-menu-active {
+    background-color: rgba(59, 130, 246, 0.1) !important;
 }
 </style>
 <script src="pages/1/offers/offer.js"></script>
@@ -564,9 +683,30 @@ $(document).ready(function() {
 
 
 
+    function showExportLoadingNotification() {
+        var swalObj = (typeof swal !== 'undefined') ? swal : ((typeof Swal !== 'undefined') ? Swal : null);
+        if (swalObj) {
+            swalObj.fire({
+                title: "Excel Dosyası Hazırlanıyor",
+                html: "Lütfen bekleyiniz, veriler indiriliyor...<br><small style='color:#888;'>İndirme işlemi birazdan otomatik başlayacaktır.</small>",
+                icon: "info",
+                showConfirmButton: false,
+                allowOutsideClick: true,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: function() {
+                    if (typeof swalObj.showLoading === 'function') {
+                        swalObj.showLoading();
+                    }
+                }
+            });
+        }
+    }
+
     // Excel'e aktar butonu için
     $('#exportExcel').on('click', function(e){
         e.preventDefault();
+        showExportLoadingNotification();
         var form = $('<form>', { action: 'App/api/export-offers.php?sablon=<?php echo $sablonlari_goster ? 1 : 0; ?>', method: 'POST' });
         function sv(id){
             var v = $(id).val();
@@ -674,6 +814,104 @@ $(document).ready(function() {
         if(v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
         if(v.length > 5) v = v.slice(0,5) + '.' + v.slice(5);
         this.value = v.slice(0,10);
+    });
+
+    // Tabloda Sağ Tık (Context Menu) İşlemleri
+    $(document).on('contextmenu', '#offerTable tbody tr', function(e) {
+        // Eğer boş satır veya yükleniyor uyarısı ise dur
+        if ($(this).find('td').length <= 1) return;
+
+        e.preventDefault();
+        
+        var $tr = $(this);
+        $('#offerTable tbody tr').removeClass('context-menu-active');
+        $tr.addClass('context-menu-active');
+
+        var offerNo = $tr.find('td:nth-child(3)').text().trim() || 'Teklif İşlemleri';
+        var $actionTd = $tr.find('td:last-child');
+        
+        var menuHtml = '<div class="cm-header"><i class="fa fa-file-text-o mr-1"></i> ' + $('<div>').text(offerNo).html() + '</div>';
+
+        // 1. Düzenle Butonu Varsa
+        var $editBtn = $actionTd.find('a[data-tooltip="Düzenle"], a.btn-outline-primary');
+        if ($editBtn.length) {
+            menuHtml += '<a href="' + $editBtn.attr('href') + '"><i class="fa fa-pencil text-primary mr-2"></i> Düzenle</a>';
+        }
+
+        // 2. Dropdown içindeki elemanlar
+        var $dropdownItems = $actionTd.find('.dropdown-menu .dropdown-item');
+        if ($dropdownItems.length) {
+            $dropdownItems.each(function() {
+                var $item = $(this);
+                var href = $item.attr('href') || '#';
+                var target = $item.attr('target') ? ' target="' + $item.attr('target') + '"' : '';
+                var text = $item.html();
+                var dataId = $item.attr('data-id') ? ' data-id="' + $item.attr('data-id') + '"' : '';
+                var classAttr = $item.attr('class') || '';
+
+                menuHtml += '<a href="' + href + '"' + target + dataId + ' class="' + classAttr + '">' + text + '</a>';
+            });
+        }
+
+        // 3. Sil Butonu Varsa
+        var $deleteBtn = $actionTd.find('.teklif-sil');
+        if ($deleteBtn.length) {
+            menuHtml += '<div class="cm-divider"></div>';
+            var delId = $deleteBtn.data('id');
+            menuHtml += '<button type="button" class="teklif-sil cm-danger" data-id="' + delId + '"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>';
+        }
+
+        var $contextMenu = $('#customContextMenu');
+        if (!$contextMenu.length) {
+            $contextMenu = $('<div id="customContextMenu" class="custom-context-menu"></div>').appendTo('body');
+        }
+        
+        $contextMenu.html(menuHtml);
+
+        var mouseX = e.clientX;
+        var mouseY = e.clientY;
+        
+        $contextMenu.css({ display: 'block', visibility: 'hidden' });
+        var menuWidth = $contextMenu.outerWidth();
+        var menuHeight = $contextMenu.outerHeight();
+        var windowWidth = $(window).width();
+        var windowHeight = $(window).height();
+
+        if (mouseX + menuWidth > windowWidth) {
+            mouseX = windowWidth - menuWidth - 10;
+        }
+        if (mouseY + menuHeight > windowHeight) {
+            mouseY = windowHeight - menuHeight - 10;
+        }
+
+        $contextMenu.css({
+            top: mouseY + 'px',
+            left: mouseX + 'px',
+            visibility: 'visible',
+            opacity: '1'
+        });
+    });
+
+    // Menü dışına tıklanınca veya sayfayı kaydırınca context menu kapat
+    $(document).on('click scroll', function(e) {
+        if (!$(e.target).closest('#customContextMenu').length) {
+            $('#customContextMenu').hide();
+            $('#offerTable tbody tr').removeClass('context-menu-active');
+        }
+    });
+
+    // Menüdeki seçeneğe basılınca context menu kapat
+    $(document).on('click', '#customContextMenu a, #customContextMenu button', function() {
+        $('#customContextMenu').hide();
+        $('#offerTable tbody tr').removeClass('context-menu-active');
+    });
+
+    // ESC basılınca kapat
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            $('#customContextMenu').hide();
+            $('#offerTable tbody tr').removeClass('context-menu-active');
+        }
     });
 </script>
 <!-- <script src="include/js/data-table.js"></script> -->

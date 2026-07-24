@@ -294,6 +294,157 @@ table {
     border-color: #6366f1 !important;
 }
 
+/* ==============================================================
+   MODERN BUTTON SYSTEM
+   Keeps Bootstrap semantics while giving actions a softer UI.
+   ============================================================== */
+.btn {
+    border-radius: 8px;
+    border-width: 1px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    padding: 0.5rem 0.9rem;
+    vertical-align: middle;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        background-color 0.16s ease,
+        border-color 0.16s ease,
+        color 0.16s ease;
+}
+
+.btn:not(:disabled):not(.disabled):not(.btn-link):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.13);
+}
+
+.btn:not(:disabled):not(.disabled):active,
+.btn:not(:disabled):not(.disabled).active,
+.show > .btn.dropdown-toggle {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.btn:focus,
+.btn.focus {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18) !important;
+}
+
+.btn-sm,
+.btn-group-sm > .btn {
+    border-radius: 7px;
+    padding: 0.34rem 0.62rem;
+    font-size: 0.8rem;
+}
+
+.btn-lg,
+.btn-group-lg > .btn {
+    border-radius: 10px;
+    padding: 0.65rem 1.1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2489ff, #0878ea);
+    border-color: #0878ea;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2eb85c, #239447);
+    border-color: #239447;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #25a9bd, #168fa3);
+    border-color: #168fa3;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffcc32, #f0b900);
+    border-color: #f0b900;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e55361, #d93646);
+    border-color: #d93646;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #77818b, #606a74);
+    border-color: #606a74;
+}
+
+.btn-dark {
+    background: linear-gradient(135deg, #3c4652, #252d36);
+    border-color: #252d36;
+}
+
+[class*="btn-outline-"] {
+    background-color: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.btn > i:first-child:not(:last-child):not([class*="mr-"]) {
+    margin-right: 0.32rem;
+}
+
+.btn > i:last-child:not(:first-child):not([class*="ml-"]) {
+    margin-left: 0.32rem;
+}
+
+.btn.disabled,
+.btn:disabled {
+    opacity: 0.58;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Preserve connected button groups. */
+.btn-group > .btn:not(:first-child),
+.btn-group > .btn-group:not(:first-child) > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group > .btn:not(:last-child):not(.dropdown-toggle),
+.btn-group > .btn-group:not(:last-child) > .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Selectpicker and dropdown rows are controls/menu items, not action buttons. */
+.bootstrap-select > .dropdown-toggle,
+.dropdown-menu .dropdown-item.btn {
+    transform: none !important;
+    box-shadow: none;
+}
+
+.dropdown-menu .dropdown-item.btn {
+    border-radius: 0;
+    font-weight: 500;
+}
+
+.btn-link {
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+.dark-mode [class*="btn-outline-"] {
+    background-color: rgba(30, 41, 59, 0.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn {
+        transition: none;
+    }
+
+    .btn:not(:disabled):not(.disabled):hover {
+        transform: none;
+    }
+}
+
 /* Modern soft badges in the table */
 .data-table .badge {
     font-size: 11px !important;

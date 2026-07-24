@@ -270,6 +270,7 @@ $data_query = "
         p.id,
         p.service_number,
         c.company as company_name,
+        c.deleted_at as customer_deleted_at,
         r.title as region_name,
         s.title as service_title,
         p.pregdate,
@@ -323,7 +324,10 @@ foreach ($projects as $project) {
     // Data structure must match the table columns
     $row[] = ''; // Will be filled by DataTables with row number
     $row[] = htmlspecialchars($project['service_number']);
-    $row[] = htmlspecialchars(shorted($project['company_name'], 40));
+    $companyName = htmlspecialchars(shorted($project['company_name'], 40));
+    $row[] = !empty($project['customer_deleted_at'])
+        ? '<span class="text-muted">' . $companyName . ' <small class="badge badge-secondary">Silinmiş</small></span>'
+        : $companyName;
     $row[] = htmlspecialchars($project['region_name']);
     $row[] = htmlspecialchars($project['service_title']);
     $row[] = htmlspecialchars($project['pregdate']);

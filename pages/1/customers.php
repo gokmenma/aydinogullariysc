@@ -6,15 +6,12 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
     $contq = $ac->prepare("SELECT * FROM customers WHERE id = ?");
     $contq->execute(array($cdid));
     if ($contq->fetch(PDO::FETCH_ASSOC)) {
-        $deletq = $ac->prepare("DELETE FROM customers WHERE id = ?");
-        $deletq->execute(array($cdid));
-
-
-        $deletqp = $ac->prepare("DELETE FROM projects WHERE pcid = ?");
-        $deletqp->execute(array($cdid));
-
-        $deletqo = $ac->prepare("DELETE FROM offers WHERE cid = ?");
-        $deletqo->execute(array($cdid));
+        $deletq = $ac->prepare(
+            "UPDATE customers
+             SET deleted_at = ?, deleted_by = ?
+             WHERE id = ? AND deleted_at IS NULL"
+        );
+        $deletq->execute(array(date('Y-m-d H:i:s'), $_SESSION['lid'] ?? 0, $cdid));
 
 
         if ($deletq) {
@@ -22,12 +19,6 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
         }
     }
 }
-
-?>
-
-
-<?php
-
 
 ?>
 <div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
@@ -43,11 +34,9 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                     </button>
                 </div>
                 <div class="modal-body">
-
                     <style>
                     table tr td {
                         padding: 5px;
-
                     }
                     </style>
                     <table>
@@ -59,7 +48,6 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                             <td><label for="">Kayıt Tarihi :</label></td>
                             <td><label for="" id="create_time"></label></td>
                         </tr>
-
                         <tr>
                             <td><label for="">Güncelleme Yapan Personel :</label></td>
                             <td><label for="" id="updater"></label></td>
@@ -69,19 +57,14 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                             <td><label for="" id="updated_at"></label></td>
                         </tr>
                     </table>
-
-
-
                 </div>
                 <div class="modal-footer">
-
                     <button type="button" class="closeModal btn btn-primary" data-dismiss="modal">Kapat</button>
                 </div>
             </div>
         </div>
     </div>
     <!-- Modal -->
-
 
     <div class="clearfix mb-20">
         <div class="pull-left">
@@ -95,23 +78,21 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
         <?php } ?>
     </div>
 
-        <table id="customerlist" class="data-table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th scope="col" class="app-item-number">Sıra</th>
-                    <th style="width:80%">Firma Adı</th>
-                    <th>Grup</th>
-                    <th>Teklif/Servis Sayısı</th>
-                    <th>E-Posta Adresi</th>
-                    <th>GSM</th>
-                    <th class="datatable-nosort" style="min-width:90px">İşlem</th>
-
-                </tr>
-            </thead>
-            <tbody>
-
-                <?php
-            $cq = $ac->prepare("SELECT * FROM customers ORDER by id DESC");
+    <table id="customerlist" class="data-table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th scope="col" class="app-item-number">Sıra</th>
+                <th style="width:80%">Firma Adı</th>
+                <th>Grup</th>
+                <th>Teklif/Servis Sayısı</th>
+                <th>E-Posta Adresi</th>
+                <th>GSM</th>
+                <th class="datatable-nosort" style="min-width:90px">İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $cq = $ac->prepare("SELECT * FROM customers WHERE deleted_at IS NULL ORDER by id DESC");
             $cq->execute();
             while ($as = $cq->fetch(PDO::FETCH_ASSOC)) {
                 $tqm = $ac->prepare("SELECT * FROM offers WHERE cid = ?");
@@ -135,7 +116,6 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                         <?php echo $as["id"]; ?>
                     </td>
                     <td>
-                        <!-- Eğer Müşteri düzenlemek için yetkisi varsa link çıkar yoksa çıkmaz -->
                         <?php if (permtrue("customeredit")) {
                             $link = "index.php?p=customer-edit&id=" . $as["id"];
                         } else {
@@ -146,21 +126,19 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                             data-tooltip="<?php echo $as["company"]; ?>">
                             <?php echo shorted($as["company"], 40); ?>
                         </a>
-
                     </td>
                     <td>
-                        <?php echo $gaar["title"]; ?>
+                        <?php echo htmlspecialchars($gaar["title"] ?? ''); ?>
                     </td>
                     <td>
                         <?php echo $tps; ?>
                     </td>
                     <td>
-                        <?php echo $as["email"]; ?>
+                        <?php echo htmlspecialchars($as["email"] ?? ''); ?>
                     </td>
                     <td>
-                        <?php echo $as["gsm"]; ?>
+                        <?php echo htmlspecialchars($as["gsm"] ?? ''); ?>
                     </td>
-
                     <td>
                         <?php if (permtrue("customeredit")) { ?>
                         <a href="index.php?p=customer-edit&id=<?php echo $as["id"]; ?>"
@@ -171,7 +149,6 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                         </a>
                         <?php } ?>
                         <?php if (permtrue("customerdelete")) { ?>
-
                         <a href="#" data-tooltip="Sil"
                             onClick="deleteRecord('Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?','<?php echo $as['id']; ?>','customers')">
                             <span class="btn btn-sm btn-danger">
@@ -181,51 +158,37 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                         <?php } ?>
 
                         <div class="dropdown d-inline">
-                            <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenu2"
-                                data-toggle="dropdown">
+                            <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenu_<?php echo $as['id']; ?>" data-toggle="dropdown">
                                 <i class="fa fa-ellipsis-v ml-1 mr-1"></i>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail"
-                                aria-labelledby="dropdownMenu2">
-                                <a href="index.php?p=customer-label" target="_blank" class="dropdown-item"
-                                    type="button">
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_<?php echo $as['id']; ?>">
+                                <a href="index.php?p=customer-label&id=<?php echo $as["id"]; ?>" target="_blank" class="dropdown-item" type="button">
                                     <i class="fa fa-print mr-2"></i>
                                     Etiket Göster</a>
-
-                                <a href="index.php?p=customer-label" target="_blank" class="dropdown-item"
-                                    type="button">
-                                    <i class="fa fa-send mr-2"></i>
-                                    Sms Gönder</a>
-                                <a href="index.php?p=send-mail&customer=<?php echo encrypt($as["id"]) ; ?>"
-                                    target="_blank" class="dropdown-item" type="button">
+                                <a href="index.php?p=send-mail&customer=<?php echo encrypt($as["id"]) ; ?>" target="_blank" class="dropdown-item" type="button">
                                     <i class="fa fa-envelope-o mr-2"></i>
                                     Email Gönder</a>
-                                <a class="btn-detail btn dropdown-item" data-id="<?php echo $as["id"]; ?>"
-                                    type="button">
+                                <a class="btn-detail btn dropdown-item" data-id="<?php echo $as["id"]; ?>" type="button">
                                     <i class="fa fa-copy mr-2"></i>
                                     Detay Bilgisi</a>
                             </div>
-
                         </div>
                     </td>
-
                 </tr>
-                <?php } ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th scope="col">Sıra</th>
-                    <th>Firma Adı</th>
-                    <th>Grup</th>
-                    <th>Teklif/Servis Sayısı</th>
-                    <th>E-Posta Adresi</th>
-                    <th>GSM</th>
-                    <th>İşlem</th>
-
-                </tr>
-            </tfoot>
-        </table>
-    
+            <?php } ?>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="col">Sıra</th>
+                <th>Firma Adı</th>
+                <th>Grup</th>
+                <th>Teklif/Servis Sayısı</th>
+                <th>E-Posta Adresi</th>
+                <th>GSM</th>
+                <th>İşlem</th>
+            </tr>
+        </tfoot>
+    </table>
 </div>
 <script src="include/js/data-table.js"></script>
 <script>
@@ -245,12 +208,9 @@ $(document).ready(function() {
                 $("#create_time").text(response.create_time);
                 $("#updater").text(response.updater);
                 $("#updated_at").text(response.updated_at);
-
             }
-        })
-
+        });
     });
-
 });
 
 $(".closeModal").click(function() {

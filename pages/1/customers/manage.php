@@ -17,6 +17,10 @@ if (!is_numeric($id)) {
 
 $customer = $Customer->find($id);
 
+if ($id > 0 && (!$customer || !empty($customer->deleted_at))) {
+    header("Location:index.php?p=customers/list&st=customer-deleted");
+    exit;
+}
 
 
 $cerq = $ac->prepare("SELECT * FROM customers WHERE id = ?");

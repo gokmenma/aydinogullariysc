@@ -46,6 +46,16 @@ if ($_POST) {
 
     $grp = @$_POST["categoryName"];
 
+    $duplicate = $ac->prepare(
+        "SELECT 1 FROM customers
+         WHERE deleted_at IS NULL
+           AND LOWER(TRIM(company)) = LOWER(TRIM(?))
+         LIMIT 1"
+    );
+    $duplicate->execute([trim($ccompany)]);
+    if ($duplicate->fetchColumn()) {
+        showAlert("alert", "Aynı isimde aktif bir firma kaydı zaten mevcut.");
+    } else {
 
 
     $regg = $ac->prepare("INSERT INTO customers SET
@@ -93,6 +103,7 @@ if ($_POST) {
 
         header("Location: index.php?p=customer-new&st=newsuccess");
 
+    }
     }
 
 
