@@ -348,6 +348,7 @@ try {
         table-layout: fixed !important;
     }
     #priceRequestTable thead th {
+        position: relative !important;
         background: #f8fafc;
         color: #475569;
         font-weight: 700;
@@ -359,18 +360,23 @@ try {
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow: visible;
+    }
+    #priceRequestTable thead th.tf-header-cell {
+        padding-right: 24px !important;
+    }
+    #priceRequestTable thead th .tf-trigger {
+        right: 2px !important;
+        width: 18px !important;
+        height: 18px !important;
     }
     #priceRequestTable thead th.sorting,
     #priceRequestTable thead th.sorting_asc,
     #priceRequestTable thead th.sorting_desc {
         padding-left: 4px !important;
-        padding-right: 14px !important;
     }
     #priceRequestTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
         padding-left: 4px !important;
-        padding-right: 4px !important;
     }
     #priceRequestTable tbody td {
         padding: 8px 4px !important;
@@ -657,10 +663,10 @@ try {
             </div>
 
             <div class="table-responsive">
-                <table id="priceRequestTable" class="table table-hover table-striped w-100 no-filter">
+                <table id="priceRequestTable" class="table table-hover table-striped w-100">
                     <thead>
                         <tr>
-                            <th style="width: 4%;" class="text-center">#</th>
+                            <th style="width: 4%;" class="text-center no-filter">#</th>
                             <th style="width: 10%;">Talep No</th>
                             <th style="width: 22%;">Firma Adı</th>
                             <th style="width: 10%;" class="text-center">Kayıt Tarihi</th>
@@ -668,7 +674,7 @@ try {
                             <th style="width: 11%;" class="text-right">Toplam Fiyat</th>
                             <th style="width: 10%;" class="text-center">Durum</th>
                             <th style="width: 11%;">Oluşturan</th>
-                            <th style="width: 12%;" class="text-center">İşlem</th>
+                            <th style="width: 12%;" class="text-center no-filter">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -843,6 +849,10 @@ $(document).ready(function() {
             { targets: [0, 8], orderable: false }
         ]
     });
+
+    if (window.App && window.App.TableFilter) {
+        App.TableFilter.attachToTable(document.getElementById('priceRequestTable'));
+    }
 
     // Özel Arama Kutusu
     $('#priceRequestCustomSearch').on('keyup input', function() {

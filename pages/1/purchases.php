@@ -354,6 +354,7 @@ try {
         table-layout: fixed !important;
     }
     #purchasesTable thead th {
+        position: relative !important;
         background: #f8fafc;
         color: #475569;
         font-weight: 700;
@@ -365,18 +366,23 @@ try {
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow: visible;
+    }
+    #purchasesTable thead th.tf-header-cell {
+        padding-right: 24px !important;
+    }
+    #purchasesTable thead th .tf-trigger {
+        right: 2px !important;
+        width: 18px !important;
+        height: 18px !important;
     }
     #purchasesTable thead th.sorting,
     #purchasesTable thead th.sorting_asc,
     #purchasesTable thead th.sorting_desc {
         padding-left: 4px !important;
-        padding-right: 14px !important;
     }
     #purchasesTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
         padding-left: 4px !important;
-        padding-right: 4px !important;
     }
     #purchasesTable tbody td {
         padding: 8px 4px !important;
@@ -699,10 +705,10 @@ try {
             </div>
 
             <div class="table-responsive">
-                <table id="purchasesTable" class="table table-hover table-striped w-100 no-filter">
+                <table id="purchasesTable" class="table table-hover table-striped w-100">
                     <thead>
                         <tr>
-                            <th style="width: 3.5%;" class="text-center">#</th>
+                            <th style="width: 3.5%;" class="text-center no-filter">#</th>
                             <th style="width: 8%;">Sipariş No</th>
                             <th style="width: 18%;">Firma Adı</th>
                             <th style="width: 8%;" class="text-center">Kayıt Tarihi</th>
@@ -714,7 +720,7 @@ try {
                             <th style="width: 8%;" class="text-center">Fatura Tarihi</th>
                             <th style="width: 8.5%;">Oluşturan</th>
                             <th style="width: 6%;" class="text-center">Tip</th>
-                            <th style="width: 10%;" class="text-center">İşlem</th>
+                            <th style="width: 10%;" class="text-center no-filter">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -946,6 +952,10 @@ $(document).ready(function() {
             { targets: [0, 11, 12], orderable: false }
         ]
     });
+
+    if (window.App && window.App.TableFilter) {
+        App.TableFilter.attachToTable(document.getElementById('purchasesTable'));
+    }
 
     function filterWaitingDemands() {
         table.column(6).search('Bekliyor').draw();
