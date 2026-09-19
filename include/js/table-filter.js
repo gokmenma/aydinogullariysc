@@ -482,6 +482,7 @@ App.TableFilter = {
             { val: 'empty', text: 'Boş' },
             { val: 'not_empty', text: 'Dolu' }
         ] : (type === 'number') ? [
+            { val: 'contains', text: 'İçerir' },
             { val: 'equals', text: 'Eşittir (=)' },
             { val: 'gt', text: 'Büyüktür (>)' },
             { val: 'lt', text: 'Küçüktür (<)' },
@@ -514,7 +515,7 @@ App.TableFilter = {
         if (type === 'date') {
             inputHtml = `<div class="tf-input-wrapper"${isHidden}><input type="text" class="form-control form-control-sm tf-input tf-date-input" placeholder="Tarih seçin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}"><span class="tf-calendar-icon">${App.TableFilter.SVG_CALENDAR_ICON}</span></div>`;
         } else if (type === 'number') {
-            inputHtml = `<input type="number" step="any" class="form-control form-control-sm tf-input"${isHidden} placeholder="Değer girin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}">`;
+            inputHtml = `<input type="text" inputmode="decimal" class="form-control form-control-sm tf-input"${isHidden} placeholder="Değer girin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}">`;
         } else {
             inputHtml = `<input type="text" class="form-control form-control-sm tf-input"${isHidden} placeholder="Değer girin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}">`;
         }
@@ -838,9 +839,27 @@ App.TableFilter = {
         if (type === 'number') {
             const cellNum = App.TableFilter.parseNum(cellRaw);
             const targetNum = rule.numValue;
+            const targetValStr = String(rule.value || '').trim();
+
+            if (op === 'contains') {
+                const cellClean = String(cellRaw).replace(/[₺$€\s.]/g, '').replace(',', '.');
+                const targetClean = targetValStr.replace(/[₺$€\s.]/g, '').replace(',', '.');
+                if (cellClean.includes(targetClean)) return true;
+                if (!isNaN(cellNum) && !isNaN(targetNum)) {
+                    if (String(cellNum).includes(targetClean)) return true;
+                }
+                return false;
+            }
+
             if (isNaN(cellNum) || isNaN(targetNum)) return false;
 
-            if (op === 'equals') return Math.abs(cellNum - targetNum) < 0.0001;
+            if (op === 'equals') {
+                const hasDecimals = targetValStr.includes('.') || targetValStr.includes(',');
+                if (!hasDecimals) {
+                    return Math.floor(cellNum) === Math.floor(targetNum) || Math.round(cellNum) === Math.round(targetNum) || Math.abs(cellNum - targetNum) < 1.0;
+                }
+                return Math.abs(cellNum - targetNum) < 0.01;
+            }
             if (op === 'gt') return cellNum > targetNum;
             if (op === 'lt') return cellNum < targetNum;
             if (op === 'gte') return cellNum >= targetNum;

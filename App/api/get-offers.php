@@ -17,7 +17,7 @@ $column_map = [
     1 => 'created_at',
     2 => 'offerNumber',
     3 => 'company_name',
-    4 => 'total_price',
+    4 => 'tl_toplam_karsilik', // TOPLAM TL TUTAR
     5 => 'durum',
     6 => 'onay_tarihi',
     7 => 'offer_subject',
@@ -47,6 +47,20 @@ function ddmmyyyy_to_sql($s){
     return '';
 }
 
+function parse_number_value($val) {
+    $str = trim((string)$val);
+    if ($str === '') return null;
+    $str = str_replace(['₺', '$', '€', ' '], '', $str);
+    if (strpos($str, '.') !== false && strpos($str, ',') !== false) {
+        $str = str_replace('.', '', $str);
+        $str = str_replace(',', '.', $str);
+    } elseif (strpos($str, ',') !== false) {
+        $str = str_replace(',', '.', $str);
+    }
+    $clean = preg_replace('/[^0-9.-]/', '', $str);
+    return is_numeric($clean) ? (float)$clean : null;
+}
+
 // --- BÖLÜM A: Genel Arama ---
 if (!empty($search_value)) {
     $search_param = "%{$search_value}%";
@@ -68,7 +82,7 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
     if ($raw_val === '') return;
 
     $is_date = in_array($column_name, ['created_at', 'onay_tarihi']);
-    $is_num = in_array($column_name, ['id', 'total_price']);
+    $is_num = in_array($column_name, ['id', 'total_price', 'tl_toplam_karsilik']);
 
     // Check if JSON from TableFilter
     $json = json_decode($raw_val, true);
@@ -110,8 +124,18 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
                 }
 
                 if ($op === 'contains') {
-                    $rule_conds[] = "$column_name LIKE ?";
-                    $params[] = "%{$val}%";
+                    if ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $clean_digits = preg_replace('/[^0-9]/', '', $val);
+                        if ($clean_digits !== '') {
+                            $rule_conds[] = "(CAST($column_name AS CHAR) LIKE ? OR ($column_name >= ? AND $column_name < ?))";
+                            $params[] = "%{$clean_digits}%";
+                            $params[] = (float)$clean_digits;
+                            $params[] = (float)($clean_digits + 1.0);
+                        }
+                    } else {
+                        $rule_conds[] = "$column_name LIKE ?";
+                        $params[] = "%{$val}%";
+                    }
                 } elseif ($op === 'not_contains') {
                     $rule_conds[] = "$column_name NOT LIKE ?";
                     $params[] = "%{$val}%";
@@ -126,8 +150,18 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
                         $rule_conds[] = "DATE($column_name) = ?";
                         $params[] = $val;
                     } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
-                        $rule_conds[] = "$column_name = ?";
-                        $params[] = (float)$val;
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $has_decimals = (strpos($val, '.') !== false || strpos($val, ',') !== false);
+                            if ($has_decimals) {
+                                $rule_conds[] = "ROUND($column_name, 2) = ?";
+                                $params[] = round($num, 2);
+                            } else {
+                                $rule_conds[] = "($column_name >= ? AND $column_name < ?)";
+                                $params[] = (float)$num;
+                                $params[] = (float)($num + 1.0);
+                            }
+                        }
                     } else {
                         $rule_conds[] = "$column_name LIKE ?";
                         $params[] = $val;
@@ -135,31 +169,59 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
                 } elseif ($op === 'gt' || $op === 'after') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) > ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name > ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name > ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 } elseif ($op === 'lt' || $op === 'before') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) < ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name < ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name < ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 } elseif ($op === 'gte') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) >= ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name >= ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name >= ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 } elseif ($op === 'lte') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) <= ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name <= ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name <= ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 }
             }
 
@@ -252,14 +314,14 @@ if (!empty($filters)) {
         $params[] = $date_end;
     }
     // Toplam aralığı
-    $total_min = $filters['total_min'] ?? '';
-    $total_max = $filters['total_max'] ?? '';
-    if ($total_min !== '' && $total_min !== null) {
-        $where_conditions[] = "total_price >= ?";
+    $total_min = parse_number_value($filters['total_min'] ?? '');
+    $total_max = parse_number_value($filters['total_max'] ?? '');
+    if ($total_min !== null) {
+        $where_conditions[] = "tl_toplam_karsilik >= ?";
         $params[] = $total_min;
     }
-    if ($total_max !== '' && $total_max !== null) {
-        $where_conditions[] = "total_price <= ?";
+    if ($total_max !== null) {
+        $where_conditions[] = "tl_toplam_karsilik <= ?";
         $params[] = $total_max;
     }
 }
@@ -332,12 +394,9 @@ foreach ($results as $of) {
         : "<span class='badge badge-warning' data-tooltip='".$of['durum']."'>".$of['durum']."</span>";
 
     // İşlem Butonları
+    $islem_butonlari = '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
     if(($of["is_template"] == 1 && checkAuth("template_offer_edit")) || ($of["is_template"] == 0 && checkAuth("offeredit"))) {
-        $islem_butonlari = '
-        <a type="button" href="index.php?p=offers/offer-manage&id=' . $of["id"] . '" class="btn btn-sm btn-outline-primary" data-tooltip="Düzenle"><i class="fa fa-pencil"></i></a>';
-    }
-    else{
-        $islem_butonlari = '';
+        $islem_butonlari .= '<a type="button" href="index.php?p=offers/offer-manage&id=' . $of["id"] . '" class="btn btn-sm btn-outline-primary" data-tooltip="Düzenle"><i class="fa fa-pencil"></i></a>';
     }
 
     if(($of["is_template"] == 1 && checkAuth("offertemplatedel")) || ($of["is_template"] == 0 && checkAuth("offerdelete"))) {
@@ -372,7 +431,7 @@ foreach ($results as $of) {
            Teklifi Kopyala</a>';
     }
 
-    $islem_butonlari .='</div></div>';
+    $islem_butonlari .='</div></div></div>';
     
     $customerName = htmlspecialchars(shorted($of["company_name"], 40));
     $customerCell = !empty($of["customer_deleted_at"])

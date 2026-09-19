@@ -43,6 +43,20 @@ function ddmmyyyy_to_sql($s){
     return '';
 }
 
+function parse_number_value($val) {
+    $str = trim((string)$val);
+    if ($str === '') return null;
+    $str = str_replace(['₺', '$', '€', ' '], '', $str);
+    if (strpos($str, '.') !== false && strpos($str, ',') !== false) {
+        $str = str_replace('.', '', $str);
+        $str = str_replace(',', '.', $str);
+    } elseif (strpos($str, ',') !== false) {
+        $str = str_replace(',', '.', $str);
+    }
+    $clean = preg_replace('/[^0-9.-]/', '', $str);
+    return is_numeric($clean) ? (float)$clean : null;
+}
+
 // Sadece şablon olmayan gerçek tekliflerin öğeleri
 $where_conditions[] = "vo.is_template = 0";
 
@@ -99,8 +113,18 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
                 }
 
                 if ($op === 'contains') {
-                    $rule_conds[] = "$column_name LIKE ?";
-                    $params[] = "%{$val}%";
+                    if ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $clean_digits = preg_replace('/[^0-9]/', '', $val);
+                        if ($clean_digits !== '') {
+                            $rule_conds[] = "(CAST($column_name AS CHAR) LIKE ? OR ($column_name >= ? AND $column_name < ?))";
+                            $params[] = "%{$clean_digits}%";
+                            $params[] = (float)$clean_digits;
+                            $params[] = (float)($clean_digits + 1.0);
+                        }
+                    } else {
+                        $rule_conds[] = "$column_name LIKE ?";
+                        $params[] = "%{$val}%";
+                    }
                 } elseif ($op === 'not_contains') {
                     $rule_conds[] = "$column_name NOT LIKE ?";
                     $params[] = "%{$val}%";
@@ -115,8 +139,18 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
                         $rule_conds[] = "DATE($column_name) = ?";
                         $params[] = $val;
                     } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
-                        $rule_conds[] = "$column_name = ?";
-                        $params[] = (float)$val;
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $has_decimals = (strpos($val, '.') !== false || strpos($val, ',') !== false);
+                            if ($has_decimals) {
+                                $rule_conds[] = "ROUND($column_name, 2) = ?";
+                                $params[] = round($num, 2);
+                            } else {
+                                $rule_conds[] = "($column_name >= ? AND $column_name < ?)";
+                                $params[] = (float)$num;
+                                $params[] = (float)($num + 1.0);
+                            }
+                        }
                     } else {
                         $rule_conds[] = "$column_name LIKE ?";
                         $params[] = $val;
@@ -124,31 +158,59 @@ function apply_column_filter($column_name, $raw_val, &$where_conditions, &$param
                 } elseif ($op === 'gt' || $op === 'after') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) > ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name > ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name > ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 } elseif ($op === 'lt' || $op === 'before') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) < ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name < ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name < ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 } elseif ($op === 'gte') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) >= ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name >= ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name >= ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 } elseif ($op === 'lte') {
                     if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
                         $rule_conds[] = "DATE($column_name) <= ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $num = parse_number_value($val);
+                        if ($num !== null) {
+                            $rule_conds[] = "$column_name <= ?";
+                            $params[] = $num;
+                        }
                     } else {
                         $rule_conds[] = "$column_name <= ?";
+                        $params[] = $val;
                     }
-                    $params[] = $val;
                 }
             }
 

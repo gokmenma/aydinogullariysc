@@ -377,7 +377,7 @@ if (@$_GET["st"] == "success-mail") {
                         <th>Konusu</th>
                         <th>Ödeme Vadesi</th>
                         <th>Teklif Veren</th>
-                        <th class="no-export" style="width: 7%;">İşlem</th>
+                        <th class="no-export text-center" style="width: 1%; white-space: nowrap;">İşlem</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -616,7 +616,7 @@ $(document).ready(function() {
             { "data": "konusu", "name": "offer_subject" },
             { "data": "odeme_vadesi", "name": "payment_period" },
             { "data": "teklif_veren", "name": "creator_name" },
-            { "data": "islem", "orderable": false, "searchable": false, "className": "text-right" }
+            { "data": "islem", "orderable": false, "searchable": false, "className": "text-center text-nowrap" }
         ],
         "order": [[ 1, "desc" ]],
         "language": {
