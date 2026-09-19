@@ -274,8 +274,11 @@ try {
         width: 100% !important;
         display: block !important;
     }
-    .company-name-cell {
-        max-width: 220px;
+    .company-name-cell,
+    #priceRequestTable th.col-company,
+    #priceRequestTable td.company-name-cell {
+        max-width: 220px !important;
+        width: 220px !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -342,42 +345,38 @@ try {
         border-collapse: collapse !important;
         border-spacing: 0 !important;
         width: 100% !important;
-        table-layout: fixed !important;
+        table-layout: auto !important;
     }
     #priceRequestTable thead th {
         background: #f8fafc;
         color: #475569;
         font-weight: 700;
-        font-size: 10.5px;
+        font-size: 11.5px;
         text-transform: uppercase;
-        letter-spacing: 0.1px;
-        padding: 6px 3px !important;
+        letter-spacing: 0.3px;
+        padding: 9px 8px !important;
         border-bottom: 2px solid #e2e8f0;
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
     #priceRequestTable thead th.sorting,
     #priceRequestTable thead th.sorting_asc,
     #priceRequestTable thead th.sorting_desc {
-        padding-left: 3px !important;
-        padding-right: 12px !important;
+        padding-left: 8px !important;
+        padding-right: 18px !important;
     }
     #priceRequestTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
-        padding-left: 3px !important;
-        padding-right: 3px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
     #priceRequestTable tbody td {
-        padding: 5px 3px !important;
+        padding: 8px 8px !important;
         vertical-align: middle;
-        font-size: 11px;
+        font-size: 12px;
         color: #334155;
         border-top: 1px solid #f1f5f9;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
     #priceRequestTable tbody tr:hover {
         background-color: #f8fafc;
@@ -389,12 +388,12 @@ try {
         align-items: center;
         justify-content: center;
         min-width: 22px;
-        height: 20px;
+        height: 22px;
         padding: 0 4px;
         background: #334155;
         color: #ffffff !important;
         border-radius: 4px;
-        font-size: 10.5px;
+        font-size: 11px;
         font-weight: 700;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -409,21 +408,29 @@ try {
         background-color: #fef3c7;
         color: #92400e;
         border: 1px solid #fde68a;
+        font-size: 11px;
+        padding: 3px 6px;
     }
     .badge-soft-info {
         background-color: #e0f2fe;
         color: #0369a1;
         border: 1px solid #bae6fd;
+        font-size: 11px;
+        padding: 3px 6px;
     }
     .badge-soft-success {
         background-color: #dcfce7;
         color: #166534;
         border: 1px solid #bbf7d0;
+        font-size: 11px;
+        padding: 3px 6px;
     }
     .badge-soft-danger {
         background-color: #fee2e2;
         color: #991b1b;
         border: 1px solid #fecaca;
+        font-size: 11px;
+        padding: 3px 6px;
     }
 
     /* Action Buttons in Row */
@@ -649,15 +656,15 @@ try {
                 <table id="priceRequestTable" class="table table-hover table-striped w-100 no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 28px;" class="text-center">#</th>
-                            <th style="width: 75px;">Talep No</th>
-                            <th>Firma Adı</th>
-                            <th style="width: 72px;" class="text-center">Kayıt Trh</th>
-                            <th style="width: 70px;" class="text-center">Termin</th>
-                            <th style="width: 80px;" class="text-right">Toplam Fiyat</th>
-                            <th style="width: 70px;" class="text-center">Durum</th>
-                            <th style="width: 75px;">Oluşturan</th>
-                            <th style="width: 85px; min-width: 85px;" class="text-center">İşlem</th>
+                            <th style="width: 35px;" class="text-center">#</th>
+                            <th style="width: 95px;">Talep No</th>
+                            <th class="col-company" style="width: 220px; max-width: 220px;">Firma Adı</th>
+                            <th style="width: 90px;" class="text-center">Kayıt Tarihi</th>
+                            <th style="width: 85px;" class="text-center">Termin</th>
+                            <th style="width: 95px;" class="text-right">Toplam Fiyat</th>
+                            <th style="width: 85px;" class="text-center">Durum</th>
+                            <th style="width: 95px;">Oluşturan</th>
+                            <th style="width: 105px; min-width: 105px;" class="text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -697,32 +704,32 @@ try {
                                 </td>
 
                                 <td>
-                                    <span class="font-weight-bold text-dark font-12"><?php echo $siparisNo; ?></span>
+                                    <span class="font-weight-bold text-dark"><?php echo $siparisNo; ?></span>
                                 </td>
 
                                 <td class="company-name-cell" data-tooltip="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 26), ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 24), ENT_QUOTES, 'UTF-8'); ?></span>
                                 </td>
 
-                                <td class="text-muted font-11 text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
+                                <td class="text-muted text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
 
-                                <td class="font-11 text-center"><?php echo $deadlineFormatted; ?></td>
+                                <td class="text-center"><?php echo $deadlineFormatted; ?></td>
 
-                                <td class="text-right font-weight-bold text-dark font-11">
+                                <td class="text-right font-weight-bold text-dark">
                                     <?php echo $altToplam; ?>
                                 </td>
 
-                                <td class="text-center font-11">
+                                <td class="text-center">
                                     <?php echo $statusBadge; ?>
                                 </td>
 
-                                <td class="font-11">
+                                <td>
                                     <span title="<?php echo htmlspecialchars($creator, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8'); ?>
+                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 14), ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
 
-                                <td class="text-center text-nowrap" style="width: 85px; min-width: 85px; white-space: nowrap;">
+                                <td class="text-center text-nowrap" style="width: 105px; min-width: 105px; white-space: nowrap;">
                                     <div class="action-btn-group">
                                         <button type="button" class="btn btn-sm btn-outline-primary action-btn view-detail" data-id="<?php echo $pid; ?>" title="Detayı Görüntüle" data-tooltip="Görüntüle">
                                             <i class="fa fa-eye"></i>

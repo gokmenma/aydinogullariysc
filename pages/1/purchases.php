@@ -268,8 +268,11 @@ try {
         width: 100% !important;
         display: block !important;
     }
-    .company-name-cell {
-        max-width: 200px;
+    .company-name-cell,
+    #purchasesTable th.col-company,
+    #purchasesTable td.company-name-cell {
+        max-width: 170px !important;
+        width: 170px !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -348,42 +351,38 @@ try {
         border-collapse: collapse !important;
         border-spacing: 0 !important;
         width: 100% !important;
-        table-layout: fixed !important;
+        table-layout: auto !important;
     }
     #purchasesTable thead th {
         background: #f8fafc;
         color: #475569;
         font-weight: 700;
-        font-size: 10px;
+        font-size: 11.5px;
         text-transform: uppercase;
-        letter-spacing: 0.1px;
-        padding: 6px 2px !important;
+        letter-spacing: 0.3px;
+        padding: 9px 6px !important;
         border-bottom: 2px solid #e2e8f0;
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
     #purchasesTable thead th.sorting,
     #purchasesTable thead th.sorting_asc,
     #purchasesTable thead th.sorting_desc {
-        padding-left: 2px !important;
-        padding-right: 10px !important;
+        padding-left: 6px !important;
+        padding-right: 18px !important;
     }
     #purchasesTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
-        padding-left: 2px !important;
-        padding-right: 2px !important;
+        padding-left: 6px !important;
+        padding-right: 6px !important;
     }
     #purchasesTable tbody td {
-        padding: 4px 2px !important;
+        padding: 8px 6px !important;
         vertical-align: middle;
-        font-size: 10.5px;
+        font-size: 12px;
         color: #334155;
         border-top: 1px solid #f1f5f9;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
     #purchasesTable tbody tr:hover {
         background-color: #f8fafc;
@@ -394,13 +393,13 @@ try {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 18px;
-        height: 18px;
-        padding: 0 2px;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 4px;
         background: #334155;
         color: #ffffff !important;
-        border-radius: 3px;
-        font-size: 9.5px;
+        border-radius: 4px;
+        font-size: 11px;
         font-weight: 700;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -416,27 +415,27 @@ try {
         color: #0369a1;
         border: 1px solid #bae6fd;
         font-weight: 600;
-        font-size: 9px;
-        padding: 1px 4px;
-        border-radius: 3px;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
     }
     .badge-type-price {
         background-color: #ede9fe;
         color: #6d28d9;
         border: 1px solid #ddd6fe;
         font-weight: 600;
-        font-size: 9px;
-        padding: 1px 4px;
-        border-radius: 3px;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
     }
     .badge-type-order {
         background-color: #ecfdf5;
         color: #047857;
         border: 1px solid #a7f3d0;
         font-weight: 600;
-        font-size: 9px;
-        padding: 1px 4px;
-        border-radius: 3px;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
     }
 
     /* Soft Status Badges */
@@ -444,50 +443,50 @@ try {
         background-color: #fef3c7;
         color: #92400e;
         border: 1px solid #fde68a;
-        font-size: 9.5px;
-        padding: 2px 4px;
+        font-size: 11px;
+        padding: 3px 6px;
     }
     .badge-soft-info {
         background-color: #e0f2fe;
         color: #0369a1;
         border: 1px solid #bae6fd;
-        font-size: 9.5px;
-        padding: 2px 4px;
+        font-size: 11px;
+        padding: 3px 6px;
     }
     .badge-soft-success {
         background-color: #dcfce7;
         color: #166534;
         border: 1px solid #bbf7d0;
-        font-size: 9.5px;
-        padding: 2px 4px;
+        font-size: 11px;
+        padding: 3px 6px;
     }
     .badge-soft-danger {
         background-color: #fee2e2;
         color: #991b1b;
         border: 1px solid #fecaca;
-        font-size: 9.5px;
-        padding: 2px 4px;
+        font-size: 11px;
+        padding: 3px 6px;
     }
 
     /* Action Buttons in Row */
     .action-btn-group {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 2px !important;
+        gap: 3px !important;
         justify-content: center !important;
         white-space: nowrap !important;
         vertical-align: middle !important;
     }
     .action-btn {
-        width: 23px !important;
-        height: 23px !important;
-        min-width: 23px !important;
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
         padding: 0 !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-radius: 4px !important;
-        font-size: 10.5px !important;
+        border-radius: 5px !important;
+        font-size: 11.5px !important;
         line-height: 1 !important;
         transition: all 0.15s ease !important;
         cursor: pointer !important;
@@ -499,7 +498,7 @@ try {
         box-shadow: 0 2px 4px rgba(0,0,0,0.12);
     }
     .action-btn i {
-        font-size: 10.5px !important;
+        font-size: 11.5px !important;
         line-height: 1 !important;
         pointer-events: none;
     }
@@ -699,19 +698,19 @@ try {
                 <table id="purchasesTable" class="table table-hover table-striped w-100 no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 25px;" class="text-center">#</th>
-                            <th style="width: 72px;">Sipariş / Talep No</th>
-                            <th>Firma Adı</th>
-                            <th style="width: 68px;" class="text-center">Kayıt Trh</th>
-                            <th style="width: 65px;" class="text-center">Termin</th>
-                            <th style="width: 68px;" class="text-right">Toplam</th>
-                            <th style="width: 65px;" class="text-center">Durum</th>
-                            <th style="width: 42px;" class="text-center">Vade</th>
-                            <th style="width: 55px;">Fatura No</th>
-                            <th style="width: 65px;" class="text-center">Fatura Trh</th>
-                            <th style="width: 65px;">Oluşturan</th>
-                            <th style="width: 48px;" class="text-center">Tip</th>
-                            <th style="width: 85px; min-width: 85px;" class="text-center">İşlem</th>
+                            <th style="width: 35px;" class="text-center">#</th>
+                            <th style="width: 95px;">Sipariş No</th>
+                            <th class="col-company" style="width: 170px; max-width: 170px;">Firma Adı</th>
+                            <th style="width: 85px;" class="text-center">Kayıt Tarihi</th>
+                            <th style="width: 80px;" class="text-center">Termin</th>
+                            <th style="width: 85px;" class="text-right">Toplam</th>
+                            <th style="width: 85px;" class="text-center">Durum</th>
+                            <th style="width: 50px;" class="text-center">Vade</th>
+                            <th style="width: 75px;">Fatura No</th>
+                            <th style="width: 85px;" class="text-center">Fatura Tarihi</th>
+                            <th style="width: 90px;">Oluşturan</th>
+                            <th style="width: 60px;" class="text-center">Tip</th>
+                            <th style="width: 105px; min-width: 105px;" class="text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -791,34 +790,34 @@ try {
                                 </td>
 
                                 <td>
-                                    <span class="font-weight-bold text-dark font-12"><?php echo $siparisNo; ?></span>
+                                    <span class="font-weight-bold text-dark"><?php echo $siparisNo; ?></span>
                                 </td>
 
                                 <td class="company-name-cell" data-tooltip="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 22), ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 20), ENT_QUOTES, 'UTF-8'); ?></span>
                                 </td>
 
-                                <td class="text-muted font-11 text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
+                                <td class="text-muted text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
 
-                                <td class="font-11 text-center"><?php echo $deadlineFormatted; ?></td>
+                                <td class="text-center"><?php echo $deadlineFormatted; ?></td>
 
-                                <td class="text-right font-weight-bold text-dark font-11">
+                                <td class="text-right font-weight-bold text-dark">
                                     <?php echo $altToplam . ' ₺'; ?>
                                 </td>
 
-                                <td class="text-center font-11">
+                                <td class="text-center">
                                     <?php echo $statusBadge; ?>
                                 </td>
 
-                                <td class="font-11 text-center"><?php echo $paymentPeriod ?: '-'; ?></td>
+                                <td class="text-center"><?php echo $paymentPeriod ?: '-'; ?></td>
 
-                                <td class="font-11"><?php echo $invoiceNumber ?: '-'; ?></td>
+                                <td><?php echo $invoiceNumber ?: '-'; ?></td>
 
-                                <td class="font-11 text-center"><?php echo $invoiceDateFormatted; ?></td>
+                                <td class="text-center"><?php echo $invoiceDateFormatted; ?></td>
 
-                                <td class="font-11">
+                                <td>
                                     <span class="custom-tooltip" data-tooltip="<?php echo htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 10), ENT_QUOTES, 'UTF-8'); ?>
+                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
 
@@ -826,7 +825,7 @@ try {
                                     <?php echo $typeBadge; ?>
                                 </td>
 
-                                <td class="text-center text-nowrap" style="width: 85px; min-width: 85px; white-space: nowrap;">
+                                <td class="text-center text-nowrap" style="width: 105px; min-width: 105px; white-space: nowrap;">
                                     <div class="action-btn-group">
                                         <a href="<?php echo $detailLink; ?>" target="_blank" class="btn btn-sm btn-outline-primary action-btn" title="Detay / Form Görüntüle" data-tooltip="Detay / Form">
                                             <i class="fa fa-eye"></i>
