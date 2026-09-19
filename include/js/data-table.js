@@ -140,7 +140,7 @@ $(document).ready(function () {
   }
   
   table = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable").DataTable({
-    
+    autoWidth: false,
      lengthMenu: [
       [10, 25, 50, -1],
       [10, 25, 50, "Tümü"],

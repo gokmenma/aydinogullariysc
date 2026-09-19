@@ -50,6 +50,11 @@ $menuDefinitions = [
         'icon' => 'fa fa-table',
         'visible' => true,
         'items' => [
+            'service/dashboard' => [
+                'title' => 'Servis Dashboard',
+                'link' => 'index.php?p=service/dashboard',
+                'visible' => (permtrue("service_dashboard") || permtrue("serviceView"))
+            ],
             'service/manage' => [
                 'title' => 'Servis Oluştur',
                 'link' => 'index.php?p=service/manage',

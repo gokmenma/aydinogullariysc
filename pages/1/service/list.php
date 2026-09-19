@@ -823,6 +823,11 @@ if ($cid || $sid) {
                 </div>
             </div>
             <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                <?php if (permtrue("service_dashboard") || permtrue("serviceView")) { ?>
+                    <a href="index.php?p=service/dashboard" class="btn btn-outline-primary btn-action-outline" title="Dashboard">
+                        <i class="fa fa-dashboard"></i> <span class="d-none d-sm-inline">Dashboard</span>
+                    </a>
+                <?php } ?>
                 <button type="button" class="btn btn-outline-secondary btn-action-outline" id="btnRefreshServices" title="Tabloyu Yenile">
                     <i class="fa fa-refresh"></i> <span class="d-none d-sm-inline">Yenile</span>
                 </button>

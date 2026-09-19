@@ -177,8 +177,7 @@ html, body, button, input, optgroup, select, textarea, .form-control, .btn, .tab
 }
 
 .table td {
-	vertical-align: top;
-	min-width: 230px;
+	vertical-align: middle;
 }
 
 .table-container {

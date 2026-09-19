@@ -54,13 +54,32 @@ class KesifModel extends BaseModel
     }
 
     /**
-     * Firma adına göre keşifleri ara
+     * Keşif özet istatistiklerini getir
      */
-    public function searchByFirma($firma)
+    public function getSummaryStats()
     {
-        $sql = $this->db->prepare("SELECT * FROM $this->table WHERE firma LIKE ? AND silinme_tarihi IS NULL ORDER BY kesif_tarihi DESC");
-        $sql->execute(["%{$firma}%"]);
-        return $sql->fetchAll(PDO::FETCH_OBJ);
+        $sql = $this->db->prepare("SELECT 
+            COUNT(*) as total_count,
+            SUM(CASE WHEN durum = 'bekliyor' THEN 1 ELSE 0 END) as bekleyen_count,
+            SUM(CASE WHEN durum = 'iptal_edildi' THEN 1 ELSE 0 END) as iptal_count,
+            SUM(CASE WHEN durum IN ('teklif_hazirlandi', 'teklif_gonderildi') THEN 1 ELSE 0 END) as teklif_count,
+            SUM(CASE WHEN durum = 'teklif_hazirlandi' THEN 1 ELSE 0 END) as teklif_hazirlandi_count,
+            SUM(CASE WHEN durum = 'teklif_gonderildi' THEN 1 ELSE 0 END) as teklif_gonderildi_count,
+            SUM(CASE WHEN durum = 'kesif_tamamlandi' THEN 1 ELSE 0 END) as tamamlanan_count,
+            SUM(CASE WHEN kesif_tarihi >= DATE_FORMAT(NOW(), '%Y-%m-01 00:00:00') THEN 1 ELSE 0 END) as this_month_count
+        FROM $this->table 
+        WHERE silinme_tarihi IS NULL");
+        $sql->execute();
+        return $sql->fetch(PDO::FETCH_ASSOC) ?: [
+            'total_count' => 0,
+            'bekleyen_count' => 0,
+            'iptal_count' => 0,
+            'teklif_count' => 0,
+            'teklif_hazirlandi_count' => 0,
+            'teklif_gonderildi_count' => 0,
+            'tamamlanan_count' => 0,
+            'this_month_count' => 0
+        ];
     }
 
 }
