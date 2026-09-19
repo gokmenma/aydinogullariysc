@@ -27,11 +27,6 @@ if ($_POST) {
 	header("Location: index.php?p=task-new&st=newsuccess");
 }
 
-
-
-$dat = $ac->prepare("SELECT * FROM mainservices ");
-$dat->execute();
-
 if (@$_GET["st"] == "empties") {
 	showAlert("alert", "Zorunlu alanları boş bırakmayınız");
 }

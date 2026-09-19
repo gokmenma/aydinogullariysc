@@ -154,44 +154,70 @@ foreach ($customers as $row_data) {
     $cid = $row_data['id'];
 
     // Column 0: Sıra (id)
-    $row[] = $cid;
+    $row[] = '<span class="row-index-badge">' . $cid . '</span>';
 
     // Column 1: Firma Adı (company link)
     $link = $canEdit ? "index.php?p=customers/manage&id=" . $cid : "#";
     $company_name = htmlspecialchars($row_data['company']);
-    $short_company = htmlspecialchars(shorted($row_data['company'], 40));
-    $row[] = '<a href="' . $link . '" data-toggle="tooltip" data-tooltip="' . $company_name . '">' . $short_company . '</a>';
+    $short_company = htmlspecialchars(shorted($row_data['company'], 45));
+    $row[] = '<div class="customer-title-cell"><a href="' . $link . '" class="font-weight-600 text-primary-hover" data-toggle="tooltip" data-tooltip="' . $company_name . '">' . $short_company . '</a></div>';
 
     // Column 2: Grup (group_title)
-    $row[] = htmlspecialchars($row_data['group_title'] ?? '');
+    $group_title = trim($row_data['group_title'] ?? '');
+    if ($group_title !== '') {
+        $row[] = '<span class="badge-group">' . htmlspecialchars($group_title) . '</span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 3: Satış Temsilcisi (represant)
-    $row[] = htmlspecialchars($row_data['represant'] ?? '');
+    $represant = trim($row_data['represant'] ?? '');
+    if ($represant !== '') {
+        $row[] = '<span class="badge-represant"><i class="fa fa-user-circle-o text-muted mr-1"></i>' . htmlspecialchars($represant) . '</span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 4: Teklif/Servis Sayısı (offer_count / project_count)
-    $row[] = intval($row_data['offer_count']) . ' / ' . intval($row_data['project_count']);
+    $offer_cnt = intval($row_data['offer_count']);
+    $proj_cnt = intval($row_data['project_count']);
+    $stats_html = '<div class="d-inline-flex align-items-center" style="gap: 4px;">';
+    $stats_html .= '<span class="badge-stat-tag badge-stat-offers" title="Teklif Sayısı"><i class="fa fa-file-text-o mr-1"></i>' . $offer_cnt . '</span>';
+    $stats_html .= '<span class="badge-stat-tag badge-stat-services" title="Servis/Proje Sayısı"><i class="fa fa-wrench mr-1"></i>' . $proj_cnt . '</span>';
+    $stats_html .= '</div>';
+    $row[] = $stats_html;
 
     // Column 5: E-Posta Adresi (email)
-    $row[] = htmlspecialchars($row_data['email'] ?? '');
+    $email = trim($row_data['email'] ?? '');
+    if ($email !== '') {
+        $row[] = '<a href="mailto:' . htmlspecialchars($email) . '" class="text-muted text-nowrap font-12" title="' . htmlspecialchars($email) . '"><i class="fa fa-envelope-o mr-1 text-primary"></i>' . htmlspecialchars(shorted($email, 22)) . '</a>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 6: GSM (gsm)
-    $row[] = htmlspecialchars($row_data['gsm'] ?? '');
+    $gsm = trim($row_data['gsm'] ?? '');
+    if ($gsm !== '') {
+        $row[] = '<a href="tel:' . htmlspecialchars($gsm) . '" class="text-muted text-nowrap font-12"><i class="fa fa-phone mr-1 text-success"></i>' . htmlspecialchars($gsm) . '</a>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 7: Kayıt Tarihi
     $regDate = !empty($row_data['regdate']) && $row_data['regdate'] !== '0000-00-00 00:00:00'
         ? date('d.m.Y', strtotime($row_data['regdate']))
         : '-';
-    $row[] = htmlspecialchars($regDate);
+    $row[] = '<span class="badge-date"><i class="fa fa-calendar-o mr-1"></i>' . htmlspecialchars($regDate) . '</span>';
 
     // Column 8: İşlem
-    $actions = '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
+    $actions = '<div class="action-btn-group">';
     if ($canEdit) {
-        $actions .= '<a href="index.php?p=customers/manage&id=' . $cid . '" class="btn btn-sm btn-outline-info" data-tooltip="Görüntüle-Düzenle">
+        $actions .= '<a href="index.php?p=customers/manage&id=' . $cid . '" class="btn btn-sm btn-outline-info action-btn" data-tooltip="Görüntüle / Düzenle">
                 <i class="fa fa-pencil"></i>
         </a>';
     }
     if ($canDel) {
-        $actions .= '<a href="#" class="btn btn-sm btn-danger" data-tooltip="Sil" onClick="deleteRecord(\'Firma aktif müşteri listesinden kaldırılacaktır. Firmaya bağlı teklif ve servis kayıtları korunacaktır. Devam etmek istiyor musunuz?\',\'' . $cid . '\',\'customers\')">
+        $actions .= '<a href="#" class="btn btn-sm btn-outline-danger action-btn" data-tooltip="Sil" onClick="deleteRecord(\'Firma aktif müşteri listesinden kaldırılacaktır. Firmaya bağlı teklif ve servis kayıtları korunacaktır. Devam etmek istiyor musunuz?\',\'' . $cid . '\',\'customers\')">
                 <i class="fa fa-trash"></i>
         </a>';
     }
@@ -199,21 +225,22 @@ foreach ($customers as $row_data) {
     // Dropdown menu
     $encrypted_cid = encrypt($cid);
     $actions .= '<div class="dropdown d-inline">
-        <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenu_' . $cid . '" data-toggle="dropdown">
-            <i class="fa fa-ellipsis-v ml-1 mr-1"></i>
+        <button class="btn btn-outline-secondary btn-sm action-btn" type="button" id="dropdownMenu_' . $cid . '" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Diğer İşlemler">
+            <i class="fa fa-ellipsis-v"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_' . $cid . '">
-            <a href="index.php?p=customer-label&id=' . $cid . '" target="_blank" class="dropdown-item" type="button">
-                <i class="fa fa-print mr-2"></i>
+            <a href="index.php?p=customer-label&id=' . $cid . '" target="_blank" class="dropdown-item">
+                <i class="fa fa-print mr-2 text-primary"></i>
                 Etiket Göster</a>
-            <a href="index.php?p=customer-label" target="_blank" class="dropdown-item" type="button">
-                <i class="fa fa-send mr-2"></i>
-                Sms Gönder</a>
-            <a href="index.php?p=send-mail&customer=' . urlencode($encrypted_cid) . '" target="_blank" class="dropdown-item" type="button">
-                <i class="fa fa-envelope-o mr-2"></i>
+            <a href="index.php?p=customer-label" target="_blank" class="dropdown-item">
+                <i class="fa fa-send mr-2 text-info"></i>
+                SMS Gönder</a>
+            <a href="index.php?p=send-mail&customer=' . urlencode($encrypted_cid) . '" target="_blank" class="dropdown-item">
+                <i class="fa fa-envelope-o mr-2 text-success"></i>
                 Email Gönder</a>
+            <div class="dropdown-divider"></div>
             <a class="btn-detail btn dropdown-item" data-id="' . $cid . '" type="button">
-                <i class="fa fa-copy mr-2"></i>
+                <i class="fa fa-info-circle mr-2 text-secondary"></i>
                 Detay Bilgisi</a>
         </div>
     </div></div>';

@@ -48,6 +48,7 @@ if (($_GET["st"] ?? "") == "success-mail") {
             <p class="font-14"> </p>
         </div>
         <div class="float-right mb-20">
+            <a href="index.php?p=reports/dashboard" class="btn btn-sm btn-info mr-1"><i class="fa fa-dashboard"></i> Dashboard</a>
             <a href="#" class="btn btn-sm btn-primary" id="report-new" data-toggle="modal" data-type="new"
                 data-target="#reporttypeModal"><i class="fa fa-plus"></i> Yeni Oluştur</a>
             <a href="#" id="content-view" class="btn btn-sm btn-success" data-type="content" data-toggle="modal"

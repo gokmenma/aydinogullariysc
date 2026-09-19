@@ -1048,11 +1048,39 @@ table.dataTable thead th,
     transition: box-shadow 0.3s ease;
 }
 
-/* Reduce padding of cards that contain tables to maximize table space */
+/* Full-width seamless table layout for all cards containing tables */
 .form-card:has(.data-table),
 .form-card:has(.responsive),
-.form-card:has(.table-container) {
-    padding: 16px 20px !important;
+.form-card:has(.table-responsive),
+.form-card:has(.table-container),
+.form-card:has(table) {
+    padding: 4px !important;
+    overflow: hidden !important;
+}
+
+.form-card:has(.data-table) .form-card-header,
+.form-card:has(.responsive) .form-card-header,
+.form-card:has(.table-responsive) .form-card-header,
+.form-card:has(.table-container) .form-card-header,
+.form-card:has(table) .form-card-header {
+    padding: 14px 18px !important;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.dark-mode .form-card:has(.data-table) .form-card-header,
+.dark-mode .form-card:has(.responsive) .form-card-header,
+.dark-mode .form-card:has(.table-responsive) .form-card-header,
+.dark-mode .form-card:has(.table-container) .form-card-header,
+.dark-mode .form-card:has(table) .form-card-header {
+    border-bottom-color: #334155 !important;
+}
+
+.form-card:has(.data-table) .table-responsive,
+.form-card:has(.responsive) .table-responsive,
+.form-card:has(.table-container) .table-responsive {
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .form-card:hover {
@@ -1201,12 +1229,12 @@ table.dataTable thead th,
     border-bottom: 2px solid #f3f4f6;
 }
 
-/* Reduce margin-bottom of header when followed immediately by table/responsive container */
 .form-card-header + .responsive,
 .form-card-header + .table-container,
+.form-card-header + .table-responsive,
 .form-card-header + .data-table,
 .form-card-header + .dataTables_wrapper {
-    margin-top: -16px;
+    margin-top: 0 !important;
 }
 
 .form-card-header .card-icon {
@@ -3930,13 +3958,13 @@ table.dataTable thead th,
 }
 
 .crm-inner-page-wrapper {
-    padding: 24px 28px 40px 28px !important;
+    padding: 10px 12px 24px 12px !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
 
 .pd-ltr-20 {
-    padding: 24px 28px 40px 28px !important;
+    padding: 10px 12px 24px 12px !important;
 }
 
 .crm-inner-page-wrapper .pd-ltr-20 {
@@ -3946,7 +3974,7 @@ table.dataTable thead th,
 @media (max-width: 768px) {
     .crm-inner-page-wrapper,
     .pd-ltr-20 {
-        padding: 16px 12px 30px 12px !important;
+        padding: 8px 6px 20px 6px !important;
     }
 }
 
@@ -5021,6 +5049,7 @@ table.dataTable thead .sorting_desc {
 }
 
 html.kpi-offers-collapsed-early #kpiSummarySection,
+html.kpi-products-collapsed-early #kpiSummarySection,
 .kpi-summary-collapse.is-collapsed {
     max-height: 0 !important;
     opacity: 0 !important;
@@ -5404,6 +5433,57 @@ span.flatpickr-weekday {
     background: #334155 !important;
     color: #f8fafc !important;
 }
+
+/* ==============================================================
+   GLOBAL SEAMLESS TABLE LAYOUT & ZERO OUTSIDE SPACING
+   ============================================================== */
+.kpi-products-collapsed-early #kpiSummarySection,
+.kpi-offers-collapsed-early #kpiSummarySection,
+.kpi-summary-collapse[style*="display: none"],
+.kpi-summary-collapse[style*="display:none"],
+.kpi-summary-collapse.d-none {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    display: none !important;
+}
+
+/* Sayfa üst başlıkları ve tablo kartı arası dikey boşluğu minimize etme */
+.page-title-box,
+.page-header-title {
+    margin-bottom: 0 !important;
+}
+
+.products-list-wrapper,
+.offer-list-wrapper,
+.table-list-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+/* Form kartları ve tüm tablolar için dış sınırları tam oturtma */
+.form-card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+}
+
+.form-card:has(table),
+.form-card:has(.data-table),
+.form-card:has(.table-responsive),
+.form-card:has(.responsive),
+.card-box:has(table),
+.card-box:has(.data-table),
+.content.bg-white:has(table),
+.content.bg-white:has(.data-table) {
+    margin-top: 0 !important;
+    margin-bottom: 15px !important;
+    padding: 4px !important;
+    border-radius: 14px !important;
+}
+
 
 
 

@@ -1,203 +1,144 @@
 <?php
 permcontrol("todoedit");
 if (!$_GET["id"]) {
-	header("Location: index.php");
+	header("Location: index.php?p=tasks");
 	exit;
 }
-$tid = $_GET["id"];
+$tid = (int)$_GET["id"];
 if ($_POST) {
 
-	$title = @$_POST["title"];
-	$desc = @$_POST["desc"];
-	$okey = @$_POST["okey"];
-	$ldate = date_tr($_POST["lastdate"]);
+	$title = trim(@$_POST["title"]);
+	$desc = trim(@$_POST["desc"]);
+	$okey = isset($_POST["okey"]) ? (int)$_POST["okey"] : 0;
+	$ldate = !empty($_POST["lastdate"]) ? date_tr($_POST["lastdate"]) : '';
+	$sdate = !empty($_POST["startdate"]) ? date_tr($_POST["startdate"]) : '';
 
 	if (empty($title) || empty($desc) || empty($ldate)) {
-		header("Location: index.php?p=edit-task&tid=$tid&st=empties");
+		header("Location: index.php?p=task-edit&id=$tid&st=empties");
 		exit;
 	}
 
-
 	$insq = $ac->prepare("UPDATE todolist SET
-	title = ?,
-	description = ?,
-	last_date = ?,
-	okey = ? WHERE id = ?");
+		title = ?,
+		description = ?,
+		regdate = ?,
+		last_date = ?,
+		okey = ? WHERE id = ?");
 
-	$insq->execute(array($title, $desc, $ldate, $okey, $tid));
-	if($insq){
+	$insq->execute(array($title, $desc, $sdate, $ldate, $okey, $tid));
+	if ($insq) {
 		header("Location: index.php?p=task-edit&id=$tid&st=success");
+		exit;
 	}
 }
-
-
 
 $dat = $ac->prepare("SELECT * FROM todolist WHERE id = ?");
 $dat->execute(array($tid));
 $dd = $dat->fetch(PDO::FETCH_ASSOC);
 
+if (!$dd) {
+	header("Location: index.php?p=tasks");
+	exit;
+}
+
 if (@$_GET["st"] == "empties") {
-?>
-	<div class="alert alert-danger" role="alert">
-		(*) ile işaretli alanları boş bırakmadan tekrar deneyin.
-	</div>
-<?php
+	showAlert("alert", "Zorunlu alanları (*) boş bırakmayınız.");
 }
 if (@$_GET["st"] == "success") {
-showAlert("success","Yapılacak Görev başarı ile güncellendi");
+	showAlert("success", "Yapılacak görev başarı ile güncellendi.");
 }
 ?>
 
+<style>
+    .task-manage-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
 
+    /* Form styling overrides */
+    .form-field textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+</style>
 
-
-<form method="POST" id="myForm">
-	<div class="pd-20 bg-white border-radius-16 box-shadow mb-30">
-		<div class="clearfix mb-30">
-			<div class="pull-left">
-				<h4 class="text-blue">
-					<?php echo $pdat["p_title"]; ?>
-				</h4>
-				<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
-					bırakmayın..<br></p>
+<div class="task-manage-wrapper">
+	<form method="POST" id="myForm">
+		<!-- Header Card -->
+		<div class="premium-header-card animate-fade-in">
+			<div class="header-content">
+				<div class="header-left">
+					<div class="header-icon" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff;">
+						<i class="fa fa-tasks"></i>
+					</div>
+					<div class="header-title">
+						<h4>Görev Düzenle</h4>
+						<span class="header-number-badge">
+							<i class="fa fa-info-circle"></i> Sayfadaki (*) yıldız ile belirtilen alanları boş bırakmayın.
+						</span>
+					</div>
+				</div>
+				<div class="header-actions">
+					<a href="index.php?p=tasks" class="btn-header btn-header-list">
+						<i class="fa fa-list"></i> Listeye Dön
+					</a>
+					<button type="button" id="submitButton" onclick="validateForm()" class="btn-header btn-header-save">
+						<i class="fa fa-save"></i> Değişiklikleri Kaydet
+					</button>
+				</div>
 			</div>
-			<div class="float-right">
-
-				<button type="button" id="submitButton" onclick="validateForm()" class="btn btn-sm btn-primary"><i
-						class="fa fa-save"></i>
-					Kaydet</button>
-				<a type="button" href="index.php?p=tasks" class="btn btn-sm btn-secondary text-white"><i class="fa fa-list"></i>
-					listeye Dön</a>
-			</div>
-
 		</div>
 
-
-		<div class="form-group row">
-			<label for="title" class="col-md-2 col-sm-12">
-				<font color="red">(*)</font>Başlık
-			</label>
-			<div class="col-md-10">
-				<input name="title" value="<?php echo $dd["title"]; ?>" required class="form-control" type="text">
+		<!-- Form Card -->
+		<div class="form-card animate-fade-in">
+			<div class="form-card-header">
+				<div class="card-icon card-icon-blue">
+					<i class="fa fa-pencil-square-o"></i>
+				</div>
+				<div>
+					<h5>Görev Bilgilerini Düzenle</h5>
+					<p>Yapılacak görev detaylarını, durumunu ve teslim tarihlerini güncelleyiniz.</p>
+				</div>
 			</div>
 
-		</div>
-		<div class="row">
+			<div class="form-grid">
+				<!-- Başlık -->
+				<div class="form-field full-width">
+					<label for="title"><font color="red">(*)</font> Başlık</label>
+					<input name="title" id="title" value="<?php echo htmlspecialchars($dd["title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required class="form-control" type="text" placeholder="Görev başlığını giriniz">
+				</div>
 
-			<div class="col-md-6">
-
-				<div class="form-group row">
-
-					<label class="col-md-4">
-						<font color="red">(*)</font>Durum
-					</label>
-					<div class="col-sm-12 col-md-8">
-						<select name="okey" class="selectpicker form-control" data-style="border bg-white">
-						<option <?php echo $dd["okey"] == 1 ? "selected" : ""; ?> value="1">Yapıldı</option>
-						<option <?php echo $dd["okey"] == 0 ? "selected" : ""; ?> value="0">Yapılmadı</option>
-
+				<!-- Sol Kolon - Parametreler -->
+				<div class="form-field">
+					<!-- Durum -->
+					<div class="form-field mb-3">
+						<label for="okey"><font color="red">(*)</font> Durum</label>
+						<select name="okey" id="okey" class="selectpicker form-control" data-style="border bg-white">
+							<option <?php echo (int)$dd["okey"] === 0 ? "selected" : ""; ?> value="0">⏳ Yapılmadı (Bekliyor)</option>
+							<option <?php echo (int)$dd["okey"] === 1 ? "selected" : ""; ?> value="1">✅ Yapıldı (Tamamlandı)</option>
+							<option <?php echo (int)$dd["okey"] === 2 ? "selected" : ""; ?> value="2">⏸️ Ertelendi</option>
 						</select>
 					</div>
-				</div>
 
-				
-				<div class="form-group row">
+					<!-- Başlangıç Tarihi -->
+					<div class="form-field mb-3">
+						<label for="startdate">Başlangıç / Kayıt Tarihi</label>
+						<input name="startdate" id="startdate" autocomplete="off" class="form-control date-picker" placeholder="Tarih Seçin" value="<?php echo !empty($dd["regdate"]) ? redate_tr($dd["regdate"]) : ''; ?>" type="text">
+					</div>
 
-					<label for="lastdate" class="col-md-4">
-						<font color="red">(*)</font>Son Tarih
-					</label>
-					<div class="col-sm-12 col-md-8">
-						<input name="lastdate" class="form-control date-picker" autocomplete="off" required
-							placeholder="Tarih Seçin"  value="<?php echo redate_tr($dd["last_date"]); ?>" type="text">
+					<!-- Son Tarihi -->
+					<div class="form-field">
+						<label for="lastdate"><font color="red">(*)</font> Son Tarih</label>
+						<input name="lastdate" id="lastdate" class="form-control date-picker" autocomplete="off" required placeholder="Tarih Seçin" value="<?php echo redate_tr($dd["last_date"]); ?>" type="text">
 					</div>
 				</div>
-			</div>
-			<div class="col-md-6">
 
-				<div class="form-group row">
-					<label for="desc" class="col-md-3 weight-500">Açıklama</label>
-
-					<div class="col-md-9 col-sm-12">
-
-						<textarea required name="desc" class=" form-control border-radius-0"
-							placeholder="Bir şeyler yaz ..."><?php echo $dd["description"]; ?></textarea><br>
-
-					</div>
+				<!-- Sağ Kolon - Açıklama -->
+				<div class="form-field">
+					<label for="desc"><font color="red">(*)</font> Açıklama</label>
+					<textarea required name="desc" id="desc" class="form-control" placeholder="Görev detayları ve yapılacak işler hakkında bir şeyler yazın..."><?php echo htmlspecialchars($dd["description"] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
 				</div>
 			</div>
-
-		</div><br>
-	</div>
-</form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- 
-
-
-<div class="pd-20 bg-white border-radius-4 box-shadow mb-30">
-	<div class="clearfix">
-		<div class="pull-left">
-			<h4 class="text-blue"><?php echo $pdat["p_title"]; ?></h4>
-			<p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş bırakmayın..<br></p>
 		</div>
-
-	</div>
-	<form method="POST" action="">
-
-		<div class="row">
-			<div class="col-md-6 col-sm-12">
-				<div class="form-group">
-					<label>
-						<font color="red">(*)</font>Başlık
-					</label>
-					<input name="title" value="<?php echo $dd["title"]; ?>" class="form-control" type="text">
-
-				</div>
-			</div>
-
-			<div class="form-group row col-md-6 col-sm-12">
-
-				<div class="col-sm-12 col-md-12"><label>
-						<font color="red">(*)</font>Durum
-					</label>
-					<select name="okey" class="custom-select col-12">
-						<option <?php echo $dd["okey"] == 1 ? "selected" : ""; ?> value="1">Yapıldı</option>
-						<option <?php echo $dd["okey"] == 0 ? "selected" : ""; ?> value="0">Yapılmadı</option>
-
-					</select>
-				</div>
-			</div>
-			<div class="col-md-11 col-sm-6">
-				<div class="html-editor pd-20 bg-white border-radius-4 box-shadow mb-30">
-					<h3 class="weight-500">Açıklama</h3>
-					<p></p>
-					<textarea name="desc" class="textarea_editor form-control border-radius-0" placeholder="Bir şeyler yaz ..."><?php echo $dd["description"]; ?></textarea><br>
-				</div>
-			</div>
-			<div class="col-md-11 col-sm-6">
-				<div class="form-group">
-					<label>
-						<font color="red">(*)</font>Son Tarih
-					</label>
-					<input name="lastdate" class="form-control date-picker" placeholder="Tarih Seçin" value="<?php echo redate_tr($dd["last_date"]); ?>" type="text">
-				</div>
-			</div>
-		</div><br>
-
-
-
-		<input type="submit" value="Değişiklikleri Kaydet" style="float:right" class="col-md-6 form-control btn-outline-success"><br><br>
 	</form>
-</div> -->
+</div>

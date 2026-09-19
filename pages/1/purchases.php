@@ -29,6 +29,9 @@ use App\Helper\Helper;
             </div>
         </div>
         <div>
+            <a href="index.php?p=purchases/dashboard" class="btn btn-sm btn-info text-white mr-1" style="border-radius: 8px; padding: 8px 16px; font-weight: 500; height: 38px;">
+                <i class="fa fa-dashboard mr-1"></i> Dashboard
+            </a>
             <?php if (permtrue('purchase-demand-add')) { ?>
                 <a href="index.php?p=purchase-demand-new" class="btn btn-sm btn-primary text-white" style="border-radius: 8px; padding: 8px 16px; font-weight: 500; height: 38px;">
                     <i class="fa fa-plus mr-1"></i> Yeni Talep

@@ -29,6 +29,10 @@
                         </a>
                         <ul class="submenu">
 
+                            <?php if (permtrue("offer_dashboard") || permtrue("offerview")) { ?>
+                                <li><a href="index.php?p=offers/dashboard">Teklif Dashboard</a></li>
+                            <?php } ?>
+
                             <?php if (permtrue("offeradd")) { ?>
                                 <li><a href="index.php?p=offers/offer-manage">Yeni Teklif Oluştur</a></li>
                             <?php } ?>
@@ -80,6 +84,9 @@
                         <span class="fa fa-shopping-cart"></span><span class="mtext">Satın Alma</span>
                     </a>
                     <ul class="submenu">
+                        <?php if (permtrue("purchase_dashboard") || permtrue("purchaseadd") || permtrue("purchases")) { ?>
+                            <li><a href="index.php?p=purchases/dashboard">Satın Alma Dashboard</a></li>
+                        <?php } ?>
                         <?php if (permtrue("purchase-demand-add")) { ?>
                             <li><a href="index.php?p=purchase-demand-new">Satın Alma Talebi Oluştur</a></li>
                         <?php }
@@ -100,6 +107,10 @@
                     </a>
                     <ul class="submenu">
 
+                        <?php if (permtrue("customer_dashboard") || permtrue("customerview")) { ?>
+                            <li><a href="index.php?p=customers/dashboard">Firma Dashboard</a></li>
+                        <?php } ?>
+
                         <?php if (permtrue("customeradd")) { ?>
                             <li><a href="index.php?p=customers/manage">Yeni Firma</a></li>
                         <?php } ?>
@@ -113,6 +124,9 @@
                         <span class="fa fa-paint-brush"></span><span class="mtext">Ürün/Hizmetler</span>
                     </a>
                     <ul class="submenu">
+                        <?php if (permtrue("product_dashboard") || permtrue("productcategory") || permtrue("productadd")) { ?>
+                            <li><a href="index.php?p=products/dashboard">Ürün Dashboard</a></li>
+                        <?php } ?>
 
                         <?php if (permtrue("productadd")) { ?>
                             <li><a href="index.php?p=products/manage">Yeni Ürün/Hizmet</a></li>
@@ -148,6 +162,9 @@
                     </a>
                     <ul class="submenu">
 
+                        <?php if (permtrue("report_dashboard") || permtrue("reportview")) { ?>
+                            <li><a href="index.php?p=reports/dashboard">Rapor Dashboard</a></li>
+                        <?php } ?>
                         <?php if (permtrue("reportview")) { ?>
                             <li><a href="index.php?p=reports/reports">Rapor Listesi</a></li>
                             <li><a href="index.php?p=reports/filling-list">Dolum Listesi</a></li>

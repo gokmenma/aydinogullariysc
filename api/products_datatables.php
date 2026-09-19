@@ -160,52 +160,88 @@ foreach ($products as $row_data) {
     $enc_id = Security::encrypt($pid);
 
     // Column 0: Sıra
-    $row[] = $siraNo++;
+    $row[] = '<span class="row-index-badge">' . ($siraNo++) . '</span>';
 
     // Column 1: Stok Kodu
-    $row[] = htmlspecialchars($row_data['StokKodu'] ?? '');
+    $stokKodu = trim($row_data['StokKodu'] ?? '');
+    if (!empty($stokKodu)) {
+        $row[] = '<span class="badge-sku"><i class="fa fa-barcode mr-1 opacity-75"></i>' . htmlspecialchars($stokKodu) . '</span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 2: Ürün/Hizmet Adı
     $fullName = htmlspecialchars($row_data['Adi'] ?? '');
-    $shortName = htmlspecialchars(shorted($row_data['Adi'] ?? '', 40));
-    $row[] = '<span class="text-nowrap" data-tooltip="' . $fullName . '">' . $shortName . '</span>';
+    $shortName = htmlspecialchars(shorted($row_data['Adi'] ?? '', 45));
+    $row[] = '<div class="product-title-cell" data-tooltip="' . $fullName . '"><span class="weight-600 text-dark font-14">' . $shortName . '</span></div>';
 
     // Column 3: Birimi
-    $row[] = htmlspecialchars($row_data['birim'] ?? '');
+    $birim = trim($row_data['birim'] ?? '');
+    if (!empty($birim)) {
+        $row[] = '<span class="badge-unit">' . htmlspecialchars($birim) . '</span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 4: Alış Fiyatı
-    $row[] = htmlspecialchars($row_data['AlisFiyati'] ?? '') . ' ' . htmlspecialchars($row_data['AlisParaBirimi'] ?? '');
+    $alisFiyati = trim($row_data['AlisFiyati'] ?? '');
+    $alisParaBirimi = trim($row_data['AlisParaBirimi'] ?? 'TRY');
+    if ($alisFiyati !== '' && is_numeric($alisFiyati)) {
+        $row[] = '<span class="text-muted font-weight-500 font-13">' . number_format((float)$alisFiyati, 2, ',', '.') . ' <span class="badge-currency">' . htmlspecialchars($alisParaBirimi) . '</span></span>';
+    } elseif ($alisFiyati !== '') {
+        $row[] = '<span class="text-muted font-weight-500 font-13">' . htmlspecialchars($alisFiyati) . ' <span class="badge-currency">' . htmlspecialchars($alisParaBirimi) . '</span></span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 5: Satış Fiyatı
-    $row[] = htmlspecialchars($row_data['SatisFiyati'] ?? '') . ' ' . htmlspecialchars($row_data['SatisParaBirimi'] ?? '');
+    $satisFiyati = trim($row_data['SatisFiyati'] ?? '');
+    $satisParaBirimi = trim($row_data['SatisParaBirimi'] ?? 'TRY');
+    if ($satisFiyati !== '' && is_numeric($satisFiyati)) {
+        $row[] = '<span class="product-price-cell text-success font-weight-bold font-14">' . number_format((float)$satisFiyati, 2, ',', '.') . ' <span class="badge-currency badge-currency-success">' . htmlspecialchars($satisParaBirimi) . '</span></span>';
+    } elseif ($satisFiyati !== '') {
+        $row[] = '<span class="product-price-cell text-success font-weight-bold font-14">' . htmlspecialchars($satisFiyati) . ' <span class="badge-currency badge-currency-success">' . htmlspecialchars($satisParaBirimi) . '</span></span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 6: Açıklama
-    $row[] = htmlspecialchars($row_data['Aciklama'] ?? '');
+    $aciklama = trim($row_data['Aciklama'] ?? '');
+    if (!empty($aciklama)) {
+        $row[] = '<span class="text-muted font-12" data-tooltip="' . htmlspecialchars($aciklama) . '">' . htmlspecialchars(shorted($aciklama, 35)) . '</span>';
+    } else {
+        $row[] = '<span class="text-muted font-12">-</span>';
+    }
 
     // Column 7: Kayıt Tarihi
     $regDate = !empty($row_data['OlusturmaTarihi']) ? str_replace('-', '.', $row_data['OlusturmaTarihi']) : '-';
-    $row[] = htmlspecialchars($regDate);
+    $row[] = '<span class="text-muted font-12 text-nowrap"><i class="fa fa-calendar-o mr-1 text-secondary opacity-75"></i>' . htmlspecialchars($regDate) . '</span>';
 
     // Column 8: İşlem
-    $actions = '<div class="text-center text-nowrap pl-3 pr-3" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
+    $actions = '<div class="action-btn-group text-center text-nowrap">';
     if ($canEdit) {
-        $actions .= '<a class="btn btn-sm btn-outline-info" data-tooltip="Düzenle" href="index.php?p=products/manage&id=' . $enc_id . '">
-            <i class="fa fa-edit"></i>
+        $actions .= '<a class="btn btn-sm btn-outline-primary action-btn" data-tooltip="Düzenle" href="index.php?p=products/manage&id=' . $enc_id . '">
+            <i class="fa fa-pencil"></i>
         </a>';
     }
     
-    $actions .= '<a href="#" class="btn btn-sm btn-danger product-delete" data-tooltip="Sil!" data-id="' . $enc_id . '" data-name="' . htmlspecialchars($row_data['Adi'] ?? '', ENT_QUOTES) . '">
-        <i class="fa fa-trash"></i>
-    </a>';
+    if ($canDel) {
+        $actions .= '<a href="javascript:void(0);" class="btn btn-sm btn-outline-danger action-btn product-delete" data-tooltip="Sil" data-id="' . $enc_id . '" data-name="' . htmlspecialchars($row_data['Adi'] ?? '', ENT_QUOTES) . '">
+            <i class="fa fa-trash-o"></i>
+        </a>';
+    }
 
     $actions .= '<div class="dropdown d-inline">
-        <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenu_' . $pid . '" data-toggle="dropdown">
-            <i class="fa fa-ellipsis-v ml-1 mr-1"></i>
+        <button class="btn btn-sm btn-outline-secondary action-btn" type="button" id="dropdownMenu_' . $pid . '" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-ellipsis-v"></i>
         </button>
-        <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_' . $pid . '">
-            <a href="index.php?p=purchase-demand-detail&id=" target="_blank" class="dropdown-item" type="button">
-                <i class="fa fa-list-ol mr-2" aria-hidden="true"></i>
-                Stok Hareketleri
+        <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail shadow-sm" aria-labelledby="dropdownMenu_' . $pid . '">
+            <a href="index.php?p=products/manage&id=' . $enc_id . '" class="dropdown-item">
+                <i class="fa fa-info-circle mr-2 text-primary"></i> Detay & Düzenle
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="index.php?p=purchase-demand-detail&id=" target="_blank" class="dropdown-item">
+                <i class="fa fa-history mr-2 text-info"></i> Stok Hareketleri
             </a>
         </div>
     </div></div>';
