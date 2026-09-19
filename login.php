@@ -32,7 +32,6 @@ if ($_POST) {
 			exit;  // Yönlendirmeden sonra scriptin çalışmasını durdurun
 		}
 	}
-} else {
 }
 ?>
 <!DOCTYPE html>
@@ -43,20 +42,16 @@ if ($_POST) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giriş | AYDINOĞULLARI</title>
 
-    <!-- Google Fonts: Modern ve okunaklı bir font -->
+    <!-- Google Fonts: Geist font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
 
     <!-- Font Awesome İkonları -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
-    <!-- Yeni CSS dosyamız -->
+    <!-- CSS -->
     <link rel="stylesheet" href="vendors/styles/login.css?v=<?php echo filemtime("vendors/styles/login.css")?>">
-
-    <style>
-
-    </style>
 </head>
 
 <body>
@@ -83,11 +78,11 @@ if ($_POST) {
                         $errorMessage = 'Bilinmeyen bir hata oluştu.';
                         break;
                 }
-                echo '<div class="alert error">' . htmlspecialchars($errorMessage) . '</div>';
+                echo '<div class="alert error">' . htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') . '</div>';
             }
             ?>
 
-            <form action="login.php<?php echo isset($_GET['returnUrl']) ? '?returnUrl=' . htmlspecialchars($_GET['returnUrl']) : ''; ?>" method="POST">
+            <form action="login.php<?php echo isset($_GET['returnUrl']) ? '?returnUrl=' . htmlspecialchars($_GET['returnUrl'], ENT_QUOTES, 'UTF-8') : ''; ?>" method="POST">
                 <div class="floating-group">
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope icon"></i>

@@ -17,12 +17,18 @@ if($sablonlari_goster){
 $OfferModel = new OfferModel();
 
 
-//$offers = $OfferModel->getOffersWithCompanyName($sablonlari_goster);
+$pendingOffersQuery = $ac->query('SELECT COUNT(*) as cnt, COALESCE(SUM(total_price), 0) as total FROM offers WHERE statu = 1');
+$pendingOffersData = $pendingOffersQuery ? $pendingOffersQuery->fetch(PDO::FETCH_ASSOC) : [];
+$pendingOffersCount = (int) ($pendingOffersData['cnt'] ?? 0);
+$pendingOffersSum = (float) ($pendingOffersData['total'] ?? 0);
 
+$wonOffersQuery = $ac->query('SELECT COUNT(*) as cnt, COALESCE(SUM(total_price), 0) as total FROM offers WHERE statu = 2');
+$wonOffersData = $wonOffersQuery ? $wonOffersQuery->fetch(PDO::FETCH_ASSOC) : [];
+$wonOffersCount = (int) ($wonOffersData['cnt'] ?? 0);
+$wonOffersSum = (float) ($wonOffersData['total'] ?? 0);
 
-$offerCount = $OfferModel->getOfferCountWaitingAndDone();
-$bekleyen_teklif_sayisi = $offerCount->bekleyen_teklif;
-$tamamlanan_teklif_sayisi = $offerCount->tamamlanan_teklif;
+$totalOffers = $pendingOffersCount + $wonOffersCount;
+$offerWinRate = $totalOffers > 0 ? round(($wonOffersCount / $totalOffers) * 100, 1) : 0;
 
 
 if (@$_GET["st"] == "offercopy") {
@@ -97,57 +103,6 @@ if (@$_GET["st"] == "success-mail") {
     .offer-list-wrapper {
         width: 100%;
     }
-
-    /* Dashboard cards styling */
-    .dashboard-card {
-        background: #fff;
-        min-height: 72px;
-        border-radius: 10px;
-        padding: 12px 14px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
-        border: 1px solid #e8edf3;
-        border-left-width: 3px;
-        position: relative;
-        transition: border-color .2s ease, box-shadow .2s ease;
-    }
-    
-    .dashboard-card:hover {
-        transform: none;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-    }
-
-    .dashboard-card .icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 15px;
-        box-shadow: none !important;
-    }
-
-    .dashboard-card .summary-title {
-        margin-bottom: 2px !important;
-        font-size: 12px !important;
-        line-height: 1.25;
-    }
-
-    .dashboard-card .summary-number {
-        font-size: 22px !important;
-        line-height: 1.1;
-    }
-
-    .dashboard-card:hover .icon {
-        transform: none;
-    }
-
-    .offer-summary-grid {
-        margin-bottom: 12px !important;
-    }
-
-    .dashboard-card.card-yellow { border-left-color: #f7b500; }
-    .dashboard-card.card-green { border-left-color: #20a144; }
 
     /* Form Card styling */
     .form-card {
@@ -276,38 +231,57 @@ if (@$_GET["st"] == "success-mail") {
         </div>
     </div>
 
-    <!-- Özet Bilgiler -->
-    <div class="row mx-0 offer-summary-grid">
-        <!-- Bekleyen Teklif Sayısı -->
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-2 mb-md-0">
-            <div class="dashboard-card card-yellow">
-                <div class="d-flex justify-content-between align-items-center">
+    <!-- Erken LocalStorage Kontrolü (Flicker Önleme) -->
+    <script>
+        (function() {
+            try {
+                if (localStorage.getItem('aydinogullari_kpi_offers_collapsed') === 'true') {
+                    document.documentElement.classList.add('kpi-offers-collapsed-early');
+                }
+            } catch(e) {}
+        })();
+    </script>
+
+    <!-- Özet Bilgiler (CRM KPI Kartları) -->
+    <div id="kpiSummarySection" class="row mx-0 mb-4 kpi-summary-collapse">
+        <!-- Bekleyen Teklifler -->
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-3 mb-md-0 px-2">
+            <div class="crm-kpi-card">
+                <div class="crm-kpi-header">
                     <div>
-                        <span class="d-block text-muted weight-500 summary-title">Bekleyen Teklif Sayısı</span>
-                        <span class="no text-warning weight-700 summary-number">
-                            <?php echo $bekleyen_teklif_sayisi; ?>
-                        </span>
+                        <span class="crm-kpi-label">Bekleyen Teklifler</span>
+                        <div class="crm-kpi-value"><?php echo number_format($pendingOffersCount, 0, ',', '.'); ?></div>
                     </div>
-                    <div class="icon bg-warning text-white box-shadow">
-                        <i class="fa fa-clock-o"></i>
+                    <div class="crm-kpi-icon icon-amber">
+                        <i class="fa fa-file-text-o"></i>
                     </div>
+                </div>
+                <div class="crm-kpi-footer">
+                    <span class="weight-600 text-dark" style="font-size: 11px;">
+                        Hacim: <span class="text-primary"><?php echo tlFormat($pendingOffersSum); ?></span>
+                    </span>
+                    <span class="crm-badge-soft soft-amber">Pipeline</span>
                 </div>
             </div>
         </div>
 
-        <!-- Tamamlanan Teklif Sayısı -->
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-2 mb-md-0">
-            <div class="dashboard-card card-green">
-                <div class="d-flex justify-content-between align-items-center">
+        <!-- Kazanılan / Tamamlanan Teklifler -->
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-3 mb-md-0 px-2">
+            <div class="crm-kpi-card">
+                <div class="crm-kpi-header">
                     <div>
-                        <span class="d-block text-muted weight-500 summary-title">Tamamlanan Teklif Sayısı</span>
-                        <span class="no text-success weight-700 summary-number">
-                            <?php echo $tamamlanan_teklif_sayisi; ?>
-                        </span>
+                        <span class="crm-kpi-label">Kazanılan Teklifler</span>
+                        <div class="crm-kpi-value"><?php echo number_format($wonOffersCount, 0, ',', '.'); ?></div>
                     </div>
-                    <div class="icon bg-success text-white box-shadow">
-                        <i class="fa fa-check"></i>
+                    <div class="crm-kpi-icon icon-emerald">
+                        <i class="fa fa-trophy"></i>
                     </div>
+                </div>
+                <div class="crm-kpi-footer">
+                    <span class="weight-600 text-dark" style="font-size: 11px;">
+                        Ciro: <span class="text-success"><?php echo tlFormat($wonOffersSum); ?></span>
+                    </span>
+                    <span class="crm-badge-soft soft-emerald">%<?php echo $offerWinRate; ?> Başarı</span>
                 </div>
             </div>
         </div>
@@ -324,9 +298,12 @@ if (@$_GET["st"] == "success-mail") {
                     <h5>Teklif Listesi</h5>
                 </div>
             </div>
-            <div>
-                <button type="button" id="filtersToggle" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;">
+            <div class="d-flex align-items-center" style="gap: 8px;">
+                <button type="button" id="filtersToggle" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px; height: 36px;">
                     <i class="fa fa-filter mr-1"></i> Detaylı Filtreleme
+                </button>
+                <button type="button" id="toggleKpiSummary" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle / Göster" style="border-radius: 8px; width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fa fa-chevron-up"></i>
                 </button>
             </div>
         </div>
@@ -646,36 +623,9 @@ $(document).ready(function() {
             "url": "include/js/tr.json"
         },
         initComplete: function () {
-            var api = this.api();
-            var tableId = api.table().node().id;
-            // Arama satırını <thead> içine ekle
-            $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
-
-            api.columns().every(function (index) { // Sütun index'ini al
-                let column = this;
-                let header = $(column.header());
-                let title = header.text();
-
-                // İşlem ve checkbox olmayan sütunlar için input oluştur
-                if (header.find('input[type="checkbox"]').length === 0 && column.visible() && title && title.trim() !== 'İşlem') {
-                    
-                    let input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
-                        .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
-                        .on('keyup change clear', function () {
-                            // === ANAHTAR DEĞİŞİKLİK BURADA ===
-                            // Eğer sütunun arama değeri bu input'un değeriyle aynı değilse,
-                            // yeni değeri ata ve tabloyu yeniden çiz (sunucuya yeni istek gönder)
-                            if (column.search() !== this.value) {
-                                column.search(this.value).draw();
-                            }
-                        });
-                } else {
-                    // Diğer sütunlar için boş bir <th> ekle
-                    $("#" + tableId + " .search-input-row").append('<th></th>');
-                }
-                   // İkinci <thead> satırını sabitlemek için CSS ekleyin
-  
-            });
+            if (window.App && window.App.TableFilter) {
+                App.TableFilter.attachToTable(this.api().table().node());
+            }
         }
     });
   
@@ -788,6 +738,29 @@ $(document).ready(function() {
             .selectpicker('val', '')
             .selectpicker('render');
         $('#offerTable').DataTable().ajax.reload();
+    });
+
+    // KPI Summary Section Toggle & LocalStorage
+    $('html').removeClass('kpi-offers-collapsed-early');
+    var isKpiCollapsed = localStorage.getItem('aydinogullari_kpi_offers_collapsed') === 'true';
+    if (isKpiCollapsed) {
+        $('#kpiSummarySection').addClass('is-collapsed');
+        $('#toggleKpiSummary i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+    }
+
+    $(document).on('click', '#toggleKpiSummary', function(){
+        var $kpi = $('#kpiSummarySection');
+        var willCollapse = !$kpi.hasClass('is-collapsed');
+        
+        if(willCollapse){
+            $kpi.addClass('is-collapsed');
+            $(this).find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            localStorage.setItem('aydinogullari_kpi_offers_collapsed', 'true');
+        } else {
+            $kpi.removeClass('is-collapsed');
+            $(this).find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            localStorage.setItem('aydinogullari_kpi_offers_collapsed', 'false');
+        }
     });
 
     // Accordion toggle

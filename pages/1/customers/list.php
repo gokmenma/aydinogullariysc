@@ -248,29 +248,9 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
             order: [[0, 'desc']],
             orderCellsTop: true,
             initComplete: function () {
-                var api = this.api();
-                var tableId = api.table().node().id;
-                // Arama satırını <thead> içine ekle
-                $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
-
-                api.columns().every(function (index) {
-                    let column = this;
-                    let header = $(column.header());
-                    let title = header.text();
-
-                    // Sadece arama yapılabilecek alanlar için input oluştur
-                    if (column.visible() && title && title.trim() !== 'İşlem' && title.trim() !== 'İşlemler' && title.trim() !== 'Sıra' && title.trim() !== 'Teklif/Servis Sayısı') {
-                        let input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
-                            .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
-                            .on('keyup change clear', function () {
-                                if (column.search() !== this.value) {
-                                    column.search(this.value).draw();
-                                }
-                            });
-                    } else {
-                        $("#" + tableId + " .search-input-row").append('<th></th>');
-                    }
-                });
+                if (window.App && window.App.TableFilter) {
+                    App.TableFilter.attachToTable(this.api().table().node());
+                }
             }
         });
 

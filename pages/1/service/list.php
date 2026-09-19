@@ -600,34 +600,9 @@ if ($cid || $sid) {
             ],
             orderCellsTop: true,
             initComplete: function () {
-                var api = this.api();
-                var tableId = api.table().node().id;
-                // Arama satırını <thead> içine ekle
-                $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
-
-                api.columns().every(function (index) { // Sütun index'ini al
-                    let column = this;
-                    let header = $(column.header());
-                    let title = header.text();
-
-                    // İşlem ve checkbox olmayan sütunlar için input oluştur
-                    if (header.find('input[type="checkbox"]').length === 0 && column.visible() && title && title.trim() !== 'İşlem' && title.trim() !== 'İşlemler') {
-
-                        let input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
-                            .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
-                            .on('keyup change clear', function () {
-                                // === ANAHTAR DEĞİŞİKLİK BURADA ===
-                                // Eğer sütunun arama değeri bu input'un değeriyle aynı değilse,
-                                // yeni değeri ata ve tabloyu yeniden çiz
-                                if (column.search() !== this.value) {
-                                    column.search(this.value).draw();
-                                }
-                            });
-                    } else {
-                        // Diğer sütunlar için boş bir <th> ekle
-                        $("#" + tableId + " .search-input-row").append('<th></th>');
-                    }
-                });
+                if (window.App && window.App.TableFilter) {
+                    App.TableFilter.attachToTable(this.api().table().node());
+                }
             }
         }            dtOptions.ajax = {
                 url: '<?php echo $ajax_url; ?>',
@@ -735,34 +710,9 @@ if ($cid || $sid) {
             ],
             orderCellsTop: true,
             initComplete: function () {
-                var api = this.api();
-                var tableId = api.table().node().id;
-                // Arama satırını <thead> içine ekle
-                $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
-
-                api.columns().every(function (index) { // Sütun index'ini al
-                    let column = this;
-                    let header = $(column.header());
-                    let title = header.text();
-
-                    // İşlem ve checkbox olmayan sütunlar için input oluştur
-                    if (header.find('input[type="checkbox"]').length === 0 && column.visible() && title && title.trim() !== 'İşlem' && title.trim() !== 'İşlemler') {
-
-                        let input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
-                            .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
-                            .on('keyup change clear', function () {
-                                // === ANAHTAR DEĞİŞİKLİK BURADA ===
-                                // Eğer sütunun arama değeri bu input'un değeriyle aynı değilse,
-                                // yeni değeri ata ve tabloyu yeniden çiz
-                                if (column.search() !== this.value) {
-                                    column.search(this.value).draw();
-                                }
-                            });
-                    } else {
-                        // Diğer sütunlar için boş bir <th> ekle
-                        $("#" + tableId + " .search-input-row").append('<th></th>');
-                    }
-                });
+                if (window.App && window.App.TableFilter) {
+                    App.TableFilter.attachToTable(this.api().table().node());
+                }
             }
         };
 

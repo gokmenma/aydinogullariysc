@@ -12,26 +12,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<!-- Google Font -->
-<!-- <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+<!-- Google Font (Geist) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-	rel="stylesheet"> -->
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
-	rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
 <!-- CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="src/plugins/datatables/media/css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="src/plugins/datatables/media/css/dataTables.bootstrap4.css">
 <link rel="stylesheet" type="text/css" href="src/plugins/datatables/media/css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="src/fonts/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 <!-- <script src="//code.jquery.com/jquery-3.6.0.min.js"></script> -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+  <script src="include/js/table-filter.js?v=<?php echo file_exists('include/js/table-filter.js') ? filemtime('include/js/table-filter.js') : time(); ?>"></script>
 
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
@@ -61,34 +59,55 @@
 
 	gtag('config', 'UA-119386393-1');
 </script>
-<style>
-	@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
-
-
-</style>
 
 <script>
-	// Sayfa yüklenmeden önce localStorage'dan tema bilgisini al
-	(function () {
-		const theme = localStorage.getItem('theme');
-		if (theme === 'dark') {
-			document.documentElement.classList.add('dark-mode');
-			document.addEventListener('DOMContentLoaded', function () {
-				document.getElementById('dark-mode').style.display = 'block';
-				document.getElementById('light-mode').style.display = 'none';
-			});
-		} else {
-			document.documentElement.classList.remove('dark-mode');
-			document.addEventListener('DOMContentLoaded', function () {
-				document.getElementById('dark-mode').style.display = 'none';
-				document.getElementById('light-mode').style.display = 'block';
-			});
+	// Global Tema Değiştirme Fonksiyonu
+	window.toggleTheme = function(e) {
+		if (e) {
+			if (e.preventDefault) e.preventDefault();
+			if (e.stopPropagation) e.stopPropagation();
 		}
+		var html = document.documentElement;
+		var body = document.body;
+		var isDark = html.classList.contains('dark-mode') || (body && body.classList.contains('dark-mode'));
+		var toggleBtn = document.getElementById('theme-toggle');
+		
+		if (isDark) {
+			html.classList.remove('dark-mode');
+			if (body) body.classList.remove('dark-mode');
+			if (toggleBtn) toggleBtn.setAttribute('data-tooltip', 'Karanlık Mod');
+			try { localStorage.setItem('theme', 'light'); } catch(err){}
+		} else {
+			html.classList.add('dark-mode');
+			if (body) body.classList.add('dark-mode');
+			if (toggleBtn) toggleBtn.setAttribute('data-tooltip', 'Aydınlık Mod');
+			try { localStorage.setItem('theme', 'dark'); } catch(err){}
+		}
+	};
 
-		// Sidebar collapse state
-		const sidebarCollapsed = localStorage.getItem('sidebar-collapsed');
-		if (sidebarCollapsed === 'true' && window.innerWidth > 1200) {
-			document.documentElement.classList.add('sidebar-collapsed');
+	// Sayfa render edilmeden önce tema durumunu ayarla (flicker önleme)
+	(function () {
+		try {
+			var theme = localStorage.getItem('theme');
+			if (theme === 'dark') {
+				document.documentElement.classList.add('dark-mode');
+				document.addEventListener('DOMContentLoaded', function () {
+					if (document.body) document.body.classList.add('dark-mode');
+				});
+			} else {
+				document.documentElement.classList.remove('dark-mode');
+				document.addEventListener('DOMContentLoaded', function () {
+					if (document.body) document.body.classList.remove('dark-mode');
+				});
+			}
+
+			// Sidebar collapse state
+			var sidebarCollapsed = localStorage.getItem('sidebar-collapsed');
+			if (sidebarCollapsed === 'true' && window.innerWidth > 1200) {
+				document.documentElement.classList.add('sidebar-collapsed');
+			}
+		} catch (e) {
+			console.error('Theme init error:', e);
 		}
 	})();
 </script>

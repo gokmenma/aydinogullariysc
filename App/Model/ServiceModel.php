@@ -59,12 +59,12 @@ class ServiceModel extends BaseModel
                                                       FROM $this->table p
                                                       LEFT JOIN customers c ON c.id =  p.pcid
                                                       LEFT JOIN units u ON u.id = p.servicestype
-                                                      WHERE STR_TO_DATE(pstart_date, '%d-%m-%Y') = ? OR STR_TO_DATE(psecond_date, '%d-%m-%Y') = ?");
+                                                      WHERE STR_TO_DATE(REPLACE(pstart_date, '.', '-'), '%d-%m-%Y') = ? OR STR_TO_DATE(REPLACE(psecond_date, '.', '-'), '%d-%m-%Y') = ?");
             $sql->execute([$date, $date]);
             return $sql->fetchAll(PDO::FETCH_OBJ);
             // return $date;
         } catch (PDOException $e) {
-            echo "Veritabanı hatası: " . $e->getMessage();
+            error_log("Veritabanı hatası getDailyServiceList: " . $e->getMessage());
             return [];
         }
     }

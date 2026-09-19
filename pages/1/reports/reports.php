@@ -125,6 +125,102 @@ if (($_GET["st"] ?? "") == "success-mail") {
     </div>
 </div>
 
+<style>
+/* Sağ Tık (Context Menu) Stilleri */
+.custom-context-menu {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 0;
+    min-width: 220px;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.dark-mode .custom-context-menu {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+.custom-context-menu .cm-header {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 4px;
+}
+.dark-mode .custom-context-menu .cm-header {
+    color: #94a3b8 !important;
+    border-bottom-color: #334155 !important;
+}
+.custom-context-menu a,
+.custom-context-menu button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 9px 16px;
+    font-size: 13.5px;
+    color: #334155;
+    background: transparent;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.dark-mode .custom-context-menu a,
+.dark-mode .custom-context-menu button {
+    color: #e2e8f0 !important;
+}
+.custom-context-menu a:hover,
+.custom-context-menu button:hover {
+    background: #f1f5f9;
+    color: #0284c7;
+}
+.dark-mode .custom-context-menu a:hover,
+.dark-mode .custom-context-menu button:hover {
+    background: #334155 !important;
+    color: #38bdf8 !important;
+}
+.custom-context-menu a.cm-danger,
+.custom-context-menu button.cm-danger {
+    color: #ef4444;
+}
+.custom-context-menu a.cm-danger:hover,
+.custom-context-menu button.cm-danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.dark-mode .custom-context-menu a.cm-danger:hover,
+.dark-mode .custom-context-menu button.cm-danger:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+.custom-context-menu i {
+    width: 20px;
+    font-size: 14px;
+    margin-right: 10px;
+    text-align: center;
+}
+.custom-context-menu .cm-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 4px 0;
+}
+.dark-mode .custom-context-menu .cm-divider {
+    background: #334155 !important;
+}
+tr.context-menu-active {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+}
+</style>
+
 <script src="include/js/data-table.js"></script>
 <script src="include/js/report.js"></script>
 <script>
@@ -159,39 +255,8 @@ if (($_GET["st"] ?? "") == "success-mail") {
                 order: [[0, "desc"]],
                 orderCellsTop: true,
                 initComplete: function () {
-                    var api = this.api();
-                    var tableId = api.table().node().id;
-                    $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
-
-                    api.columns().every(function (index) {
-                        let column = this;
-                        let header = $(column.header());
-                        let title = header.text();
-
-                        // Sadece arama yapılabilecek alanlar için input oluştur (İşlem hariç)
-                        if (column.visible() && title && title.trim() !== "İşlem" && title.trim() !== "İşlemler") {
-                            let input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
-                                .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
-                                .on("keyup change clear", function () {
-                                    if (column.search() !== this.value) {
-                                        column.search(this.value).draw();
-                                    }
-                                });
-                        } else {
-                            $("#" + tableId + " .search-input-row").append("<th></th>");
-                        }
-                    });
-
-                    // Restore state if stateSave is enabled
-                    var state = api.state.loaded();
-                    if (state) {
-                        $("#" + tableId + " .search-input-row input").each(function () {
-                            var colIdx = $(this).parent().index();
-                            var searchValue = state.columns[colIdx].search.search;
-                            if (searchValue) {
-                                $(this).val(searchValue);
-                            }
-                        });
+                    if (window.App && window.App.TableFilter) {
+                        App.TableFilter.attachToTable(this.api().table().node());
                     }
                 }
             });
@@ -212,6 +277,108 @@ if (($_GET["st"] ?? "") == "success-mail") {
                     $("#create_time").text(data.create_time);
                 }
             });
+        });
+
+        // Tabloda Sağ Tık (Context Menu) İşlemleri
+        $(document).on('contextmenu', '#reportTable tbody tr', function(e) {
+            if ($(this).find('td').length <= 1) return;
+
+            e.preventDefault();
+            
+            var $tr = $(this);
+            $('#reportTable tbody tr').removeClass('context-menu-active');
+            $tr.addClass('context-menu-active');
+
+            var reportNo = $tr.find('td:nth-child(2)').text().trim() || 'Rapor İşlemleri';
+            var $actionTd = $tr.find('td:last-child');
+            
+            var menuHtml = '<div class="cm-header"><i class="fa fa-file-text-o mr-1"></i> ' + $('<div>').text(reportNo).html() + '</div>';
+
+            // 1. Düzenle Butonu Varsa
+            var $editBtn = $actionTd.find('a[data-tooltip="Düzenle"], a.btn-outline-primary');
+            if ($editBtn.length) {
+                menuHtml += '<a href="' + $editBtn.attr('href') + '"><i class="fa fa-pencil text-primary mr-2"></i> Düzenle</a>';
+            }
+
+            // 2. Dropdown içindeki elemanlar (Raporu Göster, İmzasız Raporu Göster, Mail gönder, Detay Bilgisi vb.)
+            var $dropdownItems = $actionTd.find('.dropdown-menu .dropdown-item');
+            if ($dropdownItems.length) {
+                $dropdownItems.each(function() {
+                    var $item = $(this);
+                    var href = $item.attr('href');
+                    var isLink = href && href !== '#' && href !== 'javascript:void(0);';
+                    var target = $item.attr('target') ? ' target="' + $item.attr('target') + '"' : '';
+                    var text = $item.html();
+                    var dataId = $item.attr('data-id') ? ' data-id="' + $item.attr('data-id') + '"' : '';
+                    var classAttr = $item.attr('class') || '';
+
+                    if (isLink) {
+                        menuHtml += '<a href="' + href + '"' + target + dataId + ' class="' + classAttr + '">' + text + '</a>';
+                    } else {
+                        menuHtml += '<button type="button" class="' + classAttr + '"' + dataId + '>' + text + '</button>';
+                    }
+                });
+            }
+
+            // 3. Sil Butonu Varsa
+            var $deleteBtn = $actionTd.find('button.btn-danger, a.btn-danger');
+            if ($deleteBtn.length) {
+                menuHtml += '<div class="cm-divider"></div>';
+                var onClickAttr = $deleteBtn.attr('onclick') || $deleteBtn.attr('onClick') || '';
+                menuHtml += '<button type="button" class="cm-danger" onclick="' + $('<div>').text(onClickAttr).html() + '; return false;"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>';
+            }
+
+            var $contextMenu = $('#customContextMenu');
+            if (!$contextMenu.length) {
+                $contextMenu = $('<div id="customContextMenu" class="custom-context-menu"></div>').appendTo('body');
+            }
+            
+            $contextMenu.html(menuHtml);
+
+            var mouseX = e.clientX;
+            var mouseY = e.clientY;
+            
+            $contextMenu.css({ display: 'block', visibility: 'hidden' });
+            var menuWidth = $contextMenu.outerWidth();
+            var menuHeight = $contextMenu.outerHeight();
+            var windowWidth = $(window).width();
+            var windowHeight = $(window).height();
+
+            if (mouseX + menuWidth > windowWidth) {
+                mouseX = windowWidth - menuWidth - 10;
+            }
+            if (mouseY + menuHeight > windowHeight) {
+                mouseY = windowHeight - menuHeight - 10;
+            }
+
+            $contextMenu.css({
+                top: mouseY + 'px',
+                left: mouseX + 'px',
+                visibility: 'visible',
+                opacity: '1'
+            });
+        });
+
+        // Menü dışına tıklanınca veya kaydırılınca context menu kapat
+        $(document).on('click scroll', function(e) {
+            if (!$(e.target).closest('#customContextMenu').length) {
+                $('#customContextMenu').hide();
+                $('#reportTable tbody tr').removeClass('context-menu-active');
+            }
+        });
+
+        // Menüdeki seçeneğe basılınca context menu kapat
+        $(document).on('click', '#customContextMenu a, #customContextMenu button', function() {
+            $('#customContextMenu').hide();
+            $('#reportTable tbody tr').removeClass('context-menu-active');
+        });
+
+        // ESC basılınca kapat
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                $('#customContextMenu').hide();
+                $('#reportTable tbody tr').removeClass('context-menu-active');
+            }
         });
     });
 </script>

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
 /* Genel Stil ve Değişkenler */
         :root {
             --primary-color: #007bff; /* Ana Mavi Renk */
@@ -10,7 +12,7 @@
             --border-color: #dee2e6;
             --error-color: #dc3545;
             --error-bg: #f8d7da;
-            --font-family: 'Poppins', sans-serif;
+            --font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         * {

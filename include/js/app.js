@@ -174,24 +174,9 @@ function showMessage(message, type, routelink) {
 }
 
 function addDataTableColumnSearchRow(api) {
-  var tableId = api.table().node().id;
-  $("#" + tableId + " thead").append('<tr class="search-input-row"></tr>');
-  api.columns().every(function () {
-    var column = this;
-    var header = $(column.header());
-    var title = header.text();
-    if (header.find('input[type="checkbox"]').length === 0 && column.visible() && title && (title.trim() !== 'İşlem' && title.trim() !== 'İşlemler' && title.trim() !== 'Seç')) {
-      var input = $('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" autocomplete="off">')
-        .appendTo($('<th class="search"></th>').appendTo("#" + tableId + " .search-input-row"))
-        .on('keyup change clear', function () {
-          if (column.search() !== this.value) {
-            column.search(this.value).draw();
-          }
-        });
-    } else {
-      $("#" + tableId + " .search-input-row").append('<th></th>');
-    }
-  });
+  if (window.App && window.App.TableFilter) {
+    App.TableFilter.attachToTable(api.table().node());
+  }
 }
 
 function deleteRecord(msg, ID, pLink, table=null) {
