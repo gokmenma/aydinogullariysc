@@ -75,7 +75,7 @@ $(document).on("click", "#saveCustomer", function () {
     var formData = new FormData(form[0]);
     formData.append("action", "create");
 
-    fetch("/App/api/customer.php", {
+    fetch("App/api/customer.php", {
         method: "POST",
         body: formData
     })

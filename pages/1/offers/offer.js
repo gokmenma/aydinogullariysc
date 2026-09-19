@@ -63,7 +63,7 @@ function TeklifKaydet(autosave = false) {
   //preloader göster
   $("#preloader").fadeIn(200);
 
-  fetch("/App/api/offer.php", {
+  fetch("App/api/offer.php", {
     method: "POST",
     body: formData
   })

@@ -378,7 +378,7 @@ async function purchaseRowAdd(sayac,demand=false) {
   var formData = new FormData();
   formData.append("action", "getUnits");
 
-const responde = await fetch("/App/api/units.php",
+const responde = await fetch("App/api/units.php",
   {
     method: "POST",
     body: formData,
@@ -473,7 +473,7 @@ function getCurrencyData() {
   
   $.ajax({
     type: "POST",
-    url: "/pages/1/doviz-kuru.php",
+    url: "pages/1/doviz-kuru.php",
     dataType: "json",
     success: function (data) {
       var dolar = data.dolar;
@@ -513,7 +513,7 @@ function getCurrencyData() {
 
     $.ajax({
       type: "POST",
-      url: "/pages/1/doviz-kuru.php",
+      url: "pages/1/doviz-kuru.php",
       dataType: "json",
       success: function (data) {
         var dolar = data.dolar;

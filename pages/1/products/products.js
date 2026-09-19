@@ -1,5 +1,5 @@
 
-let url = "/pages/1/products/api.php";
+let url = "pages/1/products/api.php";
 $(document).on("click", "#submitButton", function () {
   var id = $("#id").val();
   var form = $("#productForm");

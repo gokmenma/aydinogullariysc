@@ -55,7 +55,7 @@ $enc_id = Security::encrypt($oid);
                         <a id="servicebutton" href="<?php echo $servicelink ?>" data-tooltip="Servis Oluştur" data-tooltip-location="bottom" class="btn-header btn-header-action"><i class="fa fa-gear"></i> Servis Oluştur</a>
                     <?php endif; ?>
 
-                    <a href="/pages/1/offers/offer-to-xls.php?id=<?php echo $enc_id ?>" data-tooltip="Teklifi Excele Aktar" data-tooltip-location="bottom" class="btn-header btn-header-action"><i class="fa fa-file-excel-o"></i> Excel</a>
+                    <a href="pages/1/offers/offer-to-xls.php?id=<?php echo $enc_id ?>" data-tooltip="Teklifi Excele Aktar" data-tooltip-location="bottom" class="btn-header btn-header-action"><i class="fa fa-file-excel-o"></i> Excel</a>
 
                     <?php if (permtrue('offerview')): ?>
                         <a href="index.php?p=offer-view&id=<?php echo $oid; ?>" target="_blank" class="btn-header btn-header-action" data-tooltip="Teklifi Göster" data-tooltip-location="bottom"><i class="fa fa-eye"></i> Göster</a>
@@ -955,7 +955,7 @@ $enc_id = Security::encrypt($oid);
 </form>
 
 <!--buradan başlıyor-->
-<script src="../../include/js/offer.js"></script>
+<script src="include/js/offer.js"></script>
 <script src="pages/1/offers/offer.js?v=<?php echo filemtime("pages/1/offers/offer.js"); ?>"></script>
 
 <script>
