@@ -351,7 +351,7 @@ try {
         border-collapse: collapse !important;
         border-spacing: 0 !important;
         width: 100% !important;
-        table-layout: auto !important;
+        table-layout: fixed !important;
     }
     #purchasesTable thead th {
         background: #f8fafc;
@@ -359,30 +359,34 @@ try {
         font-weight: 700;
         font-size: 11.5px;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
-        padding: 9px 6px !important;
+        letter-spacing: 0.2px;
+        padding: 9px 4px !important;
         border-bottom: 2px solid #e2e8f0;
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     #purchasesTable thead th.sorting,
     #purchasesTable thead th.sorting_asc,
     #purchasesTable thead th.sorting_desc {
-        padding-left: 6px !important;
-        padding-right: 18px !important;
+        padding-left: 4px !important;
+        padding-right: 14px !important;
     }
     #purchasesTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
-        padding-left: 6px !important;
-        padding-right: 6px !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
     }
     #purchasesTable tbody td {
-        padding: 8px 6px !important;
+        padding: 8px 4px !important;
         vertical-align: middle;
         font-size: 12px;
         color: #334155;
         border-top: 1px solid #f1f5f9;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     #purchasesTable tbody tr:hover {
         background-color: #f8fafc;
@@ -698,19 +702,19 @@ try {
                 <table id="purchasesTable" class="table table-hover table-striped w-100 no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 35px;" class="text-center">#</th>
-                            <th style="width: 95px;">Sipariş No</th>
-                            <th class="col-company" style="width: 170px; max-width: 170px;">Firma Adı</th>
-                            <th style="width: 85px;" class="text-center">Kayıt Tarihi</th>
-                            <th style="width: 80px;" class="text-center">Termin</th>
-                            <th style="width: 85px;" class="text-right">Toplam</th>
-                            <th style="width: 85px;" class="text-center">Durum</th>
-                            <th style="width: 50px;" class="text-center">Vade</th>
-                            <th style="width: 75px;">Fatura No</th>
-                            <th style="width: 85px;" class="text-center">Fatura Tarihi</th>
-                            <th style="width: 90px;">Oluşturan</th>
-                            <th style="width: 60px;" class="text-center">Tip</th>
-                            <th style="width: 105px; min-width: 105px;" class="text-center">İşlem</th>
+                            <th style="width: 3.5%;" class="text-center">#</th>
+                            <th style="width: 8%;">Sipariş No</th>
+                            <th style="width: 18%;">Firma Adı</th>
+                            <th style="width: 8%;" class="text-center">Kayıt Tarihi</th>
+                            <th style="width: 7.5%;" class="text-center">Termin</th>
+                            <th style="width: 8.5%;" class="text-right">Toplam</th>
+                            <th style="width: 8%;" class="text-center">Durum</th>
+                            <th style="width: 5%;" class="text-center">Vade</th>
+                            <th style="width: 7%;">Fatura No</th>
+                            <th style="width: 8%;" class="text-center">Fatura Tarihi</th>
+                            <th style="width: 8.5%;">Oluşturan</th>
+                            <th style="width: 6%;" class="text-center">Tip</th>
+                            <th style="width: 10%;" class="text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -937,7 +941,7 @@ $(document).ready(function() {
         },
         dom: "<'row'<'col-sm-12'tr>>" +
              "<'row align-items-center mt-2 px-2 pb-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
-        order: [[0, 'asc']],
+        order: [[1, 'desc']],
         columnDefs: [
             { targets: [0, 11, 12], orderable: false }
         ]
