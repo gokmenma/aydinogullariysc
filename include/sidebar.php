@@ -351,6 +351,13 @@
                         </a>
                     </li>
                 <?php } ?>
+                <?php if (permtrue("backupmanage") || sesset("id") == 1) { ?>
+                    <li class="dropdown">
+                        <a href="index.php?p=backups" class="dropdown-toggle no-arrow">
+                            <span class="fa fa-database"></span><span class="mtext">Yedekleme & Kurtarma</span>
+                        </a>
+                    </li>
+                <?php } ?>
                 <li class="dropdown">
                     <a href="index.php?p=version-notes" class="dropdown-toggle no-arrow">
                         <span class="fa fa-file-text"></span><span class="mtext">Sürüm Notları</span>

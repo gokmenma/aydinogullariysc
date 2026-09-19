@@ -33,6 +33,7 @@ jobs:
             **/README.md
             **/database.sql
             **/Database/db.php
+            **/config/config.php
             **/scratch/**
             **/uploads/**
             **/static/**

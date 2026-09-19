@@ -52,25 +52,150 @@ if (!empty($search_value)) {
     $params[] = $search_param; $params[] = $search_param; $params[] = $search_param; $params[] = $search_param;
 }
 
+function apply_column_filter($column_name, $raw_val, &$where_conditions, &$params) {
+    $raw_val = trim((string)$raw_val);
+    if ($raw_val === '') return;
+
+    $is_date = in_array($column_name, ['created_at', 'vo.created_at', 'om.created_at']);
+    $is_num = in_array($column_name, ['id', 'om.id', 'amount', 'om.amount', 'saleprice', 'om.saleprice', 'total_price', 'om.total_price']);
+
+    // Check if JSON from TableFilter
+    $json = json_decode($raw_val, true);
+    if (is_array($json) && (isset($json['rules']) || isset($json['values']))) {
+        if (isset($json['values']) && is_array($json['values']) && !empty($json['values'])) {
+            $in_clauses = [];
+            foreach ($json['values'] as $v) {
+                $in_clauses[] = "$column_name = ?";
+                $params[] = $v;
+            }
+            if (!empty($in_clauses)) {
+                $where_conditions[] = "(" . implode(' OR ', $in_clauses) . ")";
+            }
+            return;
+        }
+
+        if (isset($json['rules']) && is_array($json['rules']) && !empty($json['rules'])) {
+            $logic = (isset($json['logic']) && strtolower($json['logic']) === 'or') ? ' OR ' : ' AND ';
+            $rule_conds = [];
+
+            foreach ($json['rules'] as $rule) {
+                $op = $rule['operator'] ?? 'contains';
+                $val = trim((string)($rule['value'] ?? ''));
+
+                if ($op === 'empty') {
+                    $rule_conds[] = "($column_name IS NULL OR $column_name = '')";
+                    continue;
+                }
+                if ($op === 'not_empty') {
+                    $rule_conds[] = "($column_name IS NOT NULL AND $column_name != '')";
+                    continue;
+                }
+
+                if ($val === '') continue;
+
+                if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
+                    $vsql = ddmmyyyy_to_sql($val);
+                    $val = ($vsql !== '' ? $vsql : $val);
+                }
+
+                if ($op === 'contains') {
+                    $rule_conds[] = "$column_name LIKE ?";
+                    $params[] = "%{$val}%";
+                } elseif ($op === 'not_contains') {
+                    $rule_conds[] = "$column_name NOT LIKE ?";
+                    $params[] = "%{$val}%";
+                } elseif ($op === 'starts') {
+                    $rule_conds[] = "$column_name LIKE ?";
+                    $params[] = "{$val}%";
+                } elseif ($op === 'ends') {
+                    $rule_conds[] = "$column_name LIKE ?";
+                    $params[] = "%{$val}";
+                } elseif ($op === 'equals') {
+                    if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
+                        $rule_conds[] = "DATE($column_name) = ?";
+                        $params[] = $val;
+                    } elseif ($is_num || (isset($json['type']) && $json['type'] === 'number')) {
+                        $rule_conds[] = "$column_name = ?";
+                        $params[] = (float)$val;
+                    } else {
+                        $rule_conds[] = "$column_name LIKE ?";
+                        $params[] = $val;
+                    }
+                } elseif ($op === 'gt' || $op === 'after') {
+                    if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
+                        $rule_conds[] = "DATE($column_name) > ?";
+                    } else {
+                        $rule_conds[] = "$column_name > ?";
+                    }
+                    $params[] = $val;
+                } elseif ($op === 'lt' || $op === 'before') {
+                    if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
+                        $rule_conds[] = "DATE($column_name) < ?";
+                    } else {
+                        $rule_conds[] = "$column_name < ?";
+                    }
+                    $params[] = $val;
+                } elseif ($op === 'gte') {
+                    if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
+                        $rule_conds[] = "DATE($column_name) >= ?";
+                    } else {
+                        $rule_conds[] = "$column_name >= ?";
+                    }
+                    $params[] = $val;
+                } elseif ($op === 'lte') {
+                    if ($is_date || (isset($json['type']) && $json['type'] === 'date')) {
+                        $rule_conds[] = "DATE($column_name) <= ?";
+                    } else {
+                        $rule_conds[] = "$column_name <= ?";
+                    }
+                    $params[] = $val;
+                }
+            }
+
+            if (!empty($rule_conds)) {
+                $where_conditions[] = "(" . implode($logic, $rule_conds) . ")";
+            }
+            return;
+        }
+    }
+
+    // Fallback: simple text or pipe-separated regex
+    $val = $raw_val;
+    if ($is_date) {
+        $vsql = ddmmyyyy_to_sql($val);
+        $val = ($vsql !== '' ? $vsql : $val);
+    }
+
+    if (strpos($val, '|') !== false) {
+        $parts = explode('|', $val);
+        $or_parts = [];
+        foreach ($parts as $p) {
+            $p = trim($p);
+            if ($p !== '') {
+                $or_parts[] = "$column_name LIKE ?";
+                $params[] = "%{$p}%";
+            }
+        }
+        if (!empty($or_parts)) {
+            $where_conditions[] = "(" . implode(' OR ', $or_parts) . ")";
+        }
+    } else {
+        $where_conditions[] = "$column_name LIKE ?";
+        $params[] = "%" . $val . "%";
+    }
+}
+
 // Sütun Bazlı Arama (Header Inputs)
 $columns_post = $_POST['columns'] ?? [];
 foreach ($columns_post as $idx => $cdata) {
     if (!empty($cdata['search']['value']) && isset($column_map[$idx])) {
         $col = $column_map[$idx];
-        $val = trim($cdata['search']['value']);
-        // Eşleştirmeleri tablo takma adlarıyla zenginleştirin
         if (in_array($col, ['offerNumber', 'company_name', 'created_at', 'durum'])) {
             $col = "vo." . $col;
         } else if (in_array($col, ['stokKodu', 'title', 'amount', 'saleprice', 'total_price'])) {
             $col = "om." . $col;
         }
-        
-        if ($col === 'vo.created_at') {
-            $vsql = ddmmyyyy_to_sql($val);
-            $val = ($vsql !== '' ? $vsql : $val);
-        }
-        $where_conditions[] = "$col LIKE ?";
-        $params[] = "%" . $val . "%";
+        apply_column_filter($col, $cdata['search']['value'], $where_conditions, $params);
     }
 }
 

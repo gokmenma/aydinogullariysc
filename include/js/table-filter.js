@@ -82,9 +82,12 @@ App.TableFilter = {
                             if (!match) return false;
                         }
                     } else if (filterDef.rules && filterDef.rules.length > 0) {
-                        for (let r = 0; r < filterDef.rules.length; r++) {
-                            const rule = filterDef.rules[r];
-                            const passed = App.TableFilter.evaluateRule(cellValue, rule, filterDef.type);
+                        const logic = filterDef.logic || (filterDef.type === 'text' ? 'or' : 'and');
+                        if (logic === 'or') {
+                            const passed = filterDef.rules.some(r => App.TableFilter.evaluateRule(cellValue, r, filterDef.type));
+                            if (!passed) return false;
+                        } else {
+                            const passed = filterDef.rules.every(r => App.TableFilter.evaluateRule(cellValue, r, filterDef.type));
                             if (!passed) return false;
                         }
                     }
@@ -442,9 +445,26 @@ App.TableFilter = {
             return html;
         }
 
+        const tableId = table.id;
+        const defaultLogic = type === 'text' ? 'or' : 'and';
         return `
             <div class="tf-rules-container">
                 ${App.TableFilter.renderRuleRow(type, false)}
+            </div>
+            <div class="tf-logic-wrap" style="display:none; margin: 8px 0 10px 0;">
+                <div class="d-flex align-items-center justify-content-between p-1 px-2 bg-light rounded border">
+                    <span class="text-muted" style="font-size: 11px; font-weight: 600;">Kuralları Birleştir:</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="form-check form-check-inline m-0">
+                            <input class="form-check-input tf-logic-radio" type="radio" name="tf_l_${tableId}_${colIndex}" id="tf_l_and_${tableId}_${colIndex}" value="and" ${defaultLogic === 'and' ? 'checked' : ''}>
+                            <label class="form-check-label" style="font-size: 11px; cursor: pointer;" for="tf_l_and_${tableId}_${colIndex}">VE</label>
+                        </div>
+                        <div class="form-check form-check-inline m-0">
+                            <input class="form-check-input tf-logic-radio" type="radio" name="tf_l_${tableId}_${colIndex}" id="tf_l_or_${tableId}_${colIndex}" value="or" ${defaultLogic === 'or' ? 'checked' : ''}>
+                            <label class="form-check-label" style="font-size: 11px; cursor: pointer;" for="tf_l_or_${tableId}_${colIndex}">VEYA</label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button type="button" class="tf-rule-add" onclick="App.TableFilter.addRule(this, '${type}')">
                 ${App.TableFilter.SVG_PLUS_ICON} Kural Ekle
@@ -452,7 +472,7 @@ App.TableFilter = {
         `;
     },
 
-    renderRuleRow: function (type, isAdditional) {
+    renderRuleRow: function (type, isAdditional, ruleData) {
         const operators = type === 'date' ? [
             { val: 'equals', text: 'Eşittir' },
             { val: 'after', text: 'Sonra (>)' },
@@ -479,24 +499,29 @@ App.TableFilter = {
             { val: 'not_empty', text: 'Dolu' }
         ];
 
+        const selOp = ruleData ? ruleData.operator : operators[0].val;
+        const val = ruleData ? (ruleData.value || '') : '';
+
         let selectHtml = `<select class="form-select form-select-sm tf-operator-select" onchange="App.TableFilter.onOperatorChange(this)">`;
         operators.forEach(op => {
-            selectHtml += `<option value="${op.val}">${op.text}</option>`;
+            const isSel = op.val === selOp ? ' selected' : '';
+            selectHtml += `<option value="${op.val}"${isSel}>${op.text}</option>`;
         });
         selectHtml += `</select>`;
 
+        const isHidden = (selOp === 'empty' || selOp === 'not_empty') ? ' style="display:none;"' : '';
         let inputHtml = '';
         if (type === 'date') {
-            inputHtml = `<div class="tf-input-wrapper"><input type="text" class="form-control form-control-sm tf-input tf-date-input" placeholder="Tarih seçin..." autocomplete="off"><span class="tf-calendar-icon">${App.TableFilter.SVG_CALENDAR_ICON}</span></div>`;
+            inputHtml = `<div class="tf-input-wrapper"${isHidden}><input type="text" class="form-control form-control-sm tf-input tf-date-input" placeholder="Tarih seçin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}"><span class="tf-calendar-icon">${App.TableFilter.SVG_CALENDAR_ICON}</span></div>`;
         } else if (type === 'number') {
-            inputHtml = `<input type="number" step="any" class="form-control form-control-sm tf-input" placeholder="Değer girin..." autocomplete="off">`;
+            inputHtml = `<input type="number" step="any" class="form-control form-control-sm tf-input"${isHidden} placeholder="Değer girin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}">`;
         } else {
-            inputHtml = `<input type="text" class="form-control form-control-sm tf-input" placeholder="Değer girin..." autocomplete="off">`;
+            inputHtml = `<input type="text" class="form-control form-control-sm tf-input"${isHidden} placeholder="Değer girin..." autocomplete="off" value="${val.replace(/"/g, '&quot;')}">`;
         }
 
         return `
             <div class="tf-rule-row">
-                ${isAdditional ? `<button type="button" class="tf-rule-remove" onclick="this.parentElement.remove()" title="Kuralı Sil">${App.TableFilter.SVG_TRASH_ICON}</button>` : ''}
+                ${isAdditional ? `<button type="button" class="tf-rule-remove" onclick="App.TableFilter.removeRule(this)" title="Kuralı Sil">${App.TableFilter.SVG_TRASH_ICON}</button>` : ''}
                 ${selectHtml}
                 ${inputHtml}
             </div>
@@ -517,9 +542,18 @@ App.TableFilter = {
         }
     },
 
+    updateLogicVisibility: function (popover) {
+        if (!popover) return;
+        const rows = popover.querySelectorAll('.tf-rule-row');
+        const logicWrap = popover.querySelector('.tf-logic-wrap');
+        if (logicWrap) {
+            logicWrap.style.display = rows.length > 1 ? 'block' : 'none';
+        }
+    },
+
     addRule: function (btn, type) {
-        const container = btn.previousElementSibling;
         const popover = btn.closest('.tf-popover');
+        const container = popover.querySelector('.tf-rules-container');
         const temp = document.createElement('div');
         temp.innerHTML = App.TableFilter.renderRuleRow(type, true);
         const newRow = temp.firstElementChild;
@@ -530,6 +564,15 @@ App.TableFilter = {
         if (type === 'date') {
             App.TableFilter.initDateInputs(newRow);
         }
+
+        App.TableFilter.updateLogicVisibility(popover);
+    },
+
+    removeRule: function (btn) {
+        const popover = btn.closest('.tf-popover');
+        const row = btn.closest('.tf-rule-row');
+        if (row) row.remove();
+        App.TableFilter.updateLogicVisibility(popover);
     },
 
     initDateInputs: function (container) {
@@ -559,6 +602,10 @@ App.TableFilter = {
             }
             filterData.values = checked;
         } else {
+            const logicInput = popover.querySelector('.tf-logic-radio:checked');
+            const logic = logicInput ? logicInput.value : (filterType === 'text' ? 'or' : 'and');
+            filterData.logic = logic;
+
             const rows = popover.querySelectorAll('.tf-rule-row');
             rows.forEach(row => {
                 const operator = row.querySelector('.tf-operator-select').value;
@@ -619,6 +666,8 @@ App.TableFilter = {
             $(this).trigger('change');
         });
 
+        App.TableFilter.updateLogicVisibility(popover);
+
         popover.classList.remove('show');
         App.TableFilter.redrawTable(tableId);
         App.TableFilter.updateActiveSummary(tableId);
@@ -640,6 +689,7 @@ App.TableFilter = {
                 this.selectedIndex = 0;
                 $(this).trigger('change');
             });
+            App.TableFilter.updateLogicVisibility(pop);
         });
 
         App.TableFilter.redrawTable(tableId);
@@ -672,7 +722,7 @@ App.TableFilter = {
         if (op === 'empty') return 'Boş';
         if (op === 'not_empty') return 'Dolu';
         const val = rule.value || '';
-        if (op === 'equals') return `${val}`;
+        if (op === 'equals') return `Eşittir: ${val}`;
         if (op === 'contains') return `İçerir: ${val}`;
         if (op === 'not_contains') return `İçermez: ${val}`;
         if (op === 'starts') return `İle başlar: ${val}`;
@@ -716,7 +766,8 @@ App.TableFilter = {
             if (filterDef.type === 'select') {
                 desc = (filterDef.values || []).join(', ');
             } else if (filterDef.rules && filterDef.rules.length) {
-                desc = filterDef.rules.map(r => App.TableFilter.formatRuleText(r, filterDef.type)).join(' & ');
+                const glue = filterDef.logic === 'or' ? ' VEYA ' : ' VE ';
+                desc = filterDef.rules.map(r => App.TableFilter.formatRuleText(r, filterDef.type)).join(glue);
             }
 
             chipsHtml += `
@@ -765,10 +816,8 @@ App.TableFilter = {
                 const colFilters = App.TableFilter.activeFilters[tableId] || {};
                 dt.columns().every(function (idx) {
                     const f = colFilters[idx];
-                    if (f && f.rules && f.rules.length) {
-                        this.search(f.rules[0].value);
-                    } else if (f && f.values && f.values.length) {
-                        this.search(f.values.join('|'), true, false);
+                    if (f && ((f.rules && f.rules.length) || (f.values && f.values.length))) {
+                        this.search(JSON.stringify(f));
                     } else {
                         this.search('');
                     }
