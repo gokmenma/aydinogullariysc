@@ -505,14 +505,7 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                 </tr>
                             </thead>
                             <tbody id="backupLogsTbody">
-                                <?php if (empty($logs)): ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted">
-                                            <i class="fa fa-database fa-3x d-block mb-3 text-light-gray"></i>
-                                            Henüz kayıtlı yedekleme bulunmuyor. Yukarıdaki <strong>"Yedek Al"</strong> butonundan ilk yedeğinizi oluşturabilirsiniz.
-                                        </td>
-                                    </tr>
-                                <?php else: ?>
+                                <?php if (!empty($logs)): ?>
                                     <?php foreach ($logs as $row): 
                                         $encryptedId = Security::encrypt((string)$row['id']);
                                         $filePath = realpath(__DIR__ . '/../../' . $row['file_path']);
@@ -1067,7 +1060,8 @@ function initBackupDataTable() {
             { width: "12%", targets: 4, orderable: false, className: "text-right" }
         ],
         language: {
-            url: "include/js/tr.json"
+            url: "include/js/tr.json",
+            emptyTable: "<div class='text-center py-4 text-muted'><i class='fa fa-database fa-2x d-block mb-2 text-light-gray'></i>Henüz kayıtlı yedekleme bulunmuyor. Yukarıdaki <strong>\"Yedek Al\"</strong> butonundan ilk yedeğinizi oluşturabilirsiniz.</div>"
         },
         initComplete: function () {
             if (window.App && window.App.TableFilter) {
@@ -1237,10 +1231,14 @@ function pollBackupStatus() {
 }
 
 function renderBackupTable(logs) {
-    if (!logs || logs.length === 0) return;
-    
     if ($.fn.DataTable.isDataTable('#backupLogsTable')) {
         $('#backupLogsTable').DataTable().destroy();
+    }
+
+    if (!logs || logs.length === 0) {
+        $('#backupLogsTbody').html('');
+        initBackupDataTable();
+        return;
     }
 
     let html = '';
