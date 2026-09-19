@@ -75,6 +75,40 @@ if (isset($_POST['action']) && $_POST['action'] === 'ajax_start_backup') {
 }
 
 // -------------------------------------------------------------
+// AJAX ENDPOINT: SENKRON (CANLI EKRANDA) YEDEK AL
+// -------------------------------------------------------------
+if (isset($_POST['action']) && $_POST['action'] === 'ajax_start_sync_backup') {
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
+
+    $backupType = in_array($_POST['backup_type'] ?? '', ['full', 'db', 'files'], true) ? $_POST['backup_type'] : 'full';
+    $res = $backupService->runBackup($backupType, (int)sesset('id'));
+
+    if (function_exists('audit_log')) {
+        audit_log("create", "backup", "Canlı yedek tamamlandı ({$backupType})", "backup_logs", (string)($res['log_id'] ?? 'sync'));
+    }
+
+    echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// -------------------------------------------------------------
+// AJAX ENDPOINT: ASKIYA ALINAN / TAKILAN İŞLEMİ SIFIRLA
+// -------------------------------------------------------------
+if (isset($_POST['action']) && $_POST['action'] === 'ajax_cancel_active') {
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
+
+    $backupModel->markStaleBackupsAsFailed(0); // 0 minutes means force mark all in_progress as failed
+    echo json_encode(['success' => true, 'message' => 'Askıda kalan işlemler sıfırlandı.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// -------------------------------------------------------------
 // AJAX ENDPOINT: MANUEL OLARAK BULUTA (GOOGLE DRIVE/FTP) GÖNDER
 // -------------------------------------------------------------
 if (isset($_POST['action']) && $_POST['action'] === 'ajax_upload_remote' && !empty($_POST['id'])) {
@@ -418,16 +452,20 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                 <div class="dropdown-menu dropdown-menu-right shadow-lg border-0" aria-labelledby="backupDropdown">
                                     <h6 class="dropdown-header font-12 text-uppercase text-muted">Yedekleme Türü Seçin</h6>
                                     <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startAsyncBackup('full')">
-                                        <i class="fa fa-archive mr-2 text-primary font-14"></i> <strong>Tam Sistem Yedeği</strong>
+                                        <i class="fa fa-archive mr-2 text-primary font-14"></i> <strong>Tam Sistem Yedeği (Arka Plan)</strong>
                                         <small class="d-block text-muted font-11">Veritabanı + Fiziksel Evraklar</small>
                                     </a>
+                                    <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startSyncBackup('full')">
+                                        <i class="fa fa-bolt mr-2 text-warning font-14"></i> <strong>Tam Sistem (Canlı Ekranda Al)</strong>
+                                        <small class="d-block text-muted font-11">Hosting kısıtlaması varsa ekranda bekleyerek</small>
+                                    </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startAsyncBackup('db')">
-                                        <i class="fa fa-database mr-2 text-success font-14"></i> <strong>Sadece Veritabanı</strong>
+                                    <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startSyncBackup('db')">
+                                        <i class="fa fa-database mr-2 text-success font-14"></i> <strong>Sadece Veritabanı (Hızlı - 2 Sn)</strong>
                                         <small class="d-block text-muted font-11">SQL Tabloları & Veriler</small>
                                     </a>
                                     <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startAsyncBackup('files')">
-                                        <i class="fa fa-folder-open mr-2 text-warning font-14"></i> <strong>Sadece Dosyalar</strong>
+                                        <i class="fa fa-folder-open mr-2 text-info font-14"></i> <strong>Sadece Dosyalar</strong>
                                         <small class="d-block text-muted font-11">Uploads & Files Klasörleri</small>
                                     </a>
                                 </div>
@@ -440,13 +478,20 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
 
         <!-- Canlı Arka Plan Bildirim Çubuğu (Dinamik Gösterim) -->
         <div id="activeBackupBanner" class="alert alert-info border-0 shadow-sm p-3 mb-4 rounded-12 <?php echo $activeBackup ? '' : 'd-none'; ?>" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-left: 5px solid #0284c7 !important;">
-            <div class="d-flex align-items-center">
-                <div class="mr-3">
-                    <span class="spinner-grow spinner-grow-sm text-primary" role="status" aria-hidden="true"></span>
+            <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">
+                <div class="d-flex align-items-center">
+                    <div class="mr-3">
+                        <span class="spinner-grow spinner-grow-sm text-primary" role="status" aria-hidden="true"></span>
+                    </div>
+                    <div>
+                        <strong class="text-dark font-14"><i class="fa fa-cogs mr-1 text-primary"></i> Yedekleme işlemi şu anda devam ediyor...</strong>
+                        <div class="text-secondary font-12">Sistem yedeklerinizi hazırlarken diğer işlemlerinize devam edebilirsiniz. Durum otomatik güncellenmektedir.</div>
+                    </div>
                 </div>
-                <div class="flex-grow-1">
-                    <strong class="text-dark font-14"><i class="fa fa-cogs mr-1 text-primary"></i> Yedekleme işlemi şu anda arka planda devam ediyor...</strong>
-                    <div class="text-secondary font-12">Sistem yedeklerinizi hazırlarken diğer işlemlerinize kesintisiz devam edebilirsiniz. Durum otomatik güncellenmektedir.</div>
+                <div>
+                    <button type="button" onclick="cancelActiveBackup()" class="btn btn-sm btn-outline-danger bg-white font-12 font-weight-bold shadow-sm py-1 px-3">
+                        <i class="fa fa-times mr-1"></i> Askıda Kalanı Sıfırla
+                    </button>
                 </div>
             </div>
         </div>
@@ -1181,6 +1226,82 @@ function startAsyncBackup(type) {
             alert('Sunucuyla iletişim kurulurken bir hata oluştu.');
         }
     });
+}
+
+function startSyncBackup(type) {
+    const s = getSwalInstance();
+    const typeLabel = (type === 'db') ? 'Veritabanı Yedeği' : 'Tam Sistem Yedeği';
+
+    if (s) {
+        s.fire({
+            title: typeLabel + ' Alınıyor...',
+            text: 'Yedek hazırlanıyor ve seçilen depolama alanına aktarılıyor. Lütfen işlem tamamlanana kadar sayfayı kapatmayınız.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: function() {
+                if (typeof Swal !== 'undefined' && typeof Swal.showLoading === 'function') {
+                    Swal.showLoading();
+                }
+            }
+        });
+    }
+
+    $.ajax({
+        url: 'index.php?p=backups',
+        type: 'POST',
+        data: {
+            action: 'ajax_start_sync_backup',
+            backup_type: type
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                if (s) {
+                    let msg = (response.messages && response.messages.length > 0) ? response.messages.join('<br>') : 'Yedekleme başarıyla tamamlandı.';
+                    s.fire({
+                        icon: 'success',
+                        title: 'Tebrikler, Yedek Alındı!',
+                        html: '<div class="text-left font-13 p-2 bg-light rounded mt-2"><strong>Boyut:</strong> ' + response.file_size_formatted + '<br><strong>Süre:</strong> ' + response.duration_sec + ' sn<br><br>' + msg + '</div>',
+                        confirmButtonText: 'Harika',
+                        confirmButtonColor: '#1e4d79'
+                    }).then(function() {
+                        location.reload();
+                    });
+                } else {
+                    alert('Yedek başarıyla alındı: ' + response.file_name);
+                    location.reload();
+                }
+            } else {
+                if (s) {
+                    s.fire({
+                        icon: 'error',
+                        title: 'Yedekleme Hatası',
+                        text: response.error || 'Yedekleme işlemi tamamlanamadı.'
+                    });
+                } else {
+                    alert('Yedekleme Hatası: ' + (response.error || 'Bilinmeyen hata'));
+                }
+            }
+        },
+        error: function(xhr) {
+            if (s) {
+                s.fire({
+                    icon: 'error',
+                    title: 'Sunucu İletişim Hatası',
+                    text: 'Sunucu zaman aşımına uğradı veya yanıt vermedi (HTTP ' + xhr.status + ').'
+                });
+            } else {
+                alert('Sunucu iletişim hatası (HTTP ' + xhr.status + ')');
+            }
+        }
+    });
+}
+
+function cancelActiveBackup() {
+    $.post('index.php?p=backups', { action: 'ajax_cancel_active' }, function(res) {
+        $('#activeBackupBanner').addClass('d-none');
+        location.reload();
+    }, 'json');
 }
 
 function confirmDeleteBackup(encryptedId, fileName) {

@@ -38,18 +38,28 @@ class BackupService
      */
     public function runBackupAsync(string $backupType = 'full', ?int $userId = null): array
     {
-        $phpBin = '/opt/lampp/bin/php';
-        if (!file_exists($phpBin)) {
-            $phpBin = 'php';
-        }
-
+        $phpBin = $this->detectPhpBinary();
         $script = escapeshellarg($this->rootDir . '/cron_backup.php');
         $typeArg = escapeshellarg($backupType);
 
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            pclose(popen("start /B {$phpBin} {$script} {$typeArg}", "r"));
-        } else {
-            exec("{$phpBin} {$script} {$typeArg} > /dev/null 2>&1 &");
+        $executed = false;
+        $disabledFunctions = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
+
+        if (function_exists('exec') && !in_array('exec', $disabledFunctions, true)) {
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                @pclose(@popen("start /B {$phpBin} {$script} {$typeArg}", "r"));
+                $executed = true;
+            } else {
+                @exec("{$phpBin} {$script} {$typeArg} > /dev/null 2>&1 &", $out, $returnCode);
+                if ($returnCode === 0) {
+                    $executed = true;
+                }
+            }
+        }
+
+        // CLI exec çalışmadıysa veya paylaşımlı hostingde kısıtlıysa, arka plan HTTP Webhook ile tetikle
+        if (!$executed) {
+            $this->triggerBackupViaHttpAsync($backupType);
         }
 
         return [
@@ -57,6 +67,65 @@ class BackupService
             'async' => true,
             'message' => 'Yedekleme işlemi arka planda başlatıldı.'
         ];
+    }
+
+    /**
+     * Arka planda çalışan PHP CLI yolunu otomatik tespit eder
+     */
+    protected function detectPhpBinary(): string
+    {
+        if (file_exists('/opt/lampp/bin/php')) {
+            return '/opt/lampp/bin/php';
+        }
+
+        if (defined('PHP_BINARY') && !empty(PHP_BINARY) && is_executable(PHP_BINARY) && !str_contains(PHP_BINARY, 'php-fpm') && !str_contains(PHP_BINARY, 'httpd') && !str_contains(PHP_BINARY, 'apache')) {
+            return PHP_BINARY;
+        }
+
+        $commonPaths = [
+            '/usr/local/bin/php',
+            '/usr/bin/php',
+            '/opt/cpanel/ea-php83/root/usr/bin/php',
+            '/opt/cpanel/ea-php82/root/usr/bin/php',
+            '/opt/cpanel/ea-php81/root/usr/bin/php',
+            '/opt/cpanel/ea-php80/root/usr/bin/php'
+        ];
+
+        foreach ($commonPaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                return $path;
+            }
+        }
+
+        return 'php';
+    }
+
+    /**
+     * CLI erişimi olmayan sunucularda cron_backup.php'yi arka planda (non-blocking) tetikler
+     */
+    protected function triggerBackupViaHttpAsync(string $backupType): void
+    {
+        $settings = $this->backupModel->getBackupSettings();
+        $token = $settings['backup_cron_token'] ?? '';
+        
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+        $domain = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        $baseUri = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+        $baseUri = ($baseUri === '/' || $baseUri === '\\') ? '' : rtrim($baseUri, '/\\');
+        
+        $url = $protocol . $domain . $baseUri . '/cron_backup.php?token=' . urlencode($token) . '&type=' . urlencode($backupType);
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1200);
+            curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            @curl_exec($ch);
+            @curl_close($ch);
+        }
     }
 
     /**
@@ -68,8 +137,9 @@ class BackupService
      */
     public function runBackup(string $backupType = 'full', ?int $userId = null): array
     {
+        @ignore_user_abort(true);
         @set_time_limit(0);
-        @ini_set('memory_limit', '512M');
+        @ini_set('memory_limit', '1024M');
 
         $startTime = microtime(true);
         $timestamp = date('Y-m-d_H-i-s');
@@ -85,6 +155,20 @@ class BackupService
             'status' => 'in_progress',
             'created_by' => $userId
         ]);
+
+        // Olası ölümcül PHP / Sunucu kesintilerini yakalamak için kapatma kancası
+        register_shutdown_function(function() use (&$logId, &$startTime, &$tempFiles) {
+            $err = error_get_last();
+            if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+                if ($logId) {
+                    $this->backupModel->updateLog($logId, [
+                        'status' => 'failed',
+                        'duration_sec' => round(microtime(true) - $startTime, 2),
+                        'message' => 'SUNUCU KESİNTİSİ / FATAL ERROR: ' . $err['message'] . ' in ' . basename($err['file']) . ':' . $err['line']
+                    ]);
+                }
+            }
+        });
 
         $dbDumpFile = null;
         $filesZipFile = null;
@@ -231,7 +315,7 @@ class BackupService
                 'messages' => $messages
             ];
 
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $duration = round(microtime(true) - $startTime, 2);
             $this->backupModel->updateLog($logId, [
                 'status' => 'failed',
@@ -755,6 +839,7 @@ class BackupService
             $mail->isSMTP();
             $mail->SMTPDebug = 0;
             $mail->SMTPAuth = true;
+            $mail->Timeout = 8;
             $mail->Host = $settings['mail_host'] ?? '';
             $mail->Port = (int)($settings['mail_port'] ?? 587);
             $mail->Username = $settings['mail_username'] ?? '';

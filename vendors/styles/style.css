@@ -29076,3 +29076,193 @@ div:where(.swal2-container).swal2-center>.swal2-popup {
   color: #f8fafc !important;
 }
 
+/* Sidebar Search Wrap & Menu Settings Dropdown (Sabit & Kompakt) */
+.sidebar-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    margin: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    width: 260px;
+    box-sizing: border-box;
+}
+.sidebar-search-wrap .sidebar-search {
+    flex: 1;
+    margin: 0;
+    position: relative;
+}
+.sidebar-search-wrap .sidebar-search .fa {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7b8394;
+    font-size: 13px;
+}
+.sidebar-search-wrap .sidebar-search-input {
+    width: 100%;
+    height: 34px;
+    border: 1px solid #d7dce5;
+    border-radius: 8px;
+    background: #eef0f3;
+    color: #313948;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 10px 0 30px;
+}
+.sidebar-search-wrap .sidebar-search-input::placeholder {
+    color: #8a93a4;
+    font-size: 13px;
+}
+.sidebar-search-wrap .sidebar-search-input:focus {
+    outline: none;
+    border-color: #b9c1d0;
+    background: #f4f6f9;
+}
+.sidebar-menu-settings {
+    position: relative;
+}
+.btn-menu-settings {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 8px;
+    background: #eef0f3;
+    border: 1px solid #d7dce5;
+    color: #5c6577;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    transition: all 0.2s ease;
+    padding: 0;
+    cursor: pointer;
+}
+.btn-menu-settings:hover,
+.btn-menu-settings:focus,
+.sidebar-menu-settings.show .btn-menu-settings {
+    background: #e2e6eb;
+    color: #1b00ff;
+    border-color: #b9c1d0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.sidebar-menu-settings .dropdown-menu {
+    min-width: 210px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    border: 1px solid #e2e8f0;
+    padding: 6px 0;
+    z-index: 1050;
+}
+.sidebar-menu-settings .dropdown-header {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: #8c98a9;
+    padding: 6px 14px 4px;
+}
+.sidebar-menu-settings .dropdown-item {
+    font-size: 13px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    color: #334155;
+    font-weight: 500;
+    cursor: pointer;
+}
+.sidebar-menu-settings .dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #1b00ff;
+}
+
+.left-side-bar .menu-block {
+    height: calc(100vh - 120px) !important;
+}
+
+/* Dark Mode Uyumları */
+.dark-mode .sidebar-search-wrap {
+    background: #282828 !important;
+    border-bottom-color: #383838 !important;
+    border-right-color: #383838 !important;
+}
+.dark-mode .sidebar-search-wrap .sidebar-search-input {
+    background: #202020 !important;
+    border-color: #383838 !important;
+    color: #f1f5f9 !important;
+}
+.dark-mode .btn-menu-settings {
+    background: #202020 !important;
+    border-color: #383838 !important;
+    color: #94a3b8 !important;
+}
+.dark-mode .btn-menu-settings:hover,
+.dark-mode .btn-menu-settings:focus,
+.dark-mode .sidebar-menu-settings.show .btn-menu-settings {
+    background: #2a2a2a !important;
+    color: #ffffff !important;
+    border-color: #4b5563 !important;
+}
+.dark-mode .sidebar-menu-settings .dropdown-menu {
+    background: #242424 !important;
+    border-color: #3a3a3a !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+}
+.dark-mode .sidebar-menu-settings .dropdown-header {
+    color: #64748b !important;
+}
+.dark-mode .sidebar-menu-settings .dropdown-item {
+    color: #cbd5e1 !important;
+}
+.dark-mode .sidebar-menu-settings .dropdown-item:hover {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+}
+
+/* Menu Drag & Drop Stilleri */
+#accordion-menu > li.dropdown {
+    cursor: grab;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+#accordion-menu > li.dropdown:active {
+    cursor: grabbing;
+}
+.menu-sort-ghost {
+    opacity: 0.35 !important;
+    background: rgba(27, 0, 255, 0.08) !important;
+    border-radius: 8px !important;
+}
+.menu-sort-chosen {
+    background: rgba(27, 0, 255, 0.05) !important;
+}
+.menu-sort-drag {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18) !important;
+    opacity: 0.95 !important;
+    z-index: 9999 !important;
+}
+
+/* Submenu Drag & Drop Stilleri */
+.sidebar-menu .submenu > li {
+    cursor: grab;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+.sidebar-menu .submenu > li:active {
+    cursor: grabbing;
+}
+.submenu-sort-ghost {
+    opacity: 0.35 !important;
+    background: rgba(27, 0, 255, 0.1) !important;
+    border-radius: 4px !important;
+}
+.submenu-sort-chosen {
+    background: rgba(27, 0, 255, 0.06) !important;
+}
+.submenu-sort-drag {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    opacity: 0.95 !important;
+    z-index: 9999 !important;
+}
+

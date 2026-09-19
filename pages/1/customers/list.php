@@ -29,10 +29,12 @@ $recentCount = (int) ($stats['recent_30_days_count'] ?? 0);
 $emailRate = $totalCustomers > 0 ? round(($withEmailCount / $totalCustomers) * 100, 1) : 0;
 $gsmRate = $totalCustomers > 0 ? round(($withGsmCount / $totalCustomers) * 100, 1) : 0;
 
-$logger = \getLogger("Müşteriler");
-$logger->info("Müşteri listesi görüntülendi.", [
-    'username' => $_SESSION['username'] ?? 'unknown'
-]);
+try {
+    $logger = \getLogger("Müşteriler");
+    $logger->info("Müşteri listesi görüntülendi.", [
+        'username' => $_SESSION['username'] ?? 'unknown'
+    ]);
+} catch (\Throwable $e) {}
 ?>
 
 <!-- Erken LocalStorage Kontrolü (Flicker Önleme) -->

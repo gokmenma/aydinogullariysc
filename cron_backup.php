@@ -45,8 +45,37 @@ if ($isCli) {
     if (isset($_GET['type']) && in_array($_GET['type'], ['full', 'db', 'files'], true)) {
         $backupType = $_GET['type'];
     }
+}
 
+@ignore_user_abort(true);
+@set_time_limit(0);
+@ini_set('memory_limit', '1024M');
+
+if (!$isCli) {
+    // Validated token!
+    http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'status' => 'started',
+        'message' => 'Yedekleme işlemi başlatıldı ve arka planda yürütülüyor.'
+    ], JSON_UNESCAPED_UNICODE);
+
+    // FastCGI / LiteSpeed bağlantıyı hemen sonlandırıp arka planda devam etsin
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } elseif (function_exists('litespeed_finish_request')) {
+        litespeed_finish_request();
+    } else {
+        if (function_exists('apache_setenv')) {
+            @apache_setenv('no-gzip', '1');
+        }
+        @ini_set('zlib.output_compression', '0');
+        @ini_set('implicit_flush', '1');
+        while (ob_get_level()) {
+            ob_end_flush();
+        }
+        flush();
+    }
 }
 
 try {
@@ -67,19 +96,13 @@ try {
             exit(1);
         }
     } else {
-        echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        exit;
+        exit(0);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     if ($isCli) {
         echo "[" . date('Y-m-d H:i:s') . "] KRİTİK HATA: " . $e->getMessage() . "\n";
         exit(1);
     } else {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        exit;
+        exit(1);
     }
 }

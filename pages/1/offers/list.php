@@ -149,7 +149,8 @@ if (@$_GET["st"] == "success-mail") {
     }
 
     .responsive {
-        overflow-x: auto;
+        overflow-x: hidden;
+        overflow-y: visible;
         width: 100%;
         min-height: 280px;
     }

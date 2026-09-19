@@ -63,8 +63,20 @@ class BackupModel extends BaseModel
         return $stmt->execute($params);
     }
 
+    public function markStaleBackupsAsFailed(int $timeoutMinutes = 5): int
+    {
+        $stmt = $this->db->prepare("UPDATE backup_logs 
+                                    SET status = 'failed', 
+                                        message = 'İşlem zaman aşımına uğradı veya sunucu tarafından durduruldu.' 
+                                    WHERE status = 'in_progress' 
+                                      AND created_at < DATE_SUB(NOW(), INTERVAL ? MINUTE)");
+        $stmt->execute([$timeoutMinutes]);
+        return $stmt->rowCount();
+    }
+
     public function getRecentLogs(int $limit = 50): array
     {
+        $this->markStaleBackupsAsFailed(5);
         $stmt = $this->db->prepare("SELECT * FROM backup_logs ORDER BY id DESC LIMIT ?");
         $stmt->bindValue(1, $limit, PDO::PARAM_INT);
         $stmt->execute();
@@ -73,10 +85,10 @@ class BackupModel extends BaseModel
 
     public function getActiveBackup(): ?array
     {
-        $stmt = $this->db->prepare("SELECT * FROM backup_logs WHERE status = 'in_progress' AND created_at >= DATE_SUB(NOW(), INTERVAL 15 MINUTE) ORDER BY id DESC LIMIT 1");
+        $this->markStaleBackupsAsFailed(5);
+        $stmt = $this->db->prepare("SELECT * FROM backup_logs WHERE status = 'in_progress' AND created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE) ORDER BY id DESC LIMIT 1");
         $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
     public function getLogById(int $id): ?array

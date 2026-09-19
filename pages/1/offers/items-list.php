@@ -54,7 +54,8 @@ $sayfa_basligi = "Teklif Satır Listesi";
     }
 
     .responsive {
-        overflow-x: auto;
+        overflow-x: hidden;
+        overflow-y: visible;
         width: 100%;
     }
 

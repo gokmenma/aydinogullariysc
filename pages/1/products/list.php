@@ -19,10 +19,12 @@ $foreignCount = $eurCount + $usdCount;
 $skuCount = (int) ($stats['with_sku_count'] ?? 0);
 $skuRate = $totalCount > 0 ? round(($skuCount / $totalCount) * 100, 1) : 0;
 
-$logger = \getLogger("Ürünler");
-$logger->info("Ürün/Hizmet listesi görüntülendi.", [
-    'username' => $_SESSION['username'] ?? 'unknown'
-]);
+try {
+    $logger = \getLogger("Ürünler");
+    $logger->info("Ürün/Hizmet listesi görüntülendi.", [
+        'username' => $_SESSION['username'] ?? 'unknown'
+    ]);
+} catch (\Throwable $e) {}
 ?>
 
 <!-- Erken LocalStorage Kontrolü (Flicker Önleme) -->

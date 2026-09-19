@@ -1,3 +1,495 @@
+<?php
+use App\Model\MenuOrderModel;
+
+$userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+$userPerm = function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0);
+
+// Menü tanımları
+$menuDefinitions = [
+    'home' => [
+        'title' => 'Ana Sayfa',
+        'icon' => 'fa fa-home',
+        'link' => 'index.php?p=home',
+        'visible' => true,
+        'items' => []
+    ],
+    'offers' => [
+        'title' => 'Teklifler',
+        'icon' => 'fa fa-file-o',
+        'visible' => permtrue("offerview"),
+        'items' => [
+            'offers/dashboard' => [
+                'title' => 'Teklif Dashboard',
+                'link' => 'index.php?p=offers/dashboard',
+                'visible' => (permtrue("offer_dashboard") || permtrue("offerview"))
+            ],
+            'offers/offer-manage' => [
+                'title' => 'Yeni Teklif Oluştur',
+                'link' => 'index.php?p=offers/offer-manage',
+                'visible' => permtrue("offeradd")
+            ],
+            'offers/list_sablon' => [
+                'title' => 'Şablon Teklifler',
+                'link' => 'index.php?p=offers/list&sablon=true',
+                'visible' => true
+            ],
+            'offers/list' => [
+                'title' => 'Teklifleri Görüntüle',
+                'link' => 'index.php?p=offers/list',
+                'visible' => true
+            ],
+            'offers/items-list' => [
+                'title' => 'Teklif Kalemleri Listesi',
+                'link' => 'index.php?p=offers/items-list',
+                'visible' => true
+            ]
+        ]
+    ],
+    'service' => [
+        'title' => 'Servis Yönetimi',
+        'icon' => 'fa fa-table',
+        'visible' => true,
+        'items' => [
+            'service/manage' => [
+                'title' => 'Servis Oluştur',
+                'link' => 'index.php?p=service/manage',
+                'visible' => permtrue("serviceAdd")
+            ],
+            'service/list' => [
+                'title' => 'Servisleri Görüntüle',
+                'link' => 'index.php?p=service/list',
+                'visible' => permtrue("serviceView")
+            ]
+        ]
+    ],
+    'kesif' => [
+        'title' => 'Keşifler',
+        'icon' => 'fa fa-street-view',
+        'visible' => true,
+        'items' => [
+            'kesif/list' => [
+                'title' => 'Keşifleri Görüntüle',
+                'link' => 'index.php?p=kesif/list',
+                'visible' => permtrue("kesifView")
+            ]
+        ]
+    ],
+    'purchases' => [
+        'title' => 'Satın Alma',
+        'icon' => 'fa fa-shopping-cart',
+        'visible' => true,
+        'items' => [
+            'purchases/dashboard' => [
+                'title' => 'Satın Alma Dashboard',
+                'link' => 'index.php?p=purchases/dashboard',
+                'visible' => (permtrue("purchase_dashboard") || permtrue("purchaseadd") || permtrue("purchases"))
+            ],
+            'purchase-demand-new' => [
+                'title' => 'Satın Alma Talebi Oluştur',
+                'link' => 'index.php?p=purchase-demand-new',
+                'visible' => permtrue("purchase-demand-add")
+            ],
+            'purchases/manage' => [
+                'title' => 'Yeni Sipariş',
+                'link' => 'index.php?p=purchases/manage',
+                'visible' => permtrue("purchaseadd")
+            ],
+            'purchases/price-request-list' => [
+                'title' => 'Fiyat Talepleri',
+                'link' => 'index.php?p=purchases/price-request-list',
+                'visible' => true
+            ],
+            'purchases' => [
+                'title' => 'Tümünü Görüntüle',
+                'link' => 'index.php?p=purchases',
+                'visible' => true
+            ]
+        ]
+    ],
+    'customers' => [
+        'title' => 'Firma Yönetimi',
+        'icon' => 'fa fa-user-plus',
+        'visible' => true,
+        'items' => [
+            'customers/dashboard' => [
+                'title' => 'Firma Dashboard',
+                'link' => 'index.php?p=customers/dashboard',
+                'visible' => (permtrue("customer_dashboard") || permtrue("customerview"))
+            ],
+            'customers/manage' => [
+                'title' => 'Yeni Firma',
+                'link' => 'index.php?p=customers/manage',
+                'visible' => permtrue("customeradd")
+            ],
+            'customers/list' => [
+                'title' => 'Firma Listesi',
+                'link' => 'index.php?p=customers/list',
+                'visible' => true
+            ]
+        ]
+    ],
+    'products' => [
+        'title' => 'Ürün/Hizmetler',
+        'icon' => 'fa fa-paint-brush',
+        'visible' => true,
+        'items' => [
+            'products/dashboard' => [
+                'title' => 'Ürün Dashboard',
+                'link' => 'index.php?p=products/dashboard',
+                'visible' => (permtrue("product_dashboard") || permtrue("productcategory") || permtrue("productadd"))
+            ],
+            'products/manage' => [
+                'title' => 'Yeni Ürün/Hizmet',
+                'link' => 'index.php?p=products/manage',
+                'visible' => permtrue("productadd")
+            ],
+            'products/list' => [
+                'title' => 'Ürün&Hizmet Listesi',
+                'link' => 'index.php?p=products/list',
+                'visible' => true
+            ]
+        ]
+    ],
+    'stock-activity' => [
+        'title' => 'Stok Yönetimi',
+        'icon' => 'fa fa-list-ol',
+        'visible' => permtrue("stock-activity"),
+        'items' => [
+            'stock-activity/manage' => [
+                'title' => 'Stok Hareketi Ekle',
+                'link' => 'index.php?p=stock-activity/manage',
+                'visible' => permtrue("stock-activity-manage")
+            ],
+            'stock-activity/list' => [
+                'title' => 'Stok Hareketleri',
+                'link' => 'index.php?p=stock-activity/list',
+                'visible' => true
+            ],
+            'stock-activity/order-list' => [
+                'title' => 'Sipariş Listesi',
+                'link' => 'index.php?p=stock-activity/order-list',
+                'visible' => permtrue("stock-activity-manage")
+            ]
+        ]
+    ],
+    'reports' => [
+        'title' => 'Raporlar',
+        'icon' => 'fa fa-bar-chart',
+        'visible' => true,
+        'items' => [
+            'reports/dashboard' => [
+                'title' => 'Rapor Dashboard',
+                'link' => 'index.php?p=reports/dashboard',
+                'visible' => (permtrue("report_dashboard") || permtrue("reportview"))
+            ],
+            'reports/reports' => [
+                'title' => 'Rapor Listesi',
+                'link' => 'index.php?p=reports/reports',
+                'visible' => permtrue("reportview")
+            ],
+            'reports/filling-list' => [
+                'title' => 'Dolum Listesi',
+                'link' => 'index.php?p=reports/filling-list',
+                'visible' => permtrue("reportview")
+            ],
+            'reports/control-list' => [
+                'title' => 'Kontrol Listesi',
+                'link' => 'index.php?p=reports/control-list',
+                'visible' => permtrue("reportview")
+            ]
+        ]
+    ],
+    'indocument' => [
+        'title' => 'Evrak Takip',
+        'icon' => 'fa fa-folder-open',
+        'visible' => true,
+        'items' => [
+            'new-indocument' => [
+                'title' => 'Evrak Ekle',
+                'link' => 'index.php?p=new-indocument',
+                'visible' => permtrue("indocadd")
+            ],
+            'view-outdocument' => [
+                'title' => 'Giden Evrak Listesi',
+                'link' => 'index.php?p=view-outdocument',
+                'visible' => permtrue("outdocview")
+            ],
+            'view-indocument' => [
+                'title' => 'Gelen Evrak Listesi',
+                'link' => 'index.php?p=view-indocument',
+                'visible' => permtrue("indocview")
+            ],
+            'indocument-categories' => [
+                'title' => 'Kategoriler',
+                'link' => 'index.php?p=indocument-categories',
+                'visible' => permtrue("indoccategories")
+            ]
+        ]
+    ],
+    'files' => [
+        'title' => 'Dosya Yönetimi',
+        'icon' => 'fa fa-file-zip-o',
+        'visible' => (permtrue("fileadd") || permtrue("fileview") || permtrue("filedelete")),
+        'items' => [
+            'new-file' => [
+                'title' => 'Dosya Yükle',
+                'link' => 'index.php?p=new-file',
+                'visible' => permtrue("fileadd")
+            ],
+            'all-files' => [
+                'title' => 'Dosyaları Görüntüle',
+                'link' => 'index.php?p=all-files',
+                'visible' => permtrue("fileview")
+            ],
+            'file-categories' => [
+                'title' => 'Dosya Kategorileri',
+                'link' => 'index.php?p=file-categories',
+                'visible' => (permtrue("fileadd") && permtrue("fileview") && permtrue("filedelete"))
+            ]
+        ]
+    ],
+    'missions' => [
+        'title' => 'Görev Yönetimi',
+        'icon' => 'fa fa-bookmark-o',
+        'visible' => (permtrue("missionadd") || permtrue("missiontake") || permtrue("allmisview")),
+        'items' => [
+            'new-mission' => [
+                'title' => 'Görev Oluştur',
+                'link' => 'index.php?p=new-mission',
+                'visible' => permtrue("missionadd")
+            ],
+            'mygmissions' => [
+                'title' => 'Verdiğim Görevler',
+                'link' => 'index.php?p=mygmissions',
+                'visible' => permtrue("missionadd")
+            ],
+            'my-missions' => [
+                'title' => 'Görevlerim',
+                'link' => 'index.php?p=my-missions',
+                'visible' => permtrue("missiontake")
+            ],
+            'all-missions' => [
+                'title' => 'Sistemdeki Tüm Görevler',
+                'link' => 'index.php?p=all-missions',
+                'visible' => permtrue("allmisview")
+            ]
+        ]
+    ],
+    'tasks' => [
+        'title' => 'Yapılacaklar',
+        'icon' => 'fa fa-calendar',
+        'visible' => (permtrue("todoadd") || permtrue("todoedit") || permtrue("tododelete")),
+        'items' => [
+            'task-new' => [
+                'title' => 'Yeni Oluştur',
+                'link' => 'index.php?p=task-new',
+                'visible' => permtrue("todoadd")
+            ],
+            'tasks' => [
+                'title' => 'Yapılacaklar Listesi',
+                'link' => 'index.php?p=tasks',
+                'visible' => true
+            ]
+        ]
+    ],
+    'mail-sms' => [
+        'title' => 'Mail & SMS',
+        'icon' => 'fa fa-envelope',
+        'visible' => permtrue("mailandsmssend"),
+        'items' => [
+            'send-mail' => [
+                'title' => 'Mail Gönder',
+                'link' => 'index.php?p=send-mail',
+                'visible' => true
+            ],
+            'send-sms' => [
+                'title' => 'SMS Gönder',
+                'link' => 'index.php?p=send-sms',
+                'visible' => (set("sms_active") == "on")
+            ],
+            'mail-logs' => [
+                'title' => 'Mail Kayıtları',
+                'link' => 'index.php?p=mail-logs',
+                'visible' => (set("sms_active") == "on")
+            ],
+            'send-mail-accounts' => [
+                'title' => 'Mail Hesapları',
+                'link' => 'index.php?p=send-mail-accounts',
+                'visible' => ($userId == 12 || $userId == 1)
+            ]
+        ]
+    ],
+    'notes' => [
+        'title' => 'Notlar',
+        'icon' => 'fa fa-sticky-note-o',
+        'visible' => (permtrue("noteadd") || permtrue("noteedit")),
+        'items' => [
+            'new-note' => [
+                'title' => 'Yeni Not',
+                'link' => 'index.php?p=new-note',
+                'visible' => permtrue("noteadd")
+            ],
+            'all-notes' => [
+                'title' => 'Tümünü Görüntüle',
+                'link' => 'index.php?p=all-notes',
+                'visible' => true
+            ],
+            'note-categories' => [
+                'title' => 'Not Kategorileri',
+                'link' => 'index.php?p=note-categories',
+                'visible' => ($userPerm == 1 || permtrue("noteedit"))
+            ]
+        ]
+    ],
+    'support' => [
+        'title' => 'Destek Sistemi',
+        'icon' => 'fa fa-support',
+        'visible' => (permtrue("support-request-view") || permtrue("support-request-add")),
+        'items' => [
+            'support-new' => [
+                'title' => 'Yeni Destek Talebi',
+                'link' => 'index.php?p=support-new',
+                'visible' => permtrue("support-request-add")
+            ],
+            'support-list' => [
+                'title' => 'Destek Talepleri',
+                'link' => 'index.php?p=support-list',
+                'visible' => permtrue("support-request-view")
+            ]
+        ]
+    ],
+    'team' => [
+        'title' => 'Ekip',
+        'icon' => 'fa fa-user',
+        'visible' => true,
+        'items' => [
+            'user-new' => [
+                'title' => 'Yeni Üye Oluştur',
+                'link' => 'index.php?p=user-new',
+                'visible' => permtrue("useradd")
+            ],
+            'users' => [
+                'title' => 'Ekip Üyeleri',
+                'link' => 'index.php?p=users',
+                'visible' => true
+            ],
+            'permission-settings' => [
+                'title' => 'Pozisyon Ayarları',
+                'link' => 'index.php?p=permission-settings',
+                'visible' => permtrue("authdefine")
+            ]
+        ]
+    ],
+    'definitions' => [
+        'title' => 'Tanımlamalar',
+        'icon' => 'fa fa-gears',
+        'visible' => true,
+        'items' => [
+            'service-type' => [
+                'title' => 'Servis Konusu Tanımlama',
+                'link' => 'index.php?p=service-type',
+                'visible' => ($userPerm == 1)
+            ],
+            'service-status' => [
+                'title' => 'Servis Durumu Tanımlama',
+                'link' => 'index.php?p=service-status',
+                'visible' => ($userPerm == 1)
+            ],
+            'service-region' => [
+                'title' => 'Servis Bölgesi Tanımlama',
+                'link' => 'index.php?p=service-region',
+                'visible' => ($userPerm == 1)
+            ],
+            'paytype' => [
+                'title' => 'Tahsilat Türü Tanımlama',
+                'link' => 'index.php?p=paytype',
+                'visible' => ($userPerm == 1)
+            ],
+            'offer-templates' => [
+                'title' => 'Teklif Üst/Alt Bilgi Tanımlama',
+                'link' => 'index.php?p=offer-templates',
+                'visible' => ($userPerm == 1)
+            ],
+            'define-units' => [
+                'title' => 'Birim Tanımlama',
+                'link' => 'index.php?p=define-units',
+                'visible' => ($userPerm == 1)
+            ]
+        ]
+    ],
+    'panel-settings' => [
+        'title' => 'Panel Ayarları',
+        'icon' => 'fa fa-sitemap',
+        'link' => 'index.php?p=settings',
+        'visible' => permtrue("panelsettings"),
+        'items' => []
+    ],
+    'logs' => [
+        'title' => 'Sistem Aktiviteleri',
+        'icon' => 'fa fa-history',
+        'link' => 'index.php?p=logs/index',
+        'visible' => in_array($userId, [1, 12]),
+        'items' => []
+    ],
+    'backups' => [
+        'title' => 'Yedekleme & Kurtarma',
+        'icon' => 'fa fa-database',
+        'link' => 'index.php?p=backups',
+        'visible' => (permtrue("backupmanage") || $userId == 1),
+        'items' => []
+    ],
+    'version-notes' => [
+        'title' => 'Sürüm Notları',
+        'icon' => 'fa fa-file-text',
+        'link' => 'index.php?p=version-notes',
+        'visible' => true,
+        'items' => []
+    ]
+];
+
+// Kullanıcının kayıtlı menü sırasını al ve sırala
+$orderModel = new MenuOrderModel();
+$userOrder = $orderModel->getOrderByUserId($userId);
+
+$sortedMenu = [];
+if (!empty($userOrder['main_order']) && is_array($userOrder['main_order'])) {
+    // Kayıtlı sıraya göre ana menüleri ekle
+    foreach ($userOrder['main_order'] as $menuKey) {
+        if (isset($menuDefinitions[$menuKey])) {
+            $sortedMenu[$menuKey] = $menuDefinitions[$menuKey];
+        }
+    }
+    // Listede olmayan veya sonradan eklenmiş yeni menüleri sona ekle
+    foreach ($menuDefinitions as $menuKey => $menuData) {
+        if (!isset($sortedMenu[$menuKey])) {
+            $sortedMenu[$menuKey] = $menuData;
+        }
+    }
+} else {
+    $sortedMenu = $menuDefinitions;
+}
+
+// Alt menüleri kullanıcının sırasına göre düzenle
+foreach ($sortedMenu as $menuKey => &$menuData) {
+    if (!empty($menuData['items'])) {
+        $sortedSubItems = [];
+        if (!empty($userOrder['sub_order'][$menuKey]) && is_array($userOrder['sub_order'][$menuKey])) {
+            foreach ($userOrder['sub_order'][$menuKey] as $subKey) {
+                if (isset($menuData['items'][$subKey])) {
+                    $sortedSubItems[$subKey] = $menuData['items'][$subKey];
+                }
+            }
+            foreach ($menuData['items'] as $subKey => $subData) {
+                if (!isset($sortedSubItems[$subKey])) {
+                    $sortedSubItems[$subKey] = $subData;
+                }
+            }
+            $menuData['items'] = $sortedSubItems;
+        }
+    }
+}
+unset($menuData);
+?>
 <div class="left-side-bar">
     <div class="brand-logo">
         <a href="index.php">
@@ -5,382 +497,69 @@
                 alt="<?php echo set("site_title"); ?> Logo">
         </a>
     </div>
+
+    <!-- Sabit Arama ve Menü Ayarları Alanı (Scroll dışı, kesinlikle sabit) -->
+    <div class="sidebar-search-wrap">
+        <div class="sidebar-search">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <input type="text" class="sidebar-search-input" placeholder="Menüde ara..." aria-label="Menüde ara">
+        </div>
+        <div class="sidebar-menu-settings dropdown">
+            <button type="button" class="btn btn-sm btn-menu-settings" id="sidebarMenuSettingsDropdown" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Menü Ayarları">
+                <i class="fa fa-cog"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="sidebarMenuSettingsDropdown">
+                <h6 class="dropdown-header">Menü Ayarları</h6>
+                <a class="dropdown-item" href="javascript:;" id="btn-reset-menu-order">
+                    <i class="fa fa-undo text-primary mr-2"></i> Varsayılan Menü Sırası
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="menu-block customscroll">
         <div class="sidebar-menu">
-            <div class="sidebar-search">
-                <i class="fa fa-search" aria-hidden="true"></i>
-                <input type="text" class="sidebar-search-input" placeholder="Menude ara..." aria-label="Menude ara">
-            </div>
             <ul id="accordion-menu">
-                <li class="dropdown">
-                    <a href="index.php?p=home" class="dropdown-toggle no-arrow">
-                        <span class="fa fa-home"></span><span class="mtext">Ana Sayfa</span>
-                    </a>
-
-                </li>
-
-
-
-                <?php if (permtrue("offerview")) {
-                    ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-file-o"></span><span class="mtext">Teklifler</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <?php if (permtrue("offer_dashboard") || permtrue("offerview")) { ?>
-                                <li><a href="index.php?p=offers/dashboard">Teklif Dashboard</a></li>
-                            <?php } ?>
-
-                            <?php if (permtrue("offeradd")) { ?>
-                                <li><a href="index.php?p=offers/offer-manage">Yeni Teklif Oluştur</a></li>
-                            <?php } ?>
-
-
-                            <li><a href="index.php?p=offers/list&sablon=true">Şablon Teklifler</a></li>
-
-
-                            <li><a href="index.php?p=offers/list">Teklifleri Görüntüle</a></li>
-                            <li><a href="index.php?p=offers/items-list">Teklif Kalemleri Listesi</a></li>
-
-                        </ul>
-                    </li>
-                    <?php
-                } ?>
-
-
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-table"></span><span class="mtext">Servis Yönetimi</span>
-                    </a>
-                    <ul class="submenu">
-
-                        <?php if (permtrue("serviceAdd")) { ?>
-                            <li><a href="index.php?p=service/manage">Servis Oluştur</a></li>
-                        <?php }
-                        if (permtrue("serviceView")) { ?>
-                            <li><a href="index.php?p=service/list">Servisleri Görüntüle</a></li>
-                        <?php } ?>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-street-view"></span><span class="mtext">Keşifler</span>
-                    </a>
-                    <ul class="submenu">
-
-                        <?php
-                        if (permtrue("kesifView")) { ?>
-                            <li><a href="index.php?p=kesif/list">Keşifleri Görüntüle</a></li>
-                        <?php } ?>
-                    </ul>
-                </li>
-
-
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-shopping-cart"></span><span class="mtext">Satın Alma</span>
-                    </a>
-                    <ul class="submenu">
-                        <?php if (permtrue("purchase_dashboard") || permtrue("purchaseadd") || permtrue("purchases")) { ?>
-                            <li><a href="index.php?p=purchases/dashboard">Satın Alma Dashboard</a></li>
-                        <?php } ?>
-                        <?php if (permtrue("purchase-demand-add")) { ?>
-                            <li><a href="index.php?p=purchase-demand-new">Satın Alma Talebi Oluştur</a></li>
-                        <?php }
-                        if (permtrue("purchaseadd")) { ?>
-                            <li><a href="index.php?p=purchases/manage">Yeni Sipariş</a></li>
-                        <?php } ?>
-                        <li><a href="index.php?p=purchases/price-request-list">Fiyat Talepleri</a></li>
-                        <li><a href="index.php?p=purchases">Tümünü Görüntüle</a></li>
-
-                    </ul>
-                </li>
-
-
-
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-user-plus"></span><span class="mtext">Firma Yönetimi</span>
-                    </a>
-                    <ul class="submenu">
-
-                        <?php if (permtrue("customer_dashboard") || permtrue("customerview")) { ?>
-                            <li><a href="index.php?p=customers/dashboard">Firma Dashboard</a></li>
-                        <?php } ?>
-
-                        <?php if (permtrue("customeradd")) { ?>
-                            <li><a href="index.php?p=customers/manage">Yeni Firma</a></li>
-                        <?php } ?>
-                        <li><a href="index.php?p=customers/list">Firma Listesi</a></li>
-
-
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-paint-brush"></span><span class="mtext">Ürün/Hizmetler</span>
-                    </a>
-                    <ul class="submenu">
-                        <?php if (permtrue("product_dashboard") || permtrue("productcategory") || permtrue("productadd")) { ?>
-                            <li><a href="index.php?p=products/dashboard">Ürün Dashboard</a></li>
-                        <?php } ?>
-
-                        <?php if (permtrue("productadd")) { ?>
-                            <li><a href="index.php?p=products/manage">Yeni Ürün/Hizmet</a></li>
-                        <?php } ?>
-                        <li><a href="index.php?p=products/list">Ürün&Hizmet Listesi</a></li>
-
-                    </ul>
-
-                </li>
-                <?php if (permtrue("stock-activity")) { ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-list-ol"></span><span class="mtext">Stok Yönetimi</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <?php if (permtrue("stock-activity-manage")) { ?>
-                                <li><a href="index.php?p=stock-activity/manage">Stok Hareketi Ekle</a></li>
-                            <?php } ?>
-                            <li><a href="index.php?p=stock-activity/list">Stok Hareketleri</a></li>
-                            <?php if (permtrue("stock-activity-manage")) { ?>
-                                <li><a href="index.php?p=stock-activity/order-list">Sipariş Listesi</a></li>
-                            <?php } ?>
-
-                        </ul>
-
-                    </li>
-                <?php } ?>
-
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-bar-chart"></span><span class="mtext">Raporlar</span>
-                    </a>
-                    <ul class="submenu">
-
-                        <?php if (permtrue("report_dashboard") || permtrue("reportview")) { ?>
-                            <li><a href="index.php?p=reports/dashboard">Rapor Dashboard</a></li>
-                        <?php } ?>
-                        <?php if (permtrue("reportview")) { ?>
-                            <li><a href="index.php?p=reports/reports">Rapor Listesi</a></li>
-                            <li><a href="index.php?p=reports/filling-list">Dolum Listesi</a></li>
-                            <li><a href="index.php?p=reports/control-list">Kontrol Listesi</a></li>
-                        <?php } ?>
-
-
-                    </ul>
-
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-
-                        <span class="fa fa-folder-open"></span><span class="mtext">Evrak Takip</span>
-                    </a>
-                    <ul class="submenu">
-                        <?php if (permtrue("indocadd")) { ?>
-                            <li><a href="index.php?p=new-indocument">Evrak Ekle</a></li>
-                        <?php } ?>
-                        <?php if (permtrue("outdocview")) { ?>
-                            <li><a href="index.php?p=view-outdocument">Giden Evrak Listesi</a></li>
-                        <?php } ?>
-                        <?php if (permtrue("indocview")) { ?>
-                            <li><a href="index.php?p=view-indocument">Gelen Evrak Listesi</a></li>
-                        <?php } ?>
-                        <?php if (permtrue("indoccategories")) { ?>
-                            <li><a href="index.php?p=indocument-categories">Kategoriler</a></li>
-                        <?php } ?>
-
-                    </ul>
-                </li>
-                <?php if (permtrue("fileadd") or permtrue("fileview") or permtrue("filedelete")) { ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-file-zip-o"></span><span class="mtext">Dosya Yönetimi</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <?php if (permtrue("fileadd")) { ?>
-                                <li><a href="index.php?p=new-file">Dosya Yükle</a></li>
-                            <?php } ?>
-                            <?php if (permtrue("fileview")) { ?>
-                                <li><a href="index.php?p=all-files">Dosyaları Görüntüle</a></li>
-                            <?php } ?>
-                            <?php if (permtrue("fileadd") and permtrue("fileview") and permtrue("filedelete")) {
-                                ?>
-                                <li><a href="index.php?p=file-categories">Dosya Kategorileri</a></li>
-                                <?php
-                            } ?>
-
-                        </ul>
-                    </li>
-                <?php } ?>
-
-                <?php if (permtrue("missionadd") or permtrue("missiontake") or permtrue("allmisview")) { ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-bookmark-o"></span><span class="mtext">Görev Yönetimi</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <?php if (permtrue("missionadd")) { ?>
-                                <li><a href="index.php?p=new-mission">Görev Oluştur</a></li>
-                            <?php } ?>
-                            <?php if (permtrue("missionadd")) { ?>
-                                <li><a href="index.php?p=mygmissions">Verdiğim Görevler</a></li>
-                            <?php } ?>
-
-                            <?php if (permtrue("missiontake")) { ?>
-                                <li><a href="index.php?p=my-missions">Görevlerim</a></li>
-                            <?php }
-                            if (permtrue("allmisview")) { ?>
-                                <li><a href="index.php?p=all-missions">Sistemdeki Tüm Görevler</a></li>
-                            <?php } ?>
-
-                        </ul>
-
-                    </li>
-                <?php } ?>
-
-
-                <?php if (permtrue("todoadd") or permtrue("todoedit") or permtrue("tododelete")) {
-                    ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-calendar"></span><span class="mtext">Yapılacaklar</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <?php if (permtrue("todoadd")) { ?>
-                                <li><a href="index.php?p=task-new">Yeni Oluştur</a></li>
-                            <?php } ?>
-                            <li><a href="index.php?p=tasks">Yapılacaklar Listesi</a></li>
-
-                        </ul>
-                    </li>
-                    <?php
-                } ?>
-                <?php if (permtrue("mailandsmssend")) {
-                    ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-envelope"></span><span class="mtext">Mail & SMS</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <li><a href="index.php?p=send-mail">Mail Gönder</a></li>
-                            <?php if (set("sms_active") == "on") { ?>
-                                <li><a href="index.php?p=send-sms">SMS Gönder</a></li>
-                                <li><a href="index.php?p=mail-logs">Mail Kayıtları</a></li>
-                            <?php }
-                            if (sesset("id") == 12 || sesset("id") == 1) { ?>
-                                <li><a href="index.php?p=send-mail-accounts">Mail Hesapları</a></li>
-                            <?php } ?>
-                        </ul>
-                    </li>
-                    <?php
-                }
+                <?php foreach ($sortedMenu as $menuKey => $menu): 
+                    if (!$menu['visible']) continue;
+                    
+                    // Alt menü varsa en az bir alt öğenin görünür olduğunu kontrol et
+                    $hasVisibleSubItems = false;
+                    if (!empty($menu['items'])) {
+                        foreach ($menu['items'] as $item) {
+                            if (!empty($item['visible'])) {
+                                $hasVisibleSubItems = true;
+                                break;
+                            }
+                        }
+                        if (!$hasVisibleSubItems) continue;
+                    }
                 ?>
-                <?php if (permtrue("noteadd") or permtrue("noteedit")) {
-                    ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-sticky-note-o"></span><span class="mtext">Notlar</span>
-                        </a>
-                        <ul class="submenu">
-
-                            <?php if (permtrue("noteadd")) { ?>
-                                <li><a href="index.php?p=new-note">Yeni Not</a></li>
-                            <?php } ?>
-                            <li><a href="index.php?p=all-notes">Tümünü Görüntüle</a></li>
-                            <?php if (sesset("permission") == 1 or permtrue("noteedit")) { ?>
-                                <li><a href="index.php?p=note-categories">Not Kategorileri</a></li>
-                            <?php } ?>
-                        </ul>
+                    <li class="dropdown" data-menu-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php if (empty($menu['items'])): ?>
+                            <a href="<?php echo htmlspecialchars($menu['link'], ENT_QUOTES, 'UTF-8'); ?>" class="dropdown-toggle no-arrow">
+                                <span class="<?php echo htmlspecialchars($menu['icon'], ENT_QUOTES, 'UTF-8'); ?>"></span>
+                                <span class="mtext"><?php echo htmlspecialchars($menu['title'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            </a>
+                        <?php else: ?>
+                            <a href="javascript:;" class="dropdown-toggle">
+                                <span class="<?php echo htmlspecialchars($menu['icon'], ENT_QUOTES, 'UTF-8'); ?>"></span>
+                                <span class="mtext"><?php echo htmlspecialchars($menu['title'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            </a>
+                            <ul class="submenu" data-parent-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>">
+                                <?php foreach ($menu['items'] as $itemKey => $item): 
+                                    if (empty($item['visible'])) continue;
+                                ?>
+                                    <li data-item-key="<?php echo htmlspecialchars($itemKey, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <a href="<?php echo htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                     </li>
-                    <?php
-                } ?>
-
-                <?php if (permtrue("support-request-view") or permtrue("support-request-add")) { ?>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="fa fa-support"></span><span class="mtext">Destek Sistemi</span>
-                        </a>
-                        <ul class="submenu">
-                            <?php if (permtrue("support-request-add")) { ?>
-                                <li><a href="index.php?p=support-new">Yeni Destek Talebi</a></li>
-                            <?php } ?>
-                            <?php if (permtrue("support-request-view")) { ?>
-                                <li><a href="index.php?p=support-list">Destek Talepleri</a></li>
-                            <?php } ?>
-                        </ul>
-                    </li>
-                <?php } ?>
-
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-user"></span><span class="mtext">Ekip</span>
-                    </a>
-                    <ul class="submenu">
-
-                        <?php if (permtrue("useradd")) { ?>
-                            <li><a href="index.php?p=user-new">Yeni Üye Oluştur</a></li>
-                        <?php } ?>
-                        <li><a href="index.php?p=users">Ekip Üyeleri</a></li>
-                        <?php if (permtrue("authdefine")) { ?>
-                            <li><a href="index.php?p=permission-settings">Pozisyon Ayarları</a></li>
-                        <?php } ?>
-
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:;" class="dropdown-toggle">
-                        <span class="fa fa-gears"></span><span class="mtext">Tanımlamalar</span>
-                    </a>
-                    <ul class="submenu">
-                        <?php if (sesset("permission") == 1) { ?>
-                            <li><a href="index.php?p=service-type">Servis Konusu Tanımlama</a></li>
-                            <li><a href="index.php?p=service-status">Servis Durumu Tanımlama</a></li>
-                            <li><a href="index.php?p=service-region">Servis Bölgesi Tanımlama</a></li>
-                            <li><a href="index.php?p=paytype">Tahsilat Türü Tanımlama</a></li>
-                            <li><a href="index.php?p=offer-templates">Teklif Üst/Alt Bilgi Tanımlama</a></li>
-                            <li><a href="index.php?p=define-units">Birim Tanımlama</a></li>
-                        <?php } ?>
-
-
-                    </ul>
-                </li>
-
-                <?php if (permtrue("panelsettings")) { ?>
-                    <li class="dropdown">
-                        <a href="index.php?p=settings" class="dropdown-toggle no-arrow">
-                            <span class="fa fa-sitemap"></span><span class="mtext">Panel Ayarları</span>
-                        </a>
-                    </li>
-                <?php } ?>
-                <?php if (in_array(sesset("id"), [1, 12])) { ?>
-                    <li class="dropdown">
-                        <a href="index.php?p=logs/index" class="dropdown-toggle no-arrow">
-                            <span class="fa fa-history"></span><span class="mtext">Sistem Aktiviteleri</span>
-                        </a>
-                    </li>
-                <?php } ?>
-                <?php if (permtrue("backupmanage") || sesset("id") == 1) { ?>
-                    <li class="dropdown">
-                        <a href="index.php?p=backups" class="dropdown-toggle no-arrow">
-                            <span class="fa fa-database"></span><span class="mtext">Yedekleme & Kurtarma</span>
-                        </a>
-                    </li>
-                <?php } ?>
-                <li class="dropdown">
-                    <a href="index.php?p=version-notes" class="dropdown-toggle no-arrow">
-                        <span class="fa fa-file-text"></span><span class="mtext">Sürüm Notları</span>
-                    </a>
-                </li>
-
+                <?php endforeach; ?>
             </ul>
         </div>
     </div>

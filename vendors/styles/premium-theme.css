@@ -224,7 +224,7 @@ table.dataTable thead th,
     font-size: 12px !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 8px 12px !important;
+    padding: 6px 8px !important;
     height: 36px;
     border-bottom: 2px solid #e2e8f0 !important;
     border-top: none !important;
@@ -238,8 +238,8 @@ table.dataTable thead th,
 }
 
 .data-table tbody td {
-    padding: 6px 10px !important;
-    font-size: 13px;
+    padding: 5px 8px !important;
+    font-size: 12.5px;
     color: #334155;
     vertical-align: middle !important;
     border-bottom: 1px solid #e2e8f0 !important;
@@ -4748,10 +4748,10 @@ table.dataTable thead th.sorting_asc,
 table.dataTable thead th.sorting_desc,
 table.dataTable thead th.sorting_asc_disabled,
 table.dataTable thead th.sorting_desc_disabled {
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-    padding-left: 28px !important;
-    padding-right: 32px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    padding-left: 20px !important;
+    padding-right: 8px !important;
     position: relative !important;
     cursor: pointer;
 }
@@ -4761,11 +4761,12 @@ table.dataTable thead th.sorting_asc:before,
 table.dataTable thead th.sorting_desc:before,
 table.dataTable thead th.sorting_asc_disabled:before,
 table.dataTable thead th.sorting_desc_disabled:before {
-    left: 8px !important;
+    left: 4px !important;
     right: auto !important;
     bottom: 50% !important;
     transform: translateY(50%) !important;
     line-height: 1 !important;
+    font-size: 11px !important;
 }
 
 table.dataTable thead th.sorting:after,
@@ -4773,11 +4774,12 @@ table.dataTable thead th.sorting_asc:after,
 table.dataTable thead th.sorting_desc:after,
 table.dataTable thead th.sorting_asc_disabled:after,
 table.dataTable thead th.sorting_desc_disabled:after {
-    left: 16px !important;
+    left: 10px !important;
     right: auto !important;
     bottom: 50% !important;
     transform: translateY(50%) !important;
     line-height: 1 !important;
+    font-size: 11px !important;
 }
 
 /* Fallback for background-image sort icons */
@@ -5050,6 +5052,8 @@ table.dataTable thead .sorting_desc {
 
 html.kpi-offers-collapsed-early #kpiSummarySection,
 html.kpi-products-collapsed-early #kpiSummarySection,
+html.kpi-purchases-collapsed-early #kpiSummarySection,
+html.kpi-pricereq-collapsed-early #kpiSummarySection,
 .kpi-summary-collapse.is-collapsed {
     max-height: 0 !important;
     opacity: 0 !important;
@@ -5438,7 +5442,13 @@ span.flatpickr-weekday {
    GLOBAL SEAMLESS TABLE LAYOUT & ZERO OUTSIDE SPACING
    ============================================================== */
 .kpi-products-collapsed-early #kpiSummarySection,
+.kpi-customers-collapsed-early #kpiSummarySection,
+.kpi-users-collapsed-early #kpiSummarySection,
 .kpi-offers-collapsed-early #kpiSummarySection,
+.kpi-indoc-collapsed-early #kpiSummarySection,
+.kpi-outdoc-collapsed-early #kpiSummarySection,
+.kpi-purchases-collapsed-early #kpiSummarySection,
+.kpi-pricereq-collapsed-early #kpiSummarySection,
 .kpi-summary-collapse[style*="display: none"],
 .kpi-summary-collapse[style*="display:none"],
 .kpi-summary-collapse.d-none {
@@ -5449,10 +5459,10 @@ span.flatpickr-weekday {
     display: none !important;
 }
 
-/* Sayfa üst başlıkları ve tablo kartı arası dikey boşluğu minimize etme */
+/* Sayfa üst başlıkları ve tablo kartı arası dikey boşluk */
 .page-title-box,
 .page-header-title {
-    margin-bottom: 0 !important;
+    margin-bottom: 12px !important;
 }
 
 .products-list-wrapper,
@@ -5484,10 +5494,125 @@ span.flatpickr-weekday {
     border-radius: 14px !important;
 }
 
+/* Tablolarda yatay scroll desteği ve tam sığdırma */
+.responsive,
+.table-responsive {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+    max-width: 100% !important;
+}
 
+.dataTables_wrapper {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
 
+table.dataTable,
+.data-table,
+.table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
 
+table.dataTable th,
+table.dataTable td,
+.data-table th,
+.data-table td {
+    box-sizing: border-box !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+}
 
+/* Sidebar Search Sabit & Kompakt */
+.sidebar-search-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 10px !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-right: 1px solid #e2e8f0 !important;
+    width: 260px !important;
+    box-sizing: border-box !important;
+}
+.dark-mode .sidebar-search-wrap {
+    background: #282828 !important;
+    border-bottom-color: #383838 !important;
+    border-right-color: #383838 !important;
+}
+.sidebar-search-wrap .sidebar-search-input {
+    height: 34px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+}
+.sidebar-search-wrap .btn-menu-settings {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 8px !important;
+    font-size: 13.5px !important;
+}
+.left-side-bar .menu-block {
+    height: calc(100vh - 120px) !important;
+}
 
+/* ==========================================
+   GLOBAL TABLE ACTION BUTTONS
+   ========================================== */
+.action-btn-group {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+}
 
+.action-btn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    font-size: 12.5px !important;
+    line-height: 1 !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+}
+
+.action-btn i {
+    font-size: 12.5px !important;
+    line-height: 1 !important;
+    pointer-events: none;
+}
+
+.dark-mode .action-btn {
+    border-color: #334155 !important;
+}
+
+/* Sayfa bazlı geniş tablolar için yatay kaydırma garantisi */
+.purchases-list-wrapper .table-responsive,
+.pricereq-list-wrapper .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+}
 
