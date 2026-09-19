@@ -25,8 +25,9 @@ if ($page == 'purchases/manage') {
 }
 
 //Sayfa products/manage ise
-if ($page == 'products/manage' || $page == 'products/list') {
-	echo '<script src="pages/1/products/products.js" defer></script>';
+if ($page == 'products/manage' || $page == 'products/list' || $page == 'products') {
+    $jsVer = file_exists('pages/1/products/products.js') ? filemtime('pages/1/products/products.js') : time();
+	echo '<script src="pages/1/products/products.js?v=' . $jsVer . '" defer></script>';
 }
 
 

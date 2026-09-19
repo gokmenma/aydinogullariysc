@@ -87,6 +87,7 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 <th>Teklif/Servis Sayısı</th>
                 <th>E-Posta Adresi</th>
                 <th>GSM</th>
+                <th>Kayıt Tarihi</th>
                 <th class="datatable-nosort" style="min-width:90px">İşlem</th>
             </tr>
         </thead>
@@ -140,6 +141,9 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                         <?php echo htmlspecialchars($as["gsm"] ?? ''); ?>
                     </td>
                     <td>
+                        <?php echo !empty($as["regdate"]) && $as["regdate"] !== '0000-00-00 00:00:00' ? date('d.m.Y', strtotime($as["regdate"])) : '-'; ?>
+                    </td>
+                    <td>
                         <?php if (permtrue("customeredit")) { ?>
                         <a href="index.php?p=customer-edit&id=<?php echo $as["id"]; ?>"
                             data-tooltip="Görüntüle-Düzenle">
@@ -185,6 +189,7 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 <th>Teklif/Servis Sayısı</th>
                 <th>E-Posta Adresi</th>
                 <th>GSM</th>
+                <th>Kayıt Tarihi</th>
                 <th>İşlem</th>
             </tr>
         </tfoot>

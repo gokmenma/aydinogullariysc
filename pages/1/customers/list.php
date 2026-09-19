@@ -189,6 +189,7 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 <th>Teklif/Servis Sayısı</th>
                 <th>E-Posta Adresi</th>
                 <th>GSM</th>
+                <th>Kayıt Tarihi</th>
                 <th class="datatable-nosort" style="min-width:90px">İşlem</th>
             </tr>
         </thead>
@@ -234,7 +235,8 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 { data: 4, orderable: false },
                 { data: 5 },
                 { data: 6 },
-                { data: 7, orderable: false }
+                { data: 7, className: 'text-nowrap' },
+                { data: 8, orderable: false }
             ],
             pageLength: 25,
             lengthMenu: [10, 25, 50, 100],

@@ -113,8 +113,21 @@ function audit_changes(array|object|null $before, array $after, array $allowedFi
     foreach ($allowedFields as $field) {
         $oldValue = $before[$field] ?? null;
         $newValue = $after[$field] ?? null;
-        if ((string) $oldValue !== (string) $newValue) {
-            $changes[$field] = ['old' => $oldValue, 'new' => $newValue];
+        $isEqual = is_numeric($oldValue) && is_numeric($newValue)
+            ? abs((float) $oldValue - (float) $newValue) < 0.000001
+            : (string) $oldValue === (string) $newValue;
+
+        if (!$isEqual) {
+            $normalize = static function ($value) {
+                if (is_array($value) || is_object($value)) {
+                    $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                }
+                return is_string($value) ? mb_substr($value, 0, 500) : $value;
+            };
+            $changes[$field] = [
+                'old' => $normalize($oldValue),
+                'new' => $normalize($newValue),
+            ];
         }
     }
     return $changes;

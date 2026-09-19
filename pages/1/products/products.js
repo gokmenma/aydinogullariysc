@@ -143,7 +143,8 @@ $(document).ready(function () {
         { data: 4 }, // Alış Fiyatı
         { data: 5 }, // Satış Fiyatı
         { data: 6 }, // Açıklama
-        { data: 7, orderable: false, className: "text-center" } // İşlem
+        { data: 7, className: "text-nowrap" }, // Kayıt Tarihi
+        { data: 8, orderable: false, className: "text-center" } // İşlem
       ],
       pageLength: 25,
       lengthMenu: [10, 25, 50, 100],

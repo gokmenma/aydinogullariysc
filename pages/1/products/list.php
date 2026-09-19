@@ -35,6 +35,7 @@ $logger->info("Ürün/Hizmet listesi görüntülendi.",[
                     <th>Alış Fiyatı</th>
                     <th>Satış Fiyatı</th>
                     <th>Açıklama</th>
+                    <th>Kayıt Tarihi</th>
                     <th style="width: 10%;">İşlem</th>
                 </tr>
             </thead>
@@ -49,6 +50,7 @@ $logger->info("Ürün/Hizmet listesi görüntülendi.",[
                     <th>Alış Fiyatı</th>
                     <th>Satış Fiyatı</th>
                     <th>Açıklama</th>
+                    <th>Kayıt Tarihi</th>
                     <th>İşlem</th>
                 </tr>
             </tfoot>

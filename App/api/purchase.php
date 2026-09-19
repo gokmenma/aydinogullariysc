@@ -68,6 +68,9 @@ if ($_POST['action'] == 'savePurchases') {
 
     $id = $_POST['id'];
     $wasNewPurchase = ((int) $id === 0) || ((int) ($_POST['demand'] ?? 0) === 1);
+    $existingPurchase = !$wasNewPurchase && (int) $id > 0
+        ? $Purchase->find((int) $id)
+        : null;
     $demand = $_POST['demand'] ?? 0;
     
     //Eğer satın alma talebinden geliyorsa yeni bir satın alma işlemi oluşturulacak
@@ -112,7 +115,8 @@ if ($_POST['action'] == 'savePurchases') {
             'invoice_number' => $_POST['invoice_number'] ?? '',
             'type' => $_POST['type'] ?? 0
             
-        ];   
+        ];
+        $purchaseAuditData = $data;
 
         if ($id == 0) {
             $data['creator'] = $_SESSION['lid'];
@@ -250,6 +254,20 @@ if ($_POST['action'] == 'savePurchases') {
                     ? count($_POST['urunAdi'])
                     : 0,
                 'type' => (int) ($_POST['type'] ?? 0),
+                'changed_fields' => !$wasNewPurchase
+                    ? audit_changes(
+                        $existingPurchase,
+                        $purchaseAuditData,
+                        [
+                            'siparisNo', 'companyID', 'currency', 'deadline',
+                            'payment_period', 'payment_date', 'description1',
+                            'description2', 'altToplam', 'vadeGun',
+                            'DolarTotal', 'EuroTotal', 'TLTotal', 'Kdv',
+                            'iskonto', 'ToplamTL', 'state', 'invoice_date',
+                            'invoice_number', 'type'
+                        ]
+                    )
+                    : [],
             ]
         );
 

@@ -34,8 +34,8 @@ $order_dir = $_GET['order'][0]['dir'] ?? 'desc';
 $requested_columns = $_GET['columns'] ?? [];
 
 // Column names for ordering (DataTables indexes)
-// 0: c.id, 1: c.company, 2: cg.title, 3: c.represant, 4: (offers/projects count, ignore order or order by ID), 5: c.email, 6: c.gsm
-$columns = ['c.id', 'c.company', 'cg.title', 'c.represant', 'c.id', 'c.email', 'c.gsm'];
+// 0: c.id, 1: c.company, 2: cg.title, 3: c.represant, 4: (offers/projects count, ignore order or order by ID), 5: c.email, 6: c.gsm, 7: c.regdate
+$columns = ['c.id', 'c.company', 'cg.title', 'c.represant', 'c.id', 'c.email', 'c.gsm', 'c.regdate'];
 $order_by = $columns[$order_column] ?? 'c.id';
 
 // Base query with JOINs
@@ -62,20 +62,23 @@ if ($search_value !== '') {
         cg.title LIKE :search OR
         c.represant LIKE :search OR
         c.email LIKE :search OR
-        c.gsm LIKE :search
+        c.gsm LIKE :search OR
+        DATE_FORMAT(c.regdate, '%d.%m.%Y') LIKE :search OR
+        c.regdate LIKE :search
     )";
     $params[':search'] = "%{$search_value}%";
 }
 
 // Column-specific search
 // index mappings:
-// 1 => c.company, 2 => cg.title, 3 => c.represant, 5 => c.email, 6 => c.gsm
+// 1 => c.company, 2 => cg.title, 3 => c.represant, 5 => c.email, 6 => c.gsm, 7 => c.regdate
 $filter_columns = [
     1 => 'c.company',
     2 => 'cg.title',
     3 => 'c.represant',
     5 => 'c.email',
     6 => 'c.gsm',
+    7 => 'c.regdate',
 ];
 
 if (!empty($requested_columns) && is_array($requested_columns)) {
@@ -87,7 +90,11 @@ if (!empty($requested_columns) && is_array($requested_columns)) {
         }
         if (isset($filter_columns[$idx])) {
             $paramKey = ":col_{$idx}";
-            $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
+            if ($idx === 7) {
+                $where_conditions[] = "(DATE_FORMAT(c.regdate, '%d.%m.%Y') LIKE {$paramKey} OR c.regdate LIKE {$paramKey})";
+            } else {
+                $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
+            }
             $params[$paramKey] = "%{$value}%";
         }
     }
@@ -112,6 +119,7 @@ $data_query = "
         c.represant,
         c.email,
         c.gsm,
+        c.regdate,
         cg.title as group_title,
         (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) as offer_count,
         (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) as project_count
@@ -169,7 +177,13 @@ foreach ($customers as $row_data) {
     // Column 6: GSM (gsm)
     $row[] = htmlspecialchars($row_data['gsm'] ?? '');
 
-    // Column 7: İşlem
+    // Column 7: Kayıt Tarihi
+    $regDate = !empty($row_data['regdate']) && $row_data['regdate'] !== '0000-00-00 00:00:00'
+        ? date('d.m.Y', strtotime($row_data['regdate']))
+        : '-';
+    $row[] = htmlspecialchars($regDate);
+
+    // Column 8: İşlem
     $actions = '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
     if ($canEdit) {
         $actions .= '<a href="index.php?p=customers/manage&id=' . $cid . '" class="btn btn-sm btn-outline-info" data-tooltip="Görüntüle-Düzenle">

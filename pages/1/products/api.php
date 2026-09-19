@@ -15,7 +15,7 @@ if ($_POST['action'] == 'save-product') {
 
     try {
 
-
+        $existingProduct = $id > 0 ? $Products->find($id) : null;
         $data = [
             'id' => $id,
             "StokKodu" => $_POST['StokKodu'],
@@ -28,6 +28,11 @@ if ($_POST['action'] == 'save-product') {
             "Aciklama" => $_POST['Aciklama'] ?? '',
         ];
 
+        if ($id == 0) {
+            $data['OlusturmaTarihi'] = date('d.m.Y');
+            $data['PersonelID'] = $_SESSION['lid'] ?? 0;
+        }
+
         $lastInsertId = $Products->save($data) ?? $_POST['id'];
         audit_log(
             $id == 0 ? 'create' : 'update',
@@ -35,7 +40,21 @@ if ($_POST['action'] == 'save-product') {
             ($id == 0 ? 'Yeni ürün/hizmet oluşturuldu: ' : 'Ürün/hizmet güncellendi: ') . $data['Adi'],
             'product',
             $lastInsertId,
-            ['stock_code' => $data['StokKodu'], 'name' => $data['Adi']]
+            [
+                'stock_code' => $data['StokKodu'],
+                'name' => $data['Adi'],
+                'changed_fields' => $id > 0
+                    ? audit_changes(
+                        $existingProduct,
+                        $data,
+                        [
+                            'StokKodu', 'Adi', 'Birimi', 'AlisFiyati',
+                            'AlisParaBirimi', 'SatisFiyati',
+                            'SatisParaBirimi', 'Aciklama'
+                        ]
+                    )
+                    : [],
+            ]
         );
 
         $msg = $id == 0 ? "kaydedildi" : "güncellendi";

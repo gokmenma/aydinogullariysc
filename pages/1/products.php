@@ -50,6 +50,7 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 <th>Alış Fiyatı</th>
                 <th>Satış Fiyatı</th>
                 <th>Açıklama</th>
+                <th>Kayıt Tarihi</th>
                 <th>İşlem</th>
 
             </tr>
@@ -82,6 +83,9 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 <td>
                     <?php echo $product->Aciklama; ?>
                 </td>
+                <td>
+                    <?php echo !empty($product->OlusturmaTarihi) ? str_replace('-', '.', $product->OlusturmaTarihi) : '-'; ?>
+                </td>
                 <td class="text-center text-nowrap col-md-1 pl-3 pr-3">
                     <?php
 						if (permtrue("productedit")) { ?>
@@ -111,6 +115,7 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 <th>Alış Fiyatı</th>
                 <th>Satış Fiyatı</th>
                 <th>Açıklama</th>
+                <th>Kayıt Tarihi</th>
                 <th>İşlem</th>
 
             </tr>

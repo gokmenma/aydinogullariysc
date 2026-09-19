@@ -80,8 +80,8 @@ if (!empty($_GET['filter_level'])) {
     $params[':filter_level'] = $_GET['filter_level'];
 }
 
-// Filtre: İşlem türü. Varsayılan görünüm ziyaret gürültüsünü dışarıda bırakır.
-$selected_event = $_GET['filter_event'] ?? 'operations';
+// Filtre: İşlem türü. Varsayılan görünüm sayfa ziyaretleri dahil tüm hareketlerdir.
+$selected_event = $_GET['filter_event'] ?? 'all';
 if ($selected_event === 'operations') {
     $where[] = "(
         (event_type IS NOT NULL AND event_type <> 'view')
@@ -313,24 +313,22 @@ try {
                 <div class="alert alert-danger"><?php echo htmlspecialchars($error_msg); ?></div>
             <?php endif; ?>
 
-            <div class="table-responsive">
+            <div class="table-responsive log-table-wrap">
                 <table class="table table-hover table-bordered log-table" style="width:100%">
                     <thead>
                         <tr>
-                            <th scope="col" style="width: 14%">Tarih / Saat</th>
-                            <th scope="col" style="width: 13%">Kullanıcı</th>
-                            <th scope="col" style="width: 12%">İşlem Türü</th>
-                            <th scope="col" style="width: 10%">Modül</th>
-                            <th scope="col" style="width: 28%">Yapılan İşlem</th>
-                            <th scope="col" style="width: 13%">İlgili Kayıt</th>
-                            <th scope="col" style="width: 7%">IP</th>
-                            <th scope="col" style="width: 3%"></th>
+                            <th scope="col" style="width: 16%">Tarih / Saat</th>
+                            <th scope="col" style="width: 15%">Kullanıcı</th>
+                            <th scope="col" style="width: 14%">İşlem Türü</th>
+                            <th scope="col" class="log-col-module" style="width: 11%">Modül</th>
+                            <th scope="col" style="width: 31%">Yapılan İşlem / Detay</th>
+                            <th scope="col" class="log-col-entity" style="width: 13%">İlgili Kayıt</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($logs)): ?>
                             <tr>
-                                <td colspan="8" class="text-center text-muted pd-20">Kayıt bulunamadı.</td>
+                                <td colspan="6" class="text-center text-muted pd-20">Kayıt bulunamadı.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($logs as $row): 
@@ -361,6 +359,17 @@ try {
                                 } else {
                                     $display_message = $row['message'] ?: $row['action'];
                                 }
+                                // Eski Monolog kayıtlarındaki tarih/kanal ve JSON eklerini temizle.
+                                $display_message = preg_replace(
+                                    '/^\[[^\]]+\]\s+[^\s]+:\s*/u',
+                                    '',
+                                    trim((string) $display_message)
+                                );
+                                $display_message = preg_replace(
+                                    '/\s+\{.*\}\s+\[\]\s*$/su',
+                                    '',
+                                    (string) $display_message
+                                );
 
                                 $lvl = $row['level'] ?: 'INFO';
                                 $event_type = $row['event_type'] ?? '';
@@ -383,25 +392,24 @@ try {
                                     <td><span class="weight-500 font-13"><?php echo $log_date; ?></span></td>
                                     <td><span class="badge badge-outline-dark font-12"><i class="fa fa-user mr-1 text-muted"></i><?php echo $u_name; ?></span></td>
                                     <td><span class="badge <?php echo $event_badge; ?> font-11"><?php echo htmlspecialchars($event_label, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                    <td><span class="font-12 text-capitalize"><?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                    <td class="log-col-module"><span class="font-12 text-capitalize"><?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?></span></td>
                                     <td>
+                                        <div class="log-action-cell">
+                                        <?php if ($is_new_format): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-primary btn-detail-toggle" title="İşlem detayını görüntüle" aria-label="İşlem detayını görüntüle" data-json='<?php echo htmlspecialchars($row['details'], ENT_QUOTES, 'UTF-8'); ?>' data-ip="<?php echo htmlspecialchars($row['ip_address'], ENT_QUOTES, 'UTF-8'); ?>" data-url="<?php echo htmlspecialchars($row['url'], ENT_QUOTES, 'UTF-8'); ?>" data-method="<?php echo htmlspecialchars($row['method'], ENT_QUOTES, 'UTF-8'); ?>" data-level="<?php echo htmlspecialchars($row['level'], ENT_QUOTES, 'UTF-8'); ?>" data-event="<?php echo htmlspecialchars($event_label, ENT_QUOTES, 'UTF-8'); ?>" data-module="<?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?>" data-entity="<?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?>" data-summary="<?php echo htmlspecialchars($display_message, ENT_QUOTES, 'UTF-8'); ?>" data-date="<?php echo htmlspecialchars($log_date, ENT_QUOTES, 'UTF-8'); ?>" data-user="<?php echo htmlspecialchars(strip_tags($u_name), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <i class="fa fa-eye mr-1"></i>Detay
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-detail-toggle" title="İşlem detayını görüntüle" aria-label="İşlem detayını görüntüle" data-json='<?php echo htmlspecialchars(json_encode(["message" => $row['message']]), ENT_QUOTES, 'UTF-8'); ?>' data-ip="<?php echo htmlspecialchars($row['ip_address'] ?: '0.0.0.0', ENT_QUOTES, 'UTF-8'); ?>" data-url="<?php echo htmlspecialchars($row['url'] ?: '-', ENT_QUOTES, 'UTF-8'); ?>" data-method="<?php echo htmlspecialchars($row['method'] ?: '-', ENT_QUOTES, 'UTF-8'); ?>" data-level="<?php echo htmlspecialchars($lvl, ENT_QUOTES, 'UTF-8'); ?>" data-event="<?php echo htmlspecialchars($event_label, ENT_QUOTES, 'UTF-8'); ?>" data-module="<?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?>" data-entity="<?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?>" data-summary="<?php echo htmlspecialchars($display_message, ENT_QUOTES, 'UTF-8'); ?>" data-date="<?php echo htmlspecialchars($log_date, ENT_QUOTES, 'UTF-8'); ?>" data-user="<?php echo htmlspecialchars(strip_tags($u_name), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <i class="fa fa-eye mr-1"></i>Detay
+                                            </button>
+                                        <?php endif; ?>
                                         <span class="log-message font-13" data-toggle="tooltip" title="<?php echo htmlspecialchars($display_message); ?>">
                                             <?php echo shorted(htmlspecialchars($display_message), 85); ?>
                                         </span>
+                                        </div>
                                     </td>
-                                    <td><span class="font-12 text-muted"><?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                    <td><span class="text-dark font-13 font-mono"><?php echo htmlspecialchars($row['ip_address'] ?: '0.0.0.0'); ?></span></td>
-                                    <td class="text-center">
-                                        <?php if ($is_new_format): ?>
-                                            <button type="button" class="btn btn-sm btn-outline-primary btn-detail-toggle" data-json='<?php echo htmlspecialchars($row['details'], ENT_QUOTES, 'UTF-8'); ?>' data-ip="<?php echo htmlspecialchars($row['ip_address'], ENT_QUOTES, 'UTF-8'); ?>" data-url="<?php echo htmlspecialchars($row['url'], ENT_QUOTES, 'UTF-8'); ?>" data-method="<?php echo htmlspecialchars($row['method'], ENT_QUOTES, 'UTF-8'); ?>" data-level="<?php echo htmlspecialchars($row['level'], ENT_QUOTES, 'UTF-8'); ?>" data-event="<?php echo htmlspecialchars($event_label, ENT_QUOTES, 'UTF-8'); ?>" data-module="<?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?>" data-entity="<?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?>" data-summary="<?php echo htmlspecialchars($display_message, ENT_QUOTES, 'UTF-8'); ?>" data-date="<?php echo htmlspecialchars($log_date, ENT_QUOTES, 'UTF-8'); ?>" data-user="<?php echo htmlspecialchars(strip_tags($u_name), ENT_QUOTES, 'UTF-8'); ?>">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        <?php else: ?>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-detail-toggle" data-json='<?php echo htmlspecialchars(json_encode(["message" => $row['message']]), ENT_QUOTES, 'UTF-8'); ?>' data-ip="0.0.0.0" data-url="-" data-method="-" data-level="INFO" data-date="<?php echo $log_date; ?>" data-user="<?php echo strip_tags($u_name); ?>">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        <?php endif; ?>
-                                    </td>
+                                    <td class="log-col-entity"><span class="font-12 text-muted"><?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?></span></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -463,7 +471,7 @@ try {
         <div class="modal-content border-radius-8">
             <div class="modal-header bg-light">
                 <h5 class="modal-title text-blue weight-600" id="logDetailModalLabel"><i class="fa fa-history mr-2"></i>Aktivite Detayları</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                <button type="button" class="close btn-log-modal-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -528,7 +536,7 @@ try {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-secondary btn-log-modal-close" data-dismiss="modal" data-bs-dismiss="modal">Kapat</button>
             </div>
         </div>
     </div>
@@ -616,15 +624,21 @@ try {
         text-transform: uppercase;
         border-bottom: 2px solid #e2e8f0;
     }
+    .log-table {
+        table-layout: fixed;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
     .log-table td {
         vertical-align: middle !important;
+        overflow-wrap: anywhere;
     }
     .log-table tr:hover td {
         background-color: #f8fafc;
     }
     .log-message {
         display: block;
-        max-width: 320px;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -639,6 +653,55 @@ try {
     .btn-detail-toggle {
         padding: 4px 8px !important;
         border-radius: 6px !important;
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+    .log-action-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .log-table-wrap {
+        overflow-x: visible;
+    }
+    @media (max-width: 1199px) {
+        .log-col-module {
+            display: none;
+        }
+        .log-table th:nth-child(5) {
+            width: 40% !important;
+        }
+    }
+    @media (max-width: 767px) {
+        .log-col-entity {
+            display: none;
+        }
+        .log-table th:nth-child(1) {
+            width: 25% !important;
+        }
+        .log-table th:nth-child(2) {
+            width: 22% !important;
+        }
+        .log-table th:nth-child(3) {
+            width: 20% !important;
+        }
+        .log-table th:nth-child(5) {
+            width: 33% !important;
+        }
+        .log-action-cell {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .btn-detail-toggle {
+            padding: 3px 6px !important;
+        }
+        .log-message {
+            white-space: normal;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
     }
     .badge-purple {
         color: #fff;
@@ -687,6 +750,29 @@ try {
 
 <script>
 $(document).ready(function() {
+    function closeLogDetailModal() {
+        var modalElement = document.getElementById('logDetailModal');
+
+        // Bootstrap 5 kullanılıyorsa native API ile kapat.
+        if (window.bootstrap && window.bootstrap.Modal && modalElement) {
+            var modalInstance = window.bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+                return;
+            }
+        }
+
+        // Projenin ana Bootstrap 4/jQuery modal API'si.
+        if ($.fn.modal) {
+            $('#logDetailModal').modal('hide');
+        }
+    }
+
+    $('.btn-log-modal-close').on('click', function(event) {
+        event.preventDefault();
+        closeLogDetailModal();
+    });
+
     // Detay Modalını Aç
     $('.btn-detail-toggle').on('click', function() {
         var btn = $(this);
@@ -732,15 +818,84 @@ $(document).ready(function() {
         var changesBox = $('#modal-changes');
         var changesBody = changesBox.find('tbody').empty();
         var changedFields = detailData.changed_fields || {};
+        var fieldLabels = {
+            company: 'Firma adı',
+            email: 'E-posta',
+            address: 'Adres',
+            city: 'İl',
+            ilce: 'İlçe',
+            gsm: 'Telefon',
+            yetkili: 'Yetkili',
+            grp: 'Firma grubu',
+            OdemeVade: 'Ödeme vadesi',
+            region: 'Bölge',
+            represant: 'Satış temsilcisi',
+            offerNumber: 'Teklif numarası',
+            cid: 'Firma',
+            company_authors: 'Firma yetkilileri',
+            offer_subject: 'Teklif konusu',
+            currency: 'Para birimi',
+            payment_period: 'Ödeme dönemi',
+            statu: 'Durum',
+            description: 'Açıklama',
+            offer_date: 'Teklif tarihi',
+            Kdv: 'KDV',
+            total_price: 'Toplam tutar',
+            tl_alis_toplam: 'TL alış toplamı',
+            tl_satis_toplam: 'TL satış toplamı',
+            is_template: 'Şablon durumu',
+            pcid: 'Firma',
+            poid: 'Teklif',
+            servicestype: 'Servis konusu',
+            collectiontype: 'Tahsilat türü',
+            pstart_date: 'Başlangıç tarihi',
+            price: 'Fiyat',
+            pstatu: 'Servis durumu',
+            contract_statu: 'Sözleşme durumu',
+            StokKodu: 'Stok kodu',
+            Adi: 'Ürün/Hizmet adı',
+            Birimi: 'Birim',
+            AlisFiyati: 'Alış fiyatı',
+            AlisParaBirimi: 'Alış para birimi',
+            SatisFiyati: 'Satış fiyatı',
+            SatisParaBirimi: 'Satış para birimi',
+            Aciklama: 'Açıklama',
+            siparisNo: 'Sipariş numarası',
+            companyID: 'Firma',
+            deadline: 'Termin tarihi',
+            payment_date: 'Ödeme tarihi',
+            description1: 'Açıklama 1',
+            description2: 'Açıklama 2',
+            altToplam: 'Alt toplam',
+            vadeGun: 'Vade günü',
+            DolarTotal: 'Dolar toplamı',
+            EuroTotal: 'Euro toplamı',
+            TLTotal: 'TL toplamı',
+            iskonto: 'İskonto',
+            ToplamTL: 'Genel toplam',
+            state: 'Durum',
+            invoice_date: 'Fatura tarihi',
+            invoice_number: 'Fatura numarası',
+            type: 'Kayıt türü'
+        };
         Object.keys(changedFields).forEach(function(field) {
             var change = changedFields[field] || {};
             var row = $('<tr>');
-            $('<td>').addClass('weight-600').text(field).appendTo(row);
+            $('<td>').addClass('weight-600').text(fieldLabels[field] || field).appendTo(row);
             $('<td>').text(change.old === null || change.old === '' ? '-' : change.old).appendTo(row);
             $('<td>').text(change.new === null || change.new === '' ? '-' : change.new).appendTo(row);
             changesBody.append(row);
         });
         changesBox.toggle(Object.keys(changedFields).length > 0);
+
+        if (Object.keys(changedFields).length > 0) {
+            var additionalData = $.extend({}, detailData);
+            delete additionalData.changed_fields;
+            formattedJson = Object.keys(additionalData).length
+                ? JSON.stringify(additionalData, null, 4)
+                : 'Ek işlem verisi bulunmuyor.';
+            $('#modal-json').text(formattedJson);
+        }
         
         // Seviye badge stili
         var badge = $('#modal-level');

@@ -66,6 +66,7 @@ if ($_POST['action'] == 'saveOffer') {
     try {
         //transaction başlat
         //$offer->beginTransaction();
+        $existingOffer = $id > 0 ? $offer->find($id) : null;
 
         $data = [
             'id' => $id,
@@ -154,6 +155,18 @@ if ($_POST['action'] == 'saveOffer') {
                 'item_count' => isset($_POST['urunAdi']) && is_array($_POST['urunAdi'])
                     ? count($_POST['urunAdi'])
                     : 0,
+                'changed_fields' => $id > 0
+                    ? audit_changes(
+                        $existingOffer,
+                        $data,
+                        [
+                            'offerNumber', 'cid', 'company_authors', 'offer_subject',
+                            'currency', 'payment_period', 'statu', 'description',
+                            'offer_date', 'Kdv', 'total_price', 'tl_alis_toplam',
+                            'tl_satis_toplam', 'is_template'
+                        ]
+                    )
+                    : [],
             ]
         );
 

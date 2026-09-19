@@ -36,8 +36,8 @@ $order_dir = $_GET['order'][0]['dir'] ?? 'asc';
 $requested_columns = $_GET['columns'] ?? [];
 
 // Column names for ordering (DataTables indexes)
-// 0: p.ID, 1: p.StokKodu, 2: p.Adi, 3: u.title, 4: p.AlisFiyati, 5: p.SatisFiyati, 6: p.Aciklama
-$columns = ['p.ID', 'p.StokKodu', 'p.Adi', 'u.title', 'p.AlisFiyati', 'p.SatisFiyati', 'p.Aciklama'];
+// 0: p.ID, 1: p.StokKodu, 2: p.Adi, 3: u.title, 4: p.AlisFiyati, 5: p.SatisFiyati, 6: p.Aciklama, 7: p.OlusturmaTarihi
+$columns = ['p.ID', 'p.StokKodu', 'p.Adi', 'u.title', 'p.AlisFiyati', 'p.SatisFiyati', 'p.Aciklama', 'p.OlusturmaTarihi'];
 $order_by = $columns[$order_column] ?? 'p.ID';
 
 // Base query with JOINs
@@ -65,7 +65,8 @@ if ($search_value !== '') {
         u.title LIKE :search OR
         p.AlisFiyati LIKE :search OR
         p.SatisFiyati LIKE :search OR
-        p.Aciklama LIKE :search
+        p.Aciklama LIKE :search OR
+        p.OlusturmaTarihi LIKE :search
     )";
     $params[':search'] = "%{$search_value}%";
 }
@@ -78,6 +79,7 @@ $filter_columns = [
     4 => 'p.AlisFiyati',
     5 => 'p.SatisFiyati',
     6 => 'p.Aciklama',
+    7 => 'p.OlusturmaTarihi',
 ];
 
 if (!empty($requested_columns) && is_array($requested_columns)) {
@@ -89,8 +91,15 @@ if (!empty($requested_columns) && is_array($requested_columns)) {
         }
         if (isset($filter_columns[$idx])) {
             $paramKey = ":col_{$idx}";
-            $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
-            $params[$paramKey] = "%{$value}%";
+            if ($idx === 7) {
+                $altVal = str_replace('.', '-', $value);
+                $where_conditions[] = "(p.OlusturmaTarihi LIKE {$paramKey} OR p.OlusturmaTarihi LIKE :col_7_alt)";
+                $params[$paramKey] = "%{$value}%";
+                $params[':col_7_alt'] = "%{$altVal}%";
+            } else {
+                $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
+                $params[$paramKey] = "%{$value}%";
+            }
         }
     }
 }
@@ -116,6 +125,7 @@ $data_query = "
         p.SatisFiyati,
         p.SatisParaBirimi,
         p.Aciklama,
+        p.OlusturmaTarihi,
         u.title as birim
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}
@@ -172,7 +182,11 @@ foreach ($products as $row_data) {
     // Column 6: Açıklama
     $row[] = htmlspecialchars($row_data['Aciklama'] ?? '');
 
-    // Column 7: İşlem
+    // Column 7: Kayıt Tarihi
+    $regDate = !empty($row_data['OlusturmaTarihi']) ? str_replace('-', '.', $row_data['OlusturmaTarihi']) : '-';
+    $row[] = htmlspecialchars($regDate);
+
+    // Column 8: İşlem
     $actions = '<div class="text-center text-nowrap pl-3 pr-3" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
     if ($canEdit) {
         $actions .= '<a class="btn btn-sm btn-outline-info" data-tooltip="Düzenle" href="index.php?p=products/manage&id=' . $enc_id . '">

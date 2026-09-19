@@ -15,7 +15,7 @@ $requestedColumns = $_GET['columns'] ?? [];
 $orderColumn = intval($_GET['order'][0]['column'] ?? 0);
 $orderDirection = strtolower($_GET['order'][0]['dir'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
 
-$orderColumns = ['c.id', 'c.company', 'cg.title', 'c.represant', 'c.id', 'c.email', 'c.gsm'];
+$orderColumns = ['c.id', 'c.company', 'cg.title', 'c.represant', 'c.id', 'c.email', 'c.gsm', 'c.regdate'];
 $orderBy = $orderColumns[$orderColumn] ?? 'c.id';
 $filterColumns = [
     1 => 'c.company',
@@ -23,6 +23,7 @@ $filterColumns = [
     3 => 'c.represant',
     5 => 'c.email',
     6 => 'c.gsm',
+    7 => 'c.regdate',
 ];
 
 $conditions = ['c.deleted_at IS NULL'];
@@ -31,7 +32,8 @@ $params = [];
 if ($searchValue !== '') {
     $conditions[] = '(
         c.id LIKE :search OR c.company LIKE :search OR cg.title LIKE :search OR
-        c.represant LIKE :search OR c.email LIKE :search OR c.gsm LIKE :search
+        c.represant LIKE :search OR c.email LIKE :search OR c.gsm LIKE :search OR
+        DATE_FORMAT(c.regdate, \'%d.%m.%Y\') LIKE :search OR c.regdate LIKE :search
     )';
     $params[':search'] = '%' . $searchValue . '%';
 }
@@ -42,7 +44,11 @@ if (is_array($requestedColumns)) {
         $index = (int) $index;
         if ($value !== '' && isset($filterColumns[$index])) {
             $key = ':col_' . $index;
-            $conditions[] = $filterColumns[$index] . ' LIKE ' . $key;
+            if ($index === 7) {
+                $conditions[] = '(DATE_FORMAT(c.regdate, \'%d.%m.%Y\') LIKE ' . $key . ' OR c.regdate LIKE ' . $key . ')';
+            } else {
+                $conditions[] = $filterColumns[$index] . ' LIKE ' . $key;
+            }
             $params[$key] = '%' . $value . '%';
         }
     }
@@ -52,7 +58,7 @@ $sql = '
     SELECT c.id, c.company, cg.title AS group_title, c.represant,
            (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) AS offer_count,
            (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) AS service_count,
-           c.email, c.gsm, c.yetkili, c.city, c.ilce, c.region, c.address
+           c.email, c.gsm, c.regdate, c.yetkili, c.city, c.ilce, c.region, c.address
     FROM customers c
     LEFT JOIN cgroups cg ON cg.id = c.grp
     WHERE ' . implode(' AND ', $conditions) . "
@@ -79,11 +85,11 @@ $sheet->setTitle('Firmalar');
 
 $headers = [
     'Firma No', 'Firma Adı', 'Grup', 'Satış Temsilcisi', 'Teklif Sayısı',
-    'Servis Sayısı', 'E-Posta', 'GSM', 'Yetkili', 'İl', 'İlçe', 'Bölge', 'Adres'
+    'Servis Sayısı', 'E-Posta', 'GSM', 'Kayıt Tarihi', 'Yetkili', 'İl', 'İlçe', 'Bölge', 'Adres'
 ];
 $fields = [
     'id', 'company', 'group_title', 'represant', 'offer_count',
-    'service_count', 'email', 'gsm', 'yetkili', 'city', 'ilce', 'region', 'address'
+    'service_count', 'email', 'gsm', 'regdate', 'yetkili', 'city', 'ilce', 'region', 'address'
 ];
 
 foreach ($headers as $index => $header) {
@@ -96,7 +102,11 @@ $rowNumber = 2;
 foreach ($customers as $customer) {
     foreach ($fields as $index => $field) {
         $column = Coordinate::stringFromColumnIndex($index + 1);
-        $sheet->setCellValue($column . $rowNumber, $customer[$field] ?? '');
+        $val = $customer[$field] ?? '';
+        if ($field === 'regdate' && !empty($val) && $val !== '0000-00-00 00:00:00') {
+            $val = date('d.m.Y', strtotime($val));
+        }
+        $sheet->setCellValue($column . $rowNumber, $val);
     }
     $rowNumber++;
 }
