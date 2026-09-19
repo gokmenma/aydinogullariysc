@@ -348,37 +348,42 @@ try {
         border-collapse: collapse !important;
         border-spacing: 0 !important;
         width: 100% !important;
-        table-layout: auto !important;
+        table-layout: fixed !important;
     }
     #purchasesTable thead th {
         background: #f8fafc;
         color: #475569;
         font-weight: 700;
-        font-size: 10.5px;
+        font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.2px;
-        padding: 8px 4px !important;
+        letter-spacing: 0.1px;
+        padding: 6px 2px !important;
         border-bottom: 2px solid #e2e8f0;
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     #purchasesTable thead th.sorting,
     #purchasesTable thead th.sorting_asc,
     #purchasesTable thead th.sorting_desc {
-        padding-left: 4px !important;
-        padding-right: 14px !important;
+        padding-left: 2px !important;
+        padding-right: 10px !important;
     }
     #purchasesTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
-        padding-left: 4px !important;
-        padding-right: 4px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
     }
     #purchasesTable tbody td {
-        padding: 6px 3px !important;
+        padding: 4px 2px !important;
         vertical-align: middle;
-        font-size: 11px;
+        font-size: 10.5px;
         color: #334155;
         border-top: 1px solid #f1f5f9;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     #purchasesTable tbody tr:hover {
         background-color: #f8fafc;
@@ -389,13 +394,13 @@ try {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 22px;
-        height: 20px;
-        padding: 0 4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 2px;
         background: #334155;
         color: #ffffff !important;
-        border-radius: 4px;
-        font-size: 10.5px;
+        border-radius: 3px;
+        font-size: 9.5px;
         font-weight: 700;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -411,27 +416,27 @@ try {
         color: #0369a1;
         border: 1px solid #bae6fd;
         font-weight: 600;
-        font-size: 10px;
-        padding: 2px 5px;
-        border-radius: 4px;
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 3px;
     }
     .badge-type-price {
         background-color: #ede9fe;
         color: #6d28d9;
         border: 1px solid #ddd6fe;
         font-weight: 600;
-        font-size: 10px;
-        padding: 2px 5px;
-        border-radius: 4px;
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 3px;
     }
     .badge-type-order {
         background-color: #ecfdf5;
         color: #047857;
         border: 1px solid #a7f3d0;
         font-weight: 600;
-        font-size: 10px;
-        padding: 2px 5px;
-        border-radius: 4px;
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 3px;
     }
 
     /* Soft Status Badges */
@@ -439,21 +444,29 @@ try {
         background-color: #fef3c7;
         color: #92400e;
         border: 1px solid #fde68a;
+        font-size: 9.5px;
+        padding: 2px 4px;
     }
     .badge-soft-info {
         background-color: #e0f2fe;
         color: #0369a1;
         border: 1px solid #bae6fd;
+        font-size: 9.5px;
+        padding: 2px 4px;
     }
     .badge-soft-success {
         background-color: #dcfce7;
         color: #166534;
         border: 1px solid #bbf7d0;
+        font-size: 9.5px;
+        padding: 2px 4px;
     }
     .badge-soft-danger {
         background-color: #fee2e2;
         color: #991b1b;
         border: 1px solid #fecaca;
+        font-size: 9.5px;
+        padding: 2px 4px;
     }
 
     /* Action Buttons in Row */
@@ -466,15 +479,15 @@ try {
         vertical-align: middle !important;
     }
     .action-btn {
-        width: 26px !important;
-        height: 26px !important;
-        min-width: 26px !important;
+        width: 23px !important;
+        height: 23px !important;
+        min-width: 23px !important;
         padding: 0 !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-radius: 5px !important;
-        font-size: 11.5px !important;
+        border-radius: 4px !important;
+        font-size: 10.5px !important;
         line-height: 1 !important;
         transition: all 0.15s ease !important;
         cursor: pointer !important;
@@ -483,10 +496,10 @@ try {
     }
     .action-btn:hover {
         transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
     }
     .action-btn i {
-        font-size: 11.5px !important;
+        font-size: 10.5px !important;
         line-height: 1 !important;
         pointer-events: none;
     }
@@ -686,19 +699,19 @@ try {
                 <table id="purchasesTable" class="table table-hover table-striped w-100 no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 30px;" class="text-center">#</th>
-                            <th style="width: 80px;">Sipariş / Talep No</th>
+                            <th style="width: 25px;" class="text-center">#</th>
+                            <th style="width: 72px;">Sipariş / Talep No</th>
                             <th>Firma Adı</th>
-                            <th style="width: 105px;">Kayıt Tarihi</th>
-                            <th style="width: 70px;">Termin</th>
-                            <th style="width: 80px;" class="text-right">Toplam</th>
-                            <th style="width: 70px;" class="text-center">Durum</th>
-                            <th style="width: 60px;">Vade</th>
-                            <th style="width: 65px;">Fatura No</th>
-                            <th style="width: 70px;">Fatura Trh</th>
-                            <th style="width: 85px;">Oluşturan</th>
-                            <th style="width: 55px;" class="text-center">Tip</th>
-                            <th style="width: 105px; min-width: 105px;" class="text-center">İşlem</th>
+                            <th style="width: 68px;" class="text-center">Kayıt Trh</th>
+                            <th style="width: 65px;" class="text-center">Termin</th>
+                            <th style="width: 68px;" class="text-right">Toplam</th>
+                            <th style="width: 65px;" class="text-center">Durum</th>
+                            <th style="width: 42px;" class="text-center">Vade</th>
+                            <th style="width: 55px;">Fatura No</th>
+                            <th style="width: 65px;" class="text-center">Fatura Trh</th>
+                            <th style="width: 65px;">Oluşturan</th>
+                            <th style="width: 48px;" class="text-center">Tip</th>
+                            <th style="width: 85px; min-width: 85px;" class="text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -813,7 +826,7 @@ try {
                                     <?php echo $typeBadge; ?>
                                 </td>
 
-                                <td class="text-center text-nowrap" style="width: 100px; min-width: 100px; white-space: nowrap;">
+                                <td class="text-center text-nowrap" style="width: 85px; min-width: 85px; white-space: nowrap;">
                                     <div class="action-btn-group">
                                         <a href="<?php echo $detailLink; ?>" target="_blank" class="btn btn-sm btn-outline-primary action-btn" title="Detay / Form Görüntüle" data-tooltip="Detay / Form">
                                             <i class="fa fa-eye"></i>

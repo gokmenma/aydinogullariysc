@@ -342,37 +342,42 @@ try {
         border-collapse: collapse !important;
         border-spacing: 0 !important;
         width: 100% !important;
-        table-layout: auto !important;
+        table-layout: fixed !important;
     }
     #priceRequestTable thead th {
         background: #f8fafc;
         color: #475569;
         font-weight: 700;
-        font-size: 11px;
+        font-size: 10.5px;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
-        padding: 8px 4px !important;
+        letter-spacing: 0.1px;
+        padding: 6px 3px !important;
         border-bottom: 2px solid #e2e8f0;
         border-top: none;
         vertical-align: middle;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     #priceRequestTable thead th.sorting,
     #priceRequestTable thead th.sorting_asc,
     #priceRequestTable thead th.sorting_desc {
-        padding-left: 4px !important;
-        padding-right: 14px !important;
+        padding-left: 3px !important;
+        padding-right: 12px !important;
     }
     #priceRequestTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
-        padding-left: 4px !important;
-        padding-right: 4px !important;
+        padding-left: 3px !important;
+        padding-right: 3px !important;
     }
     #priceRequestTable tbody td {
-        padding: 6px 4px !important;
+        padding: 5px 3px !important;
         vertical-align: middle;
-        font-size: 11.5px;
+        font-size: 11px;
         color: #334155;
         border-top: 1px solid #f1f5f9;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     #priceRequestTable tbody tr:hover {
         background-color: #f8fafc;
@@ -644,15 +649,15 @@ try {
                 <table id="priceRequestTable" class="table table-hover table-striped w-100 no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 35px;" class="text-center">#</th>
-                            <th style="width: 80px;">Talep No</th>
+                            <th style="width: 28px;" class="text-center">#</th>
+                            <th style="width: 75px;">Talep No</th>
                             <th>Firma Adı</th>
-                            <th style="width: 110px;">Kayıt Tarihi</th>
-                            <th style="width: 80px;">Termin</th>
-                            <th style="width: 90px;" class="text-right">Toplam Fiyat</th>
-                            <th style="width: 75px;" class="text-center">Durum</th>
-                            <th style="width: 95px;">Oluşturan</th>
-                            <th style="width: 100px; min-width: 100px;" class="text-center">İşlem</th>
+                            <th style="width: 72px;" class="text-center">Kayıt Trh</th>
+                            <th style="width: 70px;" class="text-center">Termin</th>
+                            <th style="width: 80px;" class="text-right">Toplam Fiyat</th>
+                            <th style="width: 70px;" class="text-center">Durum</th>
+                            <th style="width: 75px;">Oluşturan</th>
+                            <th style="width: 85px; min-width: 85px;" class="text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -662,8 +667,10 @@ try {
                             $pid = (int)$purc['id'];
                             $companyName = !empty($purc['customer_name']) ? $purc['customer_name'] : (!empty($purc['companyID']) ? getCustomerName($purc['companyID']) : '-');
                             $siparisNo = htmlspecialchars($purc['siparisNo'] ?? '', ENT_QUOTES, 'UTF-8');
-                            $createTime = htmlspecialchars($purc['create_time'] ?? '', ENT_QUOTES, 'UTF-8');
-                            $deadline = htmlspecialchars($purc['deadline'] ?? '', ENT_QUOTES, 'UTF-8');
+                            $rawCreateTime = $purc['create_time'] ?? '';
+                            $createTimeFormatted = !empty($rawCreateTime) ? date('d.m.Y', strtotime($rawCreateTime)) : '-';
+                            $rawDeadline = $purc['deadline'] ?? '';
+                            $deadlineFormatted = !empty($rawDeadline) ? date('d.m.Y', strtotime($rawDeadline)) : '-';
                             $altToplam = number_format((float)($purc['altToplam'] ?? 0), 2, ',', '.') . ' ₺';
                             $state = (int)($purc['state'] ?? 0);
                             $creator = !empty($purc['creator_username']) ? $purc['creator_username'] : (!empty($purc['creator']) ? getUserName($purc['creator']) : 'Sistem');
@@ -690,30 +697,32 @@ try {
                                 </td>
 
                                 <td>
-                                    <span class="font-weight-bold text-dark"><?php echo $siparisNo; ?></span>
+                                    <span class="font-weight-bold text-dark font-12"><?php echo $siparisNo; ?></span>
                                 </td>
 
-                                <td class="company-name-cell" data-tooltip="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 28), ENT_QUOTES, 'UTF-8'); ?></span>
+                                <td class="company-name-cell" data-tooltip="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
+                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 26), ENT_QUOTES, 'UTF-8'); ?></span>
                                 </td>
 
-                                <td class="text-muted font-12"><?php echo $createTime; ?></td>
+                                <td class="text-muted font-11 text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
 
-                                <td class="font-12"><?php echo $deadline ?: '-'; ?></td>
+                                <td class="font-11 text-center"><?php echo $deadlineFormatted; ?></td>
 
-                                <td class="text-right font-weight-bold text-dark font-12">
+                                <td class="text-right font-weight-bold text-dark font-11">
                                     <?php echo $altToplam; ?>
                                 </td>
 
-                                <td class="text-center font-12">
+                                <td class="text-center font-11">
                                     <?php echo $statusBadge; ?>
                                 </td>
 
-                                <td class="font-12">
-                                    <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 16), ENT_QUOTES, 'UTF-8'); ?>
+                                <td class="font-11">
+                                    <span title="<?php echo htmlspecialchars($creator, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
                                 </td>
 
-                                <td class="text-center text-nowrap" style="width: 115px; min-width: 115px; white-space: nowrap;">
+                                <td class="text-center text-nowrap" style="width: 85px; min-width: 85px; white-space: nowrap;">
                                     <div class="action-btn-group">
                                         <button type="button" class="btn btn-sm btn-outline-primary action-btn view-detail" data-id="<?php echo $pid; ?>" title="Detayı Görüntüle" data-tooltip="Görüntüle">
                                             <i class="fa fa-eye"></i>
