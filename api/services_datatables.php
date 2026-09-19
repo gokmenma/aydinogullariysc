@@ -330,83 +330,121 @@ if (!isset($ac)) {
 // Format data for DataTables
 foreach ($projects as $project) {
     $row = [];
+    $pid = $project['id'];
 
-    // Data structure must match the table columns
-    $row[] = ''; // Will be filled by DataTables with row number
-    $row[] = htmlspecialchars($project['service_number']);
-    $companyName = htmlspecialchars(shorted($project['company_name'], 40));
-    $row[] = !empty($project['customer_deleted_at'])
-        ? '<span class="text-muted">' . $companyName . ' <small class="badge badge-secondary">Silinmiş</small></span>'
-        : $companyName;
-    $row[] = htmlspecialchars($project['region_name']);
-    $row[] = htmlspecialchars($project['service_title']);
-    $row[] = htmlspecialchars($project['pregdate']);
-    $row[] = htmlspecialchars($project['pstart_date']);
+    // 0: Row number
+    $row[] = '';
 
-    // Contract status badge from constant mapping
-    $row[] = getSozlesmeStatusBadge($project['contract_statu']);
+    // 1: Servis Numarası
+    $servisNo = htmlspecialchars($project['service_number'] ?? '');
+    $row[] = '<span class="badge-sku"><i class="fa fa-wrench mr-1 text-primary"></i>' . $servisNo . '</span>';
 
-    // Status badge
-    $status_color = (!empty($project['status_color'])) ? $project['status_color'] : '#777';
-    $status_title = $project['status_title'] ?? '';
-    $row[] = "<span class='badge' style='background-color:{$status_color}'>{$status_title}</span>";
+    // 2: Firma Adı
+    $fullCompanyName = htmlspecialchars($project['company_name'] ?? '');
+    if (!empty($project['customer_deleted_at'])) {
+        $row[] = '<div class="service-company-cell" data-toggle="tooltip" title="' . $fullCompanyName . '"><span class="text-muted">' . $fullCompanyName . '</span> <small class="crm-badge-soft soft-amber font-11">Silinmiş</small></div>';
+    } else {
+        $row[] = '<div class="service-company-cell" data-toggle="tooltip" title="' . $fullCompanyName . '"><span class="font-weight-600 text-dark">' . $fullCompanyName . '</span></div>';
+    }
 
-    $row[] = htmlspecialchars($project['creator_username']);
-    $row[] = htmlspecialchars($project['updater_username'] ?: $project['creator_username']);
+    // 3: Bölge
+    $regionName = htmlspecialchars($project['region_name'] ?? '');
+    if ($regionName !== '') {
+        $row[] = '<div class="font-12 text-dark" style="line-height:1.25;">' . $regionName . '</div>';
+    } else {
+        $row[] = '<span class="text-muted text-center d-block">-</span>';
+    }
 
+    // 4: Servis Konusu
+    $serviceTitle = htmlspecialchars($project['service_title'] ?? '');
+    $row[] = '<div class="service-title-cell" style="line-height:1.25;" data-toggle="tooltip" title="' . $serviceTitle . '">' . $serviceTitle . '</div>';
+
+    // 5: İş Emri Tarihi
+    $regDateRaw = $project['pregdate'] ?? '';
+    if ($regDateRaw) {
+        $timestamp = strtotime($regDateRaw);
+        $dateFormatted = $timestamp ? date('d.m.Y', $timestamp) : $regDateRaw;
+        $timeFormatted = $timestamp ? date('H:i', $timestamp) : '';
+        $row[] = '<div class="text-center font-12" style="line-height:1.25;"><span class="text-dark">' . $dateFormatted . '</span>' . ($timeFormatted ? '<br><span class="text-muted font-11">' . $timeFormatted . '</span>' : '') . '</div>';
+    } else {
+        $row[] = '<span class="text-muted text-center d-block">-</span>';
+    }
+
+    // 6: Planlama Tarihi
+    $startDateRaw = $project['pstart_date'] ?? '';
+    if ($startDateRaw && $startDateRaw !== '-') {
+        $timestampStart = strtotime($startDateRaw);
+        $startDateFormatted = $timestampStart ? date('d.m.Y', $timestampStart) : $startDateRaw;
+        $row[] = '<div class="text-center font-12 text-muted"><i class="fa fa-clock-o mr-1"></i>' . $startDateFormatted . '</div>';
+    } else {
+        $row[] = '<span class="text-muted text-center d-block">-</span>';
+    }
+
+    // 7: Sözleşme Durumu
+    $contractStatu = (int)($project['contract_statu'] ?? 0);
+    if ($contractStatu === 4) {
+        $row[] = '<span class="crm-badge-soft soft-rose font-11" style="padding:2px 6px; display:inline-block; line-height:1.2;">S.Kapsamında Değildir</span>';
+    } elseif ($contractStatu === 2) {
+        $row[] = '<span class="crm-badge-soft soft-emerald font-11" style="padding:2px 6px; display:inline-block;">Sözleşmeli</span>';
+    } elseif ($contractStatu === 1) {
+        $row[] = '<span class="crm-badge-soft soft-amber font-11" style="padding:2px 6px; display:inline-block;">Bekliyor</span>';
+    } elseif ($contractStatu === 3) {
+        $row[] = '<span class="crm-badge-soft soft-rose font-11" style="padding:2px 6px; display:inline-block;">Yapılmadı</span>';
+    } else {
+        $row[] = getSozlesmeStatusBadge($project['contract_statu']);
+    }
+
+    // 8: Servis Durumu (Kompakt Rozet)
+    $status_color = (!empty($project['status_color'])) ? $project['status_color'] : '#64748b';
+    $status_title = htmlspecialchars($project['status_title'] ?? '-');
+    $row[] = "<span class='badge' style='background-color:{$status_color}; color:#fff; font-weight:600; padding:3px 7px; font-size:11px; border-radius:4px; display:inline-block;'>{$status_title}</span>";
+
+    // 9: İş Emrini Oluşturan
+    $creator = htmlspecialchars($project['creator_username'] ?? '-');
+    $row[] = '<div class="font-12 text-dark" style="line-height:1.25;" data-toggle="tooltip" title="' . $creator . '">' . $creator . '</div>';
+
+    // 10: Son İşlem Yapan
+    $updater = htmlspecialchars($project['updater_username'] ?: ($project['creator_username'] ?? '-'));
+    $row[] = '<div class="font-12 text-muted" style="line-height:1.25;" data-toggle="tooltip" title="' . $updater . '">' . $updater . '</div>';
+
+    // 11: Muhasebe Teslim
     $isAccountingReceived = ($project['accounting_action'] ?? '') === 'received';
     $accountingLabel = $isAccountingReceived ? 'Teslim Alındı' : 'Teslim Bekliyor';
-    $accountingClass = $isAccountingReceived ? 'badge-success' : 'badge-warning';
-    $accountingInfo = "<span class='badge {$accountingClass}'>{$accountingLabel}</span>";
-    if (!empty($project['accounting_actor_username']) && !empty($project['accounting_action_at'])) {
-        $accountingInfo .= "<div class='small text-muted'>" . htmlspecialchars($project['accounting_actor_username']) . " - " . htmlspecialchars($project['accounting_action_at']) . "</div>";
-    }
-    if ($canAccountingReceipt) {
-        // Butonlar istenildiği gibi Işlemler kolonunda gösteriliyor.
-    }
+    $accountingSoftClass = $isAccountingReceived ? 'soft-emerald' : 'soft-amber';
+    $accountingIcon = $isAccountingReceived ? 'fa-check' : 'fa-clock-o';
+    $accountingInfo = "<span class='crm-badge-soft {$accountingSoftClass}' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;'><i class='fa {$accountingIcon} mr-1'></i>{$accountingLabel}</span>";
     $row[] = $accountingInfo;
 
-    // Action buttons
-    $pid = $project['id'];
-    $actions = '';
+    // 12: İşlem Butonları (Açılır Liste / Dropdown Menu)
+    $actions = '<div class="dropdown d-inline-block text-center">';
+    $actions .= '<button class="btn btn-sm btn-outline-secondary dropdown-toggle action-dropdown-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="padding: 3px 8px; font-size: 11.5px; border-radius: 5px; font-weight: 500;">';
+    $actions .= '<i class="fa fa-cog mr-1 text-muted"></i>İşlem';
+    $actions .= '</button>';
+    $actions .= '<div class="dropdown-menu dropdown-menu-right shadow border-0 dropdown-menu-detail" style="border-radius: 8px; font-size: 12px; z-index: 1050; min-width: 175px;">';
 
-    if ($canEdit || $canDel) {
-        $actions .= '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
-        if ($canEdit) {
-            $actions .= '<a href="index.php?p=service/manage&id=' . $pid . '" class="btn btn-sm btn-outline-info" data-tooltip="Düzenle"><i class="fa fa-pencil"></i></a>';
-        }
-        if ($canDel) {
-            $actions .= '<button type="button" class="btn btn-sm btn-danger" data-tooltip="Sil" onClick="deleteRecord(\'' . $pid . ' nolu Servisi silmek istediğinize emin misiniz?\',\'' . $pid . '\',\'services\',\'projects\')"><i class="fa fa-trash"></i></button>';
-        }
-        $actions .= '<a href="index.php?p=service-view&id=' . Security::encrypt($pid) . '" target="_blank" class="btn btn-sm btn-secondary" data-tooltip="Detay"><i class="fa fa-info-circle"></i></a>';
-
-        if ($canAccountingReceipt) {
-            $buttonClass = $isAccountingReceived ? 'btn-outline-danger' : 'btn-outline-success';
-            $buttonLabel = $isAccountingReceived ? 'İade Al' : 'Teslim Al';
-            $confirmText = $isAccountingReceived
-                ? 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?'
-                : 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
-
-            $actions .= '<button type="button" class="btn btn-sm ' . $buttonClass . ' js-accounting-receipt-toggle" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '">' . $buttonLabel . '</button>';
-            $actions .= '<button type="button" class="btn btn-sm btn-dark js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '" data-tooltip="Muhasebe Teslim Log"><i class="fa fa-history"></i></button>';
-        }
-
-        $actions .= '</div>';
-    } else {
-        $actions .= '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
-        $actions .= '<a href="index.php?p=service-view&id=' . Security::encrypt($pid) . '" target="_blank" class="btn btn-sm btn-secondary" data-tooltip="Detay"><i class="fa fa-info-circle"></i></a>';
-        if ($canAccountingReceipt) {
-            $buttonClass = $isAccountingReceived ? 'btn-outline-danger' : 'btn-outline-success';
-            $buttonLabel = $isAccountingReceived ? 'İade Al' : 'Teslim Al';
-            $confirmText = $isAccountingReceived
-                ? 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?'
-                : 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
-
-            $actions .= '<button type="button" class="btn btn-sm ' . $buttonClass . ' js-accounting-receipt-toggle" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '">' . $buttonLabel . '</button>';
-            $actions .= '<button type="button" class="btn btn-sm btn-dark js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '" data-tooltip="Muhasebe Teslim Log"><i class="fa fa-history"></i></button>';
-        }
-        $actions .= '</div>';
+    if ($canEdit) {
+        $actions .= '<a href="index.php?p=service/manage&id=' . $pid . '" class="dropdown-item"><i class="fa fa-pencil text-primary mr-2"></i> Düzenle</a>';
     }
+    
+    $actions .= '<a href="index.php?p=service-view&id=' . Security::encrypt($pid) . '" target="_blank" class="dropdown-item"><i class="fa fa-info-circle text-info mr-2"></i> Detay Görüntüle</a>';
+
+    if ($canAccountingReceipt) {
+        if ($isAccountingReceived) {
+            $confirmText = 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle text-warning" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-undo text-warning mr-2"></i> Muhasebe İade Al</button>';
+        } else {
+            $confirmText = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle text-success" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-check text-success mr-2"></i> Muhasebe Teslim Al</button>';
+        }
+        $actions .= '<button type="button" class="dropdown-item js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-history text-dark mr-2"></i> Muhasebe Logları</button>';
+    }
+
+    if ($canDel) {
+        $actions .= '<div class="dropdown-divider"></div>';
+        $actions .= '<button type="button" class="dropdown-item text-danger" onClick="deleteRecord(\'' . $pid . ' nolu Servisi silmek istediğinize emin misiniz?\',\'' . $pid . '\',\'services\',\'projects\')"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>';
+    }
+
+    $actions .= '</div></div>';
 
     $row[] = $actions;
 

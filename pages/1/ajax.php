@@ -225,6 +225,15 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
                     throw new RuntimeException("Firma bulunamadı veya daha önce silinmiş.");
                 }
                 audit_log("delete", "customers", "Firma pasife alındı", "customer", $id);
+            } elseif ($_POST["page"] === "permission-settings") {
+                if (!permtrue("authDel")) {
+                    throw new RuntimeException("Yetki/Pozisyon silme yetkiniz bulunmuyor.");
+                }
+                $permModel = new \App\Model\PermissionModel();
+                $delRes = $permModel->deleteRole((int)$id);
+                if (!$delRes['success']) {
+                    throw new RuntimeException($delRes['message']);
+                }
             } else {
                 $deleteTableMap = [
                     'all-files' => 'upfiles',

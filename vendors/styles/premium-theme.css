@@ -224,8 +224,9 @@ table.dataTable thead th,
     font-size: 12px !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 6px 8px !important;
-    height: 36px;
+    padding: 13px 12px !important;
+    height: 48px !important;
+    min-height: 48px !important;
     border-bottom: 2px solid #e2e8f0 !important;
     border-top: none !important;
     border-left: none !important;
@@ -4748,10 +4749,10 @@ table.dataTable thead th.sorting_asc,
 table.dataTable thead th.sorting_desc,
 table.dataTable thead th.sorting_asc_disabled,
 table.dataTable thead th.sorting_desc_disabled {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-    padding-left: 20px !important;
-    padding-right: 8px !important;
+    padding-top: 13px !important;
+    padding-bottom: 13px !important;
+    padding-left: 28px !important;
+    padding-right: 32px !important;
     position: relative !important;
     cursor: pointer;
 }

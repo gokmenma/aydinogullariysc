@@ -83,8 +83,42 @@ class ServiceModel extends BaseModel
         return $sql->fetch(PDO::FETCH_OBJ);
     }
 
+    /**
+     * Servisler için özet KPI istatistiklerini tek bir optimize sorguyla getirir
+     * 
+     * @return array
+     */
+    public function getSummaryStats()
+    {
+        try {
+            $sql = $this->db->prepare("
+                SELECT 
+                    COUNT(*) as total_count,
+                    SUM(CASE WHEN pstatu = 15 THEN 1 ELSE 0 END) as bekleyen_count,
+                    SUM(CASE WHEN pstatu = 16 THEN 1 ELSE 0 END) as calisilan_count,
+                    SUM(CASE WHEN pstatu = 17 THEN 1 ELSE 0 END) as tamamlanan_count,
+                    SUM(CASE WHEN pstatu = 18 THEN 1 ELSE 0 END) as iptal_count
+                FROM {$this->table}
+            ");
+            $sql->execute();
+            $result = $sql->fetch(PDO::FETCH_ASSOC);
 
-
- 
-   
+            return [
+                'total_count'      => (int) ($result['total_count'] ?? 0),
+                'bekleyen_count'   => (int) ($result['bekleyen_count'] ?? 0),
+                'calisilan_count'  => (int) ($result['calisilan_count'] ?? 0),
+                'tamamlanan_count' => (int) ($result['tamamlanan_count'] ?? 0),
+                'iptal_count'      => (int) ($result['iptal_count'] ?? 0),
+            ];
+        } catch (PDOException $e) {
+            error_log("Veritabanı hatası getSummaryStats: " . $e->getMessage());
+            return [
+                'total_count'      => 0,
+                'bekleyen_count'   => 0,
+                'calisilan_count'  => 0,
+                'tamamlanan_count' => 0,
+                'iptal_count'      => 0,
+            ];
+        }
+    }
 }
