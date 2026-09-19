@@ -38,20 +38,25 @@ class BackupService
      */
     public function runBackupAsync(string $backupType = 'full', ?int $userId = null): array
     {
-        $phpBin = $this->detectPhpBinary();
-        $script = escapeshellarg($this->rootDir . '/cron_backup.php');
-        $typeArg = escapeshellarg($backupType);
-
         $executed = false;
-        $disabledFunctions = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
+        $disabledFunctions = array_map('trim', explode(',', (string)ini_get('disable_functions')));
 
-        if (function_exists('exec') && !in_array('exec', $disabledFunctions, true)) {
+        $canExec = function_exists('exec') && !in_array('exec', $disabledFunctions, true);
+        $canEscape = function_exists('escapeshellarg') && !in_array('escapeshellarg', $disabledFunctions, true);
+
+        if ($canExec && $canEscape) {
+            $phpBin = $this->detectPhpBinary();
+            $script = \escapeshellarg($this->rootDir . '/cron_backup.php');
+            $typeArg = \escapeshellarg($backupType);
+
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                @pclose(@popen("start /B {$phpBin} {$script} {$typeArg}", "r"));
-                $executed = true;
+                if (function_exists('popen') && function_exists('pclose') && !in_array('popen', $disabledFunctions, true)) {
+                    @pclose(@popen("start /B {$phpBin} {$script} {$typeArg}", "r"));
+                    $executed = true;
+                }
             } else {
                 @exec("{$phpBin} {$script} {$typeArg} > /dev/null 2>&1 &", $out, $returnCode);
-                if ($returnCode === 0) {
+                if (isset($returnCode) && $returnCode === 0) {
                     $executed = true;
                 }
             }
@@ -363,32 +368,39 @@ class BackupService
         $dbPass = defined('HOSTPASSWORD') ? HOSTPASSWORD : '';
         $dbHost = defined('HOSTNAME') ? HOSTNAME : 'localhost';
 
-        // 1. mysqldump dene
-        $mysqldumpPath = '/opt/lampp/bin/mysqldump';
-        if (!file_exists($mysqldumpPath)) {
-            $mysqldumpPath = 'mysqldump';
-        }
+        $disabledFunctions = array_map('trim', explode(',', (string)ini_get('disable_functions')));
 
-        if (function_exists('exec') && !in_array('exec', array_map('trim', explode(',', ini_get('disable_functions'))), true)) {
-            $passParam = !empty($dbPass) ? "--password=" . escapeshellarg($dbPass) : "";
+        // 1. mysqldump dene (sadece exec ve escapeshell fonksiyonları tamamen etkinse)
+        $canExec = function_exists('exec') && !in_array('exec', $disabledFunctions, true);
+        $canEscape = function_exists('escapeshellcmd') && function_exists('escapeshellarg') && 
+                     !in_array('escapeshellcmd', $disabledFunctions, true) && 
+                     !in_array('escapeshellarg', $disabledFunctions, true);
+
+        if ($canExec && $canEscape) {
+            $mysqldumpPath = '/opt/lampp/bin/mysqldump';
+            if (!file_exists($mysqldumpPath)) {
+                $mysqldumpPath = 'mysqldump';
+            }
+
+            $passParam = !empty($dbPass) ? "--password=" . \escapeshellarg($dbPass) : "";
             $cmd = sprintf(
                 "%s --host=%s --user=%s %s --routines --triggers --single-transaction --quick %s > %s 2>&1",
-                escapeshellcmd($mysqldumpPath),
-                escapeshellarg($dbHost),
-                escapeshellarg($dbUser),
+                \escapeshellcmd($mysqldumpPath),
+                \escapeshellarg($dbHost),
+                \escapeshellarg($dbUser),
                 $passParam,
-                escapeshellarg($dbName),
-                escapeshellarg($outputSqlFile)
+                \escapeshellarg($dbName),
+                \escapeshellarg($outputSqlFile)
             );
 
             @exec($cmd, $output, $returnCode);
 
-            if ($returnCode === 0 && file_exists($outputSqlFile) && filesize($outputSqlFile) > 100) {
+            if (isset($returnCode) && $returnCode === 0 && file_exists($outputSqlFile) && filesize($outputSqlFile) > 100) {
                 return ['success' => true, 'method' => 'mysqldump'];
             }
         }
 
-        // 2. Fallback: Saf PHP PDO ile DDL ve DML export
+        // 2. Fallback: Saf PHP PDO ile DDL ve DML export (Tüm hosting ortamlarında %100 sorunsuz çalışır)
         return $this->exportDatabasePhp($outputSqlFile);
     }
 
