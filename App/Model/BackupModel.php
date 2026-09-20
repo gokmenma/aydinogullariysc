@@ -16,11 +16,11 @@ class BackupModel extends BaseModel
     public function createLog(array $data): int
     {
         $sql = "INSERT INTO backup_logs (
-                    backup_type, file_name, file_path, file_size, status, 
+                    backup_type, file_name, file_path, remote_file_id, file_size, status, 
                     remote_status, mail_status, duration_sec, sha256_hash, 
                     message, created_by, created_at
                 ) VALUES (
-                    ?, ?, ?, ?, ?, 
+                    ?, ?, ?, ?, ?, ?, 
                     ?, ?, ?, ?, 
                     ?, ?, NOW()
                 )";
@@ -30,6 +30,7 @@ class BackupModel extends BaseModel
             $data['backup_type'] ?? 'full',
             $data['file_name'] ?? '',
             $data['file_path'] ?? '',
+            $data['remote_file_id'] ?? null,
             (int)($data['file_size'] ?? 0),
             $data['status'] ?? 'in_progress',
             $data['remote_status'] ?? 'none',
@@ -95,8 +96,20 @@ class BackupModel extends BaseModel
     {
         $stmt = $this->db->prepare("SELECT * FROM backup_logs WHERE id = ? LIMIT 1");
         $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function getLogByFileName(string $fileName): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM backup_logs WHERE file_name = ? LIMIT 1");
+        $stmt->execute([$fileName]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function getUploadedLogs(): array
+    {
+        $stmt = $this->db->query("SELECT * FROM backup_logs WHERE remote_status = 'uploaded' ORDER BY id DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function deleteLog(int $id): bool

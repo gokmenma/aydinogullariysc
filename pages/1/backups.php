@@ -110,6 +110,24 @@ if (isset($_POST['action']) && $_POST['action'] === 'ajax_cancel_active') {
 }
 
 // -------------------------------------------------------------
+// AJAX ENDPOINT: GOOGLE DRIVE İLE SENKRONİZASYON (EŞİTLEME)
+// -------------------------------------------------------------
+if (isset($_POST['action']) && $_POST['action'] === 'ajax_sync_gdrive') {
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
+
+    $syncResult = $backupService->syncGoogleDriveBackups($settings);
+    if ($syncResult['success'] && function_exists('audit_log')) {
+        audit_log("sync", "backup_gdrive", "Google Drive yedekleri senkronize edildi", "backup_logs", "sync");
+    }
+
+    echo json_encode($syncResult, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// -------------------------------------------------------------
 // AJAX ENDPOINT: MANUEL OLARAK BULUTA (GOOGLE DRIVE/FTP) GÖNDER
 // -------------------------------------------------------------
 if (isset($_POST['action']) && $_POST['action'] === 'ajax_upload_remote' && !empty($_POST['id'])) {
@@ -140,7 +158,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'ajax_upload_remote' && !emp
     if ($uploadResult['success']) {
         $targetName = (($settings['backup_remote_type'] ?? 'ftp') === 'gdrive') ? 'Google Drive' : ($settings['backup_remote_host'] ?? 'FTP');
         $backupModel->updateLog((int)$rawId, [
-            'remote_status' => 'uploaded'
+            'remote_status' => 'uploaded',
+            'remote_file_id' => $uploadResult['file_id'] ?? null
         ]);
 
         if (function_exists('audit_log')) {
@@ -301,14 +320,23 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id']
     if ($rawId) {
         $log = $backupModel->getLogById((int)$rawId);
         if ($log) {
+            // 1. Yerel fiziksel dosyayı sil
             $filePath = realpath(__DIR__ . '/../../' . $log['file_path']);
             $allowedDir = realpath(__DIR__ . '/../../backups');
             if ($filePath && str_starts_with($filePath, $allowedDir) && file_exists($filePath)) {
                 @unlink($filePath);
             }
+
+            // 2. Harici depolamaya (Google Drive / FTP) yüklenmişse oradan da sil
+            if ($log['remote_status'] === 'uploaded' || !empty($log['remote_file_id'])) {
+                $backupService->deleteFromRemote($log, $settings);
+            }
+
+            // 3. Veritabanı kaydını sil
             $backupModel->deleteLog((int)$rawId);
+
             if (function_exists('audit_log')) {
-                audit_log("delete", "backup", "Yedek dosyası silindi: " . $log['file_name'], "backup_logs", (string)$rawId);
+                audit_log("delete", "backup", "Yedek dosyası silindi (Yerel + Harici/Bulut): " . $log['file_name'], "backup_logs", (string)$rawId);
             }
             header("Location: index.php?p=backups&st=deleted");
             exit;
@@ -539,6 +567,16 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
             <div class="tab-content">
                 <!-- TAB 1: GEÇMİŞ -->
                 <div class="tab-pane fade show active" id="historyTab" role="tabpanel">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap" style="gap: 10px;">
+                        <div class="font-13 text-muted">
+                            <i class="fa fa-info-circle mr-1 text-primary"></i> Yerel sunucu ve Google Drive yedeklerinizi bu tablodan yönetebilir ve anlık olarak eşitleyebilirsiniz.
+                        </div>
+                        <div>
+                            <button type="button" onclick="syncGoogleDrive()" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 font-12 weight-600 shadow-sm" id="btnSyncDrive">
+                                <i class="fa fa-refresh mr-1"></i> Drive ile Eşitle
+                            </button>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="data-table table stripe hover w-100" id="backupLogsTable">
                             <thead>
@@ -594,7 +632,9 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                                         <span class="badge badge-info px-2 py-1 font-11"><i class="fa fa-spinner fa-spin mr-1"></i> İşleniyor</span>
                                                     <?php endif; ?>
                                                     <?php if ($row['remote_status'] === 'uploaded'): ?>
-                                                        <span class="badge badge-soft-success px-1" title="Harici sunucuya yüklendi"><i class="fa fa-cloud-upload"></i></span>
+                                                        <span class="badge badge-soft-success px-1" title="Google Drive / Harici sunucuda mevcut"><i class="fa fa-cloud-upload"></i> Drive'da Var</span>
+                                                    <?php elseif ($row['remote_status'] === 'deleted_from_drive'): ?>
+                                                        <span class="badge badge-soft-warning px-1 text-warning" title="Google Drive'dan silinmiş"><i class="fa fa-exclamation-triangle"></i> Drive'dan Silindi</span>
                                                     <?php endif; ?>
                                                     <?php if ($row['mail_status'] === 'sent'): ?>
                                                         <span class="badge badge-soft-success px-1" title="Bildirim e-postası gönderildi"><i class="fa fa-envelope"></i></span>
@@ -1405,9 +1445,12 @@ function renderBackupTable(logs) {
         else if (row.status === 'failed') statusBadge = '<span class="badge badge-danger px-2 py-1 font-11"><i class="fa fa-times-circle mr-1"></i> Hata</span>';
         else statusBadge = '<span class="badge badge-info px-2 py-1 font-11"><i class="fa fa-spinner fa-spin mr-1"></i> İşleniyor</span>';
 
-        let remoteBadge = (row.remote_status === 'uploaded') 
-            ? '<span class="badge badge-soft-success px-1" title="Harici sunucuya yüklendi"><i class="fa fa-cloud-upload"></i></span>' 
-            : '';
+        let remoteBadge = '';
+        if (row.remote_status === 'uploaded') {
+            remoteBadge = '<span class="badge badge-soft-success px-1" title="Google Drive / Harici sunucuda mevcut"><i class="fa fa-cloud-upload"></i> Drive\'da Var</span>';
+        } else if (row.remote_status === 'deleted_from_drive') {
+            remoteBadge = '<span class="badge badge-soft-warning px-1 text-warning" title="Google Drive\'dan silinmiş"><i class="fa fa-exclamation-triangle"></i> Drive\'dan Silindi</span>';
+        }
 
         let mailBadge = (row.mail_status === 'sent')
             ? '<span class="badge badge-soft-success px-1" title="Bildirim e-postası gönderildi"><i class="fa fa-envelope"></i></span>'
@@ -1436,6 +1479,89 @@ function renderBackupTable(logs) {
     });
     $('#backupLogsTbody').html(html);
     initBackupDataTable();
+}
+
+function syncGoogleDrive() {
+    const s = getSwalInstance();
+    const btn = document.getElementById('btnSyncDrive');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> Eşitleniyor...';
+        btn.disabled = true;
+    }
+
+    if (s) {
+        s.fire({
+            title: 'Google Drive Eşitleniyor...',
+            text: 'Google Drive hedef klasörünüzdeki dosyalar taranıyor ve sistemle karşılaştırılıyor.',
+            allowOutsideClick: false,
+            didOpen: function() {
+                if (typeof Swal !== 'undefined' && typeof Swal.showLoading === 'function') {
+                    Swal.showLoading();
+                }
+            }
+        });
+    }
+
+    $.ajax({
+        url: 'index.php?p=backups',
+        type: 'POST',
+        data: {
+            action: 'ajax_sync_gdrive'
+        },
+        dataType: 'json',
+        success: function(res) {
+            if (btn) {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+            }
+            if (res.success) {
+                let detailHtml = '';
+                if (res.details && res.details.length > 0) {
+                    detailHtml = '<div class="text-left font-12 bg-light p-2 rounded mt-2 text-dark">' + res.details.join('<br>') + '</div>';
+                }
+                if (s) {
+                    s.fire({
+                        icon: 'success',
+                        title: 'Senkronizasyon Başarılı!',
+                        html: '<div>' + res.message + '</div>' + detailHtml,
+                        confirmButtonText: 'Tamam',
+                        confirmButtonColor: '#1e4d79'
+                    }).then(function() {
+                        location.reload();
+                    });
+                } else {
+                    alert(res.message);
+                    location.reload();
+                }
+            } else {
+                if (s) {
+                    s.fire({
+                        icon: 'error',
+                        title: 'Senkronizasyon Hatası',
+                        text: res.error || 'Google Drive senkronizasyonu yapılamadı.'
+                    });
+                } else {
+                    alert('Hata: ' + (res.error || 'Google Drive senkronizasyonu yapılamadı.'));
+                }
+            }
+        },
+        error: function() {
+            if (btn) {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+            }
+            if (s) {
+                s.fire({
+                    icon: 'error',
+                    title: 'Bağlantı Hatası',
+                    text: 'Sunucuyla iletişim kurulurken bir hata oluştu.'
+                });
+            } else {
+                alert('Sunucuyla iletişim kurulurken bir hata oluştu.');
+            }
+        }
+    });
 }
 
 function uploadRemoteBackup(encryptedId, fileName) {

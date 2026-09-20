@@ -236,10 +236,12 @@ class BackupService
 
             // 3. Harici Depolamaya Aktar (FTP veya Google Drive)
             $remoteStatus = 'none';
+            $remoteFileId = null;
             if (!empty($settings['backup_remote_enabled']) && $settings['backup_remote_enabled'] === '1') {
                 $remoteUpload = $this->uploadToRemote($mainZipPath, $mainZipName, $settings);
                 if ($remoteUpload['success']) {
                     $remoteStatus = 'uploaded';
+                    $remoteFileId = $remoteUpload['file_id'] ?? null;
                     $targetName = (($settings['backup_remote_type'] ?? 'ftp') === 'gdrive') ? 'Google Drive' : ($settings['backup_remote_host'] ?? 'FTP');
                     $messages[] = "Harici depolamaya aktarıldı ({$targetName}).";
                 } else {
@@ -299,6 +301,7 @@ class BackupService
             // Log Güncelle
             $this->backupModel->updateLog($logId, [
                 'file_size' => $finalSize,
+                'remote_file_id' => $remoteFileId,
                 'status' => 'success',
                 'remote_status' => $remoteStatus,
                 'mail_status' => $mailStatus,
@@ -551,42 +554,48 @@ class BackupService
     }
 
     /**
+     * Google Drive API erişim belirtecini (Access Token) çözer ve döndürür
+     */
+    public function resolveGoogleAccessToken(array $settings): array
+    {
+        $refreshToken = trim($settings['backup_gdrive_refresh_token'] ?? '');
+        $jsonKeyContent = trim($settings['backup_gdrive_service_account_json'] ?? '');
+
+        if (!empty($refreshToken)) {
+            return $this->getGoogleDriveOAuthTokenFromRefresh($settings);
+        }
+
+        if (!empty($settings['backup_gdrive_client_id'])) {
+            return [
+                'success' => false,
+                'error' => 'Google Client ID kaydedilmiş ancak henüz "Google Drive ile Bağlan & Yetkilendir" butonuna tıklanarak izin verilmemiş. Lütfen Ayarlar sekmesinden Google hesabınızı bağlayınız.'
+            ];
+        }
+
+        if (!empty($jsonKeyContent)) {
+            $serviceAccount = json_decode($jsonKeyContent, true);
+            if (!is_array($serviceAccount) || empty($serviceAccount['client_email']) || empty($serviceAccount['private_key'])) {
+                return ['success' => false, 'error' => 'Geçersiz Google Service Account JSON içeriği.'];
+            }
+            return $this->getGoogleDriveAccessToken($serviceAccount);
+        }
+
+        return ['success' => false, 'error' => 'Google Drive bağlantısı kurulmamış. Lütfen Ayarlar sekmesinden Google Drive ile bağlanınız.'];
+    }
+
+    /**
      * Google Drive API (v3) ile OAuth 2.0 veya Hizmet Hesabı üzerinden dosya yükler
      */
     public function uploadToGoogleDrive(string $localFilePath, string $remoteFileName, array $settings): array
     {
         $folderId = trim($settings['backup_gdrive_folder_id'] ?? '');
-        $refreshToken = trim($settings['backup_gdrive_refresh_token'] ?? '');
-        $jsonKeyContent = trim($settings['backup_gdrive_service_account_json'] ?? '');
-
-        if (empty($refreshToken) && empty($jsonKeyContent)) {
-            return ['success' => false, 'error' => 'Google Drive bağlantısı kurulmamış. Lütfen Ayarlar sekmesinden Google Drive Client ID / Secret girip "Google Drive ile Bağlan" butonuna basarak hesabınızı yetkilendirin.'];
-        }
 
         // 1. Google OAuth2 Access Token Al
-        $accessToken = null;
-        if (!empty($refreshToken)) {
-            $tokenRes = $this->getGoogleDriveOAuthTokenFromRefresh($settings);
-            if (!$tokenRes['success']) {
-                return $tokenRes;
-            }
-            $accessToken = $tokenRes['access_token'];
-        } elseif (!empty($settings['backup_gdrive_client_id'])) {
-            return [
-                'success' => false,
-                'error' => 'Google Client ID kaydedilmiş ancak henüz "Google Drive ile Bağlan & Yetkilendir" butonuna tıklanarak izin verilmemiş. Lütfen Ayarlar sekmesindeki butona basarak Google hesabınızı yetkilendiriniz.'
-            ];
-        } else {
-            $serviceAccount = json_decode($jsonKeyContent, true);
-            if (!is_array($serviceAccount) || empty($serviceAccount['client_email']) || empty($serviceAccount['private_key'])) {
-                return ['success' => false, 'error' => 'Geçersiz Google Service Account JSON içeriği.'];
-            }
-            $tokenResult = $this->getGoogleDriveAccessToken($serviceAccount);
-            if (!$tokenResult['success']) {
-                return $tokenResult;
-            }
-            $accessToken = $tokenResult['access_token'];
+        $tokenRes = $this->resolveGoogleAccessToken($settings);
+        if (!$tokenRes['success']) {
+            return $tokenRes;
         }
+        $accessToken = $tokenRes['access_token'];
 
         $fileSize = filesize($localFilePath);
 
@@ -829,6 +838,191 @@ class BackupService
         } finally {
             @ftp_close($conn);
         }
+    }
+
+    /**
+     * Harici Depolamadaki (Google Drive veya FTP) yedek dosyasını siler
+     */
+    public function deleteFromRemote(array $log, array $settings): array
+    {
+        $remoteType = $settings['backup_remote_type'] ?? 'ftp';
+        if ($remoteType === 'gdrive') {
+            return $this->deleteFromGoogleDrive($log['remote_file_id'] ?? '', $log['file_name'] ?? '', $settings);
+        }
+        return $this->deleteFromFtp($log['file_name'] ?? '', $settings);
+    }
+
+    /**
+     * Google Drive API ile belirtilen dosyayı siler
+     */
+    public function deleteFromGoogleDrive(string $fileId, string $fileName, array $settings): array
+    {
+        $accessToken = $this->resolveGoogleAccessToken($settings);
+        if (!$accessToken['success']) {
+            return $accessToken;
+        }
+        $token = $accessToken['access_token'];
+
+        // Eğer fileId yoksa, dosya adından klasör içinde ara
+        if (empty($fileId) && !empty($fileName)) {
+            $folderId = trim($settings['backup_gdrive_folder_id'] ?? '');
+            $q = "name = '" . addslashes($fileName) . "' and trashed = false";
+            if (!empty($folderId)) {
+                $q .= " and '" . addslashes($folderId) . "' in parents";
+            }
+            $searchUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode($q) . '&fields=files(id,name)';
+            $ch = curl_init($searchUrl);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $resp = curl_exec($ch);
+            curl_close($ch);
+            $resData = json_decode($resp, true);
+            if (!empty($resData['files'][0]['id'])) {
+                $fileId = $resData['files'][0]['id'];
+            }
+        }
+
+        if (empty($fileId)) {
+            return ['success' => true, 'message' => 'Dosya zaten Google Drive üzerinde bulunamadı.'];
+        }
+
+        // Google Drive API files.delete
+        $delUrl = 'https://www.googleapis.com/drive/v3/files/' . urlencode($fileId);
+        $ch = curl_init($delUrl);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $delResp = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 204 || $httpCode === 200 || $httpCode === 404) {
+            return ['success' => true, 'message' => 'Google Drive üzerindeki yedek dosyası silindi.'];
+        }
+
+        return ['success' => false, 'error' => "Google Drive silme hatası (HTTP $httpCode): " . $delResp];
+    }
+
+    /**
+     * Harici FTP sunucusundaki dosyayı siler
+     */
+    public function deleteFromFtp(string $fileName, array $settings): array
+    {
+        $host = $settings['backup_remote_host'] ?? '';
+        $port = (int)($settings['backup_remote_port'] ?? 21);
+        $user = $settings['backup_remote_user'] ?? '';
+        $pass = $settings['backup_remote_pass'] ?? '';
+        $path = rtrim($settings['backup_remote_path'] ?? '/backups', '/');
+
+        if (empty($host) || empty($user) || !function_exists('ftp_connect')) {
+            return ['success' => false, 'error' => 'FTP sunucu bilgisi eksik.'];
+        }
+
+        $conn = @ftp_connect($host, $port, 15);
+        if (!$conn || !@ftp_login($conn, $user, $pass)) {
+            if ($conn) @ftp_close($conn);
+            return ['success' => false, 'error' => 'FTP bağlantısı kurulamadı.'];
+        }
+
+        @ftp_pasv($conn, true);
+        $remoteFile = !empty($path) ? $path . '/' . $fileName : $fileName;
+        $res = @ftp_delete($conn, $remoteFile);
+        @ftp_close($conn);
+
+        return ['success' => $res, 'message' => $res ? 'FTP dosyası silindi.' : 'FTP dosyası silinemedi veya bulunamadı.'];
+    }
+
+    /**
+     * Google Drive'daki hedef klasör ile sistem kayıtlarını çift yönlü senkronize eder
+     */
+    public function syncGoogleDriveBackups(array $settings): array
+    {
+        $accessToken = $this->resolveGoogleAccessToken($settings);
+        if (!$accessToken['success']) {
+            return $accessToken;
+        }
+        $token = $accessToken['access_token'];
+        $folderId = trim($settings['backup_gdrive_folder_id'] ?? '');
+
+        // 1. Google Drive klasöründeki mevcut (çöp kutusunda olmayan) tüm dosyaları getir
+        $q = "trashed = false";
+        if (!empty($folderId)) {
+            $q .= " and '" . addslashes($folderId) . "' in parents";
+        }
+        $listUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode($q) . '&pageSize=100&fields=files(id,name,size,createdTime,trashed)';
+        
+        $ch = curl_init($listUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $resp = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            return ['success' => false, 'error' => "Google Drive dosyaları listelenemedi (HTTP $httpCode): " . $resp];
+        }
+
+        $data = json_decode($resp, true);
+        $driveFiles = $data['files'] ?? [];
+        
+        $driveFilesByName = [];
+        $driveFilesById = [];
+        foreach ($driveFiles as $df) {
+            $driveFilesByName[$df['name']] = $df;
+            $driveFilesById[$df['id']] = $df;
+        }
+
+        // 2. Sistemde remote_status = 'uploaded' olan tüm kayıtları kontrol et
+        $uploadedLogs = $this->backupModel->getUploadedLogs();
+        $updatedMissing = 0;
+        $activeSynced = 0;
+        $details = [];
+
+        foreach ($uploadedLogs as $log) {
+            $existsInDrive = false;
+            $matchedDriveId = null;
+
+            // Önce remote_file_id ile kontrol et
+            if (!empty($log['remote_file_id']) && isset($driveFilesById[$log['remote_file_id']])) {
+                $existsInDrive = true;
+                $matchedDriveId = $log['remote_file_id'];
+            } elseif (isset($driveFilesByName[$log['file_name']])) {
+                // Dosya adıyla eşleşti
+                $existsInDrive = true;
+                $matchedDriveId = $driveFilesByName[$log['file_name']]['id'];
+                // ID eksikse veritabanını güncelle
+                if (empty($log['remote_file_id'])) {
+                    $this->backupModel->updateLog((int)$log['id'], ['remote_file_id' => $matchedDriveId]);
+                }
+            }
+
+            if (!$existsInDrive) {
+                // Google Drive'dan silinmiş!
+                $this->backupModel->updateLog((int)$log['id'], [
+                    'remote_status' => 'deleted_from_drive',
+                    'remote_file_id' => null
+                ]);
+                $updatedMissing++;
+                $details[] = "<strong>{$log['file_name']}</strong> Google Drive'da bulunamadı (Drive'dan silindi olarak güncellendi).";
+            } else {
+                $activeSynced++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'total_drive_files' => count($driveFiles),
+            'synced_count' => $activeSynced,
+            'missing_count' => $updatedMissing,
+            'details' => $details,
+            'message' => "Google Drive senkronizasyonu tamamlandı. {$activeSynced} yedek doğrulandı, {$updatedMissing} silinmiş dosya tespit edildi."
+        ];
     }
 
     /**
