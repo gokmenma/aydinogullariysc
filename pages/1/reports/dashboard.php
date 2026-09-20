@@ -335,18 +335,19 @@ foreach ($typeDistribution as $td) {
     background: #334155;
 }
 </style>
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
 
-<div class="pd-20">
+<div class="pd-20 unified-dashboard">
     
     <!-- 1. HERO BANNER & HIZLI AKSİYONLAR -->
     <div class="report-dash-hero">
         <div class="row align-items-center">
             <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
-                <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <span class="badge badge-light text-dark px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px;">
+                <div class="dashboard-hero-badges">
+                    <span class="dashboard-hero-badge">
                         <i class="fa fa-calendar mr-1"></i> <?php echo $curDateFormatted; ?>
                     </span>
-                    <span class="badge badge-primary px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px; background: rgba(56, 189, 248, 0.35); border: 1px solid rgba(255,255,255,0.2);">
+                    <span class="dashboard-hero-badge is-filter">
                         <i class="fa fa-filter mr-1"></i> <?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
                 </div>
@@ -358,19 +359,19 @@ foreach ($typeDistribution as $td) {
                 </p>
             </div>
             <div class="col-lg-5 col-md-12 text-lg-right">
-                <div class="d-flex flex-wrap justify-content-lg-end" style="gap: 8px;">
+                <div class="dashboard-hero-actions">
                     <?php if (permtrue('reportadd')) : ?>
-                        <button type="button" class="btn btn-info px-3 py-2 font-weight-bold shadow-sm" style="border-radius: 8px; background-color: #0284c7; border-color: #0284c7;" data-toggle="modal" data-target="#reporttypeModal">
+                        <button type="button" class="dashboard-action-primary" data-toggle="modal" data-target="#reporttypeModal">
                             <i class="fa fa-plus mr-1"></i> Yeni Rapor Oluştur
                         </button>
                     <?php endif; ?>
-                    <a href="index.php?p=reports/reports" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
+                    <a href="index.php?p=reports/reports" class="dashboard-action-secondary">
                         <i class="fa fa-list mr-1"></i> Rapor Listesi
                     </a>
-                    <a href="index.php?p=reports/filling-list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
+                    <a href="index.php?p=reports/filling-list" class="dashboard-action-secondary">
                         <i class="fa fa-tint mr-1"></i> Dolum Listesi
                     </a>
-                    <a href="index.php?p=reports/control-list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
+                    <a href="index.php?p=reports/control-list" class="dashboard-action-secondary">
                         <i class="fa fa-check-square-o mr-1"></i> Kontrol Listesi
                     </a>
                 </div>

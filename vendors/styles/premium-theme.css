@@ -2376,6 +2376,35 @@ table.dataTable thead th,
     gap: 6px;
 }
 
+.crm-quick-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.crm-quick-actions-label {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.crm-quick-actions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .crm-quick-btn {
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -2406,6 +2435,27 @@ table.dataTable thead th,
 .crm-quick-btn.btn-primary-action:hover {
     background: #2563eb;
     color: #ffffff !important;
+}
+
+@media (max-width: 576px) {
+    .crm-hero-banner {
+        padding: 20px 18px;
+    }
+
+    .crm-quick-actions {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .crm-quick-actions-list {
+        width: 100%;
+    }
+
+    .crm-quick-btn {
+        justify-content: center;
+        flex: 1 1 calc(50% - 4px);
+    }
 }
 
 /* CRM KPI Grid Container (Exact alignment with Calendar & Hero) */
@@ -2463,6 +2513,19 @@ table.dataTable thead th,
     transform: translateY(-3px);
     box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
     border-color: #cbd5e1;
+}
+
+.crm-financial-hidden {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    margin-left: 3px;
+    padding: 3px 7px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: help;
 }
 
 .crm-kpi-header {
@@ -4372,6 +4435,11 @@ table.dataTable thead th,
     background: #2563eb !important;
     color: #ffffff !important;
     border-color: #2563eb !important;
+}
+
+.dark-mode .crm-financial-hidden {
+    background: #2b2b2b;
+    color: #94a3b8;
 }
 
 .dark-mode .crm-day-name {
@@ -6474,5 +6542,3 @@ iframe.wysihtml5-sandbox {
     display: block !important;
     box-sizing: border-box !important;
 }
-
-

@@ -340,18 +340,19 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     background: #334155;
 }
 </style>
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
 
-<div class="pd-20">
+<div class="pd-20 unified-dashboard">
     
     <!-- 1. HERO BANNER & HIZLI AKSİYONLAR -->
     <div class="cust-dash-hero">
         <div class="row align-items-center">
             <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
-                <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <span class="badge badge-light text-dark px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px;">
+                <div class="dashboard-hero-badges">
+                    <span class="dashboard-hero-badge">
                         <i class="fa fa-calendar mr-1"></i> <?php echo $curDateFormatted; ?>
                     </span>
-                    <span class="badge badge-primary px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px; background: rgba(56, 189, 248, 0.35); border: 1px solid rgba(255,255,255,0.2);">
+                    <span class="dashboard-hero-badge is-filter">
                         <i class="fa fa-filter mr-1"></i> <?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
                 </div>
@@ -363,17 +364,17 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                 </p>
             </div>
             <div class="col-lg-5 col-md-12 text-lg-right">
-                <div class="d-flex flex-wrap justify-content-lg-end" style="gap: 8px;">
+                <div class="dashboard-hero-actions">
                     <?php if (permtrue('customeradd')) : ?>
-                        <a href="index.php?p=customers/manage" class="btn btn-success px-3 py-2 font-weight-bold shadow-sm" style="border-radius: 8px;">
+                        <a href="index.php?p=customers/manage" class="dashboard-action-primary">
                             <i class="fa fa-plus mr-1"></i> Yeni Firma Ekle
                         </a>
                     <?php endif; ?>
-                    <a href="index.php?p=customers/list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
+                    <a href="index.php?p=customers/list" class="dashboard-action-secondary">
                         <i class="fa fa-list mr-1"></i> Firma Listesi
                     </a>
                     <?php if (permtrue('customerexport')) : ?>
-                        <a href="api/customers_export.php" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;" target="_blank">
+                        <a href="api/customers_export.php" class="dashboard-action-secondary" target="_blank">
                             <i class="fa fa-file-excel-o mr-1"></i> Excel Dışa Aktar
                         </a>
                     <?php endif; ?>

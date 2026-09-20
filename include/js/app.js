@@ -179,7 +179,7 @@ function addDataTableColumnSearchRow(api) {
   }
 }
 
-function deleteRecord(msg, ID, pLink, table=null) {
+function deleteRecord(msg, ID, pLink, table=null, redirectLink=null) {
 
   Swal.fire({
     title: "Emin misiniz?" ,
@@ -211,7 +211,7 @@ function deleteRecord(msg, ID, pLink, table=null) {
             icon: "success",
           }).then(() => {
             // Redirect to page
-            window.location.href = "index.php?p=" + pLink;
+            window.location.href = "index.php?p=" + (redirectLink || pLink);
           });
        
         }else{
@@ -782,4 +782,4 @@ $(document).ready(function() {
         console.error("Failed to bind dropdown overflow listeners:", err);
     }
 });
-
+

@@ -24,6 +24,12 @@ $(document).ready(function () {
     }
   });
 
+  // Tablo Başlığındaki Arama Satırını Temizle
+  $("#kesifTable").find("tr.search-input-row").remove();
+  $(document).on("draw.dt init.dt", "#kesifTable", function () {
+    $("#kesifTable").find("tr.search-input-row").remove();
+  });
+
   // Tablo Yenileme Butonu
   $(document).on("click", "#btnRefreshKesif", function () {
     var $btn = $(this);

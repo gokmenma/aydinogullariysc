@@ -1,0 +1,186 @@
+/* Dashboard ortak görsel dili - Teklif Dashboard referansı */
+.unified-dashboard {
+    width: 100%;
+    padding: 0 !important;
+}
+
+.unified-dashboard > .row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+}
+
+.unified-dashboard > .row > [class*="col-"] {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+.unified-dashboard .cust-dash-hero,
+.unified-dashboard .purchase-dash-hero,
+.unified-dashboard .service-dash-hero,
+.unified-dashboard .report-dash-hero {
+    background: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-left: 4px solid #4f46e5 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, .03) !important;
+    color: #1e293b !important;
+    margin-bottom: 20px !important;
+    padding: 20px 24px !important;
+    overflow: visible !important;
+}
+
+.unified-dashboard .cust-dash-hero::after,
+.unified-dashboard .purchase-dash-hero::after,
+.unified-dashboard .service-dash-hero::after,
+.unified-dashboard .report-dash-hero::after {
+    display: none !important;
+}
+
+.unified-dashboard .cust-hero-title,
+.unified-dashboard .purchase-hero-title,
+.unified-dashboard .service-hero-title,
+.unified-dashboard .report-hero-title {
+    align-items: center;
+    color: #1e293b !important;
+    display: flex;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    letter-spacing: -.3px;
+    margin: 0 0 3px !important;
+}
+
+.unified-dashboard .cust-hero-title > i,
+.unified-dashboard .purchase-hero-title > i,
+.unified-dashboard .service-hero-title > i,
+.unified-dashboard .report-hero-title > i {
+    align-items: center;
+    background: #eef2ff !important;
+    border: 1px solid #e0e7ff;
+    border-radius: 10px;
+    color: #4f46e5 !important;
+    display: inline-flex;
+    flex: 0 0 42px;
+    height: 42px;
+    justify-content: center;
+    margin-right: 14px !important;
+    width: 42px;
+}
+
+.unified-dashboard .cust-hero-desc,
+.unified-dashboard .purchase-hero-desc,
+.unified-dashboard .service-hero-desc,
+.unified-dashboard .report-hero-desc {
+    color: #64748b !important;
+    font-size: 13px !important;
+    margin: 0 0 0 56px !important;
+}
+
+.unified-dashboard .dashboard-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 9px;
+}
+
+.unified-dashboard .dashboard-hero-badge {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    color: #475569 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 5px 10px !important;
+}
+
+.unified-dashboard .dashboard-hero-badge.is-filter {
+    background: #eef2ff !important;
+    border-color: #c7d2fe !important;
+    color: #4f46e5 !important;
+}
+
+.unified-dashboard .dashboard-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.unified-dashboard .dashboard-action-primary,
+.unified-dashboard .dashboard-action-secondary {
+    align-items: center;
+    border-radius: 8px !important;
+    display: inline-flex;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 7px 14px !important;
+    text-decoration: none !important;
+}
+
+.unified-dashboard .dashboard-action-primary {
+    background: #10b981 !important;
+    border: 1px solid #059669 !important;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, .25) !important;
+    color: #fff !important;
+}
+
+.unified-dashboard .dashboard-action-secondary {
+    background: #fff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .03) !important;
+    color: #334155 !important;
+}
+
+.unified-dashboard .cust-filter-pill.active,
+.unified-dashboard .purchase-filter-pill.active,
+.unified-dashboard .service-filter-pill.active,
+.unified-dashboard .report-filter-pill.active {
+    background: #4f46e5 !important;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, .35) !important;
+}
+
+.unified-dashboard .cust-kpi-card,
+.unified-dashboard .purchase-kpi-card,
+.unified-dashboard .service-kpi-card,
+.unified-dashboard .report-kpi-card,
+.unified-dashboard .dash-card,
+.unified-dashboard > .row .card {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, .04) !important;
+}
+
+@media (max-width: 991px) {
+    .unified-dashboard .dashboard-hero-actions { justify-content: flex-start; }
+}
+
+@media (max-width: 767px) {
+    .unified-dashboard .cust-dash-hero,
+    .unified-dashboard .purchase-dash-hero,
+    .unified-dashboard .service-dash-hero,
+    .unified-dashboard .report-dash-hero { padding: 16px !important; }
+    .unified-dashboard .cust-hero-desc,
+    .unified-dashboard .purchase-hero-desc,
+    .unified-dashboard .service-hero-desc,
+    .unified-dashboard .report-hero-desc { margin-left: 0 !important; margin-top: 8px !important; }
+}
+
+.dark-mode .unified-dashboard .cust-dash-hero,
+.dark-mode .unified-dashboard .purchase-dash-hero,
+.dark-mode .unified-dashboard .service-dash-hero,
+.dark-mode .unified-dashboard .report-dash-hero {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    border-left-color: #6366f1 !important;
+}
+
+.dark-mode .unified-dashboard .cust-hero-title,
+.dark-mode .unified-dashboard .purchase-hero-title,
+.dark-mode .unified-dashboard .service-hero-title,
+.dark-mode .unified-dashboard .report-hero-title { color: #f8fafc !important; }
+
+.dark-mode .unified-dashboard .dashboard-hero-badge,
+.dark-mode .unified-dashboard .dashboard-action-secondary {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}

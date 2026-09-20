@@ -82,4 +82,101 @@ class KesifModel extends BaseModel
         ];
     }
 
+    /**
+     * Tarih aralığına göre dashboard özetini getirir.
+     */
+    public function getDashboardSummary($startDate = null, $endDate = null)
+    {
+        [$dateSql, $params] = $this->buildDashboardDateFilter($startDate, $endDate);
+        $sql = $this->db->prepare("SELECT
+            COUNT(*) AS total_count,
+            SUM(CASE WHEN durum = 'bekliyor' THEN 1 ELSE 0 END) AS waiting_count,
+            SUM(CASE WHEN durum = 'kesif_tamamlandi' THEN 1 ELSE 0 END) AS completed_count,
+            SUM(CASE WHEN durum IN ('teklif_hazirlandi', 'teklif_gonderildi') THEN 1 ELSE 0 END) AS offer_count,
+            SUM(CASE WHEN durum = 'iptal_edildi' THEN 1 ELSE 0 END) AS cancelled_count,
+            SUM(CASE WHEN durum = 'bekliyor' AND kesif_tarihi < CURDATE() THEN 1 ELSE 0 END) AS overdue_count,
+            SUM(CASE WHEN durum = 'bekliyor' AND DATE(kesif_tarihi) = CURDATE() THEN 1 ELSE 0 END) AS today_count,
+            SUM(CASE WHEN durum = 'bekliyor' AND kesif_tarihi > CURDATE() THEN 1 ELSE 0 END) AS upcoming_count
+        FROM {$this->table}
+        WHERE silinme_tarihi IS NULL {$dateSql}");
+        $sql->execute($params);
+        return $sql->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function getDashboardStatusDistribution($startDate = null, $endDate = null)
+    {
+        [$dateSql, $params] = $this->buildDashboardDateFilter($startDate, $endDate);
+        $sql = $this->db->prepare("SELECT durum, COUNT(*) AS total
+            FROM {$this->table}
+            WHERE silinme_tarihi IS NULL {$dateSql}
+            GROUP BY durum ORDER BY total DESC");
+        $sql->execute($params);
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getDashboardMonthlyTrend($monthCount = 12)
+    {
+        $monthCount = max(1, min(24, (int) $monthCount));
+        $startDate = date('Y-m-01', strtotime('-' . ($monthCount - 1) . ' months'));
+        $sql = $this->db->prepare("SELECT DATE_FORMAT(kesif_tarihi, '%Y-%m') AS month_key, COUNT(*) AS total
+            FROM {$this->table}
+            WHERE silinme_tarihi IS NULL AND kesif_tarihi >= ?
+            GROUP BY month_key ORDER BY month_key ASC");
+        $sql->execute([$startDate]);
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getDashboardTopPeople($limit = 8, $startDate = null, $endDate = null)
+    {
+        [$dateSql, $params] = $this->buildDashboardDateFilter($startDate, $endDate);
+        $limit = max(1, min(20, (int) $limit));
+        $sql = $this->db->prepare("SELECT TRIM(gidecek_kisi) AS person_name, COUNT(*) AS total
+            FROM {$this->table}
+            WHERE silinme_tarihi IS NULL {$dateSql}
+              AND gidecek_kisi IS NOT NULL AND TRIM(gidecek_kisi) NOT IN ('', '.')
+            GROUP BY TRIM(gidecek_kisi) ORDER BY total DESC, person_name ASC LIMIT {$limit}");
+        $sql->execute($params);
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getDashboardTopCompanies($limit = 8, $startDate = null, $endDate = null)
+    {
+        [$dateSql, $params] = $this->buildDashboardDateFilter($startDate, $endDate);
+        $limit = max(1, min(20, (int) $limit));
+        $sql = $this->db->prepare("SELECT TRIM(firma) AS company_name, COUNT(*) AS total
+            FROM {$this->table}
+            WHERE silinme_tarihi IS NULL {$dateSql}
+              AND firma IS NOT NULL AND TRIM(firma) <> ''
+            GROUP BY TRIM(firma) ORDER BY total DESC, company_name ASC LIMIT {$limit}");
+        $sql->execute($params);
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getDashboardRecent($limit = 8, $startDate = null, $endDate = null)
+    {
+        [$dateSql, $params] = $this->buildDashboardDateFilter($startDate, $endDate);
+        $limit = max(1, min(20, (int) $limit));
+        $sql = $this->db->prepare("SELECT id, kesif_tarihi, firma, gidecek_kisi, durum, konum
+            FROM {$this->table}
+            WHERE silinme_tarihi IS NULL {$dateSql}
+            ORDER BY kesif_tarihi DESC, id DESC LIMIT {$limit}");
+        $sql->execute($params);
+        return $sql->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function buildDashboardDateFilter($startDate, $endDate)
+    {
+        $clauses = [];
+        $params = [];
+        if ($startDate) {
+            $clauses[] = 'kesif_tarihi >= ?';
+            $params[] = $startDate . ' 00:00:00';
+        }
+        if ($endDate) {
+            $clauses[] = 'kesif_tarihi <= ?';
+            $params[] = $endDate . ' 23:59:59';
+        }
+        return [$clauses ? ' AND ' . implode(' AND ', $clauses) : '', $params];
+    }
+
 }

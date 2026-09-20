@@ -72,6 +72,11 @@ $menuDefinitions = [
         'icon' => 'fa fa-street-view',
         'visible' => true,
         'items' => [
+            'kesif/dashboard' => [
+                'title' => 'Keşif Dashboard',
+                'link' => 'index.php?p=kesif/dashboard',
+                'visible' => (permtrue("kesif_dashboard") || permtrue("kesifView"))
+            ],
             'kesif/list' => [
                 'title' => 'Keşifleri Görüntüle',
                 'link' => 'index.php?p=kesif/list',

@@ -469,42 +469,38 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     color: #cbd5e1;
 }
 </style>
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
 
-<div class="service-dashboard-container">
+<div class="service-dashboard-container unified-dashboard">
     
     <!-- 1. Hero Banner Satırı -->
     <div class="row mb-3">
         <div class="col-12">
             <div class="service-dash-hero">
-                <div class="d-flex justify-content-between align-items-start flex-wrap" style="gap: 14px;">
-                    <div>
+                <div class="row align-items-center">
+                    <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
+                        <div class="dashboard-hero-badges">
+                            <span class="dashboard-hero-badge"><i class="fa fa-calendar mr-1"></i><?php echo $curDateFormatted; ?></span>
+                            <span class="dashboard-hero-badge is-filter"><i class="fa fa-filter mr-1"></i><?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?></span>
+                        </div>
                         <h3 class="service-hero-title">
                             <i class="fa fa-wrench mr-2"></i> Servis & İş Emirleri Dashboard
                         </h3>
-                        <p class="service-hero-desc mb-2" style="font-size: 13px;">
+                        <p class="service-hero-desc">
                             Saha operasyonları, iş emirleri, servis durumları ve ekip performans analizi
                         </p>
-                        <div class="d-flex align-items-center flex-wrap" style="gap: 14px; font-size: 12px; opacity: 0.95;">
-                            <span><i class="fa fa-calendar-o mr-1"></i> <?php echo $curDateFormatted; ?></span>
-                            <span>•</span>
-                            <span><i class="fa fa-filter mr-1"></i> Filtre: <strong><?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?></strong></span>
-                            <span>•</span>
-                            <span><i class="fa fa-building-o mr-1"></i> <strong><?php echo number_format($summary['unique_customers'], 0, ',', '.'); ?></strong> Farklı Cari</span>
-                            <span>•</span>
-                            <span><i class="fa fa-file-text-o mr-1"></i> <strong><?php echo number_format($summary['offer_linked_services'], 0, ',', '.'); ?></strong> Teklif Bağlantılı İş</span>
-                        </div>
                     </div>
                     
-                    <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-                        <a href="index.php?p=service/list" class="btn btn-light btn-sm font-weight-bold" style="border-radius: 6px; padding: 6px 12px; font-size: 12.5px;">
-                            <i class="fa fa-list mr-1"></i> Servis Listesi
-                        </a>
+                    <div class="col-lg-5 col-md-12"><div class="dashboard-hero-actions">
                         <?php if (permtrue('serviceAdd')) { ?>
-                            <a href="index.php?p=service/manage" class="btn btn-info btn-sm font-weight-bold" style="border-radius: 6px; padding: 6px 12px; font-size: 12.5px; background: #0284c7; border-color: #0284c7;">
+                            <a href="index.php?p=service/manage" class="dashboard-action-primary">
                                 <i class="fa fa-plus mr-1"></i> Yeni Servis Oluştur
                             </a>
                         <?php } ?>
-                    </div>
+                        <a href="index.php?p=service/list" class="dashboard-action-secondary">
+                            <i class="fa fa-list mr-1"></i> Servis Listesi
+                        </a>
+                    </div></div>
                 </div>
             </div>
         </div>

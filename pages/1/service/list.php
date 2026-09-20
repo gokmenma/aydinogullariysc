@@ -194,7 +194,7 @@ if ($cid || $sid) {
        PREMIUM SERVICES LIST THEME (NO-SCROLL OPTIMIZED)
        ========================================== */
     .kpi-services-collapsed-early #kpiSummarySection {
-        display: none !important;
+        display: none;
     }
 
     .services-list-wrapper {
@@ -1064,7 +1064,7 @@ if ($cid || $sid) {
                                                 <?php endif; ?>
                                                 <?php if ($canDel): ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <button type="button" class="dropdown-item text-danger" onClick="deleteRecord('<?php echo $purc["id"]; ?> nolu Servisi silmek istediğinize emin misiniz?','<?php echo $pid; ?>','services','projects')"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>
+                                                    <button type="button" class="dropdown-item text-danger" onClick="deleteRecord('<?php echo $purc["id"]; ?> nolu Servisi silmek istediğinize emin misiniz?','<?php echo $pid; ?>','services','projects','service/list')"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -1166,28 +1166,43 @@ if ($cid || $sid) {
         }
 
         // ==========================================
-        // KPI Kartları Daraltma / Genişletme
+        // KPI Kartları Daraltma / Genişletme (LocalStorage)
         // ==========================================
+        var KPI_STORAGE_KEY = 'aydinogullari_kpi_services_collapsed';
         var $kpiSection = $('#kpiSummarySection');
         var $toggleBtn = $('#toggleKpiSummary');
-        
-        var isCollapsed = localStorage.getItem('aydinogullari_kpi_services_collapsed') === 'true';
-        if (isCollapsed) {
-            $kpiSection.hide();
-            $toggleBtn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+
+        function updateKpiToggleState(isCollapsed, animate) {
+            // Erken yükleme class'ını temizle ki inline stiller ve animasyonlar engellenmesin
+            document.documentElement.classList.remove('kpi-services-collapsed-early');
+
+            if (isCollapsed) {
+                if (animate) {
+                    $kpiSection.slideUp(200);
+                } else {
+                    $kpiSection.hide();
+                }
+                $toggleBtn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                $toggleBtn.attr('title', 'Özet Kartlarını Göster');
+            } else {
+                if (animate) {
+                    $kpiSection.slideDown(200);
+                } else {
+                    $kpiSection.show();
+                }
+                $toggleBtn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                $toggleBtn.attr('title', 'Özet Kartlarını Gizle');
+            }
         }
 
+        var savedKpiState = localStorage.getItem(KPI_STORAGE_KEY) === 'true';
+        updateKpiToggleState(savedKpiState, false);
+
         $toggleBtn.on('click', function() {
-            var isCurrentlyHidden = $kpiSection.is(':hidden');
-            if (isCurrentlyHidden) {
-                $kpiSection.slideDown(200);
-                $toggleBtn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-                localStorage.setItem('aydinogullari_kpi_services_collapsed', 'false');
-            } else {
-                $kpiSection.slideUp(200);
-                $toggleBtn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-                localStorage.setItem('aydinogullari_kpi_services_collapsed', 'true');
-            }
+            var isVisible = $kpiSection.is(':visible');
+            var willCollapse = isVisible; // Görünürse kapat (true), gizliyse aç (false)
+            localStorage.setItem(KPI_STORAGE_KEY, willCollapse ? 'true' : 'false');
+            updateKpiToggleState(willCollapse, true);
         });
 
         // ==========================================

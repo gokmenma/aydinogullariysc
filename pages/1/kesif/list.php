@@ -292,20 +292,11 @@ try {
         background-color: #f8fafc;
     }
 
-    /* Table Filter Inputs */
-    #kesifTable thead tr.search-input-row th {
-        padding: 3px 2px !important;
-    }
-    #kesifTable thead tr.search-input-row input {
-        height: 26px !important;
-        padding: 2px 4px !important;
-        font-size: 11px !important;
-        border-radius: 4px !important;
-        border: 1px solid #cbd5e1 !important;
-        min-width: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
+    /* Table Filter Inputs (Gizlendi - Zaten kolon filtreleri ve üst arama kutusu mevcut) */
+    #kesifTable thead tr.search-input-row,
+    #kesifTable thead tr:not(:first-child),
+    #kesifTable thead input {
+        display: none !important;
     }
 
     /* Cell Elements */
@@ -977,6 +968,11 @@ try {
             </div>
         </div>
         <div class="header-action-group">
+            <?php if (permtrue('kesif_dashboard') || permtrue('kesifView')) { ?>
+                <a href="index.php?p=kesif/dashboard" class="btn btn-outline-primary btn-action-outline" title="Keşif Dashboard">
+                    <i class="fa fa-dashboard"></i> <span class="d-none d-sm-inline">Dashboard</span>
+                </a>
+            <?php } ?>
             <button type="button" class="btn btn-outline-secondary btn-action-outline" id="btnRefreshKesif" title="Tabloyu Yenile">
                 <i class="fa fa-refresh"></i> <span class="d-none d-sm-inline">Yenile</span>
             </button>
@@ -1692,3 +1688,11 @@ try {
 
 <script src="include/js/data-table.js"></script>
 <script src="pages/1/kesif/kesif.js?v=<?= time() ?>"></script>
+<?php if (($_GET['action'] ?? '') === 'new' && permtrue('kesifCreate')) { ?>
+<script>
+    window.addEventListener('load', function () {
+        var newKesifButton = document.getElementById('btnNewKesif');
+        if (newKesifButton) newKesifButton.click();
+    });
+</script>
+<?php } ?>

@@ -4,6 +4,7 @@ use App\Model\ServiceModel;
 use App\Helper\Date;
 
 $services = new ServiceModel();
+$canViewHomeFinancialData = permtrue('home_financial_data_view');
 
 // 1. KPI Metrikleri - Servisler
 $waitingServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ?');
@@ -68,7 +69,7 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 		<!-- 1. CRM HERO / KARŞILAMA VE HIZLI AKSİYON ÇUBUĞU -->
 		<div class="crm-hero-banner">
 			<div class="row align-items-center">
-				<div class="col-lg-6 col-md-12 mb-3 mb-lg-0">
+				<div class="col-12">
 					<div class="d-flex align-items-center mb-2">
 						<span class="crm-date-chip">
 							<i class="fa fa-calendar-o"></i> <?php echo $curDateFormatted; ?>
@@ -77,27 +78,31 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 					<h2 class="crm-hero-title">Hoş Geldiniz, <?php echo $loggedUser; ?> 👋</h2>
 					<p class="crm-hero-subtitle m-0">Operasyonel süreçler, servis takibi ve aktif tekliflerinize genel bakış.</p>
 				</div>
-				<div class="col-lg-6 col-md-12 text-lg-right">
-					<div class="d-flex flex-wrap justify-content-lg-end" style="gap: 8px;">
-						<?php if (permtrue('servicenew')) : ?>
-							<a href="index.php?p=service-new" class="crm-quick-btn btn-primary-action">
-								<i class="fa fa-plus-circle"></i> Yeni Servis
-							</a>
-						<?php endif; ?>
-						<?php if (permtrue('offernew')) : ?>
-							<a href="index.php?p=offers/offer-manage" class="crm-quick-btn">
+			</div>
+			<div class="crm-quick-actions">
+				
+				<div class="crm-quick-actions-list">
+					<?php if (permtrue('offeradd')) : ?>
+							<a href="index.php?p=offers/offer-manage" class="crm-quick-btn btn-primary-action">
 								<i class="fa fa-file-text-o"></i> Yeni Teklif
 							</a>
-						<?php endif; ?>
-						<?php if (permtrue('customernew')) : ?>
-							<a href="index.php?p=customers/manage" class="crm-quick-btn">
-								<i class="fa fa-building-o"></i> Yeni Müşteri
+					<?php endif; ?>
+					<?php if (permtrue('serviceAdd')) : ?>
+							<a href="index.php?p=service/manage" class="crm-quick-btn ">
+								<i class="fa fa-plus-circle"></i> Yeni Servis
 							</a>
-						<?php endif; ?>
-						<a href="index.php?p=task-new" class="crm-quick-btn">
-							<i class="fa fa-check-square-o"></i> Görev Ekle
-						</a>
-					</div>
+					<?php endif; ?>
+					
+					<?php if (permtrue('customeradd')) : ?>
+							<a href="index.php?p=customers/manage" class="crm-quick-btn">
+								<i class="fa fa-building-o"></i> Yeni Firma
+							</a>
+					<?php endif; ?>
+					<?php if (permtrue('todoadd')) : ?>
+							<a href="index.php?p=task-new" class="crm-quick-btn">
+								<i class="fa fa-check-square-o"></i> Görev Ekle
+							</a>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>
@@ -137,7 +142,15 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 				</div>
 				<div class="crm-kpi-footer">
 					<span class="weight-600 text-dark" style="font-size: 11px;">
-						Hacim: <span class="text-primary"><?php echo tlFormat($pendingOffersSum); ?></span>
+						Hacim:
+						<?php if ($canViewHomeFinancialData) : ?>
+							<span class="text-primary"><?php echo tlFormat($pendingOffersSum); ?></span>
+						<?php else : ?>
+							<span class="crm-financial-hidden" title="Bu finansal veriyi görüntüleme yetkiniz bulunmuyor">
+								<i class="fa fa-eye-slash" aria-hidden="true"></i>
+								<span class="sr-only">Finansal veri gizli</span>
+							</span>
+						<?php endif; ?>
 					</span>
 					<span class="crm-badge-soft soft-amber">Pipeline</span>
 				</div>
@@ -156,7 +169,15 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 				</div>
 				<div class="crm-kpi-footer">
 					<span class="weight-600 text-dark" style="font-size: 11px;">
-						Ciro: <span class="text-success"><?php echo tlFormat($wonOffersSum); ?></span>
+						Ciro:
+						<?php if ($canViewHomeFinancialData) : ?>
+							<span class="text-success"><?php echo tlFormat($wonOffersSum); ?></span>
+						<?php else : ?>
+							<span class="crm-financial-hidden" title="Bu finansal veriyi görüntüleme yetkiniz bulunmuyor">
+								<i class="fa fa-eye-slash" aria-hidden="true"></i>
+								<span class="sr-only">Finansal veri gizli</span>
+							</span>
+						<?php endif; ?>
 					</span>
 					<span class="crm-badge-soft soft-emerald">%<?php echo $offerWinRate; ?> Başarı</span>
 				</div>
@@ -1038,4 +1059,4 @@ document.addEventListener('DOMContentLoaded', function() {
 	var savedView = localStorage.getItem('crm_service_board_view') || 'single_row';
 	setView(savedView);
 });
-</script>
+</script>

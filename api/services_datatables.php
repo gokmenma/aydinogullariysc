@@ -441,7 +441,7 @@ foreach ($projects as $project) {
 
     if ($canDel) {
         $actions .= '<div class="dropdown-divider"></div>';
-        $actions .= '<button type="button" class="dropdown-item text-danger" onClick="deleteRecord(\'' . $pid . ' nolu Servisi silmek istediğinize emin misiniz?\',\'' . $pid . '\',\'services\',\'projects\')"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>';
+        $actions .= '<button type="button" class="dropdown-item text-danger" onClick="deleteRecord(\'' . $pid . ' nolu Servisi silmek istediğinize emin misiniz?\',\'' . $pid . '\',\'services\',\'projects\',\'service/list\')"><i class="fa fa-trash text-danger mr-2"></i> Sil</button>';
     }
 
     $actions .= '</div></div>';

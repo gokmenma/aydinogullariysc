@@ -371,6 +371,28 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 gap: 8px;
             }
 
+            .form-field.select-open {
+                position: relative;
+                z-index: 1060;
+            }
+
+            .form-field.select-open .bootstrap-select,
+            .form-field.select-open .dropdown-menu {
+                z-index: 1061;
+            }
+
+            .customer-select-field {
+                position: relative;
+                z-index: 2000;
+            }
+
+            .customer-select-field .bootstrap-select,
+            .customer-select-field .bootstrap-select.show,
+            .customer-select-field .bootstrap-select.open,
+            .customer-select-field .dropdown-menu {
+                z-index: 2001 !important;
+            }
+
             .form-field label {
                 font-size: 13.5px;
                 font-weight: 600;
@@ -423,12 +445,15 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             /* Input group alignments */
             .form-field .input-group {
                 display: flex;
+                flex-wrap: nowrap;
                 align-items: stretch;
                 width: 100%;
             }
 
             .form-field .input-group .bootstrap-select {
-                flex: 1;
+                flex: 1 1 auto;
+                width: 1% !important;
+                min-width: 0;
             }
 
             .form-field .input-group .bootstrap-select .btn {
@@ -437,6 +462,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             }
 
             .form-field .input-group a.btn {
+                flex: 0 0 auto;
                 border-radius: 0 10px 10px 0 !important;
                 border: 1.5px solid #e5e7eb !important;
                 border-left: none !important;
@@ -544,7 +570,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                     <div class="d-flex flex-column" style="gap: 20px;">
                         
                         <!-- Firma Adı -->
-                        <div class="form-field">
+                        <div class="form-field customer-select-field">
                             <label for="customers"><font color="red">(*)</font> Firma Adı</label>
                             <div class="input-group">
                                 <select required name="customers" id="customers" title="Seçiniz..." class="selectpicker form-control" data-style="bg-white" data-size="8" data-live-search="true">
@@ -827,6 +853,22 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 padding: 4px 6px !important;
                 font-size: 13px !important;
                 border-radius: 6px !important;
+            }
+
+            .premium-table .bootstrap-select.form-control {
+                display: block;
+                width: 100% !important;
+                height: 32px !important;
+                min-height: 32px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent !important;
+            }
+
+            .premium-table .bootstrap-select.form-control > .dropdown-toggle {
+                margin: 0 !important;
+                vertical-align: top;
             }
             .premium-table .btn-sm {
                 padding: 4px 6px !important;
@@ -1179,6 +1221,14 @@ $(document).ready(function() {
     });
 
     syncOfferStatusControl($('#offerstatu').val());
+
+    $('.selectpicker')
+        .on('shown.bs.select', function() {
+            $(this).closest('.form-field').addClass('select-open');
+        })
+        .on('hidden.bs.select', function() {
+            $(this).closest('.form-field').removeClass('select-open');
+        });
 
     if (typeof $.fn.wysihtml5 !== 'undefined') {
         $('.textarea_editor').each(function() {

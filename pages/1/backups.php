@@ -38,7 +38,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'live_status') {
             'status' => $l['status'],
             'remote_status' => $l['remote_status'],
             'mail_status' => $l['mail_status'],
-            'created_at' => date('d.m.Y H:i', strtotime($l['created_at'])),
+            'sha256_hash' => $l['sha256_hash'] ?? '',
+            'created_at' => date('d.m.Y H:i:s', strtotime($l['created_at'])),
             'file_exists' => ($filePath && file_exists($filePath))
         ];
     }
@@ -1191,6 +1192,8 @@ function startAsyncBackup(type) {
             
             if (response.success) {
                 $('#activeBackupBanner').removeClass('d-none');
+                wasBackupRunning = true;
+                pollBackupStatus(true);
                 const s = getSwalInstance();
                 if (s) {
                     s.fire({
@@ -1264,13 +1267,11 @@ function startSyncBackup(type) {
                         html: '<div class="text-left font-13 p-2 bg-light rounded mt-2"><strong>Boyut:</strong> ' + response.file_size_formatted + '<br><strong>Süre:</strong> ' + response.duration_sec + ' sn<br><br>' + msg + '</div>',
                         confirmButtonText: 'Harika',
                         confirmButtonColor: '#1e4d79'
-                    }).then(function() {
-                        location.reload();
                     });
                 } else {
                     alert('Yedek başarıyla alındı: ' + response.file_name);
-                    location.reload();
                 }
+                pollBackupStatus(true);
             } else {
                 if (s) {
                     s.fire({
@@ -1333,22 +1334,44 @@ function confirmDeleteBackup(encryptedId, fileName) {
 
 // Canlı Durum Yoklama (Polling)
 let pollTimer = null;
-function pollBackupStatus() {
+let backupLogsSignature = null;
+let wasBackupRunning = false;
+
+function getBackupLogsSignature(logs) {
+    return JSON.stringify((logs || []).map(function(row) {
+        return [row.id, row.status, row.remote_status, row.mail_status, row.file_exists];
+    }));
+}
+
+function pollBackupStatus(forceRender) {
     $.ajax({
         url: 'index.php?p=backups&action=live_status',
         type: 'GET',
         dataType: 'json',
+        cache: false,
+        data: { _: Date.now() },
         success: function(data) {
+            const newSignature = getBackupLogsSignature(data.logs);
+            const hasJustFinished = wasBackupRunning && !data.is_running;
+
             if (data.is_running) {
                 $('#activeBackupBanner').removeClass('d-none');
             } else {
-                if (!$('#activeBackupBanner').hasClass('d-none')) {
-                    $('#activeBackupBanner').addClass('d-none');
-                    renderBackupTable(data.logs);
-                }
+                $('#activeBackupBanner').addClass('d-none');
             }
+
+            if (forceRender === true || hasJustFinished || backupLogsSignature !== newSignature) {
+                renderBackupTable(data.logs);
+                backupLogsSignature = newSignature;
+            }
+
+            wasBackupRunning = data.is_running;
         }
     });
+}
+
+function escapeBackupHtml(value) {
+    return $('<div>').text(value == null ? '' : String(value)).html();
 }
 
 function renderBackupTable(logs) {
@@ -1364,6 +1387,14 @@ function renderBackupTable(logs) {
 
     let html = '';
     logs.forEach(function(row) {
+        const safeEncryptedId = encodeURIComponent(row.encrypted_id || '').replace(/'/g, '%27');
+        const safeNameArgument = encodeURIComponent(row.file_name || '').replace(/'/g, '%27');
+        const safeFileName = escapeBackupHtml(row.file_name || '');
+        const safeFileSize = escapeBackupHtml(row.file_size_formatted || '-');
+        const safeDuration = escapeBackupHtml(row.duration_sec || 0);
+        const safeCreatedAt = escapeBackupHtml(row.created_at || '');
+        const dateParts = safeCreatedAt.split(' ');
+        const safeHash = escapeBackupHtml(row.sha256_hash || '');
         let typeBadge = '';
         if (row.backup_type === 'full') typeBadge = '<span class="badge badge-primary px-2 py-1 font-11"><i class="fa fa-archive mr-1"></i> Tam Sistem</span>';
         else if (row.backup_type === 'db') typeBadge = '<span class="badge badge-success px-2 py-1 font-11"><i class="fa fa-database mr-1"></i> Veritabanı</span>';
@@ -1383,22 +1414,24 @@ function renderBackupTable(logs) {
             : '';
 
         let uploadBtn = (row.file_exists && row.status === 'success')
-            ? '<button type="button" onclick="uploadRemoteBackup(\'' + row.encrypted_id + '\', \'' + safeName + '\')" class="btn btn-outline-info font-11 py-1 px-2" title="Google Drive / Buluta Gönder"><i class="fa fa-cloud-upload"></i></button>'
+            ? '<button type="button" onclick="uploadRemoteBackup(decodeURIComponent(\'' + safeEncryptedId + '\'), decodeURIComponent(\'' + safeNameArgument + '\'))" class="btn btn-outline-info font-11 py-1 px-2" title="Google Drive / Buluta Gönder"><i class="fa fa-cloud-upload"></i></button>'
             : '';
 
         let downloadBtn = (row.file_exists && row.status === 'success')
-            ? '<a href="index.php?p=backups&action=download&id=' + row.encrypted_id + '" class="btn btn-outline-success font-11 py-1 px-2" title="Yedek İndir"><i class="fa fa-download"></i></a>'
+            ? '<a href="index.php?p=backups&action=download&id=' + safeEncryptedId + '" class="btn btn-outline-success font-11 py-1 px-2" title="Yedek İndir"><i class="fa fa-download"></i></a>'
             : '';
 
-        let safeName = (row.file_name || '').replace(/'/g, "\\'");
+        let hashHtml = safeHash
+            ? '<small class="text-muted font-mono" title="SHA-256: ' + safeHash + '"><i class="fa fa-shield mr-1 text-primary"></i>SHA: ' + safeHash.substring(0, 12) + '...</small>'
+            : '';
 
         html += '<tr id="log-row-' + row.id + '">' +
-            '<td><div class="font-13 weight-600 text-dark">' + row.created_at.split(' ')[0] + ' <small class="text-muted">' + (row.created_at.split(' ')[1] || '') + '</small></div><div class="mt-1">' + typeBadge + '</div></td>' +
-            '<td style="word-break: break-all;"><div class="font-13 weight-600 text-dark">' + row.file_name + '</div></td>' +
-            '<td><div class="font-13 weight-700 text-dark">' + row.file_size_formatted + '</div><small class="text-muted"><i class="fa fa-clock-o mr-1"></i>' + row.duration_sec + ' sn</small></td>' +
+            '<td><div class="font-13 weight-600 text-dark">' + dateParts[0] + ' <small class="text-muted">' + (dateParts[1] || '') + '</small></div><div class="mt-1">' + typeBadge + '</div></td>' +
+            '<td style="word-break: break-all;"><div class="font-13 weight-600 text-dark" title="' + safeFileName + '">' + safeFileName + '</div>' + hashHtml + '</td>' +
+            '<td><div class="font-13 weight-700 text-dark">' + safeFileSize + '</div><small class="text-muted"><i class="fa fa-clock-o mr-1"></i>' + safeDuration + ' sn</small></td>' +
             '<td><div class="d-flex align-items-center flex-wrap" style="gap: 4px;">' + statusBadge + ' ' + remoteBadge + ' ' + mailBadge + '</div></td>' +
             '<td class="text-right"><div class="btn-group btn-group-sm">' + uploadBtn + downloadBtn +
-            '<button type="button" onclick="confirmDeleteBackup(\'' + row.encrypted_id + '\', \'' + safeName + '\')" class="btn btn-outline-danger font-11 py-1 px-2" title="Sil"><i class="fa fa-trash"></i></button>' +
+            '<button type="button" onclick="confirmDeleteBackup(decodeURIComponent(\'' + safeEncryptedId + '\'), decodeURIComponent(\'' + safeNameArgument + '\'))" class="btn btn-outline-danger font-11 py-1 px-2" title="Sil"><i class="fa fa-trash"></i></button>' +
             '</div></td></tr>';
     });
     $('#backupLogsTbody').html(html);
@@ -1508,6 +1541,8 @@ function toggleRemoteTypeUI() {
 
 $(document).ready(function() {
     initBackupDataTable();
+    wasBackupRunning = !$('#activeBackupBanner').hasClass('d-none');
+    pollBackupStatus(false);
     pollTimer = setInterval(pollBackupStatus, 4000);
 
     // Dosya seçildiğinde input etiketini güncelle
@@ -1517,5 +1552,3 @@ $(document).ready(function() {
     });
 });
 </script>
-
-
