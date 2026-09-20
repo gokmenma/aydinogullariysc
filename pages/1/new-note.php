@@ -140,7 +140,7 @@ if (@$_GET["st"] == "newsuccess") {
                     <p>Not içeriğini ve detaylı açıklamalarını giriniz</p>
                 </div>
             </div>
-            <div class="editor-wrapper" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+            <div class="editor-wrapper">
                 <textarea name="desc" class="textarea_editor form-control border-radius-8" placeholder="Bir şeyler yaz ..."></textarea>
             </div>
         </div>

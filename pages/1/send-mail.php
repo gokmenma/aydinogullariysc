@@ -215,7 +215,7 @@ if (@$_GET["send"] == "true") {
                     </button>
                 </div>
             </div>
-            <div class="editor-wrapper" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+            <div class="editor-wrapper">
                 <textarea required class="textarea_editor form-control border-radius-8" name="mailicerik" placeholder="E-posta içeriğinizi yazınız..."></textarea>
             </div>
         </div>
