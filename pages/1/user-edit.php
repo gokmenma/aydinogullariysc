@@ -7,11 +7,6 @@ if ($uid <= 0) {
 	exit;
 }
 
-if ($uid === (int) sesset("id")) {
-	header("Location:index.php?p=profile");
-	exit;
-}
-
 permcontrol("useredit");
 
 $conts = $ac->prepare("SELECT * FROM users WHERE id = ?");
