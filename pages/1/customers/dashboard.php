@@ -268,7 +268,6 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 }
 
 .table-modern {
-    table-layout: fixed;
     width: 100% !important;
     margin-bottom: 0 !important;
 }
@@ -278,28 +277,42 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.2px;
     border-bottom: 2px solid #e2e8f0;
-    padding: 10px 8px;
+    padding: 8px 6px;
     vertical-align: middle;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .table-modern tbody td {
-    padding: 10px 8px;
+    padding: 8px 6px;
     vertical-align: middle;
     border-bottom: 1px solid #f1f5f9;
     font-size: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .table-modern tbody tr:hover td {
     background: #f8fafc;
 }
-.table-no-scroll {
-    overflow-x: hidden !important;
+.table-modern .col-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+.table-modern .col-main {
     width: 100%;
+    max-width: 0;
+}
+.table-modern .col-main .cell-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+.table-no-scroll {
+    overflow-x: auto !important;
+    width: 100%;
+}
+.text-nowrap {
+    white-space: nowrap !important;
 }
 .cell-ellipsis {
     white-space: nowrap;
@@ -591,13 +604,13 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 48%;">Kullanıcı / Temsilci</th>
-                                    <th style="width: 26%;" class="text-center">Kayıt Sayısı</th>
-                                    <th style="width: 26%;" class="text-center">E-Posta / GSM</th>
+                                    <th class="col-fit text-center p-1">#</th>
+                                    <th class="col-main">Kullanıcı / Temsilci</th>
+                                    <th class="col-fit text-center">Kayıt Sayısı</th>
+                                    <th class="col-fit text-center">E-Posta / GSM</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -606,18 +619,18 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                         $rankClass = $index === 0 ? 'rank-badge-1' : ($index === 1 ? 'rank-badge-2' : ($index === 2 ? 'rank-badge-3' : 'rank-badge-default'));
                                     ?>
                                         <tr>
-                                            <td class="text-center p-1">
+                                            <td class="col-fit text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="d-flex align-items-center" style="gap: 8px;">
-                                                    <div class="user-avatar-badge" style="width: 30px; height: 30px; font-size: 11px;">
+                                                    <div class="user-avatar-badge" style="width: 30px; height: 30px; font-size: 11px; flex-shrink: 0;">
                                                         <?php 
                                                             $initials = mb_substr($u->username ?? 'U', 0, 2, 'UTF-8');
                                                             echo htmlspecialchars(mb_strtoupper($initials, 'UTF-8'), ENT_QUOTES, 'UTF-8');
                                                         ?>
                                                     </div>
-                                                    <div style="min-width: 0;">
+                                                    <div style="min-width: 0; flex: 1;">
                                                         <div class="font-weight-bold text-dark cell-ellipsis font-12" title="<?php echo htmlspecialchars($u->username, ENT_QUOTES, 'UTF-8'); ?>">
                                                             <?php echo htmlspecialchars($u->username, ENT_QUOTES, 'UTF-8'); ?>
                                                         </div>
@@ -627,10 +640,10 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="badge badge-primary px-2 py-1 font-11 font-weight-bold"><?php echo $u->total_customers; ?></span>
                                             </td>
-                                            <td class="text-center font-11 text-muted">
+                                            <td class="col-fit text-center font-11 text-muted text-nowrap">
                                                 <span class="text-success font-weight-bold"><?php echo $u->with_email; ?></span> / 
                                                 <span class="text-info font-weight-bold"><?php echo $u->with_gsm; ?></span>
                                             </td>
@@ -667,14 +680,14 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 38%;">Firma Adı</th>
-                                    <th style="width: 18%;" class="text-center">Şehir / Grup</th>
-                                    <th style="width: 24%;" class="text-right">Teklif Tutarı</th>
-                                    <th style="width: 20%;" class="text-center">Onay / Oran</th>
+                                    <th class="col-fit text-center p-1">#</th>
+                                    <th class="col-main">Firma Adı</th>
+                                    <th class="col-fit text-center">Şehir / Grup</th>
+                                    <th class="col-fit text-right">Teklif Tutarı</th>
+                                    <th class="col-fit text-center">Onay / Oran</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -683,23 +696,23 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                         $rankClass = $index === 0 ? 'rank-badge-1' : ($index === 1 ? 'rank-badge-2' : ($index === 2 ? 'rank-badge-3' : 'rank-badge-default'));
                                     ?>
                                         <tr>
-                                            <td class="text-center p-1">
+                                            <td class="col-fit text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <a href="index.php?p=customer-info&id=<?php echo $c->customer_id; ?>" class="font-weight-bold text-dark cell-ellipsis" title="<?php echo htmlspecialchars($c->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($c->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                                 </a>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="badge badge-light border text-muted font-11">
                                                     <?php echo htmlspecialchars($c->city ?: 'Belirtilmedi', ENT_QUOTES, 'UTF-8'); ?>
                                                 </span>
                                             </td>
-                                            <td class="text-right font-weight-bold text-dark font-12">
+                                            <td class="col-fit text-right font-weight-bold text-dark font-12 text-nowrap">
                                                 <?php echo formatCompactTR($c->total_amount); ?>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="badge badge-success px-2 py-1 font-11">
                                                     <?php echo $c->won_offers; ?> / %<?php echo $c->win_rate; ?>
                                                 </span>
@@ -734,19 +747,19 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 48%;">Firma Adı</th>
-                                    <th style="width: 26%;">İletişim</th>
-                                    <th style="width: 26%;" class="text-right">Kayıt Tarihi</th>
+                                    <th class="col-main">Firma Adı</th>
+                                    <th class="col-fit">İletişim</th>
+                                    <th class="col-fit text-right">Kayıt Tarihi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($recentCustomers)) : ?>
                                     <?php foreach ($recentCustomers as $rc) : ?>
                                         <tr>
-                                            <td>
+                                            <td class="col-main">
                                                 <a href="index.php?p=customer-info&id=<?php echo $rc->id; ?>" class="font-weight-bold text-dark cell-ellipsis font-12" title="<?php echo htmlspecialchars($rc->company, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($rc->company, ENT_QUOTES, 'UTF-8'); ?>
                                                 </a>

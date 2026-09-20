@@ -263,7 +263,6 @@ foreach ($typeDistribution as $td) {
 }
 
 .table-modern {
-    table-layout: fixed;
     width: 100% !important;
     margin-bottom: 0 !important;
 }
@@ -273,28 +272,42 @@ foreach ($typeDistribution as $td) {
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.2px;
     border-bottom: 2px solid #e2e8f0;
-    padding: 10px 8px;
+    padding: 8px 6px;
     vertical-align: middle;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .table-modern tbody td {
-    padding: 10px 8px;
+    padding: 8px 6px;
     vertical-align: middle;
     border-bottom: 1px solid #f1f5f9;
     font-size: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .table-modern tbody tr:hover td {
     background: #f8fafc;
 }
-.table-no-scroll {
-    overflow-x: hidden !important;
+.table-modern .col-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+.table-modern .col-main {
     width: 100%;
+    max-width: 0;
+}
+.table-modern .col-main .cell-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+.table-no-scroll {
+    overflow-x: auto !important;
+    width: 100%;
+}
+.text-nowrap {
+    white-space: nowrap !important;
 }
 .cell-ellipsis {
     white-space: nowrap;
@@ -572,14 +585,14 @@ foreach ($typeDistribution as $td) {
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 44%;">Firma Adı</th>
-                                    <th style="width: 18%;" class="text-center">YSC / HST</th>
-                                    <th style="width: 18%;" class="text-center">Toplam Rapor</th>
-                                    <th style="width: 20%;" class="text-right">Son Rapor</th>
+                                    <th class="col-fit text-center p-1">#</th>
+                                    <th class="col-main">Firma Adı</th>
+                                    <th class="col-fit text-center">YSC / HST</th>
+                                    <th class="col-fit text-center">Toplam Rapor</th>
+                                    <th class="col-fit text-right">Son Rapor</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -588,10 +601,10 @@ foreach ($typeDistribution as $td) {
                                         $rankClass = $index === 0 ? 'rank-badge-1' : ($index === 1 ? 'rank-badge-2' : ($index === 2 ? 'rank-badge-3' : 'rank-badge-default'));
                                     ?>
                                         <tr>
-                                            <td class="text-center p-1">
+                                            <td class="col-fit text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="cell-ellipsis font-weight-bold text-dark font-12" title="<?php echo htmlspecialchars($c->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($c->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                                     <?php if (!empty($c->deleted_at)) : ?>
@@ -605,15 +618,15 @@ foreach ($typeDistribution as $td) {
                                                     <?php endif; ?>
                                                 </div>
                                             </td>
-                                            <td class="text-center font-12">
+                                            <td class="col-fit text-center font-12 text-nowrap">
                                                 <span class="text-danger font-weight-bold"><?php echo $c->ysc_reports; ?></span>
                                                 <span class="text-muted"> / </span>
                                                 <span class="text-primary font-weight-bold"><?php echo $c->hst_reports; ?></span>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="badge badge-light px-2 py-1 font-12 font-weight-bold border"><?php echo $c->total_reports; ?></span>
                                             </td>
-                                            <td class="text-right font-11 text-muted">
+                                            <td class="col-fit text-right font-11 text-muted text-nowrap">
                                                 <?php echo !empty($c->last_report_date) ? date('d.m.Y', strtotime($c->last_report_date)) : '-'; ?>
                                             </td>
                                         </tr>
@@ -646,14 +659,14 @@ foreach ($typeDistribution as $td) {
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 44%;">Kontrolör / Uzman</th>
-                                    <th style="width: 18%;" class="text-center">YSC / HST</th>
-                                    <th style="width: 18%;" class="text-center">Toplam Rapor</th>
-                                    <th style="width: 20%;" class="text-right">Son Aktivite</th>
+                                    <th class="col-fit text-center p-1">#</th>
+                                    <th class="col-main">Kontrolör / Uzman</th>
+                                    <th class="col-fit text-center">YSC / HST</th>
+                                    <th class="col-fit text-center">Toplam Rapor</th>
+                                    <th class="col-fit text-right">Son Aktivite</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -663,10 +676,10 @@ foreach ($typeDistribution as $td) {
                                         $initials = mb_substr($u->controller_name, 0, 2, 'UTF-8');
                                     ?>
                                         <tr>
-                                            <td class="text-center p-1">
+                                            <td class="col-fit text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="d-flex align-items-center" style="gap: 8px;">
                                                     <div class="tech-avatar-badge" style="width: 30px; height: 30px; font-size: 11px; flex-shrink: 0;">
                                                         <?php echo strtoupper($initials); ?>
@@ -681,15 +694,15 @@ foreach ($typeDistribution as $td) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-center font-12">
+                                            <td class="col-fit text-center font-12 text-nowrap">
                                                 <span class="text-danger font-weight-bold"><?php echo $u->ysc_reports; ?></span>
                                                 <span class="text-muted"> / </span>
                                                 <span class="text-primary font-weight-bold"><?php echo $u->hst_reports; ?></span>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="badge badge-light px-2 py-1 font-12 font-weight-bold border" style="color: #0284c7;"><?php echo $u->total_reports; ?></span>
                                             </td>
-                                            <td class="text-right font-11 text-muted">
+                                            <td class="col-fit text-right font-11 text-muted text-nowrap">
                                                 <?php echo !empty($u->last_report_date) ? date('d.m.Y', strtotime($u->last_report_date)) : '-'; ?>
                                             </td>
                                         </tr>
@@ -724,17 +737,17 @@ foreach ($typeDistribution as $td) {
                     </a>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                    <div class="table-responsive">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 11%;">Rapor No</th>
-                                    <th style="width: 25%;">Firma Adı</th>
-                                    <th style="width: 20%;">Rapor Türü</th>
-                                    <th style="width: 10%;">İş Emri</th>
-                                    <th style="width: 11%;">Kontrol Tarihi</th>
-                                    <th style="width: 11%;">Geçerlilik</th>
-                                    <th style="width: 12%;">Kontrolör</th>
+                                    <th class="col-fit">Rapor No</th>
+                                    <th class="col-main" style="min-width: 140px;">Firma Adı</th>
+                                    <th class="col-fit">Rapor Türü</th>
+                                    <th class="col-fit">İş Emri</th>
+                                    <th class="col-fit">Kontrol Tarihi</th>
+                                    <th class="col-fit">Geçerlilik</th>
+                                    <th class="col-fit">Kontrolör</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -743,12 +756,12 @@ foreach ($typeDistribution as $td) {
                                         $viewLink = !empty($rr->page_link) ? "index.php?p=reports/{$rr->page_link}/report-view-{$rr->page_link}&id={$rr->id}" : "#";
                                     ?>
                                         <tr>
-                                            <td>
+                                            <td class="col-fit">
                                                 <a href="<?php echo $viewLink; ?>" class="font-weight-bold text-info font-12 cell-ellipsis" title="<?php echo htmlspecialchars($rr->report_number ?: ('#'.$rr->id), ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($rr->report_number ?: ('#'.$rr->id), ENT_QUOTES, 'UTF-8'); ?>
                                                 </a>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="cell-ellipsis font-weight-bold text-dark font-12" title="<?php echo htmlspecialchars($rr->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($rr->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                                 </div>
@@ -756,7 +769,7 @@ foreach ($typeDistribution as $td) {
                                                     <div class="cell-ellipsis font-10 text-muted"><?php echo htmlspecialchars($rr->city, ENT_QUOTES, 'UTF-8'); ?></div>
                                                 <?php endif; ?>
                                             </td>
-                                            <td>
+                                            <td class="col-fit">
                                                 <span class="badge badge-light px-2 py-1 font-11 border text-truncate d-inline-block" style="max-width: 100%;">
                                                     <?php echo htmlspecialchars($rr->report_name, ENT_QUOTES, 'UTF-8'); ?>
                                                 </span>

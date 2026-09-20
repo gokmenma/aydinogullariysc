@@ -470,7 +470,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 top: 50%;
                 right: 0;
                 z-index: 1065;
-                width: 310px;
+                width: 240px;
                 max-width: calc(100vw - 24px);
                 transform: translate(100%, -50%);
                 transition: transform 0.28s ease;
@@ -486,9 +486,9 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 right: 100%;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 5px;
                 min-height: 112px;
-                padding: 12px 10px;
+                padding: 10px 6px;
                 border: 0;
                 border-radius: 12px 0 0 12px;
                 background: linear-gradient(180deg, #2563eb, #1e3a5f);
@@ -499,7 +499,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             }
 
             .offer-totals-toggle span {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
                 letter-spacing: .04em;
                 line-height: 1;
@@ -599,7 +599,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .dark-mode .offer-grand-total strong { color: #dbeafe; }
 
             @media (max-width: 575.98px) {
-                .offer-totals-drawer { width: min(300px, calc(100vw - 54px)); }
+                .offer-totals-drawer { width: min(235px, calc(100vw - 54px)); }
                 .offer-totals-drawer.is-open + .offer-totals-backdrop { display: block; }
             }
 

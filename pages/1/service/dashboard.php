@@ -317,13 +317,12 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 
 /* Table styles inside dashboard (NO SCROLL OPTIMIZED) */
 .dash-card .table-responsive {
-    overflow-x: hidden !important;
+    overflow-x: auto;
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
 }
 .dash-table {
-    table-layout: fixed !important;
     width: 100% !important;
     margin-bottom: 0 !important;
     border-collapse: collapse !important;
@@ -335,23 +334,18 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     font-size: 11.5px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    padding: 8px 6px !important;
+    padding: 8px 8px !important;
     border-bottom: 1px solid #e2e8f0;
     border-top: none;
     vertical-align: middle;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .dash-table td {
-    padding: 7px 6px !important;
+    padding: 8px 8px !important;
     vertical-align: middle;
     border-top: 1px solid #f1f5f9;
     color: #334155;
     font-size: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .dash-table tbody tr:hover {
     background-color: #f8fafc;
@@ -363,6 +357,14 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 100%;
+}
+.col-fit {
+    width: 1% !important;
+    white-space: nowrap !important;
+}
+.col-main {
+    width: 100% !important;
+    min-width: 130px;
 }
 
 .service-code-badge {
@@ -739,21 +741,14 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                     </a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table dash-table mb-0">
-                        <colgroup>
-                            <col style="width: 28px;">
-                            <col style="width: 48%;">
-                            <col style="width: 18%;">
-                            <col style="width: 14%;">
-                            <col style="width: 20%;">
-                        </colgroup>
+                    <table class="table dash-table mb-0 no-filter">
                         <thead>
                             <tr>
-                                <th class="text-center">#</th>
-                                <th>Firma / Cari</th>
-                                <th>Şehir</th>
-                                <th class="text-center">İşlem</th>
-                                <th class="text-right">Son Servis</th>
+                                <th class="col-fit text-center">#</th>
+                                <th class="col-main">Firma / Cari</th>
+                                <th class="col-fit">Şehir</th>
+                                <th class="col-fit text-center">İşlem</th>
+                                <th class="col-fit text-right">Son Servis</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -767,21 +762,21 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                     $rankClass = $rank === 1 ? 'rank-badge-1' : ($rank === 2 ? 'rank-badge-2' : ($rank === 3 ? 'rank-badge-3' : 'rank-badge-default'));
                             ?>
                                 <tr>
-                                    <td class="text-center">
+                                    <td class="col-fit text-center">
                                         <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $rank; ?></span>
                                     </td>
-                                    <td>
+                                    <td class="col-main">
                                         <a href="index.php?p=service/list&cid=<?php echo (int)$cust->customer_id; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($cust->company, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($cust->company, ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <span class="text-muted table-text-truncate"><?php echo htmlspecialchars($cust->city ?: '-', ENT_QUOTES, 'UTF-8'); ?></span>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="col-fit text-center text-nowrap">
                                         <span class="badge badge-primary font-11 px-1"><?php echo $cust->total_services; ?></span>
                                     </td>
-                                    <td class="text-right">
+                                    <td class="col-fit text-right text-nowrap">
                                         <span class="text-muted font-11"><?php echo !empty($cust->last_service_date) ? date('d.m.Y', strtotime($cust->last_service_date)) : '-'; ?></span>
                                     </td>
                                 </tr>
@@ -802,21 +797,14 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                     <span class="badge badge-light text-muted font-11"><?php echo count($topUsers); ?> Aktif Kullanıcı</span>
                 </div>
                 <div class="table-responsive">
-                    <table class="table dash-table mb-0">
-                        <colgroup>
-                            <col style="width: 28px;">
-                            <col style="width: 36%;">
-                            <col style="width: 24%;">
-                            <col style="width: 14%;">
-                            <col style="width: 26%;">
-                        </colgroup>
+                    <table class="table dash-table mb-0 no-filter">
                         <thead>
                             <tr>
-                                <th class="text-center">#</th>
-                                <th>Kullanıcı</th>
-                                <th>Ünvan</th>
-                                <th class="text-center">Açılan</th>
-                                <th class="text-right">Başarı Oranı</th>
+                                <th class="col-fit text-center">#</th>
+                                <th class="col-main">Kullanıcı</th>
+                                <th class="col-fit">Ünvan</th>
+                                <th class="col-fit text-center">Açılan</th>
+                                <th class="col-fit text-right">Başarı Oranı</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -830,10 +818,10 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                     $rankClass = $rank === 1 ? 'rank-badge-1' : ($rank === 2 ? 'rank-badge-2' : ($rank === 3 ? 'rank-badge-3' : 'rank-badge-default'));
                             ?>
                                 <tr>
-                                    <td class="text-center">
+                                    <td class="col-fit text-center">
                                         <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $rank; ?></span>
                                     </td>
-                                    <td>
+                                    <td class="col-main">
                                         <div class="d-flex align-items-center overflow-hidden">
                                             <span class="avatar-sm mr-1">
                                                 <?php echo strtoupper(mb_substr($usr->username, 0, 1, 'UTF-8')); ?>
@@ -843,15 +831,15 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                             </span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <span class="text-muted table-text-truncate" title="<?php echo htmlspecialchars($usr->user_title ?: 'Personel', ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($usr->user_title ?: 'Personel', ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="col-fit text-center text-nowrap">
                                         <span class="badge badge-secondary font-11 px-1"><?php echo $usr->total_services; ?></span>
                                     </td>
-                                    <td class="text-right">
+                                    <td class="col-fit text-right text-nowrap">
                                         <div class="d-inline-flex align-items-center justify-content-end" style="width: 100%;">
                                             <div class="progress mr-1" style="width: 45px; height: 5px; background-color: #e2e8f0; border-radius: 3px;">
                                                 <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $usr->completion_rate; ?>%;"></div>
@@ -880,21 +868,14 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                     <span class="badge badge-warning text-dark font-11">Öncelikli Takip</span>
                 </div>
                 <div class="table-responsive">
-                    <table class="table dash-table mb-0">
-                        <colgroup>
-                            <col style="width: 78px;">
-                            <col style="width: 38%;">
-                            <col style="width: 24%;">
-                            <col style="width: 20%;">
-                            <col style="width: 32px;">
-                        </colgroup>
+                    <table class="table dash-table mb-0 no-filter">
                         <thead>
                             <tr>
-                                <th>Servis No</th>
-                                <th>Müşteri</th>
-                                <th>Konu / Tür</th>
-                                <th>Bölge</th>
-                                <th class="text-center">İşlem</th>
+                                <th class="col-fit">Servis No</th>
+                                <th class="col-main">Müşteri</th>
+                                <th class="col-fit">Konu / Tür</th>
+                                <th class="col-fit">Bölge</th>
+                                <th class="col-fit text-center">İşlem</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -907,27 +888,27 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                     $encId = Security::encrypt($ps->id);
                             ?>
                                 <tr>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <a href="index.php?p=service-view&id=<?php echo $encId; ?>" class="service-code-badge" title="Servisi Görüntüle">
                                             <?php echo htmlspecialchars($ps->service_number ?: ('SRV-' . $ps->id), ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col-main">
                                         <a href="index.php?p=service/list&cid=<?php echo (int)$ps->pcid; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($ps->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($ps->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <span class="table-text-truncate font-11 text-muted" title="<?php echo htmlspecialchars($ps->service_type_title, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($ps->service_type_title, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <span class="table-text-truncate font-11 text-muted" title="<?php echo htmlspecialchars($ps->region_title, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($ps->region_title, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="col-fit text-center">
                                         <a href="index.php?p=service-view&id=<?php echo $encId; ?>" class="btn btn-sm btn-outline-info p-0" title="İncele" style="width: 22px; height: 22px; line-height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;">
                                             <i class="fa fa-eye font-11"></i>
                                         </a>
@@ -952,21 +933,14 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                     </a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table dash-table mb-0">
-                        <colgroup>
-                            <col style="width: 78px;">
-                            <col style="width: 36%;">
-                            <col style="width: 24%;">
-                            <col style="width: 22%;">
-                            <col style="width: 32px;">
-                        </colgroup>
+                    <table class="table dash-table mb-0 no-filter">
                         <thead>
                             <tr>
-                                <th>Servis No</th>
-                                <th>Müşteri</th>
-                                <th>Konu / Tür</th>
-                                <th>Durum</th>
-                                <th class="text-center">İşlem</th>
+                                <th class="col-fit">Servis No</th>
+                                <th class="col-main">Müşteri</th>
+                                <th class="col-fit">Konu / Tür</th>
+                                <th class="col-fit">Durum</th>
+                                <th class="col-fit text-center">İşlem</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -979,28 +953,28 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                     $encId = Security::encrypt($rs->id);
                             ?>
                                 <tr>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <a href="index.php?p=service-view&id=<?php echo $encId; ?>" class="service-code-badge" title="Görüntüle">
                                             <?php echo htmlspecialchars($rs->service_number ?: ('SRV-' . $rs->id), ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col-main">
                                         <a href="index.php?p=service/list&cid=<?php echo (int)$rs->pcid; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($rs->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($rs->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <span class="table-text-truncate font-11 text-muted" title="<?php echo htmlspecialchars($rs->service_type_title, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($rs->service_type_title, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="col-fit text-nowrap">
                                         <span class="badge-status table-text-truncate" style="background-color: <?php echo !empty($rs->status_color) ? htmlspecialchars($rs->status_color, ENT_QUOTES, 'UTF-8') . '22' : '#e2e8f0'; ?>; color: <?php echo !empty($rs->status_color) ? htmlspecialchars($rs->status_color, ENT_QUOTES, 'UTF-8') : '#475569'; ?>;" title="<?php echo htmlspecialchars($rs->status_title, ENT_QUOTES, 'UTF-8'); ?>">
                                             <i class="fa fa-circle" style="font-size: 6px;"></i>
                                             <?php echo htmlspecialchars($rs->status_title, ENT_QUOTES, 'UTF-8'); ?>
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="col-fit text-center">
                                         <a href="index.php?p=service-view&id=<?php echo $encId; ?>" class="btn btn-sm btn-outline-info p-0" title="İncele" style="width: 22px; height: 22px; line-height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;">
                                             <i class="fa fa-eye font-11"></i>
                                         </a>

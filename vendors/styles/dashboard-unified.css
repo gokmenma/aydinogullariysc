@@ -272,3 +272,60 @@ body.dark-mode .unified-dashboard .dash-table tbody td {
     border-color: #334155 !important;
     color: #e2e8f0 !important;
 }
+
+/* Dashboard modern tablolar */
+.unified-dashboard .table-modern {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+}
+.unified-dashboard .table-modern thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 8px 6px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.unified-dashboard .table-modern tbody td {
+    padding: 8px 6px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 12px;
+}
+.unified-dashboard .table-modern tbody tr:hover td {
+    background: #f8fafc;
+}
+.unified-dashboard .table-modern .col-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+.unified-dashboard .table-modern .col-main {
+    width: 100%;
+    max-width: 0;
+}
+.unified-dashboard .table-modern .col-main .cell-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+.unified-dashboard .table-no-scroll {
+    overflow-x: auto !important;
+    width: 100%;
+}
+.unified-dashboard .text-nowrap {
+    white-space: nowrap !important;
+}
+.unified-dashboard .cell-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+
