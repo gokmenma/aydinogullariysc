@@ -554,8 +554,9 @@ try {
     .logs-header-card .header-overlay {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: url('src/images/pattern.png') repeat;
-        opacity: 0.05;
+        background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
+        background-size: 16px 16px;
+        opacity: 0.25;
     }
     .logs-header-card .relative-layout {
         position: relative;

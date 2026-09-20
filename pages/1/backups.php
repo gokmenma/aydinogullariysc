@@ -9,6 +9,9 @@ if (!permtrue("backupmanage") && sesset("id") != 1) {
     exit;
 }
 
+$canDelete = (permtrue("backupdelete") || sesset("id") == 1 || sesset("role") == 1);
+$csrfToken = Security::csrf();
+
 $backupModel = new BackupModel();
 $backupService = new BackupService();
 $settings = $backupModel->getBackupSettings();
@@ -47,6 +50,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'live_status') {
     echo json_encode([
         'is_running' => ($active !== null),
         'active_backup' => $active,
+        'can_delete' => $canDelete,
         'logs' => $formattedLogs
     ], JSON_UNESCAPED_UNICODE);
     exit;
@@ -314,34 +318,99 @@ if (isset($_GET['action']) && $_GET['action'] === 'download' && !empty($_GET['id
     }
 }
 
-// 2. SİLME İŞLEMİ
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'])) {
-    $rawId = Security::decrypt($_GET['id']);
-    if ($rawId) {
-        $log = $backupModel->getLogById((int)$rawId);
-        if ($log) {
-            // 1. Yerel fiziksel dosyayı sil
-            $filePath = realpath(__DIR__ . '/../../' . $log['file_path']);
-            $allowedDir = realpath(__DIR__ . '/../../backups');
-            if ($filePath && str_starts_with($filePath, $allowedDir) && file_exists($filePath)) {
-                @unlink($filePath);
-            }
+// -------------------------------------------------------------
+// AJAX ENDPOINT: GÜVENLİ YEDEK SİLME (POST + CSRF + YETKİ KONTROLÜ)
+// -------------------------------------------------------------
+if (isset($_POST['action']) && $_POST['action'] === 'ajax_delete_backup' && !empty($_POST['id'])) {
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
 
-            // 2. Harici depolamaya (Google Drive / FTP) yüklenmişse oradan da sil
-            if ($log['remote_status'] === 'uploaded' || !empty($log['remote_file_id'])) {
-                $backupService->deleteFromRemote($log, $settings);
-            }
+    // 1. Yetki Kontrolü
+    if (!$canDelete) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Yetkisiz İşlem: Sistem yedeklerini silme yetkiniz (backupdelete) bulunmamaktadır.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-            // 3. Veritabanı kaydını sil
-            $backupModel->deleteLog((int)$rawId);
+    // 2. CSRF Güvenlik Doğrulaması
+    $receivedCsrf = $_POST['csrf_token'] ?? '';
+    if (empty($receivedCsrf) || !hash_equals($csrfToken, $receivedCsrf)) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Güvenlik doğrulaması (CSRF) başarısız oldu. Lütfen sayfayı yenileyip tekrar deneyiniz.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-            if (function_exists('audit_log')) {
-                audit_log("delete", "backup", "Yedek dosyası silindi (Yerel + Harici/Bulut): " . $log['file_name'], "backup_logs", (string)$rawId);
-            }
-            header("Location: index.php?p=backups&st=deleted");
+    // 3. ID Çözümleme
+    $rawId = Security::decrypt($_POST['id']);
+    if (!$rawId) {
+        echo json_encode(['success' => false, 'error' => 'Geçersiz veya süresi dolmuş dosya kimliği.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $log = $backupModel->getLogById((int)$rawId);
+    if (!$log) {
+        echo json_encode(['success' => false, 'error' => 'Yedek kaydı bulunamadı.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // 4. İsteğe Bağlı Kullanıcı Şifresi Doğrulaması (Ekstra Güvenlik Katmanı)
+    if (!empty($_POST['confirm_password'])) {
+        $userId = (int)sesset('id');
+        $userStmt = $backupModel->getDb()->prepare("SELECT password FROM users WHERE id = ?");
+        $userStmt->execute([$userId]);
+        $userHash = $userStmt->fetchColumn();
+
+        $inputHash = md5(md5(md5($_POST['confirm_password'])));
+        $isValidPassword = ($userHash && ($userHash === $inputHash || password_verify($_POST['confirm_password'], $userHash)));
+
+        if (!$isValidPassword) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Girilen kullanıcı şifresi hatalı! Güvenliğiniz için silme işlemi durduruldu.'
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
     }
+
+    // 5. Yerel Fiziksel Dosyayı Sil
+    $filePath = realpath(__DIR__ . '/../../' . $log['file_path']);
+    $allowedDir = realpath(__DIR__ . '/../../backups');
+    if ($filePath && str_starts_with($filePath, $allowedDir) && file_exists($filePath)) {
+        @unlink($filePath);
+    }
+
+    // 6. Harici Depolamadaki Karşılığını (Google Drive Çöp Kutusuna / FTP) Sil
+    $remoteNote = '';
+    if ($log['remote_status'] === 'uploaded' || !empty($log['remote_file_id'])) {
+        $delRemote = $backupService->deleteFromRemote($log, $settings);
+        if ($delRemote['success']) {
+            $remoteNote = ' (Google Drive çöp kutusuna taşındı)';
+        }
+    }
+
+    // 7. Veritabanından Kaydı Sil
+    $backupModel->deleteLog((int)$rawId);
+
+    // 8. Güvenlik Denetim İzi (Audit Logging)
+    if (function_exists('audit_log')) {
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
+        audit_log("delete", "backup", "Yedek güvenli şekilde silindi: " . $log['file_name'] . $remoteNote . " (IP: $clientIp)", "backup_logs", (string)$rawId);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Yedek dosyası güvenli bir şekilde silindi' . $remoteNote . '.'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 // 3. SENKRON MANUEL YEDEK (POST Form Fallback)
@@ -651,9 +720,11 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                                             <i class="fa fa-download"></i>
                                                         </a>
                                                     <?php endif; ?>
-                                                    <button type="button" onclick="confirmDeleteBackup('<?php echo $encryptedId; ?>', '<?php echo htmlspecialchars($row['file_name'], ENT_QUOTES, 'UTF-8'); ?>')" class="btn btn-outline-danger font-11 py-1 px-2" title="Sil">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
+                                                    <?php if ($canDelete): ?>
+                                                        <button type="button" onclick="confirmDeleteBackup('<?php echo $encryptedId; ?>', '<?php echo htmlspecialchars($row['file_name'], ENT_QUOTES, 'UTF-8'); ?>')" class="btn btn-outline-danger font-11 py-1 px-2" title="Güvenli Sil">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>
@@ -927,8 +998,9 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
 .backup-header-card .header-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: url('src/images/pattern.png') repeat;
-    opacity: 0.06;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0);
+    background-size: 16px 16px;
+    opacity: 0.25;
     border-radius: 16px;
     pointer-events: none;
 }
@@ -1345,31 +1417,130 @@ function cancelActiveBackup() {
     }, 'json');
 }
 
+window.canDeleteBackups = <?php echo $canDelete ? 'true' : 'false'; ?>;
+window.backupCsrfToken = "<?php echo $csrfToken; ?>";
+
 function confirmDeleteBackup(encryptedId, fileName) {
     const s = getSwalInstance();
     const displayName = fileName ? '"' + fileName + '"' : 'Bu yedek';
 
-    if (s) {
+    if (!window.canDeleteBackups) {
+        if (s) {
+            s.fire({
+                icon: 'error',
+                title: 'Yetkisiz İşlem',
+                text: 'Sistem yedeklerini silme yetkiniz (backupdelete) bulunmamaktadır.'
+            });
+        } else {
+            alert('Yedek silme yetkiniz bulunmamaktadır.');
+        }
+        return;
+    }
+
+    if (s && typeof s.fire === 'function') {
         s.fire({
             title: 'Yedek Silinsin mi?',
-            text: displayName + ' dosyası ve kaydı kalıcı olarak silinecektir.',
+            html: '<div class="text-left font-13 text-secondary mb-3">' +
+                  '<strong>' + escapeBackupHtml(displayName) + '</strong> dosyası sunucudan ve Google Drive alanından silinecektir.<br>' +
+                  '<span class="text-muted font-11">Google Drive üzerindeki dosya çöp kutusuna taşınacaktır (30 gün kurtarılabilir).</span></div>' +
+                  '<div class="text-left font-12 weight-600 text-dark mb-1">Onaylamak için kutucuğa büyük harflerle <strong>SİL</strong> yazınız:</div>',
+            input: 'text',
+            inputPlaceholder: 'SİL',
+            inputAttributes: {
+                autocapitalize: 'characters',
+                autocomplete: 'off'
+            },
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#ffffff',
-            confirmButtonText: '<i class="fa fa-trash mr-1"></i> Evet, Sil',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: '<i class="fa fa-trash mr-1"></i> Evet, Güvenli Sil',
             cancelButtonText: 'İptal',
-            reverseButtons: false
+            preConfirm: (inputValue) => {
+                if (inputValue !== 'SİL') {
+                    Swal.showValidationMessage('Silme işlemini onaylamak için kutucuğa büyük harflerle "SİL" yazmalısınız.');
+                    return false;
+                }
+                return true;
+            }
         }).then(function(result) {
             if (result && (result.isConfirmed || result.value === true)) {
-                window.location.href = 'index.php?p=backups&action=delete&id=' + encryptedId;
+                executeSecureDelete(encryptedId);
             }
         });
     } else {
         if (confirm(displayName + ' dosyasını silmek istediğinize emin misiniz?')) {
-            window.location.href = 'index.php?p=backups&action=delete&id=' + encryptedId;
+            executeSecureDelete(encryptedId);
         }
     }
+}
+
+function executeSecureDelete(encryptedId) {
+    const s = getSwalInstance();
+    if (s) {
+        s.fire({
+            title: 'Siliniyor...',
+            text: 'Yedek dosyası yerel sunucudan ve Google Drive alanından güvenle siliniyor.',
+            allowOutsideClick: false,
+            didOpen: function() {
+                if (typeof Swal !== 'undefined' && typeof Swal.showLoading === 'function') {
+                    Swal.showLoading();
+                }
+            }
+        });
+    }
+
+    $.ajax({
+        url: 'index.php?p=backups',
+        type: 'POST',
+        data: {
+            action: 'ajax_delete_backup',
+            id: encryptedId,
+            csrf_token: window.backupCsrfToken || ''
+        },
+        dataType: 'json',
+        success: function(res) {
+            if (res.success) {
+                if (s) {
+                    s.fire({
+                        icon: 'success',
+                        title: 'Başarıyla Silindi',
+                        text: res.message || 'Yedek dosyası silindi.',
+                        confirmButtonColor: '#1e4d79'
+                    });
+                } else {
+                    alert(res.message);
+                }
+                pollBackupStatus(true);
+            } else {
+                if (s) {
+                    s.fire({
+                        icon: 'error',
+                        title: 'Silme Başarısız',
+                        text: res.error || 'Yedek silinemedi.'
+                    });
+                } else {
+                    alert('Hata: ' + (res.error || 'Yedek silinemedi.'));
+                }
+            }
+        },
+        error: function(xhr) {
+            let errMsg = 'Sunucuyla iletişim kurulurken bir hata oluştu.';
+            try {
+                const json = JSON.parse(xhr.responseText);
+                if (json.error) errMsg = json.error;
+            } catch(e) {}
+            if (s) {
+                s.fire({
+                    icon: 'error',
+                    title: 'Hata (' + xhr.status + ')',
+                    text: errMsg
+                });
+            } else {
+                alert('Hata (' + xhr.status + '): ' + errMsg);
+            }
+        }
+    });
 }
 
 // Canlı Durum Yoklama (Polling)
@@ -1464,6 +1635,10 @@ function renderBackupTable(logs) {
             ? '<a href="index.php?p=backups&action=download&id=' + safeEncryptedId + '" class="btn btn-outline-success font-11 py-1 px-2" title="Yedek İndir"><i class="fa fa-download"></i></a>'
             : '';
 
+        let deleteBtn = window.canDeleteBackups
+            ? '<button type="button" onclick="confirmDeleteBackup(decodeURIComponent(\'' + safeEncryptedId + '\'), decodeURIComponent(\'' + safeNameArgument + '\'))" class="btn btn-outline-danger font-11 py-1 px-2" title="Güvenli Sil"><i class="fa fa-trash"></i></button>'
+            : '';
+
         let hashHtml = safeHash
             ? '<small class="text-muted font-mono" title="SHA-256: ' + safeHash + '"><i class="fa fa-shield mr-1 text-primary"></i>SHA: ' + safeHash.substring(0, 12) + '...</small>'
             : '';
@@ -1473,8 +1648,7 @@ function renderBackupTable(logs) {
             '<td style="word-break: break-all;"><div class="font-13 weight-600 text-dark" title="' + safeFileName + '">' + safeFileName + '</div>' + hashHtml + '</td>' +
             '<td><div class="font-13 weight-700 text-dark">' + safeFileSize + '</div><small class="text-muted"><i class="fa fa-clock-o mr-1"></i>' + safeDuration + ' sn</small></td>' +
             '<td><div class="d-flex align-items-center flex-wrap" style="gap: 4px;">' + statusBadge + ' ' + remoteBadge + ' ' + mailBadge + '</div></td>' +
-            '<td class="text-right"><div class="btn-group btn-group-sm">' + uploadBtn + downloadBtn +
-            '<button type="button" onclick="confirmDeleteBackup(decodeURIComponent(\'' + safeEncryptedId + '\'), decodeURIComponent(\'' + safeNameArgument + '\'))" class="btn btn-outline-danger font-11 py-1 px-2" title="Sil"><i class="fa fa-trash"></i></button>' +
+            '<td class="text-right"><div class="btn-group btn-group-sm">' + uploadBtn + downloadBtn + deleteBtn +
             '</div></td></tr>';
     });
     $('#backupLogsTbody').html(html);
@@ -1676,5 +1850,24 @@ $(document).ready(function() {
         let fileName = $(this).val().split('\\').pop();
         $(this).next('.custom-file-label').addClass("selected").html(fileName || "Dosya seçildi");
     });
+
+    // Sayfa açıldığında Google Drive durumunu arka planda sessizce senkronize et
+    <?php if (($settings['backup_remote_type'] ?? '') === 'gdrive' && (!empty($settings['backup_gdrive_refresh_token']) || !empty($settings['backup_gdrive_service_account_json']))): ?>
+    $.ajax({
+        url: 'index.php?p=backups',
+        type: 'POST',
+        data: {
+            action: 'ajax_sync_gdrive',
+            csrf_token: window.backupCsrfToken || ''
+        },
+        dataType: 'json',
+        success: function(res) {
+            if (res && res.success && res.missing_count > 0) {
+                // Silinen kayıtlar temizlendi, tabloyu anında yenile
+                pollBackupStatus(true);
+            }
+        }
+    });
+    <?php endif; ?>
 });
 </script>

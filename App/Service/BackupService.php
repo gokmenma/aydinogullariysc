@@ -888,9 +888,28 @@ class BackupService
             return ['success' => true, 'message' => 'Dosya zaten Google Drive üzerinde bulunamadı.'];
         }
 
-        // Google Drive API files.delete
-        $delUrl = 'https://www.googleapis.com/drive/v3/files/' . urlencode($fileId);
-        $ch = curl_init($delUrl);
+        // 1. Google Drive Çöp Kutusuna Taşı (trashed: true) - 30 gün kurtarma güvencesi
+        $trashUrl = 'https://www.googleapis.com/drive/v3/files/' . urlencode($fileId);
+        $ch = curl_init($trashUrl);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['trashed' => true]));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json; charset=UTF-8'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $trashResp = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 || $httpCode === 204 || $httpCode === 404) {
+            return ['success' => true, 'message' => 'Google Drive üzerindeki yedek dosyası çöp kutusuna taşındı (30 gün boyunca kurtarılabilir).'];
+        }
+
+        // 2. Fallback: Kalıcı DELETE isteği
+        $ch = curl_init($trashUrl);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1003,13 +1022,24 @@ class BackupService
             }
 
             if (!$existsInDrive) {
-                // Google Drive'dan silinmiş!
-                $this->backupModel->updateLog((int)$log['id'], [
-                    'remote_status' => 'deleted_from_drive',
-                    'remote_file_id' => null
-                ]);
+                // Google Drive'dan silinmiş -> Yerel diskten ve sistemden tamamen kaldır
+                if (!empty($log['file_path'])) {
+                    $baseDir = dirname(__DIR__, 2);
+                    $localPath = realpath($baseDir . '/' . ltrim($log['file_path'], '/'));
+                    $allowedDir = realpath($baseDir . '/backups');
+                    if ($localPath && $allowedDir && str_starts_with($localPath, $allowedDir) && file_exists($localPath)) {
+                        @unlink($localPath);
+                    }
+                }
+
+                $this->backupModel->deleteLog((int)$log['id']);
+
+                if (function_exists('audit_log')) {
+                    audit_log("delete", "backup_sync", "Google Drive senkronizasyonu: Drive'dan silindiği için sistemden kaldırıldı: " . $log['file_name'], "backup_logs", (string)$log['id']);
+                }
+
                 $updatedMissing++;
-                $details[] = "<strong>{$log['file_name']}</strong> Google Drive'da bulunamadı (Drive'dan silindi olarak güncellendi).";
+                $details[] = "<strong>{$log['file_name']}</strong> Google Drive'da bulunamadığı için sistemden ve diskten tamamen silindi.";
             } else {
                 $activeSynced++;
             }
@@ -1021,7 +1051,7 @@ class BackupService
             'synced_count' => $activeSynced,
             'missing_count' => $updatedMissing,
             'details' => $details,
-            'message' => "Google Drive senkronizasyonu tamamlandı. {$activeSynced} yedek doğrulandı, {$updatedMissing} silinmiş dosya tespit edildi."
+            'message' => "Google Drive senkronizasyonu tamamlandı. {$activeSynced} yedek doğrulandı, {$updatedMissing} silinmiş dosya sistemden temizlendi."
         ];
     }
 

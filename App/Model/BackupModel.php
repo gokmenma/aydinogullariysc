@@ -108,7 +108,7 @@ class BackupModel extends BaseModel
 
     public function getUploadedLogs(): array
     {
-        $stmt = $this->db->query("SELECT * FROM backup_logs WHERE remote_status = 'uploaded' ORDER BY id DESC");
+        $stmt = $this->db->query("SELECT * FROM backup_logs WHERE remote_status IN ('uploaded', 'deleted_from_drive') OR (remote_file_id IS NOT NULL AND remote_file_id != '') ORDER BY id DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
