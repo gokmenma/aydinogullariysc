@@ -98,37 +98,80 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 <style>
 /* Ürün Dashboard Özel Stilleri */
 .product-dash-hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    border-radius: 16px;
-    padding: 26px 28px;
-    color: #ffffff !important;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #0284c7;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.03);
     position: relative;
-    overflow: hidden;
 }
 .product-dash-hero .product-hero-title {
-    color: #ffffff !important;
-    font-size: 24px !important;
+    color: #1e293b !important;
+    font-size: 20px !important;
     font-weight: 700 !important;
     letter-spacing: -0.3px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
-.product-dash-hero .product-hero-title i {
-    color: #38bdf8 !important;
+.product-dash-hero .product-hero-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #f0f9ff;
+    border: 1px solid #e0f2fe;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #0284c7;
+    font-size: 19px;
+    margin-right: 14px;
+    flex-shrink: 0;
 }
 .product-dash-hero p, .product-dash-hero .product-hero-desc {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: #64748b !important;
+    font-size: 13px;
+    margin: 0;
 }
-.product-dash-hero::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0) 70%);
-    pointer-events: none;
+.btn-ghost-soft {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155 !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.btn-ghost-soft:hover {
+    background: #f8fafc;
+    color: #0f172a !important;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+.btn-action-primary {
+    background: #10b981;
+    border: 1px solid #059669;
+    color: #ffffff !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none !important;
+}
+.btn-action-primary:hover {
+    background: #059669;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
 }
 .product-filter-pills {
     display: flex;
@@ -297,12 +340,33 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 }
 
 /* Dark mode uyumu */
+.dark-mode .product-dash-hero,
 .dark-mode .product-kpi-card,
 .dark-mode .product-filter-pills,
 .dark-mode .crm-card {
     background: #1e293b !important;
     border-color: #334155 !important;
     color: #f1f5f9 !important;
+}
+.dark-mode .product-dash-hero .product-hero-title {
+    color: #f8fafc !important;
+}
+.dark-mode .product-dash-hero .product-hero-desc {
+    color: #94a3b8 !important;
+}
+.dark-mode .product-dash-hero .product-hero-icon-box {
+    background: rgba(2, 132, 199, 0.15) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(2, 132, 199, 0.3) !important;
+}
+.dark-mode .btn-ghost-soft {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+.dark-mode .btn-ghost-soft:hover {
+    background: #1e293b !important;
+    color: #ffffff !important;
 }
 .dark-mode .product-kpi-value {
     color: #f8fafc !important;
@@ -335,37 +399,44 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
         <div class="row align-items-center">
             <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
                 <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <span class="badge badge-light text-dark px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px;">
-                        <i class="fa fa-calendar mr-1"></i> <?php echo $curDateFormatted; ?>
+                    <span class="badge" style="background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px;">
+                        <i class="fa fa-calendar mr-1 text-muted"></i> <?php echo $curDateFormatted; ?>
                     </span>
-                    <span class="badge badge-primary px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px; background: rgba(56, 189, 248, 0.4); border: 1px solid rgba(255,255,255,0.2);">
+                    <span class="badge" style="background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px;">
                         <i class="fa fa-filter mr-1"></i> <?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?>
                     </span>
                 </div>
-                <h2 class="product-hero-title">
-                    <i class="fa fa-cubes mr-2"></i> Ürün & Hizmet Yönetim Paneli
-                </h2>
-                <p class="product-hero-desc">
-                    Katalog portföyü, para birimi dağılımları, birim analizleri, tekliflerde en çok talep gören kalemler ve hareket trendleri.
-                </p>
+                <div class="d-flex align-items-center">
+                    <div class="product-hero-icon-box">
+                        <i class="fa fa-cubes"></i>
+                    </div>
+                    <div>
+                        <h2 class="product-hero-title">
+                            Ürün & Hizmet Yönetim Paneli
+                        </h2>
+                        <p class="product-hero-desc">
+                            Katalog portföyü, para birimi dağılımları, birim analizleri, tekliflerde en çok talep gören kalemler ve hareket trendleri.
+                        </p>
+                    </div>
+                </div>
             </div>
             <div class="col-lg-5 col-md-12 text-lg-right">
                 <div class="d-flex flex-wrap justify-content-lg-end" style="gap: 8px;">
                     <?php if (permtrue('productadd')) : ?>
-                        <a href="index.php?p=products/manage" class="btn btn-success px-3 py-2 font-weight-bold shadow-sm" style="border-radius: 8px;">
+                        <a href="index.php?p=products/manage" class="btn-action-primary">
                             <i class="fa fa-plus mr-1"></i> Yeni Ürün Ekle
                         </a>
                     <?php endif; ?>
-                    <a href="index.php?p=products/list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
-                        <i class="fa fa-list mr-1"></i> Ürün Listesi
+                    <a href="index.php?p=products/list" class="btn-ghost-soft">
+                        <i class="fa fa-list mr-1 text-muted"></i> Ürün Listesi
                     </a>
                     <?php if (permtrue('productcategory')) : ?>
-                        <a href="index.php?p=products-categories" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
-                            <i class="fa fa-tags mr-1"></i> Kategoriler
+                        <a href="index.php?p=products-categories" class="btn-ghost-soft">
+                            <i class="fa fa-tags mr-1 text-muted"></i> Kategoriler
                         </a>
                     <?php endif; ?>
-                    <a href="index.php?p=offers/items-list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
-                        <i class="fa fa-file-text-o mr-1"></i> Teklif Kalemleri
+                    <a href="index.php?p=offers/items-list" class="btn-ghost-soft">
+                        <i class="fa fa-file-text-o mr-1 text-muted"></i> Teklif Kalemleri
                     </a>
                 </div>
             </div>

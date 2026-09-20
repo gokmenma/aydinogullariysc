@@ -106,6 +106,7 @@ function getOfferTemplate(name, type) {
       .contents()
       .find("body")
       .html(data.content);
+    $("#offer" + type + "Content textarea").val(data.content);
   });
 }
 
@@ -192,7 +193,7 @@ function offerRowAdd(sayac) {
       '<td> <a href="#" class="btn btn-sm"> ' +
            '<i class="fa fa-arrows-alt"></i>' +
         '</a> '+
-    '</a></td> '+
+    '</td> '+
         '<td class="app-item-action-2">' +
         '<a href="#" class="sil btn btn-sm btn-danger">Sil</a>' +
         '<div class="dropdown d-inline">' +

@@ -87,7 +87,6 @@ try {
     } else {
         ?>
             </div>
-            <?php include('include/footer.php'); ?>
         </div>
         <?php
     }

@@ -21,6 +21,22 @@ $offer_number = $offer->offerNumber ?? Helper::generateNumber("offer", "TK");
 $template_offer_number = $oid != 0 ? $offer->offerNumber : Helper::generateNumber("template_offer", "Ş");
 
 $enc_id = Security::encrypt($oid);
+
+$offer_header_id = $offer->offer_header ?? 12;
+$offer_header_content = "";
+if ($oid != 0 && isset($offer->offer_header_content) && $offer->offer_header_content !== "") {
+    $offer_header_content = $offer->offer_header_content;
+} else if ($offer_header_id > 0) {
+    $offer_header_content = offerTemplateContent($offer_header_id);
+}
+
+$offer_footer_id = $offer->offer_footer ?? 11;
+$offer_footer_content = "";
+if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_content !== "") {
+    $offer_footer_content = $offer->offer_footer_content;
+} else if ($offer_footer_id > 0) {
+    $offer_footer_content = offerTemplateContent($offer_footer_id);
+}
 ?>
 <form enctype="multipart/form-data" id="myForm" method="POST">
     <input type="hidden" class="form-control" name="offer_id" id="offer_id" value="<?php echo $oid; ?>">
@@ -74,8 +90,8 @@ $enc_id = Security::encrypt($oid);
         <style>
             /* Premium offer management styles */
             .offer-manage-wrapper {
-                max-width: 1400px;
-                margin: 0 auto;
+                width: 100%;
+                margin: 0;
             }
 
             .offer-header-card {
@@ -84,7 +100,10 @@ $enc_id = Security::encrypt($oid);
                 padding: 24px 30px;
                 margin-bottom: 25px;
                 box-shadow: 0 8px 32px rgba(30, 58, 95, 0.2);
-                position: relative;
+                position: -webkit-sticky;
+                position: sticky;
+                top: 12px;
+                z-index: 1030;
                 overflow: hidden;
             }
 
@@ -245,6 +264,7 @@ $enc_id = Security::encrypt($oid);
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
                 margin-bottom: 25px;
                 border: 1px solid #f0f0f0;
+                width: 100%;
             }
 
             .form-card-header {
@@ -281,20 +301,68 @@ $enc_id = Security::encrypt($oid);
                 color: #64748b;
             }
 
-            .form-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 25px 30px;
+            .offer-status-control {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 4px;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                background: #f8fafc;
             }
 
-            @media (max-width: 768px) {
-                .form-grid {
-                    grid-template-columns: 1fr;
+            .offer-status-control .status-option {
+                border: 0;
+                border-radius: 7px;
+                padding: 7px 12px;
+                background: transparent;
+                color: #64748b;
+                font-size: 12.5px;
+                font-weight: 600;
+                line-height: 1;
+                cursor: pointer;
+                transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .offer-status-control .status-option i {
+                margin-right: 5px;
+            }
+
+            .offer-status-control .status-option[data-status="1"].active {
+                color: #92400e;
+                background: #fef3c7;
+                box-shadow: 0 1px 3px rgba(146, 64, 14, 0.15);
+            }
+
+            .offer-status-control .status-option[data-status="2"].active {
+                color: #047857;
+                background: #d1fae5;
+                box-shadow: 0 1px 3px rgba(4, 120, 87, 0.15);
+            }
+
+            .dark-mode .offer-status-control {
+                border-color: #475569;
+                background: #1e293b;
+            }
+
+            .dark-mode .offer-status-control .status-option {
+                color: #cbd5e1;
+            }
+
+            @media (max-width: 767.98px) {
+                .form-card-header {
+                    flex-wrap: wrap;
                 }
-            }
 
-            .form-grid .full-width {
-                grid-column: 1 / -1;
+                .offer-status-control {
+                    width: 100%;
+                    margin-left: 0;
+                }
+
+                .offer-status-control .status-option {
+                    flex: 1;
+                }
             }
 
             .form-field {
@@ -318,6 +386,19 @@ $enc_id = Security::encrypt($oid);
                 font-weight: bold;
             }
 
+            .offer-inline-fields {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 15px;
+            }
+
+            @media (max-width: 575.98px) {
+                .offer-inline-fields {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                }
+            }
+
             .form-field .form-control,
             .form-field .bootstrap-select .btn {
                 border-radius: 10px !important;
@@ -334,7 +415,7 @@ $enc_id = Security::encrypt($oid);
                 background: #fff;
             }
 
-            .form-field textarea.form-control {
+            .form-field textarea.form-control:not(.textarea_editor) {
                 min-height: 100px;
                 resize: vertical;
             }
@@ -365,6 +446,75 @@ $enc_id = Security::encrypt($oid);
                 padding: 10px 15px;
                 height: auto;
             }
+
+            /* WYSIHTML5 Rich Text Editor Custom Styling */
+            .form-field textarea.textarea_editor,
+            .html-editor textarea,
+            .html-editor textarea.textarea_editor,
+            .html-editor textarea.form-control,
+            textarea.textarea_editor {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                min-height: 0 !important;
+                max-height: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                margin: 0 !important;
+                position: absolute !important;
+                pointer-events: none !important;
+                opacity: 0 !important;
+            }
+
+            .html-editor iframe.wysihtml5-sandbox,
+            iframe.wysihtml5-sandbox {
+                width: 100% !important;
+                height: 190px !important;
+                min-height: 190px !important;
+                position: static !important;
+                border: 1.5px solid #e5e7eb !important;
+                border-radius: 0 0 10px 10px !important;
+                background: #fff !important;
+                display: block !important;
+                box-sizing: border-box !important;
+            }
+
+            .offerFooterContent iframe.wysihtml5-sandbox {
+                height: 220px !important;
+                min-height: 220px !important;
+            }
+
+            .html-editor .wysihtml5-toolbar {
+                border: 1.5px solid #e5e7eb !important;
+                border-bottom: none !important;
+                border-radius: 10px 10px 0 0 !important;
+                background: #f8fafc !important;
+                padding: 6px 8px !important;
+                margin-bottom: 0 !important;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                align-items: center;
+            }
+
+            .html-editor .wysihtml5-toolbar li {
+                float: none !important;
+                display: inline-flex !important;
+                margin-right: 0 !important;
+            }
+
+            .html-editor .wysihtml5-toolbar .btn {
+                border-radius: 6px !important;
+                padding: 4px 8px !important;
+                font-size: 12.5px !important;
+                background: #fff;
+                border: 1px solid #cbd5e1;
+                color: #334155;
+            }
+
+            .html-editor .wysihtml5-toolbar .btn:hover {
+                background: #f1f5f9;
+            }
         </style>
 
         <!-- Form Card -->
@@ -375,155 +525,171 @@ $enc_id = Security::encrypt($oid);
                 </div>
                 <div>
                     <h5>Teklif Detayları</h5>
-                    <p>Teklif genel bilgilerini ve şablon tercihlerini bu alandan yönetebilirsiniz.</p>
+                    <p>Teklif genel bilgilerini ve üst/alt bilgi şablon tercihlerini bu alandan yönetebilirsiniz.</p>
+                </div>
+                <?php $offer_statu = $offer->statu ?? 1; ?>
+                <div class="offer-status-control" role="group" aria-label="Teklif durumu">
+                    <button type="button" class="status-option<?php echo $offer_statu == 1 ? ' active' : ''; ?>" data-status="1" aria-pressed="<?php echo $offer_statu == 1 ? 'true' : 'false'; ?>">
+                        <i class="fa fa-clock-o"></i>Bekleyen
+                    </button>
+                    <button type="button" class="status-option<?php echo $offer_statu == 2 ? ' active' : ''; ?>" data-status="2" aria-pressed="<?php echo $offer_statu == 2 ? 'true' : 'false'; ?>">
+                        <i class="fa fa-check"></i>Tamamlandı
+                    </button>
                 </div>
             </div>
 
-            <div class="form-grid">
-                
-                <!-- Firma Adı -->
-                <div class="form-field">
-                    <label for="customers"><font color="red">(*)</font> Firma Adı</label>
-                    <div class="input-group">
-                        <select required name="customers" id="customers" title="Seçiniz..." class="selectpicker form-control" data-style="bg-white" data-size="8" data-live-search="true">
-                            <?php
-                            $customer_id = $offer->cid ?? 0;
-                            $qct = $ac->prepare(
-                                'SELECT * FROM customers
-                                 WHERE deleted_at IS NULL OR id = ?
-                                 ORDER BY id DESC'
-                            );
-                            $qct->execute([$customer_id]);
-                            while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
-                                ?>
-                                <option <?php echo $customer_id == $cscs['id'] ? ' selected' : '' ?> value="<?php echo $cscs['id']; ?>">
-                                    <?php echo $cscs['company']; ?>
-                                </option>
-                            <?php } ?>
-                        </select>
-                        <?php if (permtrue('customeradd')) { ?>
-                            <a href="index.php?p=new-customer" target="_blank" class="btn btn-info btn-sm d-flex align-items-center" data-tooltip="Yeni Firma Eklemek için tıklayınız!">
-                                <i class="fa fa-plus"></i>
-                            </a>
-                        <?php } ?>
-                    </div>
-                </div>
-
-                <!-- Üst Bilgi Seç -->
-                <div class="form-field">
-                    <label for="offerHeader">Üst Bilgi Şablonu Seç</label>
-                    <div class="input-group">
-                        <?php offerTemplate('offerHeader', $offer->offer_header ?? 12, 'Header'); ?>
-                        <a href="index.php?p=offer-templates&type=Header" target="_blank" class="btn btn-secondary btn-sm d-flex align-items-center" type="button" data-tooltip="Yeni Şablon Eklemek için tıklayınız!" data-tooltip-location="left"><i class="fa fa-plus"></i></a>
-                    </div>
-                </div>
-
-                <!-- Firma Yetkilisi -->
-                <div class="form-field">
-                    <label for="compAuths"><font color="red">(*)</font> Firma Yetkilisi</label>
-                    <input type="text" class="form-control" placeholder="Yetkili ad soyad" id="compAuths" name="compAuths" value="<?php echo $offer->company_authors ?? ''; ?>" required />
-                </div>
-
-                <!-- Alt Bilgi Seç -->
-                <div class="form-field">
-                    <label for="offerFooter">Alt Bilgi Şablonu Seç</label>
-                    <div class="input-group">
-                        <?php offerTemplate('offerFooter', $offer->offer_footer ?? 11, 'Footer'); ?>
-                        <a href="index.php?p=offer-templates&type=Footer" target="_blank" class="btn btn-secondary btn-sm d-flex align-items-center" type="button" data-tooltip="Yeni Şablon Eklemek için tıklayınız!" data-tooltip-location="left"><i class="fa fa-plus"></i></a>
-                    </div>
-                </div>
-
-                <!-- Ödeme Vadesi -->
-                <div class="form-field">
-                    <label for="payPeriod">Ödeme Vadesi</label>
-                    <input type="text" id="payPeriod" name="payPeriod" class="form-control" value="<?php echo $offer->payment_period ?? '' ?>" placeholder="Vade giriniz!">
-                </div>
-
-                <!-- Alt Bilgi İçerik (Full Width) -->
-                <div class="form-field full-width">
-                    <label for="offerFooterContent">Alt Bilgi Açıklaması</label>
-                    <div id="offerFooterContent" class="offerFooterContent html-editor">
-                        <textarea required name="offerFooterContent" class="textarea_editor form-control border-radius-0" placeholder="Bir şeyler yaz ...">
-                            <?php echo $offer->offer_footer_content ?? offerTemplateContent($offer->offer_footer ?? 11); ?>
-                        </textarea>
-                    </div>
-                </div>
-
-                <!-- Teklif Konusu -->
-                <div class="form-field">
-                    <label for="offer_subject">Teklif Konusu</label>
-                    <input type="text" id="offer_subject" name="offer_subject" class="form-control" value="<?php echo $offer->offer_subject ?? '' ?>" placeholder="Örn: Yeni Teklif">
-                </div>
-
-                <!-- Tarih -->
-                <div class="form-field">
-                    <label for="offer_date"><font color="red">(*)</font> Tarih</label>
-                    <input type="text" id="offer_date" name="offer_date" value="<?php echo $offer->offer_date ?? date('d.m.Y'); ?>" class="form-control date-picker" placeholder="">
-                </div>
-
-                <!-- Hazırlayan -->
-                <div class="form-field">
-                    <label><font color="red">(*)</font> Hazırlayan</label>
-                    <input readonly class="form-control" value="<?php echo getUsername($offer->creativer ?? sesset("id")); ?>" type="text">
-                </div>
-
-                <!-- Dosya -->
-                <div class="form-field">
-                    <label for="offerFile"><font color="red">(*)</font> Dosya Ekipmanı</label>
-                    <div class="input-group">
-                        <?php
-                        $offer_file = $offer->file ?? '';
-                        $file_input_type = $offer_file != '' ? 'text' : 'file';
-                        ?>
-                        <input type="<?php echo $file_input_type; ?>" id="offerFile" name="offerFile" value="<?php echo $offer_file ?? '' ?>" class="form-control">
-                        <?php if ($offer_file != ''): ?>
-                            <a type="button" id="downloadfile" href="files/offer/<?php echo $offer_file; ?>" target="_blank" class="btn btn-info btn-sm d-flex align-items-center ml-1">Dosyayı İndir</a>
-                            <button id="deleteFile" onclick="DeleteFile(<?php echo $oid ?>)" type="button" class="btn btn-danger btn-sm d-flex align-items-center ml-1" data-tooltip="Dosyayı Sil"><i class="fa fa-trash"></i></button>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Teklif Durumu -->
-                <div class="form-field">
-                    <label for="offerstatu"><font color="red">(*)</font> Teklif Durumu</label>
-                    <?php $offer_statu = $offer->statu ?? 1; ?>
-                    <select name="offerstatu" id="offerstatu" data-style="bg-white" class="selectpicker form-control">
-                        <option <?php echo $offer_statu == 1 ? ' selected' : '' ?> value="1">Bekleyen</option>
-                        <option <?php echo $offer_statu == 2 ? ' selected' : '' ?> value="2">Tamamlandı</option>
-                    </select>
-                </div>
-
-                <!-- Şablon Yap / Notlar -->
-                <div class="form-field">
-                    <label for="description">Notlar</label>
-                    <textarea name="description" id="description" placeholder="Teklif hakkında bilgilendirici nitelikte not ekleyiniz." class="form-control"><?php echo $offer->description ?? ''; ?></textarea>
-                </div>
-
-                <?php if (permtrue('template_offer_create')) { ?>
-                    <div class="form-field">
-                        <label>Şablon Teklif Yap</label>
-                        <div class="custom-control custom-checkbox mt-2">
-                            <?php
-                            $checked = '';
-                            $is_template = $offer->is_template ?? 0;
-                            if (isset($is_template) && $is_template == 1) {
-                                $checked = 'checked';
-                            }
-                            ?>
-                            <input class="custom-control-input" type="checkbox" value="<?php echo $is_template ?>" name="is_template" id="is_template" <?php echo $checked; ?>>
-                            <label class="custom-control-label" for="is_template">Evet, bu teklifi şablon yap.</label>
+            <div class="row">
+                <!-- Sol Kolon: Genel Teklif Bilgileri -->
+                <div class="col-lg-6 col-md-12">
+                    <div class="d-flex flex-column" style="gap: 20px;">
+                        
+                        <!-- Firma Adı -->
+                        <div class="form-field">
+                            <label for="customers"><font color="red">(*)</font> Firma Adı</label>
+                            <div class="input-group">
+                                <select required name="customers" id="customers" title="Seçiniz..." class="selectpicker form-control" data-style="bg-white" data-size="8" data-live-search="true">
+                                    <?php
+                                    $customer_id = $offer->cid ?? 0;
+                                    $qct = $ac->prepare(
+                                        'SELECT * FROM customers
+                                         WHERE deleted_at IS NULL OR id = ?
+                                         ORDER BY id DESC'
+                                    );
+                                    $qct->execute([$customer_id]);
+                                    while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
+                                        ?>
+                                        <option <?php echo $customer_id == $cscs['id'] ? ' selected' : '' ?> value="<?php echo $cscs['id']; ?>">
+                                            <?php echo $cscs['company']; ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <?php if (permtrue('customeradd')) { ?>
+                                    <a href="index.php?p=new-customer" target="_blank" class="btn btn-info btn-sm d-flex align-items-center" data-tooltip="Yeni Firma Eklemek için tıklayınız!">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
                         </div>
-                    </div>
-                <?php } ?>
 
+                        <!-- Firma Yetkilisi -->
+                        <div class="form-field">
+                            <label for="compAuths"><font color="red">(*)</font> Firma Yetkilisi</label>
+                            <input type="text" class="form-control" placeholder="Yetkili ad soyad" id="compAuths" name="compAuths" value="<?php echo $offer->company_authors ?? ''; ?>" required />
+                        </div>
+
+                        <!-- Teklif Konusu -->
+                        <div class="form-field">
+                            <label for="offer_subject">Teklif Konusu</label>
+                            <input type="text" id="offer_subject" name="offer_subject" class="form-control" value="<?php echo $offer->offer_subject ?? '' ?>" placeholder="Örn: Yeni Teklif">
+                        </div>
+
+                        <div class="offer-inline-fields">
+                            <!-- Ödeme Vadesi -->
+                            <div class="form-field">
+                                <label for="payPeriod">Ödeme Vadesi</label>
+                                <input type="text" id="payPeriod" name="payPeriod" class="form-control" value="<?php echo $offer->payment_period ?? '' ?>" placeholder="Vade giriniz!">
+                            </div>
+
+                            <!-- Tarih -->
+                            <div class="form-field">
+                                <label for="offer_date"><font color="red">(*)</font> Tarih</label>
+                                <input type="text" id="offer_date" name="offer_date" value="<?php echo $offer->offer_date ?? date('d.m.Y'); ?>" class="form-control date-picker" placeholder="">
+                            </div>
+                        </div>
+
+                        <!-- Teklif Durumu -->
+                        <div class="form-field">
+                            <label for="offerstatu"><font color="red">(*)</font> Teklif Durumu</label>
+                            <select name="offerstatu" id="offerstatu" data-style="bg-white" class="selectpicker form-control">
+                                <option <?php echo $offer_statu == 1 ? ' selected' : '' ?> value="1">Bekleyen</option>
+                                <option <?php echo $offer_statu == 2 ? ' selected' : '' ?> value="2">Tamamlandı</option>
+                            </select>
+                        </div>
+
+                        <!-- Dosya -->
+                        <div class="form-field">
+                            <label for="offerFile"><font color="red">(*)</font> Dosya Ekipmanı</label>
+                            <div class="input-group">
+                                <?php
+                                $offer_file = $offer->file ?? '';
+                                $file_input_type = $offer_file != '' ? 'text' : 'file';
+                                ?>
+                                <input type="<?php echo $file_input_type; ?>" id="offerFile" name="offerFile" value="<?php echo $offer_file ?? '' ?>" class="form-control">
+                                <?php if ($offer_file != ''): ?>
+                                    <a type="button" id="downloadfile" href="files/offer/<?php echo $offer_file; ?>" target="_blank" class="btn btn-info btn-sm d-flex align-items-center ml-1">Dosyayı İndir</a>
+                                    <button id="deleteFile" onclick="DeleteFile(<?php echo $oid ?>)" type="button" class="btn btn-danger btn-sm d-flex align-items-center ml-1" data-tooltip="Dosyayı Sil"><i class="fa fa-trash"></i></button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <!-- Notlar -->
+                        <div class="form-field">
+                            <label for="description">Notlar</label>
+                            <textarea name="description" id="description" placeholder="Teklif hakkında bilgilendirici nitelikte not ekleyiniz." class="form-control"><?php echo $offer->description ?? ''; ?></textarea>
+                        </div>
+
+                        <?php if (permtrue('template_offer_create')) { ?>
+                            <div class="form-field">
+                                <label>Şablon Teklif Yap</label>
+                                <div class="custom-control custom-checkbox mt-2">
+                                    <?php
+                                    $checked = '';
+                                    $is_template = $offer->is_template ?? 0;
+                                    if (isset($is_template) && $is_template == 1) {
+                                        $checked = 'checked';
+                                    }
+                                    ?>
+                                    <input class="custom-control-input" type="checkbox" value="<?php echo $is_template ?>" name="is_template" id="is_template" <?php echo $checked; ?>>
+                                    <label class="custom-control-label" for="is_template">Evet, bu teklifi şablon yap.</label>
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                    </div>
+                </div>
+
+                <!-- Sağ Kolon: Üst ve Alt Bilgi Şablon & Açıklamaları -->
+                <div class="col-lg-6 col-md-12">
+                    <div class="d-flex flex-column" style="gap: 20px;">
+                        
+                        <!-- Üst Bilgi Şablonu Seç -->
+                        <div class="form-field">
+                            <label for="offerHeader">Üst Bilgi Şablonu Seç</label>
+                            <div class="input-group">
+                                <?php offerTemplate('offerHeader', $offer_header_id, 'Header'); ?>
+                                <a href="index.php?p=offer-templates&type=Header" target="_blank" class="btn btn-secondary btn-sm d-flex align-items-center" type="button" data-tooltip="Yeni Şablon Eklemek için tıklayınız!" data-tooltip-location="left"><i class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Üst Bilgi Açıklaması -->
+                        <div class="form-field">
+                            <label for="offerHeaderContent">Üst Bilgi Açıklaması</label>
+                            <div id="offerHeaderContent" class="offerHeaderContent html-editor">
+                                <textarea name="offerHeaderContent" class="textarea_editor form-control" style="display: none !important;" placeholder="Üst bilgi açıklaması..."><?php echo htmlspecialchars($offer_header_content ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Alt Bilgi Şablonu Seç -->
+                        <div class="form-field">
+                            <label for="offerFooter">Alt Bilgi Şablonu Seç</label>
+                            <div class="input-group">
+                                <?php offerTemplate('offerFooter', $offer_footer_id, 'Footer'); ?>
+                                <a href="index.php?p=offer-templates&type=Footer" target="_blank" class="btn btn-secondary btn-sm d-flex align-items-center" type="button" data-tooltip="Yeni Şablon Eklemek için tıklayınız!" data-tooltip-location="left"><i class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Alt Bilgi Açıklaması -->
+                        <div class="form-field">
+                            <label for="offerFooterContent">Alt Bilgi Açıklaması</label>
+                            <div id="offerFooterContent" class="offerFooterContent html-editor">
+                                <textarea name="offerFooterContent" class="textarea_editor form-control" style="display: none !important;" placeholder="Alt bilgi açıklaması..."><?php echo htmlspecialchars($offer_footer_content ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
-
-
-
-        <br>
-
-    </div>
 
 
     <!-- TEKLİF KALEMLERİ ÖZET BİLGİ -->
@@ -674,6 +840,32 @@ $enc_id = Security::encrypt($oid);
                 height: 32px !important;
                 padding: 4px 8px !important;
                 font-size: 13px !important;
+            }
+
+            .premium-table td:nth-child(5) .input-group {
+                display: flex;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .premium-table td:nth-child(5) .input-group .form-control {
+                flex: 1 1 auto;
+                width: 1%;
+                min-width: 0;
+                border-top-right-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+                text-align: left;
+            }
+
+            .premium-table td:nth-child(5) .input-group .selectProduct {
+                flex: 0 0 34px;
+                width: 34px;
+                margin-left: -1px;
+                border-top-left-radius: 0 !important;
+                border-bottom-left-radius: 0 !important;
+                border-top-right-radius: 6px !important;
+                border-bottom-right-radius: 6px !important;
             }
             
             .hack1 {
@@ -923,8 +1115,8 @@ $enc_id = Security::encrypt($oid);
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <div class="d-flex align-items-center">
-                        <span class="text-muted mr-3" style="width: 150px; font-weight: 500;">Oluşturan:</span>
-                        <span class="text-dark font-weight-bold"><?php echo getUserName($offer->creativer ?? 0); ?></span>
+                        <span class="text-muted mr-3" style="width: 150px; font-weight: 500;">Hazırlayan:</span>
+                        <span class="text-dark font-weight-bold"><?php echo getUsername($offer->creativer ?? sesset("id")); ?></span>
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -962,40 +1154,52 @@ $enc_id = Security::encrypt($oid);
 $(document).ready(function() {
     updateAltToplam();
 
-    // Teklif durumu tamamlandı seçildiğinde otomatik servis oluştur checkbox'ını göster
-    // $("#offerstatu").on("change", function() {
-    //     if ($(this).val() == 2) {
-    //         $("#create_service_div").show();
-    //     } else {
-    //         $("#create_service_div").hide();
-    //         $("#createService").prop("checked", false);
-    //     }
-    // });
+    function syncOfferStatusControl(status) {
+        var normalizedStatus = String(status || '1');
+
+        $('.offer-status-control .status-option').each(function() {
+            var isActive = String($(this).data('status')) === normalizedStatus;
+            $(this).toggleClass('active', isActive).attr('aria-pressed', isActive ? 'true' : 'false');
+        });
+    }
+
+    $('.offer-status-control .status-option').on('click', function() {
+        var status = String($(this).data('status'));
+        $('#offerstatu').val(status).trigger('change');
+
+        if (typeof $('#offerstatu').selectpicker === 'function') {
+            $('#offerstatu').selectpicker('refresh');
+        }
+
+        syncOfferStatusControl(status);
+    });
+
+    $('#offerstatu').on('change', function() {
+        syncOfferStatusControl($(this).val());
+    });
+
+    syncOfferStatusControl($('#offerstatu').val());
+
+    if (typeof $.fn.wysihtml5 !== 'undefined') {
+        $('.textarea_editor').each(function() {
+            if (!$(this).data('wysihtml5')) {
+                $(this).wysihtml5();
+            }
+            $(this).hide();
+        });
+    }
 });
 
 $(function() {
-
-    //date-picker ile çakıştığı için sortable kütüphaesi kullanıldı
-    // $("#sortable").sortable({
-    //     update: function(event, ui) {
-    //         // Sıralama sonrası numaralandırma
-    //         $("#kalem_ekle tbody tr").each(function(index) {
-    //             // Numara hücresini güncelle (örneğin ilk <td>)
-    //             $(this).find("input[name='satirno[]']").val(index + 1);
-    //         });
-    //     }
-    // });
-
-
     var el = document.getElementById('sortable');
-    var sortable = Sortable.create(el, {
-        onUpdate: function( /**Event*/ evt) {
-            // Sıralama sonrası numaralandırma
-            $("#kalem_ekle tbody tr").each(function(index) {
-                // Numara hücresini güncelle (örneğin ilk <td>)
-                $(this).find("input[name='satirno[]']").val(index + 1);
-            });
-        }
-    });
+    if (el && typeof Sortable !== 'undefined') {
+        var sortable = Sortable.create(el, {
+            onUpdate: function(evt) {
+                $("#kalem_ekle tbody tr").each(function(index) {
+                    $(this).find("input[name='satirno[]']").val(index + 1);
+                });
+            }
+        });
+    }
 });
 </script>

@@ -33214,8 +33214,10 @@ jQuery(window).on("load",function() {
 	// });
 
   $('.textarea_editor').each(function() {
-    $(this).wysihtml5();
-});
+    if (!$(this).data('wysihtml5')) {
+      $(this).wysihtml5();
+    }
+  });
 
 });
 jQuery(window).on("load resize", function () {
@@ -33464,16 +33466,26 @@ $('#accordion-menu').each(function() {
 		obj = $(this);
 
 		item = obj.find("ul").parent("li").children("a");
-		item.attr("data-option", "off");
+		item.each(function() {
+			var $a = $(this);
+			var $li = $a.parent("li");
+			if ($li.hasClass("show") || $a.attr("data-option") === "on") {
+				$a.attr("data-option", "on");
+				$li.addClass("show");
+				$li.children("ul").show();
+			} else {
+				$a.attr("data-option", "off");
+			}
+		});
 
 		item.unbind('click').on("click", function() {
 			var a = $(this);
 			if (options.autohide) {
-				a.parent().parent().find("a[data-option='on']").parent("li").children("ul").slideUp(options.Speed / 1.2,
+				a.parent().parent().find("a[data-option='on']").not(a).parent("li").children("ul").slideUp(options.Speed / 1.2,
 					function() {
 						$(this).parent("li").children("a").attr("data-option", "off");
 						$(this).parent("li").removeClass("show");
-					})
+					});
 			}
 			if (a.attr("data-option") == "off") {
 				a.parent("li").children("ul").slideDown(options.Speed,
@@ -33484,28 +33496,28 @@ $('#accordion-menu').each(function() {
 			}
 			if (a.attr("data-option") == "on") {
 				a.attr("data-option", "off");
-				a.parent("li").children("ul").slideUp(options.Speed)
+				a.parent("li").children("ul").slideUp(options.Speed);
 				a.parent('li').removeClass("show");
 			}
 		});
 		if (options.autostart) {
 			obj.find("a").each(function() {
-
 				$(this).parent("li").parent("ul").slideDown(options.Speed,
 					function() {
 						$(this).parent("li").children("a").attr("data-option", "on");
-					})
-			})
+					});
+			});
 		}
 		else{
 			obj.find("a.active").each(function() {
-
-				$(this).parent("li").parent("ul").slideDown(options.Speed,
-					function() {
-						$(this).parent("li").children("a").attr("data-option", "on");
-						$(this).parent('li').addClass("show");
-					})
-			})
+				var $sub = $(this).closest("ul.submenu");
+				if ($sub.length) {
+					$sub.show();
+					var $parentLi = $sub.parent("li");
+					$parentLi.addClass("show");
+					$parentLi.children("a").attr("data-option", "on");
+				}
+			});
 		}
 
 	}

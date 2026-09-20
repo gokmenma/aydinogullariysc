@@ -812,7 +812,7 @@ if ($cid || $sid) {
     <div class="services-list-wrapper">
         
         <!-- Sayfa Üst Bölümü (Header + Quick Actions) -->
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" style="gap: 12px; padding: 0;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap px-1" style="gap: 12px;">
             <div class="page-title-box">
                 <div class="page-title-icon">
                     <i class="fa fa-wrench"></i>
@@ -924,7 +924,7 @@ if ($cid || $sid) {
         </div>
 
         <!-- Tablo Kartı -->
-        <div class="form-card animate-fade-in">
+        <div class="form-card animate-fade-in mx-1">
             <div class="form-card-header">
                 <div class="header-left-inner">
                     <div class="card-icon">

@@ -151,7 +151,4 @@ if (@$_GET["st"] == "empties") {
 		var form = document.getElementById("myForm");
 		form.submit();
 	});
-</script>
-
-
-<?php include('include/footer.php'); ?>
+</script>

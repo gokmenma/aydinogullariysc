@@ -17,18 +17,33 @@ if($sablonlari_goster){
 $OfferModel = new OfferModel();
 
 
-$pendingOffersQuery = $ac->query('SELECT COUNT(*) as cnt, COALESCE(SUM(total_price), 0) as total FROM offers WHERE statu = 1');
-$pendingOffersData = $pendingOffersQuery ? $pendingOffersQuery->fetch(PDO::FETCH_ASSOC) : [];
-$pendingOffersCount = (int) ($pendingOffersData['cnt'] ?? 0);
-$pendingOffersSum = (float) ($pendingOffersData['total'] ?? 0);
-
-$wonOffersQuery = $ac->query('SELECT COUNT(*) as cnt, COALESCE(SUM(total_price), 0) as total FROM offers WHERE statu = 2');
-$wonOffersData = $wonOffersQuery ? $wonOffersQuery->fetch(PDO::FETCH_ASSOC) : [];
-$wonOffersCount = (int) ($wonOffersData['cnt'] ?? 0);
-$wonOffersSum = (float) ($wonOffersData['total'] ?? 0);
-
-$totalOffers = $pendingOffersCount + $wonOffersCount;
-$offerWinRate = $totalOffers > 0 ? round(($wonOffersCount / $totalOffers) * 100, 1) : 0;
+if ($sablonlari_goster) {
+    $stmtTpl = $ac->query("SELECT 
+        COUNT(*) as total_count,
+        COALESCE(SUM(tl_toplam_karsilik), SUM(total_price), 0) as total_amount
+    FROM offers WHERE is_template = 1");
+    $tplData = $stmtTpl ? $stmtTpl->fetch(PDO::FETCH_OBJ) : null;
+    $totalOffersCount = (int)($tplData->total_count ?? 0);
+    $totalOffersSum = (float)($tplData->total_amount ?? 0);
+    $pendingOffersCount = 0;
+    $pendingOffersSum = 0;
+    $wonOffersCount = 0;
+    $wonOffersSum = 0;
+    $offerWinRate = 0;
+    $thisMonthOffersCount = 0;
+    $thisMonthOffersSum = 0;
+} else {
+    $offerSummary = $OfferModel->getDashboardSummary(null, null);
+    $totalOffersCount = (int)($offerSummary->total_count ?? 0);
+    $totalOffersSum = (float)($offerSummary->total_amount ?? 0);
+    $pendingOffersCount = (int)($offerSummary->pending_count ?? 0);
+    $pendingOffersSum = (float)($offerSummary->pending_amount ?? 0);
+    $wonOffersCount = (int)($offerSummary->won_count ?? 0);
+    $wonOffersSum = (float)($offerSummary->won_amount ?? 0);
+    $offerWinRate = (float)($offerSummary->win_rate ?? 0);
+    $thisMonthOffersCount = (int)($offerSummary->this_month->count ?? 0);
+    $thisMonthOffersSum = (float)($offerSummary->this_month->amount ?? 0);
+}
 
 
 if (@$_GET["st"] == "offercopy") {
@@ -104,48 +119,214 @@ if (@$_GET["st"] == "success-mail") {
         width: 100%;
     }
 
-    /* Form Card styling */
+    /* KPI Summary Cards */
+    .crm-kpi-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 14px 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .crm-kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+    }
+    .crm-kpi-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    .crm-kpi-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        display: block;
+        margin-bottom: 2px;
+    }
+    .crm-kpi-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.1;
+    }
+    .crm-kpi-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+    .icon-primary { background: #eff6ff; color: #2563eb; }
+    .icon-emerald { background: #ecfdf5; color: #059669; }
+    .icon-sky     { background: #f0f9ff; color: #0284c7; }
+    .icon-amber   { background: #fffbeb; color: #d97706; }
+    .icon-rose    { background: #fff1f2; color: #e11d48; }
+
+    .crm-kpi-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 8px;
+        border-top: 1px solid #f1f5f9;
+        font-size: 11px;
+    }
+    .crm-badge-soft {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 10.5px;
+    }
+    .soft-primary { background: #dbeafe; color: #1e40af; }
+    .soft-emerald { background: #d1fae5; color: #065f46; }
+    .soft-sky     { background: #e0f2fe; color: #0369a1; }
+    .soft-amber   { background: #fef3c7; color: #92400e; }
+    .soft-rose    { background: #ffe4e6; color: #9f1239; }
+
+    /* KPI Collapse Animation */
+    .kpi-summary-collapse {
+        transition: all 0.3s ease;
+    }
+    .kpi-summary-collapse.is-collapsed {
+        display: none !important;
+    }
+
+    /* Form & Table Card styling */
     .form-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 24px 30px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 0 !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         margin-bottom: 25px;
-        border: 1px solid #f0f0f0;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
     }
 
     .form-card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f3f4f6;
+        padding: 12px 18px;
+        margin-bottom: 0;
+        border-bottom: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .form-card-header .header-left-inner {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
     }
 
     .form-card-header .card-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
-        background: #eff6ff;
-        color: #3b82f6;
+        font-size: 14px;
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .form-card .filters-form {
+        padding: 16px 18px 0 18px;
+    }
+
+    .form-card .responsive {
+        padding: 4px !important;
+    }
+
+    /* Page Header Styles */
+    .page-title-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .page-title-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+    }
+    .page-title-text h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: -0.3px;
+    }
+    .page-title-text p {
+        margin: 1px 0 0 0;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    /* Action Buttons in Header */
+    .btn-action-primary {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #fff !important;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-weight: 600;
+        font-size: 12.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
+        transition: all 0.2s ease;
+        height: 34px;
+        text-decoration: none;
+    }
+    .btn-action-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(2, 132, 199, 0.35);
+        color: #fff !important;
+    }
+    .btn-action-outline {
+        border-radius: 6px;
+        padding: 6px 12px;
+        height: 34px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s ease;
     }
 
     .form-card-header h5 {
         margin: 0;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
-        color: #1e3a5f;
+        color: #1e293b;
+    }
+    .form-card-header p {
+        margin: 1px 0 0 0;
+        font-size: 11.5px;
+        color: #64748b;
     }
 
     .responsive {
@@ -172,6 +353,38 @@ if (@$_GET["st"] == "success-mail") {
     }
 
     /* Dark Mode Overrides */
+    .dark-mode .page-title-text h4 {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .page-title-text p {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .crm-kpi-card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+    .dark-mode .crm-kpi-label {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .crm-kpi-value {
+        color: #f8fafc !important;
+    }
+    .dark-mode .crm-kpi-footer {
+        border-top-color: #334155 !important;
+    }
+    .dark-mode .icon-primary { background: rgba(59, 130, 246, 0.15) !important; color: #60a5fa !important; }
+    .dark-mode .icon-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; }
+    .dark-mode .icon-sky     { background: rgba(2, 132, 199, 0.15) !important; color: #38bdf8 !important; }
+    .dark-mode .icon-amber   { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; }
+    .dark-mode .icon-rose    { background: rgba(225, 29, 72, 0.15) !important; color: #fb7185 !important; }
+
+    .dark-mode .soft-primary { background: rgba(59, 130, 246, 0.2) !important; color: #93c5fd !important; }
+    .dark-mode .soft-emerald { background: rgba(16, 185, 129, 0.2) !important; color: #6ee7b7 !important; }
+    .dark-mode .soft-sky     { background: rgba(2, 132, 199, 0.2) !important; color: #7dd3fc !important; }
+    .dark-mode .soft-amber   { background: rgba(245, 158, 11, 0.2) !important; color: #fde68a !important; }
+    .dark-mode .soft-rose    { background: rgba(225, 29, 72, 0.2) !important; color: #fecdd3 !important; }
+
     .dark-mode .form-card {
         background: #282828 !important;
         border-color: #383838 !important;
@@ -181,6 +394,9 @@ if (@$_GET["st"] == "success-mail") {
     }
     .dark-mode .form-card-header h5 {
         color: #60a5fa !important;
+    }
+    .dark-mode .form-card-header p {
+        color: #94a3b8 !important;
     }
     .dark-mode .form-card-header .card-icon {
         background: #1e293b !important;
@@ -215,18 +431,34 @@ if (@$_GET["st"] == "success-mail") {
 
 <div class="pd-ltr-20 xs-pd-20-10">
     <div class="offer-list-wrapper">
-    <!-- Clean Title & Actions Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="text-dark font-weight-bold" style="font-size: 22px; margin: 0;"><?php echo $sayfa_basligi; ?></h4>
-        <div class="d-flex align-items-center">
-            <?php if (permtrue("data_export_offers")) { ?>
-                <a href="#" class="btn btn-outline-secondary btn-sm d-flex align-items-center" id="exportExcel" style="border-radius: 8px; padding: 8px 16px; height: 38px;">
-                    <i class="fa fa-file-excel-o mr-1"></i> Excel'e Aktar
+    <!-- Sayfa Üst Bölümü (Header + Quick Actions) -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap px-1" style="gap: 12px;">
+        <div class="page-title-box">
+            <div class="page-title-icon">
+                <i class="fa fa-file-text-o"></i>
+            </div>
+            <div class="page-title-text">
+                <h4><?php echo $sablonlari_goster ? 'Şablon Teklifler' : 'Teklif Yönetimi'; ?></h4>
+                <p><?php echo $sablonlari_goster ? 'Sistemde kayıtlı şablon tekliflerin listesi ve yönetimi' : 'Sistemdeki tüm teklifler, onay süreçleri ve durum takibi'; ?></p>
+            </div>
+        </div>
+        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+            <?php if (permtrue("offers_dashboard") || permtrue("offersView") || permtrue("offerView")) { ?>
+                <a href="index.php?p=offers/dashboard" class="btn btn-outline-primary btn-action-outline" title="Dashboard">
+                    <i class="fa fa-dashboard"></i> <span class="d-none d-sm-inline">Dashboard</span>
                 </a>
             <?php } ?>
+            <button type="button" class="btn btn-outline-secondary btn-action-outline" id="btnRefreshOffers" title="Tabloyu Yenile">
+                <i class="fa fa-refresh"></i> <span class="d-none d-sm-inline">Yenile</span>
+            </button>
+            <?php if (permtrue("data_export_offers")) { ?>
+                <button type="button" class="btn btn-outline-success btn-action-outline" id="exportExcel" title="Excel Olarak İndir">
+                    <i class="fa fa-file-excel-o"></i> <span class="d-none d-sm-inline">Excel'e Aktar</span>
+                </button>
+            <?php } ?>
             <?php if (permtrue("offerAdd")) { ?>
-                <a href="index.php?p=offers/offer-manage" class="btn btn-primary btn-sm d-flex align-items-center ml-2" style="border-radius: 8px; padding: 8px 16px; height: 38px; background: linear-gradient(135deg, #1e3a5f, #3b7dd8); border: none;">
-                    <i class="fa fa-plus mr-1"></i> Yeni Teklif Oluştur
+                <a href="index.php?p=offers/offer-manage" class="btn btn-action-primary">
+                    <i class="fa fa-plus-circle"></i> <span>Yeni Teklif Oluştur</span>
                 </a>
             <?php } ?>
         </div>
@@ -244,9 +476,28 @@ if (@$_GET["st"] == "success-mail") {
     </script>
 
     <!-- Özet Bilgiler (CRM KPI Kartları) -->
-    <div id="kpiSummarySection" class="row mx-0 mb-4 kpi-summary-collapse">
+    <div id="kpiSummarySection" class="row mx-0 mb-3 kpi-summary-collapse">
+        <!-- Toplam Teklif -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3 mb-xl-0 px-1">
+            <div class="crm-kpi-card">
+                <div class="crm-kpi-header">
+                    <div>
+                        <span class="crm-kpi-label">Toplam Teklif</span>
+                        <div class="crm-kpi-value"><?php echo number_format($totalOffersCount, 0, ',', '.'); ?></div>
+                    </div>
+                    <div class="crm-kpi-icon icon-primary">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                </div>
+                <div class="crm-kpi-footer">
+                    <span class="text-muted font-11">Tutar: <strong class="text-primary"><?php echo tlFormat($totalOffersSum); ?></strong></span>
+                    <span class="crm-badge-soft soft-primary">Tüm Kayıtlar</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Bekleyen Teklifler -->
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-3 mb-md-0 px-2">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3 mb-xl-0 px-1">
             <div class="crm-kpi-card">
                 <div class="crm-kpi-header">
                     <div>
@@ -254,20 +505,18 @@ if (@$_GET["st"] == "success-mail") {
                         <div class="crm-kpi-value"><?php echo number_format($pendingOffersCount, 0, ',', '.'); ?></div>
                     </div>
                     <div class="crm-kpi-icon icon-amber">
-                        <i class="fa fa-file-text-o"></i>
+                        <i class="fa fa-hourglass-half"></i>
                     </div>
                 </div>
                 <div class="crm-kpi-footer">
-                    <span class="weight-600 text-dark" style="font-size: 11px;">
-                        Hacim: <span class="text-primary"><?php echo tlFormat($pendingOffersSum); ?></span>
-                    </span>
-                    <span class="crm-badge-soft soft-amber">Pipeline</span>
+                    <span class="text-muted font-11">Hacim: <strong class="text-warning"><?php echo tlFormat($pendingOffersSum); ?></strong></span>
+                    <span class="crm-badge-soft soft-amber">Süreçte</span>
                 </div>
             </div>
         </div>
 
         <!-- Kazanılan / Tamamlanan Teklifler -->
-        <div class="col-lg-6 col-md-6 col-sm-12 mb-3 mb-md-0 px-2">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3 mb-xl-0 px-1">
             <div class="crm-kpi-card">
                 <div class="crm-kpi-header">
                     <div>
@@ -275,35 +524,53 @@ if (@$_GET["st"] == "success-mail") {
                         <div class="crm-kpi-value"><?php echo number_format($wonOffersCount, 0, ',', '.'); ?></div>
                     </div>
                     <div class="crm-kpi-icon icon-emerald">
-                        <i class="fa fa-trophy"></i>
+                        <i class="fa fa-check-circle"></i>
                     </div>
                 </div>
                 <div class="crm-kpi-footer">
-                    <span class="weight-600 text-dark" style="font-size: 11px;">
-                        Ciro: <span class="text-success"><?php echo tlFormat($wonOffersSum); ?></span>
-                    </span>
+                    <span class="text-muted font-11">Ciro: <strong class="text-success"><?php echo tlFormat($wonOffersSum); ?></strong></span>
                     <span class="crm-badge-soft soft-emerald">%<?php echo $offerWinRate; ?> Başarı</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bu Ay Açılan Teklifler -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3 mb-xl-0 px-1">
+            <div class="crm-kpi-card">
+                <div class="crm-kpi-header">
+                    <div>
+                        <span class="crm-kpi-label">Bu Ay Açılan</span>
+                        <div class="crm-kpi-value"><?php echo number_format($thisMonthOffersCount, 0, ',', '.'); ?></div>
+                    </div>
+                    <div class="crm-kpi-icon icon-sky">
+                        <i class="fa fa-calendar-check-o"></i>
+                    </div>
+                </div>
+                <div class="crm-kpi-footer">
+                    <span class="text-muted font-11">Tutar: <strong class="text-info"><?php echo tlFormat($thisMonthOffersSum); ?></strong></span>
+                    <span class="crm-badge-soft soft-sky"><?php echo date('m/Y'); ?> Dönemi</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Liste Card -->
-    <div class="form-card animate-fade-in">
+    <div class="form-card animate-fade-in mx-1">
         <div class="form-card-header d-flex justify-content-between align-items-center">
             <div class="header-left-inner">
                 <div class="card-icon">
                     <i class="fa fa-list"></i>
                 </div>
                 <div>
-                    <h5>Teklif Listesi</h5>
+                    <h5><?php echo $sablonlari_goster ? 'Şablon Teklif Listesi' : 'Teklif Listesi'; ?></h5>
+                    <p>Anlık arama, sütun filtreleme ve teklif yönetimi</p>
                 </div>
             </div>
             <div class="d-flex align-items-center" style="gap: 8px;">
-                <button type="button" id="filtersToggle" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px; height: 36px;">
-                    <i class="fa fa-filter mr-1"></i> Detaylı Filtreleme
+                <button type="button" id="filtersToggle" class="btn btn-outline-secondary btn-action-outline" style="height: 34px;">
+                    <i class="fa fa-filter"></i> <span class="d-none d-sm-inline">Detaylı Filtreleme</span>
                 </button>
-                <button type="button" id="toggleKpiSummary" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle / Göster" style="border-radius: 8px; width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                <button type="button" id="toggleKpiSummary" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle / Göster" style="border-radius: 6px; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
                     <i class="fa fa-chevron-up"></i>
                 </button>
             </div>
@@ -724,6 +991,18 @@ $(document).ready(function() {
         });
     });
  
+    // Tabloyu Yenile Butonu
+    $(document).on('click', '#btnRefreshOffers', function() {
+        var $btn = $(this);
+        var $icon = $btn.find('i');
+        $icon.addClass('fa-spin');
+        $('#offerTable').DataTable().ajax.reload(function() {
+            setTimeout(function() {
+                $icon.removeClass('fa-spin');
+            }, 300);
+        }, false);
+    });
+
     // Filtreleri uygula
     $(document).on('click', '#applyFilters', function() {
         $('#offerTable').DataTable().ajax.reload();

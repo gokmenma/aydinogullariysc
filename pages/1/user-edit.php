@@ -214,7 +214,7 @@ $user = $query->fetch(PDO::FETCH_ASSOC);
                 <!-- Pozisyon -->
                 <div class="form-field">
                     <label for="permission"><font color="red">(*)</font> Pozisyon:</label>
-                    <select name="permission" id="permission" class="selectpicker form-control" data-style="border bg-white">
+                    <select name="permission" id="permission" class="selectpicker form-control" data-style="border bg-white" data-container="body">
                         <?php
                         $pquery = $ac->prepare("SELECT * FROM userroles");
                         $pquery->execute();

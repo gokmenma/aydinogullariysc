@@ -93,37 +93,78 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 <style>
 /* Teklif Dashboard Özel Stilleri */
 .offer-dash-hero {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border-radius: 16px;
-    padding: 26px 28px;
-    color: #ffffff !important;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #4f46e5;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.03);
     position: relative;
-    overflow: hidden;
 }
 .offer-dash-hero .offer-hero-title {
-    color: #ffffff !important;
-    font-size: 24px !important;
+    color: #1e293b !important;
+    font-size: 20px !important;
     font-weight: 700 !important;
     letter-spacing: -0.3px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
-.offer-dash-hero .offer-hero-title i {
-    color: #818cf8 !important;
+.offer-dash-hero .offer-hero-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #eef2ff;
+    border: 1px solid #e0e7ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f46e5;
+    font-size: 19px;
+    margin-right: 14px;
+    flex-shrink: 0;
 }
 .offer-dash-hero p, .offer-dash-hero .offer-hero-desc {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: #64748b !important;
+    font-size: 13px;
+    margin: 0;
 }
-.offer-dash-hero::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(99, 102, 241, 0) 70%);
-    pointer-events: none;
+.btn-ghost-soft {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155 !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.btn-ghost-soft:hover {
+    background: #f8fafc;
+    color: #0f172a !important;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+.btn-action-primary {
+    background: #10b981;
+    border: 1px solid #059669;
+    color: #ffffff !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-action-primary:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
 }
 .offer-filter-pills {
     display: flex;
@@ -305,13 +346,49 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     width: 100%;
 }
 
+.offer-dashboard-container {
+    width: 100%;
+}
+.offer-dashboard-container .row {
+    margin-left: -8px;
+    margin-right: -8px;
+}
+.offer-dashboard-container [class*="col-"] {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
 /* Dark mode uyumu */
+.dark-mode .offer-dash-hero,
 .dark-mode .offer-kpi-card,
 .dark-mode .offer-filter-pills,
 .dark-mode .crm-card {
     background: #1e293b !important;
     border-color: #334155 !important;
     color: #f1f5f9 !important;
+}
+.dark-mode .offer-dash-hero {
+    border-left-color: #6366f1 !important;
+}
+.dark-mode .offer-dash-hero .offer-hero-title {
+    color: #f8fafc !important;
+}
+.dark-mode .offer-dash-hero .offer-hero-desc {
+    color: #94a3b8 !important;
+}
+.dark-mode .offer-dash-hero .offer-hero-icon-box {
+    background: #0f172a !important;
+    color: #818cf8 !important;
+    border-color: #334155 !important;
+}
+.dark-mode .btn-ghost-soft {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+.dark-mode .btn-ghost-soft:hover {
+    background: #1e293b !important;
+    color: #ffffff !important;
 }
 .dark-mode .offer-kpi-value {
     color: #f8fafc !important;
@@ -337,81 +414,96 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 }
 </style>
 
-<div class="pd-20">
+<div class="offer-dashboard-container">
     
     <!-- 1. HERO BANNER & HIZLI AKSİYONLAR -->
-    <div class="offer-dash-hero">
-        <div class="row align-items-center">
-            <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
-                <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <span class="badge badge-light text-dark px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px;">
-                        <i class="fa fa-calendar mr-1"></i> <?php echo $curDateFormatted; ?>
-                    </span>
-                    <span class="badge badge-primary px-3 py-2 font-12 font-weight-bold" style="border-radius: 8px; background: rgba(99, 102, 241, 0.4); border: 1px solid rgba(255,255,255,0.2);">
-                        <i class="fa fa-filter mr-1"></i> <?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                </div>
-                <h2 class="offer-hero-title">
-                    <i class="fa fa-file-text-o mr-2"></i> Teklif Yönetimi & Performans Paneli
-                </h2>
-                <p class="offer-hero-desc">
-                    Müşteri teklif dağılımları, satış temsilcisi performansları, onay trendleri ve finansal hacim analizi.
-                </p>
-            </div>
-            <div class="col-lg-5 col-md-12 text-lg-right">
-                <div class="d-flex flex-wrap justify-content-lg-end" style="gap: 8px;">
-                    <?php if (permtrue('offeradd')) : ?>
-                        <a href="index.php?p=offers/offer-manage" class="btn btn-success px-3 py-2 font-weight-bold shadow-sm" style="border-radius: 8px;">
-                            <i class="fa fa-plus mr-1"></i> Yeni Teklif Oluştur
-                        </a>
-                    <?php endif; ?>
-                    <a href="index.php?p=offers/list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
-                        <i class="fa fa-list mr-1"></i> Teklif Listesi
-                    </a>
-                    <a href="index.php?p=offers/items-list" class="btn btn-outline-light px-3 py-2 font-weight-bold" style="border-radius: 8px;">
-                        <i class="fa fa-cubes mr-1"></i> Teklif Kalemleri
-                    </a>
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="offer-dash-hero mb-0">
+                <div class="row align-items-center">
+                    <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
+                        <div class="d-flex align-items-center mb-2" style="gap: 8px;">
+                            <span class="badge" style="background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px;">
+                                <i class="fa fa-calendar mr-1 text-muted"></i> <?php echo $curDateFormatted; ?>
+                            </span>
+                            <span class="badge" style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px;">
+                                <i class="fa fa-filter mr-1"></i> <?php echo htmlspecialchars($activeFilterLabel, ENT_QUOTES, 'UTF-8'); ?>
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="offer-hero-icon-box">
+                                <i class="fa fa-file-text-o"></i>
+                            </div>
+                            <div>
+                                <h2 class="offer-hero-title">
+                                    Teklif Yönetimi & Performans Paneli
+                                </h2>
+                                <p class="offer-hero-desc">
+                                    Müşteri teklif dağılımları, satış temsilcisi performansları, onay trendleri ve finansal hacim analizi.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-12 text-lg-right">
+                        <div class="d-flex flex-wrap justify-content-lg-end" style="gap: 8px;">
+                            <?php if (permtrue('offeradd')) : ?>
+                                <a href="index.php?p=offers/offer-manage" class="btn-action-primary">
+                                    <i class="fa fa-plus mr-1"></i> Yeni Teklif
+                                </a>
+                            <?php endif; ?>
+                            <a href="index.php?p=offers/list" class="btn-ghost-soft">
+                                <i class="fa fa-list mr-1 text-muted"></i> Teklif Listesi
+                            </a>
+                            <a href="index.php?p=offers/items-list" class="btn-ghost-soft">
+                                <i class="fa fa-cubes mr-1 text-muted"></i> Kalemler
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 2. DÖNEM & TARİH FİLTRELEME ÇUBUĞU -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4" style="gap: 12px;">
-        <div class="offer-filter-pills">
-            <span class="font-12 font-weight-bold text-muted mr-1"><i class="fa fa-sliders mr-1"></i> Dönem:</span>
-            <a href="index.php?p=offers/dashboard&period=all" class="offer-filter-pill <?php echo $period === 'all' ? 'active' : ''; ?>">Tümü</a>
-            <a href="index.php?p=offers/dashboard&period=this_year" class="offer-filter-pill <?php echo $period === 'this_year' ? 'active' : ''; ?>">Bu Yıl (<?php echo date('Y'); ?>)</a>
-            <a href="index.php?p=offers/dashboard&period=this_month" class="offer-filter-pill <?php echo $period === 'this_month' ? 'active' : ''; ?>">Bu Ay</a>
-            <a href="index.php?p=offers/dashboard&period=last_month" class="offer-filter-pill <?php echo $period === 'last_month' ? 'active' : ''; ?>">Geçen Ay</a>
-            <a href="index.php?p=offers/dashboard&period=last_30_days" class="offer-filter-pill <?php echo $period === 'last_30_days' ? 'active' : ''; ?>">Son 30 Gün</a>
-            <a href="index.php?p=offers/dashboard&period=last_90_days" class="offer-filter-pill <?php echo $period === 'last_90_days' ? 'active' : ''; ?>">Son 90 Gün</a>
-        </div>
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex flex-wrap justify-content-between align-items-center" style="gap: 12px;">
+                <div class="offer-filter-pills">
+                    <span class="font-12 font-weight-bold text-muted mr-1"><i class="fa fa-sliders mr-1"></i> Dönem:</span>
+                    <a href="index.php?p=offers/dashboard&period=all" class="offer-filter-pill <?php echo $period === 'all' ? 'active' : ''; ?>">Tümü</a>
+                    <a href="index.php?p=offers/dashboard&period=this_year" class="offer-filter-pill <?php echo $period === 'this_year' ? 'active' : ''; ?>">Bu Yıl (<?php echo date('Y'); ?>)</a>
+                    <a href="index.php?p=offers/dashboard&period=this_month" class="offer-filter-pill <?php echo $period === 'this_month' ? 'active' : ''; ?>">Bu Ay</a>
+                    <a href="index.php?p=offers/dashboard&period=last_month" class="offer-filter-pill <?php echo $period === 'last_month' ? 'active' : ''; ?>">Geçen Ay</a>
+                    <a href="index.php?p=offers/dashboard&period=last_30_days" class="offer-filter-pill <?php echo $period === 'last_30_days' ? 'active' : ''; ?>">Son 30 Gün</a>
+                    <a href="index.php?p=offers/dashboard&period=last_90_days" class="offer-filter-pill <?php echo $period === 'last_90_days' ? 'active' : ''; ?>">Son 90 Gün</a>
+                </div>
 
-        <form method="GET" action="index.php" class="d-flex align-items-center flex-wrap" style="gap: 8px;">
-            <input type="hidden" name="p" value="offers/dashboard">
-            <input type="hidden" name="period" value="custom">
-            <div class="input-group input-group-sm" style="width: auto;">
-                <div class="input-group-prepend">
-                    <span class="input-group-text bg-white border-right-0"><i class="fa fa-calendar text-primary"></i></span>
-                </div>
-                <input type="text" id="offer_start_date" name="start_date" class="form-control form-control-sm flatpickr-custom-input border-left-0" placeholder="Başlangıç" value="<?php echo htmlspecialchars($startDate ?? '', ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" required>
-                <div class="input-group-prepend input-group-append">
-                    <span class="input-group-text bg-light">-</span>
-                </div>
-                <input type="text" id="offer_end_date" name="end_date" class="form-control form-control-sm flatpickr-custom-input" placeholder="Bitiş" value="<?php echo htmlspecialchars($endDate ?? '', ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" required>
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-primary btn-sm px-3 font-weight-bold"><i class="fa fa-search mr-1"></i> Filtrele</button>
-                </div>
+                <form method="GET" action="index.php" class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <input type="hidden" name="p" value="offers/dashboard">
+                    <input type="hidden" name="period" value="custom">
+                    <div class="input-group input-group-sm" style="width: auto;">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0"><i class="fa fa-calendar text-primary"></i></span>
+                        </div>
+                        <input type="text" id="offer_start_date" name="start_date" class="form-control form-control-sm flatpickr-custom-input border-left-0" placeholder="Başlangıç" value="<?php echo htmlspecialchars($startDate ?? '', ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" required>
+                        <div class="input-group-prepend input-group-append">
+                            <span class="input-group-text bg-light">-</span>
+                        </div>
+                        <input type="text" id="offer_end_date" name="end_date" class="form-control form-control-sm flatpickr-custom-input" placeholder="Bitiş" value="<?php echo htmlspecialchars($endDate ?? '', ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off" required>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary btn-sm px-3 font-weight-bold"><i class="fa fa-search mr-1"></i> Filtrele</button>
+                        </div>
+                    </div>
+                    <?php if ($period !== 'all') : ?>
+                        <a href="index.php?p=offers/dashboard" class="btn btn-outline-secondary btn-sm" title="Filtreyi Sıfırla"><i class="fa fa-times"></i></a>
+                    <?php endif; ?>
+                </form>
             </div>
-            <?php if ($period !== 'all') : ?>
-                <a href="index.php?p=offers/dashboard" class="btn btn-outline-secondary btn-sm" title="Filtreyi Sıfırla"><i class="fa fa-times"></i></a>
-            <?php endif; ?>
-        </form>
+        </div>
     </div>
 
     <!-- 3. KPI KARTLARI (4'LÜ GRID) -->
-    <div class="row mb-4">
+    <div class="row mb-3">
         <!-- Toplam Teklif -->
         <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
             <div class="offer-kpi-card kpi-indigo">

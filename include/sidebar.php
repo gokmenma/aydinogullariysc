@@ -494,6 +494,35 @@ foreach ($sortedMenu as $menuKey => &$menuData) {
     }
 }
 unset($menuData);
+
+// Aktif menü ve alt menü tespiti (sayfa yüklenmeden önce sunucu tarafında açık getirmek için)
+$currentP = (string)($_GET['p'] ?? 'home');
+$currentFullQuery = (string)($_SERVER['QUERY_STRING'] ?? ('p=' . $currentP));
+parse_str($currentFullQuery, $currentGetParams);
+
+$isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
+    if (empty($link)) return false;
+    
+    $parsed = parse_url($link);
+    if (!empty($parsed['query'])) {
+        parse_str($parsed['query'], $params);
+        if (isset($params['p'])) {
+            // Eğer ek parametreler varsa (örn: ?p=offers/list&sablon=true) tüm parametreler eşleşmeli
+            if (count($params) > 1) {
+                foreach ($params as $k => $v) {
+                    if ((string)($currentGetParams[$k] ?? '') !== (string)$v) {
+                        return false;
+                    }
+                }
+                return true;
+            } elseif ($params['p'] === $currentP) {
+                // Link sadece tek p parametresi içeriyorsa, URL'de ek filtre parametreleri yokken tam uyar
+                return empty($currentGetParams['sablon']) || ($params['p'] !== 'offers/list');
+            }
+        }
+    }
+    return false;
+};
 ?>
 <div class="left-side-bar">
     <div class="brand-logo">
@@ -530,33 +559,42 @@ unset($menuData);
                     
                     // Alt menü varsa en az bir alt öğenin görünür olduğunu kontrol et
                     $hasVisibleSubItems = false;
+                    $isParentActive = false;
+                    $activeSubKeys = [];
+                    
                     if (!empty($menu['items'])) {
-                        foreach ($menu['items'] as $item) {
+                        foreach ($menu['items'] as $subKey => $item) {
                             if (!empty($item['visible'])) {
                                 $hasVisibleSubItems = true;
-                                break;
+                                if ($isMenuLinkActive($item['link'])) {
+                                    $isParentActive = true;
+                                    $activeSubKeys[$subKey] = true;
+                                }
                             }
                         }
                         if (!$hasVisibleSubItems) continue;
+                    } else {
+                        $isParentActive = $isMenuLinkActive($menu['link'] ?? '');
                     }
                 ?>
-                    <li class="dropdown" data-menu-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>">
+                    <li class="dropdown<?php echo $isParentActive ? ' show active' : ''; ?>" data-menu-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>">
                         <?php if (empty($menu['items'])): ?>
-                            <a href="<?php echo htmlspecialchars($menu['link'], ENT_QUOTES, 'UTF-8'); ?>" class="dropdown-toggle no-arrow">
+                            <a href="<?php echo htmlspecialchars($menu['link'], ENT_QUOTES, 'UTF-8'); ?>" class="dropdown-toggle no-arrow<?php echo $isParentActive ? ' active' : ''; ?>">
                                 <span class="<?php echo htmlspecialchars($menu['icon'], ENT_QUOTES, 'UTF-8'); ?>"></span>
                                 <span class="mtext"><?php echo htmlspecialchars($menu['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                             </a>
                         <?php else: ?>
-                            <a href="javascript:;" class="dropdown-toggle">
+                            <a href="javascript:;" class="dropdown-toggle" data-option="<?php echo $isParentActive ? 'on' : 'off'; ?>">
                                 <span class="<?php echo htmlspecialchars($menu['icon'], ENT_QUOTES, 'UTF-8'); ?>"></span>
                                 <span class="mtext"><?php echo htmlspecialchars($menu['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                             </a>
-                            <ul class="submenu" data-parent-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>">
+                            <ul class="submenu" data-parent-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $isParentActive ? ' style="display: block;"' : ''; ?>>
                                 <?php foreach ($menu['items'] as $itemKey => $item): 
                                     if (empty($item['visible'])) continue;
+                                    $isSubActive = !empty($activeSubKeys[$itemKey]);
                                 ?>
                                     <li data-item-key="<?php echo htmlspecialchars($itemKey, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <a href="<?php echo htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8'); ?>">
+                                        <a href="<?php echo htmlspecialchars($item['link'], ENT_QUOTES, 'UTF-8'); ?>" class="<?php echo $isSubActive ? 'active' : ''; ?>">
                                             <?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </li>

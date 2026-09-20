@@ -37,8 +37,8 @@ class customer
         $sql->execute();
         $groups = $sql->fetchAll(PDO::FETCH_OBJ);
         
-        $select = "<select name='$name' id='$id' class='form-control selectpicker' data-style='bg-white' data-size='8'
-                            data-live-search='true'>";
+        $select = "<select name='$name' id='$id' class='form-control selectpicker' data-style='border bg-white' data-size='8'
+                            data-live-search='true' data-container='body'>";
         $select .= "<option value=''>Grup Seçiniz</option>";
         foreach ($groups as $group) {
             //gelen id ile veritabanındaki id eşleşirse selected yap

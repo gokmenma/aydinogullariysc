@@ -7,6 +7,20 @@ $(document).on("click", "#btn_save_offer", function () {
 });
 
 function TeklifKaydet(autosave = false) {
+  // WYSIWYG editor içeriklerini textarea'lara aktar
+  $(".offerHeaderContent .wysihtml5-sandbox").each(function () {
+    var html = $(this).contents().find("body").html();
+    if (html !== undefined) {
+      $("#offerHeaderContent textarea").val(html);
+    }
+  });
+  $(".offerFooterContent .wysihtml5-sandbox").each(function () {
+    var html = $(this).contents().find("body").html();
+    if (html !== undefined) {
+      $("#offerFooterContent textarea").val(html);
+    }
+  });
+
   var form = $("#myForm");
   var formData = new FormData(form[0]);
   $(".selectpicker").selectpicker("refresh");

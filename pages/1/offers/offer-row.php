@@ -1,9 +1,9 @@
 <?php if ($satirNo > 0) {
     ?>
-    <td> <a href="#" class="btn btn-sm">
-            <i class="fa fa-arrows-alt"></i>
-        </a>
-    </a></td> 
+	    <td> <a href="#" class="btn btn-sm">
+	            <i class="fa fa-arrows-alt"></i>
+	        </a>
+	    </td> 
     <!-- İşlem -->
     <td class="app-item-action-2">
         <a href="#" class="sil btn btn-sm btn-danger">Sil</a>

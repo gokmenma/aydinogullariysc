@@ -177,40 +177,41 @@ foreach ($reports_list as $row_data) {
     $viewpagelink = "index.php?p=reports/" . $row_data["page_link"] . "/report-view-" . $row_data["page_link"] . "&id=" . $rid;
     $send_mail_link = "index.php?p=report-send-as-mail&type=" . $row_data['page_link'] . "&id=" . $rid;
 
-    $actions = '<div class="text-center app-item-action-3" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
+    $actions = '<div class="action-btn-group text-center text-nowrap">';
     if ($canEdit) {
-        $actions .= '<a type="button" href="' . htmlspecialchars($editpagelink) . '" class="btn btn-sm btn-outline-primary" data-tooltip="Düzenle">
+        $actions .= '<a type="button" href="' . htmlspecialchars($editpagelink) . '" class="btn btn-sm btn-outline-primary action-btn" data-tooltip="Düzenle">
             <i class="fa fa-pencil"></i>
         </a>';
     }
     
     if ($canDel) {
         $confirmMsg = htmlspecialchars($row_data["report_number"] . ' nolu raporu silmek istediğinize emin misiniz?', ENT_QUOTES);
-        $actions .= '<button type="button" class="btn btn-sm btn-danger" data-tooltip="Sil" onClick="deleteRecord(\'' . $confirmMsg . '\', \'' . $rid . '\', \'reports/reports\', \'reports\')">
+        $actions .= '<button type="button" class="btn btn-sm btn-outline-danger action-btn" data-tooltip="Sil" onClick="deleteRecord(\'' . $confirmMsg . '\', \'' . $rid . '\', \'reports/reports\', \'reports\')">
             <i class="fa fa-trash"></i>
         </button>';
     }
 
     $actions .= ' <div class="dropdown d-inline">
-        <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenu_' . $rid . '" data-toggle="dropdown">
-            <i class="fa fa-ellipsis-v ml-1 mr-1"></i>
+        <button class="btn btn-outline-secondary btn-sm action-btn" type="button" id="dropdownMenu_' . $rid . '" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false" title="Diğer İşlemler">
+            <i class="fa fa-ellipsis-v"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_' . $rid . '">';
 
     if ($canViewOffer) {
-        $actions .= ' <a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="dropdown-item" type="button">
-            <i class="fa fa-file mr-2"></i> Raporu Göster
+        $actions .= ' <a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="dropdown-item">
+            <i class="fa fa-file-text-o text-primary mr-2"></i> Raporu Göster
         </a>
-        <a href="' . htmlspecialchars($viewpagelink . '&sign=no') . '" target="_blank" class="dropdown-item" type="button">
-            <i class="fa fa-file mr-2"></i> İmzasız Raporu Göster
+        <a href="' . htmlspecialchars($viewpagelink . '&sign=no') . '" target="_blank" class="dropdown-item">
+            <i class="fa fa-file-o text-info mr-2"></i> İmzasız Raporu Göster
         </a>';
     }
 
-    $actions .= ' <a href="' . htmlspecialchars($send_mail_link) . '" target="_blank" class="dropdown-item" type="button">
-        <i class="fa fa-file mr-2"></i> Mail gönder
+    $actions .= ' <a href="' . htmlspecialchars($send_mail_link) . '" target="_blank" class="dropdown-item">
+        <i class="fa fa-paper-plane-o text-success mr-2"></i> Mail Gönder
     </a>
+    <div class="dropdown-divider"></div>
     <a class="btn-report-detail btn dropdown-item" data-id="' . $rid . '" type="button">
-        <i class="fa fa-copy mr-2"></i> Detay Bilgisi
+        <i class="fa fa-info-circle text-secondary mr-2"></i> Detay Bilgisi
     </a>';
 
     $actions .= '</div></div></div>';

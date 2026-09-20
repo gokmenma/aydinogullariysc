@@ -262,107 +262,6 @@ if (@$_POST["status"] == "success") {
         color: #fff;
     }
 
-    /* Form styling */
-    .form-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        margin-bottom: 25px;
-        border: 1px solid #f0f0f0;
-    }
-
-    .form-card-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 25px;
-        padding-bottom: 16px;
-        border-bottom: 2px solid #f3f4f6;
-    }
-
-    .form-card-header .card-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        background: #eff6ff;
-        color: #3b82f6;
-    }
-
-    .form-card-header h5 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 700;
-        color: #1e3a5f;
-    }
-
-    .form-card-header p {
-        margin: 4px 0 0;
-        font-size: 13.5px;
-        color: #64748b;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 25px 30px;
-    }
-
-    @media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .form-grid .full-width {
-        grid-column: 1 / -1;
-    }
-
-    .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .form-field label {
-        font-size: 13.5px;
-        font-weight: 600;
-        color: #334155;
-        display: flex;
-        align-items: center;
-    }
-
-    .form-field label font[color="red"] {
-        color: #ef4444;
-        margin-right: 4px;
-        font-weight: bold;
-    }
-
-    .form-field .form-control,
-    .form-field .bootstrap-select .btn {
-        border-radius: 10px !important;
-        border: 1.5px solid #e5e7eb !important;
-        padding: 10px 14px;
-        font-size: 14px;
-        transition: all 0.25s ease;
-        background: #fafafa;
-    }
-
-    .form-field .form-control:focus {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
-        background: #fff;
-    }
-
-    .form-field textarea.form-control {
-        min-height: 100px;
-        resize: vertical;
-    }
-
     /* Inline row within form field (e.g. city/district) */
     .form-field .row-inline {
         display: flex;
@@ -527,9 +426,7 @@ if (@$_POST["status"] == "success") {
                 <!-- Grup -->
                 <div class="form-field">
                     <label for="categoryName"><font color="red">(*)</font> Grup</label>
-                    <div class="input-group">
-                        <?php echo customer::getCustomerGroups("categoryName", $customer->grp ?? ''); ?>
-                    </div>
+                    <?php echo customer::getCustomerGroups("categoryName", $customer->grp ?? ''); ?>
                 </div>
 
                 <!-- Yetkili Ad-Soyad -->
@@ -546,7 +443,7 @@ if (@$_POST["status"] == "success") {
                             <?php echo Helper::selectCity("il", $customer->city ?? 0); ?>
                         </div>
                         <div>
-                            <select name="ilce" id="ilce" class="form-control selectpicker" data-live-search="true" data-size="5" data-none-selected-text="Seçim Yapılmadı" data-style="border bg-white">
+                            <select name="ilce" id="ilce" class="form-control selectpicker" data-live-search="true" data-size="5" data-none-selected-text="Seçim Yapılmadı" data-style="border bg-white" data-container="body">
                                 <option value="<?php echo $customer->ilce ?? ''; ?>">
                                     <?php echo $customer->ilce ?? ''; ?>
                                 </option>

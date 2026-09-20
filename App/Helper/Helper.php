@@ -24,7 +24,7 @@ class Helper
         $sql->execute();
         $result = $sql->fetchAll(PDO::FETCH_OBJ);
 
-        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white" required>';
+        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white" data-container="body" required>';
         $select .= '<option value="0">Bölge Seçiniz</option>';
         foreach ($result as $unit) {
             $isSelected = ($selected == $unit->id) ? 'selected' : '';
@@ -93,7 +93,7 @@ class Helper
         $json = file_get_contents(__DIR__ . '/../../src/scripts/il-bolge.json');
         $cities = json_decode($json, true);
 
-        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-live-search="true" data-size="5" data-style="border bg-white">';
+        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-live-search="true" data-size="5" data-style="border bg-white" data-container="body">';
         $select .= '<option value="">İl Seçiniz</option>';
         foreach ($cities as $city) {
             $isSelected = ($selected == $city['il']) ? 'selected' : '';
@@ -107,7 +107,7 @@ class Helper
     //Durum ile ilgili select oluştur, Bekliyor, Onaylandı, Reddedildi
     public static function selectState($name, $selected = null)
     {
-        $select = '<select name="' . $name . '" class="selectpicker form-control" data-style="border bg-white">';
+        $select = '<select name="' . $name . '" class="selectpicker form-control" data-style="border bg-white" data-container="body">';
         foreach (self::STATE as $key => $value) {
             $isSelected = ($selected == $key) ? 'selected' : '';
             $select .= '<option value="' . $key . '" ' . $isSelected . '>' . $value . '</option>';
