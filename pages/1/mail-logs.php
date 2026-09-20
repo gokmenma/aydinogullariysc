@@ -2,9 +2,14 @@
 
 use App\Helper\Security;
 
-permcontrol("mail-logs-view");
+$userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+$userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0));
 
-$canDelete = permtrue("mail-logs-delete") || sesset("permission") == 1;
+if ($userPerm !== 1 && $userId !== 1 && $userId !== 12) {
+    permcontrol("mail-logs-view");
+}
+
+$canDelete = permtrue("mail-logs-delete") || $userPerm === 1 || $userId === 1 || $userId === 12;
 
 // Silme İşlemi (Güvenli ID ve Yetki Kontrolü)
 if (isset($_GET["type"]) && $_GET["type"] === "delete" && isset($_GET["id"])) {
