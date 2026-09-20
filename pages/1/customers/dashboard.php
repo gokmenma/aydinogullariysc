@@ -340,7 +340,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     background: #334155;
 }
 </style>
-<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920-2">
 
 <div class="pd-20 unified-dashboard">
     
@@ -788,6 +788,9 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 <!-- ApexCharts Script Başlatma -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    var dashboardDark = document.body.classList.contains('dark-mode');
+    var dashboardText = dashboardDark ? '#cbd5e1' : '#64748b';
+    var dashboardGrid = dashboardDark ? '#334155' : '#e5e7eb';
     // 1. Flatpickr Başlatma
     if (typeof flatpickr !== 'undefined') {
         flatpickr("#cust_start_date", {
@@ -836,8 +839,11 @@ document.addEventListener("DOMContentLoaded", function () {
             height: 330,
             type: 'line',
             toolbar: { show: false },
-            fontFamily: 'Inter, sans-serif'
+            fontFamily: 'Inter, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        grid: { borderColor: dashboardGrid },
         stroke: {
             width: [0, 3],
             curve: 'smooth'
@@ -915,8 +921,11 @@ document.addEventListener("DOMContentLoaded", function () {
         chart: {
             type: 'donut',
             height: 240,
-            fontFamily: 'Inter, sans-serif'
+            fontFamily: 'Inter, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        stroke: { colors: [dashboardDark ? '#1e293b' : '#ffffff'] },
         colors: ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
         legend: {
             show: true,
@@ -931,9 +940,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     size: '68%',
                     labels: {
                         show: true,
+                        name: { color: dashboardText },
+                        value: { color: dashboardDark ? '#f8fafc' : '#1e293b' },
                         total: {
                             show: true,
                             label: 'Toplam',
+                            color: dashboardText,
                             formatter: function (w) {
                                 return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                             }
@@ -965,8 +977,11 @@ document.addEventListener("DOMContentLoaded", function () {
             type: 'bar',
             height: 280,
             toolbar: { show: false },
-            fontFamily: 'Inter, sans-serif'
+            fontFamily: 'Inter, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        grid: { borderColor: dashboardGrid },
         plotOptions: {
             bar: {
                 borderRadius: 4,

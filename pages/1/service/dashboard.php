@@ -469,7 +469,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     color: #cbd5e1;
 }
 </style>
-<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920-2">
 
 <div class="service-dashboard-container unified-dashboard">
     

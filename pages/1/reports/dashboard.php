@@ -335,7 +335,7 @@ foreach ($typeDistribution as $td) {
     background: #334155;
 }
 </style>
-<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920-2">
 
 <div class="pd-20 unified-dashboard">
     
@@ -829,6 +829,9 @@ foreach ($typeDistribution as $td) {
 <!-- ApexCharts & Flatpickr Script Başlatma -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    var dashboardDark = document.body.classList.contains('dark-mode');
+    var dashboardText = dashboardDark ? '#cbd5e1' : '#64748b';
+    var dashboardGrid = dashboardDark ? '#334155' : '#e5e7eb';
     // 1. Aylık Rapor Trend Grafiği (Stacked Column / Line)
     var categories = <?php echo json_encode($chartCategories, JSON_UNESCAPED_UNICODE); ?>;
     var yscSeries = <?php echo json_encode($chartYscSeries); ?>;
@@ -856,8 +859,11 @@ document.addEventListener("DOMContentLoaded", function () {
             toolbar: {
                 show: false
             },
-            fontFamily: 'Geist, sans-serif'
+            fontFamily: 'Geist, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        grid: { borderColor: dashboardGrid },
         colors: ['#e11d48', '#4f46e5', '#10b981'],
         plotOptions: {
             bar: {
@@ -914,8 +920,11 @@ document.addEventListener("DOMContentLoaded", function () {
         chart: {
             type: 'donut',
             height: 250,
-            fontFamily: 'Geist, sans-serif'
+            fontFamily: 'Geist, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        stroke: { colors: [dashboardDark ? '#1e293b' : '#ffffff'] },
         labels: typeLabels,
         colors: ['#4f46e5', '#e11d48', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6'],
         plotOptions: {
@@ -924,12 +933,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     size: '72%',
                     labels: {
                         show: true,
+                        name: { color: dashboardText },
+                        value: { color: dashboardDark ? '#f8fafc' : '#1e293b' },
                         total: {
                             show: true,
                             label: 'Toplam Rapor',
                             fontSize: '13px',
                             fontWeight: 600,
-                            color: '#64748b',
+                            color: dashboardText,
                             formatter: function (w) {
                                 return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                             }

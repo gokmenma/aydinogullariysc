@@ -355,7 +355,7 @@ foreach ($statusDistribution as $sd) {
     background: #334155;
 }
 </style>
-<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920">
+<link rel="stylesheet" href="vendors/styles/dashboard-unified.css?v=20260920-2">
 
 <div class="pd-20 unified-dashboard">
     
@@ -840,6 +840,9 @@ foreach ($statusDistribution as $sd) {
 <!-- ApexCharts Script Başlatma -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    var dashboardDark = document.body.classList.contains('dark-mode');
+    var dashboardText = dashboardDark ? '#cbd5e1' : '#64748b';
+    var dashboardGrid = dashboardDark ? '#334155' : '#e5e7eb';
     // 1. Aylık Satın Alma Harcama & Sipariş Trend Grafiği
     var categories = <?php echo json_encode($chartCategories, JSON_UNESCAPED_UNICODE); ?>;
     var totalOrders = <?php echo json_encode($chartTotalOrders); ?>;
@@ -867,8 +870,11 @@ document.addEventListener("DOMContentLoaded", function () {
             toolbar: {
                 show: false
             },
-            fontFamily: 'Geist, sans-serif'
+            fontFamily: 'Geist, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        grid: { borderColor: dashboardGrid },
         colors: ['#3b82f6', '#10b981', '#f59e0b'],
         stroke: {
             width: [0, 0, 3],
@@ -967,8 +973,11 @@ document.addEventListener("DOMContentLoaded", function () {
         chart: {
             type: 'donut',
             height: 250,
-            fontFamily: 'Geist, sans-serif'
+            fontFamily: 'Geist, sans-serif',
+            foreColor: dashboardText
         },
+        theme: { mode: dashboardDark ? 'dark' : 'light' },
+        stroke: { colors: [dashboardDark ? '#1e293b' : '#ffffff'] },
         labels: statusLabels,
         colors: statusColors,
         plotOptions: {
@@ -977,12 +986,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     size: '72%',
                     labels: {
                         show: true,
+                        name: { color: dashboardText },
+                        value: { color: dashboardDark ? '#f8fafc' : '#1e293b' },
                         total: {
                             show: true,
                             label: 'Toplam İşlem',
                             fontSize: '13px',
                             fontWeight: 600,
-                            color: '#64748b',
+                            color: dashboardText,
                             formatter: function (w) {
                                 return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                             }
