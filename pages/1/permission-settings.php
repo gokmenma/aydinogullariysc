@@ -23,26 +23,8 @@ $roles = $permModel->getRolesWithDetails();
 // Gruplandırılmış Tüm Yetkiler
 $groupedAuths = $permModel->getAllAuthoritiesGrouped();
 
-// Modül / Grup İsimleri Haritası
-$groupNames = [
-    1 => 'Müşteri Yönetimi',
-    2 => 'Satın Alma',
-    3 => 'Teklif Yönetimi',
-    4 => 'Servis & Proje',
-    5 => 'Raporlar',
-    6 => 'Kullanıcılar',
-    7 => 'Doküman & Evrak',
-    9 => 'Destek Talepleri',
-    10 => 'Ürün Kataloğu',
-    11 => 'Giriş & Güvenlik',
-    12 => 'Banka & Finans',
-    13 => 'Personel & İK',
-    14 => 'Tanımlamalar & Ayarlar',
-    16 => 'İcra & Hukuk',
-    17 => 'SGK & Bordro',
-    20 => 'Sistem Logları',
-    99 => 'Genel Yetkiler'
-];
+// Modül / Grup Tanımları (PermissionModel üzerinden merkezi tanım)
+$groupDefs = PermissionModel::getGroupDefinitions();
 
 try {
     $logger = \getLogger("Pozisyon & Yetkiler");
@@ -391,6 +373,23 @@ try {
     .auth-scope-container {
         max-width: 380px;
     }
+    .auth-percent-badge {
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: #eef2ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
+        display: inline-flex;
+        align-items: center;
+        line-height: 1.2;
+    }
+    .auth-percent-badge.is-full {
+        background: #ecfdf5;
+        color: #065f46;
+        border-color: #a7f3d0;
+    }
     .auth-scope-progress {
         height: 6px;
         border-radius: 3px;
@@ -661,6 +660,16 @@ try {
         border-color: #334155 !important;
     }
     .dark-mode .auth-scope-progress { background: #334155 !important; }
+    .dark-mode .auth-percent-badge {
+        background: rgba(79, 70, 229, 0.2) !important;
+        color: #a5b4fc !important;
+        border-color: rgba(79, 70, 229, 0.4) !important;
+    }
+    .dark-mode .auth-percent-badge.is-full {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #6ee7b7 !important;
+        border-color: rgba(16, 185, 129, 0.4) !important;
+    }
     .dark-mode .auth-badge-pill {
         background: #0f172a !important;
         color: #cbd5e1 !important;
@@ -907,9 +916,9 @@ try {
                                 <div class="auth-scope-container">
                                     <div class="d-flex justify-content-between align-items-center font-12 mb-1">
                                         <span class="font-weight-bold" style="color: #4f46e5;">
-                                            <i class="fa fa-check-circle mr-1"></i> <?php echo $authCount; ?> / <?php echo $totalAuths; ?> İzin
-                                        </span>
-                                        <span class="badge badge-light border font-weight-bold" style="font-size: 11px;">%<?php echo $coverageRate; ?></span>
+                                             <i class="fa fa-check-circle mr-1"></i> <?php echo $authCount; ?> / <?php echo $totalAuths; ?> İzin
+                                         </span>
+                                        <span class="auth-percent-badge <?php echo ($coverageRate >= 100) ? 'is-full' : ''; ?>">%<?php echo $coverageRate; ?></span>
                                     </div>
                                     <div class="auth-scope-progress">
                                         <div class="auth-scope-progress-bar" style="width: <?php echo min(100, $coverageRate); ?>%;"></div>
@@ -1027,7 +1036,7 @@ try {
 <script>
     var ROLES_DATA = <?php echo json_encode($roles, JSON_UNESCAPED_UNICODE); ?>;
     var GROUPED_AUTHS = <?php echo json_encode($groupedAuths, JSON_UNESCAPED_UNICODE); ?>;
-    var GROUP_NAMES = <?php echo json_encode($groupNames, JSON_UNESCAPED_UNICODE); ?>;
+    var GROUP_DEFS = <?php echo json_encode($groupDefs, JSON_UNESCAPED_UNICODE); ?>;
 </script>
 
 <script>
@@ -1174,7 +1183,9 @@ $(document).ready(function () {
 
         Object.keys(GROUPED_AUTHS).forEach(function(groupKey) {
             var auths = GROUPED_AUTHS[groupKey] || [];
-            var groupName = GROUP_NAMES[groupKey] || ("Grup #" + groupKey);
+            var gDef = GROUP_DEFS[groupKey] || { title: "Grup #" + groupKey, icon: "fa fa-folder-open-o", color: "#475569" };
+            var groupName = gDef.title || ("Grup #" + groupKey);
+            var groupIcon = gDef.icon || "fa fa-folder-open-o";
 
             var groupItemsHtml = "";
 
@@ -1198,7 +1209,7 @@ $(document).ready(function () {
             if (groupItemsHtml !== "") {
                 var colHtml = '<div class="col-md-12 mb-3">' +
                     '<div class="modal-auth-group-title">' +
-                        '<span><i class="fa fa-folder-open-o mr-1"></i> ' + $("<div>").text(groupName).html() + '</span>' +
+                        '<span><i class="' + groupIcon + ' mr-1"></i> ' + $("<div>").text(groupName).html() + '</span>' +
                     '</div>' +
                     '<div class="row">' + groupItemsHtml + '</div>' +
                 '</div>';

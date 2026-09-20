@@ -115,45 +115,140 @@ function repdate($a)
 
 function send_sms($phones, $message)
 {
-	$username = set('sms_username');
-	$title = set('sms_title');
-	$pass = set('sms_pass');
-	$url = '';
+	$username = trim((string)set('sms_username'));
+	$title    = trim((string)set('sms_title'));
+	$pass     = (string)set('sms_pass');
+	$active   = set('sms_active');
 
-	$phonesArray = '';
-
-	for ($i = 0; $i < count($phones); $i++) {
-		$phonesArray .= $phones[$i] . ', ';
+	if ($active !== 'on' || empty($username) || empty($title) || empty($pass)) {
+		return [
+			'success' => false,
+			'message' => 'SMS entegrasyonu aktif değil veya giriş bilgileri eksik.',
+			'code'    => 'CONFIG_ERROR'
+		];
 	}
-	$curl = curl_init();  // Curl özkaynağı başlatılıyor
 
-	curl_setopt_array(
-		$curl,
-		array(
-			CURLOPT_URL => 'https://smsgw.mutlucell.com/smsgw-ws/sndblkex',
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_ENCODING => '',
-			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 0,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-			CURLOPT_CUSTOMREQUEST => 'POST',
-			CURLOPT_POSTFIELDS => '<?xml version="1.0" encoding="UTF-8"?>
-																<smspack ka="' . $username . '" pwd="' . $pass . '" org="' . $title . '">
-																	<mesaj>
-																		<metin>"' . $message . '"</metin>
-																		<nums>"' . $phonesArray . '"</nums>
-																	</mesaj>
-																	</smspack>',
-			CURLOPT_HTTPHEADER => array('Content-Type: text/xml'),
-		)
-	);
+	if (empty($phones) || empty(trim((string)$message))) {
+		return [
+			'success' => false,
+			'message' => 'Alıcı listesi veya mesaj metni boş olamaz.',
+			'code'    => 'INPUT_ERROR'
+		];
+	}
 
-	$response = curl_exec($curl);
+	// Alıcı numaralarını temizle (sadece rakam, min 10 hane)
+	$cleanPhones = [];
+	$rawPhones = is_array($phones) ? $phones : explode(',', (string)$phones);
+	foreach ($rawPhones as $p) {
+		$p = preg_replace('/[^0-9]/', '', (string)$p);
+		if (strlen($p) === 10) {
+			$cleanPhones[] = $p;
+		} elseif (strlen($p) === 11 && strpos($p, '0') === 0) {
+			$cleanPhones[] = substr($p, 1);
+		} elseif (strlen($p) === 12 && strpos($p, '90') === 0) {
+			$cleanPhones[] = substr($p, 2);
+		} elseif (!empty($p)) {
+			$cleanPhones[] = $p;
+		}
+	}
+	$cleanPhones = array_values(array_unique(array_filter($cleanPhones)));
 
-	curl_close($curl);
+	if (empty($cleanPhones)) {
+		return [
+			'success' => false,
+			'message' => 'Geçerli bir telefon numarası bulunamadı.',
+			'code'    => 'NO_VALID_PHONE'
+		];
+	}
 
-	return $response;
+	try {
+		if (class_exists('SoapClient')) {
+			$client = new SoapClient("http://soap.netgsm.com.tr:8080/Sms_webservis/SMS?wsdl", [
+				'trace' => 1,
+				'exceptions' => true,
+				'connection_timeout' => 10
+			]);
+
+			$result = $client->smsGonder1NV2([
+				'username'  => $username,
+				'password'  => $pass,
+				'header'    => $title,
+				'msg'       => $message,
+				'gsm'       => $cleanPhones,
+				'filter'    => '',
+				'startdate' => '',
+				'stopdate'  => '',
+				'encoding'  => 'TR'
+			]);
+
+			$resCode = is_string($result) ? trim($result) : (string)$result;
+			if (strpos($resCode, '00 ') === 0 || strpos($resCode, '01 ') === 0 || strpos($resCode, '02 ') === 0 || $resCode === '00' || $resCode === '01') {
+				return [
+					'success'  => true,
+					'message'  => 'SMS başarıyla iletildi.',
+					'job_id'   => $resCode,
+					'count'    => count($cleanPhones)
+				];
+			} else {
+				$errorMap = [
+					'20' => 'Mesaj metni hatalı veya karakter sınırı aşıldı.',
+					'30' => 'Geçersiz NetGSM kullanıcı adı, şifre veya API erişim kısıtlaması.',
+					'40' => 'Gönderici başlığı (Originator) NetGSM sisteminde onaylı değil.',
+					'50' => 'Abone hesabınızda yeterli SMS kredisi bulunmuyor.',
+					'51' => 'Abonelik veya hesap durumu SMS gönderimine kapalı.',
+					'70' => 'Hatalı parametre veya geçersiz numara formatı.',
+					'80' => 'Gönderim sınırına ulaşıldı.',
+					'85' => 'Mükerrer gönderim engellendi.'
+				];
+				$msg = $errorMap[$resCode] ?? "NetGSM Hata Kodu: {$resCode}";
+				return [
+					'success' => false,
+					'message' => $msg,
+					'code'    => $resCode
+				];
+			}
+		} else {
+			// HTTP POST Fallback to api.netgsm.com.tr
+			$postFields = http_build_query([
+				'usercode'  => $username,
+				'password'  => $pass,
+				'gsmno'     => implode(',', $cleanPhones),
+				'message'   => $message,
+				'msgheader' => $title,
+				'dil'       => 'TR'
+			]);
+
+			$ch = curl_init('https://api.netgsm.com.tr/sms/send/get');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+			$response = curl_exec($ch);
+			curl_close($ch);
+
+			$resCode = trim((string)$response);
+			if (strpos($resCode, '00 ') === 0 || $resCode === '00') {
+				return [
+					'success'  => true,
+					'message'  => 'SMS başarıyla iletildi.',
+					'job_id'   => $resCode,
+					'count'    => count($cleanPhones)
+				];
+			}
+			return [
+				'success' => false,
+				'message' => 'SMS gönderilemedi (NetGSM Kod: ' . $resCode . ')',
+				'code'    => $resCode
+			];
+		}
+	} catch (Exception $e) {
+		error_log('SMS Send Error: ' . $e->getMessage());
+		return [
+			'success' => false,
+			'message' => 'SMS servisi bağlantı hatası: ' . $e->getMessage(),
+			'code'    => 'EXCEPTION'
+		];
+	}
 }
 
 // function send_mail($titlek, $text, $sendto)
@@ -1115,3 +1210,62 @@ function isTableExists($tableName)
 	$check_table_stmt->execute(array($tableName));
 	return $check_table_stmt->rowCount() > 0;
 }
+
+/**
+ * Yapılandırılmış PHPMailer nesnesi döndürür.
+ * Belirtilen $fromEmail mail_accounts tablosunda özel şifreye sahipse o kimlik bilgileriyle,
+ * aksi halde panel ana SMTP ayarlarıyla hazırlanır.
+ */
+function get_configured_mailer($fromEmail = null, $fromName = null)
+{
+	$mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+	$mail->isSMTP();
+	$mail->SMTPAuth = true;
+
+	$host = trim((string)set('mail_host'));
+	$port = (int)set('mail_port');
+	$user = trim((string)set('mail_username'));
+	$pass = (string)set('mail_password');
+	$companyName = $fromName ?: (trim((string)set('company_name')) ?: 'Aydınoğulları YSC');
+
+	$fromAddress = $fromEmail ?: $user;
+
+	if (!empty($fromEmail)) {
+		try {
+			$mailModel = new \App\Model\MailAccountModel();
+			$account = $mailModel->getAccountByAddress($fromEmail);
+			if ($account && !empty($account['mail_password'])) {
+				$user = $account['mail_address'];
+				$pass = $account['mail_password'];
+			}
+		} catch (\Throwable $t) {
+			// Model hatası durumunda ana SMTP ayarları fallback kalır
+		}
+	}
+
+	$mail->Host     = $host;
+	$mail->Port     = $port;
+	$mail->Username = $user;
+	$mail->Password = $pass;
+
+	if ($port == 465) {
+		$mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+	} elseif ($port == 587) {
+		$mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+	} else {
+		$mail->SMTPSecure = false;
+		$mail->SMTPAutoTLS = true;
+	}
+
+	$mail->isHTML(true);
+	$mail->CharSet  = 'UTF-8';
+	$mail->Encoding = 'base64';
+
+	if (!empty($fromAddress)) {
+		$mail->setFrom($fromAddress, $companyName);
+		$mail->addReplyTo($fromAddress, $companyName);
+	}
+
+	return $mail;
+}
+

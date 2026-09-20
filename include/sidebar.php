@@ -305,27 +305,27 @@ $menuDefinitions = [
     'mail-sms' => [
         'title' => 'Mail & SMS',
         'icon' => 'fa fa-envelope',
-        'visible' => permtrue("mailandsmssend"),
+        'visible' => (permtrue("mailandsmssend") || permtrue("mail-logs-view") || $userId == 1 || $userPerm == 1),
         'items' => [
             'send-mail' => [
                 'title' => 'Mail Gönder',
                 'link' => 'index.php?p=send-mail',
-                'visible' => true
+                'visible' => (permtrue("mailandsmssend") || $userId == 1 || $userPerm == 1)
             ],
             'send-sms' => [
                 'title' => 'SMS Gönder',
                 'link' => 'index.php?p=send-sms',
-                'visible' => (set("sms_active") == "on")
+                'visible' => (permtrue("mailandsmssend") || $userId == 1 || $userPerm == 1)
             ],
             'mail-logs' => [
                 'title' => 'Mail Kayıtları',
                 'link' => 'index.php?p=mail-logs',
-                'visible' => (set("sms_active") == "on")
+                'visible' => (permtrue("mail-logs-view") || permtrue("mailandsmssend") || $userId == 1 || $userPerm == 1)
             ],
             'send-mail-accounts' => [
                 'title' => 'Mail Hesapları',
                 'link' => 'index.php?p=send-mail-accounts',
-                'visible' => ($userId == 12 || $userId == 1)
+                'visible' => (permtrue("mail-accounts-manage") || $userId == 12 || $userId == 1 || $userPerm == 1)
             ]
         ]
     ],
@@ -612,3 +612,85 @@ $isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    try {
+        var menuBlock = document.querySelector('.left-side-bar .menu-block');
+        if (!menuBlock) return;
+
+        function getSidebarDesiredScroll() {
+            var saved = sessionStorage.getItem('sidebar_scroll_top');
+            if (saved !== null && !isNaN(parseInt(saved, 10)) && parseInt(saved, 10) > 0) {
+                return parseInt(saved, 10);
+            }
+
+            var active = menuBlock.querySelector('#accordion-menu a.active') ||
+                         menuBlock.querySelector('#accordion-menu li.show.active') ||
+                         menuBlock.querySelector('#accordion-menu li.show') ||
+                         menuBlock.querySelector('#accordion-menu li.active');
+
+            if (active) {
+                var conRect = menuBlock.getBoundingClientRect();
+                var actRect = active.getBoundingClientRect();
+                var mcs = menuBlock.querySelector('.mCSB_container');
+                var currScroll = mcs ? Math.abs(mcs.offsetTop || 0) : (menuBlock.scrollTop || 0);
+
+                var relativeTop = (actRect.top - conRect.top) + currScroll;
+                var blockH = menuBlock.clientHeight || (window.innerHeight - 120);
+                var target = Math.max(0, Math.round(relativeTop - Math.floor(blockH / 3)));
+                return target;
+            }
+            return 0;
+        }
+
+        window.__restoreSidebarScroll = function () {
+            var targetTop = getSidebarDesiredScroll();
+            if (targetTop > 0) {
+                menuBlock.scrollTop = targetTop;
+                if (typeof $ !== 'undefined' && typeof $.fn.mCustomScrollbar !== 'undefined' && $(menuBlock).data('mCS')) {
+                    $(menuBlock).mCustomScrollbar("scrollTo", targetTop, {
+                        scrollInertia: 0,
+                        timeout: 0
+                    });
+                }
+            }
+        };
+
+        // 1. Sayfa parse edilir edilmez hemen uygula
+        window.__restoreSidebarScroll();
+
+        // 2. DOMContentLoaded olduğunda tekrar garanti et
+        document.addEventListener('DOMContentLoaded', function () {
+            window.__restoreSidebarScroll();
+        });
+
+        // Native scroll takibi
+        menuBlock.addEventListener('scroll', function () {
+            if (menuBlock.scrollTop >= 0) {
+                sessionStorage.setItem('sidebar_scroll_top', Math.round(menuBlock.scrollTop));
+            }
+        }, { passive: true });
+
+        // Menü linklerine tıklandığında anlık scroll pozisyonunu kaydet
+        var menuUl = document.getElementById('accordion-menu');
+        if (menuUl) {
+            menuUl.addEventListener('click', function (e) {
+                var link = e.target.closest('a');
+                if (!link) return;
+                var currentTop = 0;
+                var mcsContainer = menuBlock.querySelector('.mCSB_container');
+                if (mcsContainer) {
+                    currentTop = Math.abs(mcsContainer.offsetTop || 0);
+                } else {
+                    currentTop = menuBlock.scrollTop || 0;
+                }
+                sessionStorage.setItem('sidebar_scroll_top', Math.round(currentTop));
+            });
+        }
+    } catch (e) {
+        console.error('Sidebar scroll init error:', e);
+    }
+})();
+</script>
+

@@ -456,5 +456,99 @@ class CustomerModel extends BaseModel
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_OBJ);
     }
+
+    /**
+     * SMS gönderimi için aktif ve telefon numarası olan müşterileri getirir
+     *
+     * @return array
+     */
+    public function getActiveCustomersWithPhone()
+    {
+        $sql = "SELECT 
+                    id,
+                    company,
+                    yetkili,
+                    gsm,
+                    gsm2,
+                    city,
+                    ilce
+                FROM customers
+                WHERE deleted_at IS NULL
+                  AND (
+                      (gsm IS NOT NULL AND TRIM(gsm) != '')
+                      OR (gsm2 IS NOT NULL AND TRIM(gsm2) != '')
+                  )
+                ORDER BY company ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * E-posta gönderimi için aktif ve geçerli e-posta adresi olan müşterileri getirir
+     *
+     * @return array
+     */
+    public function getActiveCustomersWithEmail()
+    {
+        $sql = "SELECT 
+                    id,
+                    company,
+                    yetkili,
+                    email,
+                    gsm,
+                    city,
+                    ilce
+                FROM customers
+                WHERE deleted_at IS NULL
+                  AND email IS NOT NULL 
+                  AND TRIM(email) != ''
+                ORDER BY company ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * E-posta gönderimi için AJAX ile hızlı arama yapar
+     *
+     * @param string $term Arama kelimesi
+     * @param int $limit Kayıt limiti
+     * @return array
+     */
+    public function searchActiveCustomersWithEmail($term = '', $limit = 30)
+    {
+        $term = trim($term);
+        $params = [];
+
+        $sql = "SELECT 
+                    id,
+                    company,
+                    yetkili,
+                    email,
+                    gsm,
+                    city,
+                    ilce
+                FROM customers
+                WHERE deleted_at IS NULL
+                  AND email IS NOT NULL 
+                  AND TRIM(email) != ''";
+
+        if (!empty($term)) {
+            $sql .= " AND (company LIKE :q1 OR email LIKE :q2 OR yetkili LIKE :q3)";
+            $params[':q1'] = '%' . $term . '%';
+            $params[':q2'] = '%' . $term . '%';
+            $params[':q3'] = '%' . $term . '%';
+        }
+
+        $sql .= " ORDER BY company ASC LIMIT " . (int)$limit;
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
+
 

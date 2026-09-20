@@ -13,10 +13,9 @@ if (!isset($_SESSION['login'])) {
 // Çıktı tamponunu başlatın
 ob_start();
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bootstrap.php';
 require $_SERVER['DOCUMENT_ROOT']. '/vendor/autoload.php';
 require_once $_SERVER['DOCUMENT_ROOT'].'/App/Model/ReportControlModel.php';
-require_once $_SERVER['DOCUMENT_ROOT'].'/App/Model/ReportControlModel.php';
-
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -24,8 +23,8 @@ use App\Model\ReportControlModel;
 
 $reportControlModel = new ReportControlModel();
 
-$month = $_GET['month'];
-$year = $_GET['year'];
+$month = $_GET['month'] ?? '';
+$year = $_GET['year'] ?? '';
 $filling_list = $reportControlModel->getReportFillingList($month, $year);
 
 $spreadsheet = new Spreadsheet();

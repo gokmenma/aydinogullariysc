@@ -46,9 +46,22 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
 - Tablo içindeki işlem butonları küçük ve tek satırda kalmalıdır.
 - Mobil görünüm ve dark mode mevcutsa yapılan stil değişikliği bu durumları bozmamalıdır.
 
+## Sürüm Notları Kaydı (Changelog Standardı)
+
+- Sistemde tamamlanan **her konuşma / geliştirme görevi sonunda** `version_notes` tablosuna yapılan işin bilgisi kaydedilmelidir.
+- Sürüm notu kaydında şu standartlara uyulmalıdır:
+  - `title`: Yapılan geliştirmeyi veya çözümü net özetleyen başlık (Örn: "Sürüm Notları Sayfası Modernizasyonu").
+  - `version_tag`: Güncel sürüm etiketi veya alt sürüm numarası (Örn: `v2.4.0` veya `v2026.09.20`).
+  - `category`: İşin niteliğine göre uygun kategori (`feature`, `improvement`, `bugfix`, `security`, `other`).
+  - `description`: Yapılan değişiklikleri, eklenen/güncellenen özellikleri ve düzeltmeleri listeleyen maddeli açıklama (`- ` maddeleri şeklinde).
+  - `author`: "Antigravity AI" veya işlem yapan kullanıcı/ajan bilgisi.
+  - `created_at`: Anlık tarih-saat bilgisi (`Y-m-d H:i:s`).
+- Kayıt doğrudan `App\Model\VersionNoteModel` veya güvenli PDO sorgusu kullanılarak veritabanına eklenmeli ve kullanıcıya yapılan teslimat açıklamasında sürüm notunun kaydedildiği belirtilmelidir.
+
 ## Doğrulama
 
 - Değiştirilen PHP dosyalarında `php -l` çalıştırılmalıdır.
 - SQL migration mümkünse boş veya geçici bir test şemasında uygulanmalı; en azından hedef MariaDB/MySQL sürümüyle sözdizimi doğrulanmalıdır.
 - Veritabanı davranışı değiştiğinde ilgili kayıt ilişkisi test edilmelidir.
 - Test için eklenen veriler yalnızca açıkça belirlenmiş kimliklerle temizlenmeli; geniş veya belirsiz silme sorguları kullanılmamalıdır.
+

@@ -25,8 +25,8 @@ if ($page == 'products/manage' || $page == 'products/list' || $page == 'products
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="vendors/scripts/script.js"></script>
-<script src="src/scripts/validate/core.js"></script>
+<script src="vendors/scripts/script.js?v=<?php echo file_exists('vendors/scripts/script.js') ? filemtime('vendors/scripts/script.js') : time(); ?>"></script>
+<script src="src/scripts/validate/core.js?v=<?php echo file_exists('src/scripts/validate/core.js') ? filemtime('src/scripts/validate/core.js') : time(); ?>"></script>
 <script src="include/js/app.js?v=<?php echo file_exists('include/js/app.js') ? filemtime('include/js/app.js') : time(); ?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="include/js/menu-order.js?v=<?php echo file_exists('include/js/menu-order.js') ? filemtime('include/js/menu-order.js') : time(); ?>"></script>

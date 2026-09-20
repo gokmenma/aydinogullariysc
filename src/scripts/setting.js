@@ -6,13 +6,91 @@ jQuery(window).on("load",function() {
 		html: true
 	});
 });
-jQuery(window).on("load resize", function () {
-	$(".customscroll").mCustomScrollbar({
-		theme: "minimal-dark",
-		advanced:{
-			autoScrollOnFocus: false,
-		},
+function getSidebarTargetScroll() {
+	var menuBlock = document.querySelector('.left-side-bar .menu-block');
+	if (!menuBlock) return 0;
+
+	var saved = sessionStorage.getItem('sidebar_scroll_top');
+	if (saved !== null && !isNaN(parseInt(saved, 10)) && parseInt(saved, 10) > 0) {
+		return parseInt(saved, 10);
+	}
+
+	var active = menuBlock.querySelector('#accordion-menu a.active') ||
+	             menuBlock.querySelector('#accordion-menu li.show.active') ||
+	             menuBlock.querySelector('#accordion-menu li.show') ||
+	             menuBlock.querySelector('#accordion-menu li.active');
+
+	if (active) {
+		var conRect = menuBlock.getBoundingClientRect();
+		var actRect = active.getBoundingClientRect();
+		var mcs = menuBlock.querySelector('.mCSB_container');
+		var currScroll = mcs ? Math.abs(mcs.offsetTop || 0) : (menuBlock.scrollTop || 0);
+
+		var relativeTop = (actRect.top - conRect.top) + currScroll;
+		var blockH = menuBlock.clientHeight || (window.innerHeight - 120);
+		var target = Math.max(0, Math.round(relativeTop - Math.floor(blockH / 3)));
+		return target;
+	}
+	return 0;
+}
+
+function initSidebarCustomScroll() {
+	var $sidebar = $(".left-side-bar .menu-block.customscroll");
+	if ($sidebar.length) {
+		var initialTop = getSidebarTargetScroll();
+		if (!$sidebar.data('mCS')) {
+			$sidebar.mCustomScrollbar({
+				theme: "minimal-dark",
+				setTop: initialTop > 0 ? ("-" + initialTop + "px") : "0px",
+				scrollInertia: 0,
+				advanced: {
+					autoScrollOnFocus: false,
+				},
+				callbacks: {
+					whileScrolling: function () {
+						if (this.mcs && typeof this.mcs.top !== 'undefined') {
+							sessionStorage.setItem('sidebar_scroll_top', Math.abs(this.mcs.top));
+						}
+					},
+					onScroll: function () {
+						if (this.mcs && typeof this.mcs.top !== 'undefined') {
+							sessionStorage.setItem('sidebar_scroll_top', Math.abs(this.mcs.top));
+						}
+					}
+				}
+			});
+		}
+
+		if (initialTop > 0) {
+			$sidebar.mCustomScrollbar("scrollTo", initialTop, {
+				scrollInertia: 0,
+				timeout: 0
+			});
+		}
+	}
+
+	$(".customscroll").not(".left-side-bar .menu-block.customscroll").each(function () {
+		if (!$(this).data('mCS')) {
+			$(this).mCustomScrollbar({
+				theme: "minimal-dark",
+				advanced: {
+					autoScrollOnFocus: false,
+				},
+			});
+		}
 	});
+}
+
+jQuery(document).ready(function () {
+	initSidebarCustomScroll();
+});
+
+jQuery(window).on("load", function () {
+	initSidebarCustomScroll();
+});
+
+jQuery(window).on("resize", function () {
+	$(".customscroll").mCustomScrollbar("update");
 });
 jQuery(document).ready(function(){
 	"use strict";

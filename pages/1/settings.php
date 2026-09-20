@@ -515,14 +515,19 @@ if (@$_GET["st"] == "newsuccess") {
              KART 3: E-POSTA & SMTP YAPILANDIRMASI
              ========================================== -->
         <div class="form-card animate-fade-in">
-            <div class="form-card-header">
-                <div class="card-icon card-icon-purple">
-                    <i class="fa fa-envelope-o"></i>
+            <div class="form-card-header d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">
+                <div class="d-flex align-items-center" style="gap: 12px;">
+                    <div class="card-icon card-icon-purple">
+                        <i class="fa fa-envelope-o"></i>
+                    </div>
+                    <div>
+                        <h5>E-Posta & SMTP Sunucu Yapılandırması</h5>
+                        <p>Sistem üzerinden gönderilen teklif, servis ve bildirim mailleri için SMTP ayarları</p>
+                    </div>
                 </div>
-                <div>
-                    <h5>E-Posta & SMTP Sunucu Yapılandırması</h5>
-                    <p>Sistem üzerinden gönderilen teklif, servis ve bildirim mailleri için SMTP ayarları</p>
-                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm font-12 font-weight-bold" id="btnOpenTestSmtpModal" style="border-width: 1.5px;">
+                    <i class="fa fa-paper-plane mr-1"></i> E-Posta Gönderimini Test Et
+                </button>
             </div>
 
             <div class="form-grid">
@@ -708,6 +713,76 @@ if (@$_GET["st"] == "newsuccess") {
 </div>
 
 <!-- ==========================================
+     MODAL: SMTP E-POSTA TESTİ
+     ========================================== -->
+<div class="modal fade" id="testSmtpModal" tabindex="-1" role="dialog" aria-labelledby="testSmtpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;">
+        <div class="modal-content" style="border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.12);">
+            <div class="modal-header d-flex align-items-center justify-content-between" style="padding: 14px 20px; border-bottom: 1px solid #f1f5f9; background: #fafafa;">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 3px 8px rgba(2, 132, 199, 0.25);">
+                        <i class="fa fa-paper-plane-o"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title font-weight-bold mb-0" id="testSmtpModalLabel" style="font-size: 15px; color: #1e293b;">SMTP E-Posta Gönderim Testi</h5>
+                        <small class="text-muted font-11">Sunucu bağlantısı ve test iletisi doğrulama</small>
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat" style="font-size: 22px; color: #94a3b8; outline: none; opacity: 0.8;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-4" style="background: #ffffff;">
+                <div class="alert alert-info py-2 px-3 mb-3 border-0 d-flex align-items-center" style="border-radius: 8px; font-size: 12px; background: #f0f9ff; color: #0369a1; border-left: 3px solid #0284c7 !important;">
+                    <i class="fa fa-info-circle mr-2 font-16"></i>
+                    <span>Formda girili olan güncel sunucu bilgileriyle anlık test yapılır.</span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold text-dark font-12 mb-1" for="test_recipient_email">
+                        Alıcı Test E-Posta Adresi <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-light text-muted border-right-0" style="border-radius: 6px 0 0 6px;">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </div>
+                        <input type="email" class="form-control" id="test_recipient_email" placeholder="ornek@alanadiniz.com" style="border-radius: 0 6px 6px 0; font-size: 13px;">
+                    </div>
+                    <small class="text-muted font-11 mt-1 d-block">Test e-postasının gönderileceği gelen kutusu adresi.</small>
+                </div>
+
+                <div class="bg-light p-3 rounded mb-2 border" style="border-color: #e2e8f0 !important; font-size: 12px;">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted font-weight-500">SMTP Host:</span>
+                        <strong id="preview_smtp_host" class="text-dark">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted font-weight-500">SMTP Port:</span>
+                        <strong id="preview_smtp_port" class="text-dark">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted font-weight-500">Gönderici Hesap:</span>
+                        <strong id="preview_smtp_user" class="text-dark text-truncate" style="max-width: 250px;">-</strong>
+                    </div>
+                </div>
+
+                <div id="smtpTestResultAlert" class="mt-3 d-none"></div>
+            </div>
+
+            <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-dismiss="modal" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-4" id="btnExecuteSmtpTest">
+                    <i class="fa fa-paper-plane mr-1"></i> <span id="btnExecuteSmtpTestText">Test Maili Gönder</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
      PAGE SCRIPTS (UX ENHANCEMENTS)
      ========================================== -->
 <script>
@@ -847,6 +922,142 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewLogo(logoInput);
             }
         }, false);
+    }
+
+    // SMTP Test Modal Açılışı
+    var btnOpenTestSmtp = document.getElementById('btnOpenTestSmtpModal');
+    if (btnOpenTestSmtp) {
+        btnOpenTestSmtp.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            var host = (document.getElementById('mail_host') ? document.getElementById('mail_host').value.trim() : '') || '-';
+            var port = (document.getElementById('mail_port') ? document.getElementById('mail_port').value.trim() : '') || '-';
+            var user = (document.getElementById('mail_username') ? document.getElementById('mail_username').value.trim() : '') || '-';
+            var adminMail = (document.getElementById('mail_admin') ? document.getElementById('mail_admin').value.trim() : '');
+
+            document.getElementById('preview_smtp_host').textContent = host;
+            document.getElementById('preview_smtp_port').textContent = port;
+            document.getElementById('preview_smtp_user').textContent = user;
+
+            var recInput = document.getElementById('test_recipient_email');
+            if (recInput && !recInput.value) {
+                recInput.value = adminMail || (user !== '-' ? user : '');
+            }
+
+            var alertBox = document.getElementById('smtpTestResultAlert');
+            if (alertBox) {
+                alertBox.className = 'mt-3 d-none';
+                alertBox.innerHTML = '';
+            }
+
+            $('#testSmtpModal').modal('show');
+        });
+    }
+
+    // SMTP Test Gönderimi (AJAX)
+    var btnExecuteSmtp = document.getElementById('btnExecuteSmtpTest');
+    if (btnExecuteSmtp) {
+        btnExecuteSmtp.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            var host = document.getElementById('mail_host') ? document.getElementById('mail_host').value.trim() : '';
+            var port = document.getElementById('mail_port') ? document.getElementById('mail_port').value.trim() : '';
+            var user = document.getElementById('mail_username') ? document.getElementById('mail_username').value.trim() : '';
+            var pass = document.getElementById('mail_password') ? document.getElementById('mail_password').value : '';
+            var recipient = document.getElementById('test_recipient_email') ? document.getElementById('test_recipient_email').value.trim() : '';
+            var alertBox = document.getElementById('smtpTestResultAlert');
+
+            if (!recipient) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Eksik Bilgi',
+                        text: 'Lütfen test e-postasının gönderileceği alıcı adresini giriniz.'
+                    });
+                } else {
+                    alert('Lütfen test alıcı e-posta adresini giriniz.');
+                }
+                return;
+            }
+
+            var originalBtnHtml = btnExecuteSmtp.innerHTML;
+            btnExecuteSmtp.disabled = true;
+            btnExecuteSmtp.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> Gönderiliyor...';
+
+            if (alertBox) {
+                alertBox.className = 'alert alert-warning py-2 px-3 mt-3 d-flex align-items-center';
+                alertBox.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> SMTP sunucusuna bağlanılıyor ve test e-postası gönderiliyor... Lütfen bekleyiniz.';
+            }
+
+            $.ajax({
+                url: 'api/test_smtp.php',
+                type: 'POST',
+                data: {
+                    mail_host: host,
+                    mail_port: port,
+                    mail_username: user,
+                    mail_password: pass,
+                    test_email: recipient
+                },
+                dataType: 'json',
+                success: function(res) {
+                    btnExecuteSmtp.disabled = false;
+                    btnExecuteSmtp.innerHTML = originalBtnHtml;
+
+                    if (res.status === 'success') {
+                        if (alertBox) {
+                            alertBox.className = 'alert alert-success py-2 px-3 mt-3';
+                            alertBox.innerHTML = '<div class="d-flex align-items-center font-13 weight-600 mb-1"><i class="fa fa-check-circle mr-2 font-16"></i> Başarılı!</div><div class="font-12">' + res.message + '</div>';
+                        }
+
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'SMTP Bağlantısı Başarılı!',
+                                html: res.message,
+                                confirmButtonText: 'Tamam'
+                            });
+                        }
+                    } else {
+                        if (alertBox) {
+                            alertBox.className = 'alert alert-danger py-2 px-3 mt-3';
+                            alertBox.innerHTML = '<div class="d-flex align-items-center font-13 weight-600 mb-1"><i class="fa fa-exclamation-triangle mr-2 font-16"></i> Gönderim Başarısız!</div><div class="font-12">' + (res.message || 'SMTP hatası oluştu.') + '</div>';
+                        }
+
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'SMTP Hatası',
+                                html: res.message || 'E-Posta gönderimi gerçekleştirilemedi.',
+                                confirmButtonText: 'Kapat'
+                            });
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    btnExecuteSmtp.disabled = false;
+                    btnExecuteSmtp.innerHTML = originalBtnHtml;
+
+                    var errMsg = 'Sunucuyla iletişim kurulurken bir hata oluştu.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    }
+
+                    if (alertBox) {
+                        alertBox.className = 'alert alert-danger py-2 px-3 mt-3';
+                        alertBox.innerHTML = '<div class="d-flex align-items-center font-13 weight-600 mb-1"><i class="fa fa-times-circle mr-2 font-16"></i> Hata!</div><div class="font-12">' + errMsg + '</div>';
+                    }
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Sunucu Hatası',
+                            text: errMsg
+                        });
+                    }
+                }
+            });
+        });
     }
 });
 </script>

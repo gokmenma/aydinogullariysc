@@ -1240,10 +1240,127 @@ table.dataTable thead th,
     transform: translateY(-2px);
 }
 
+.premium-header-card .btn-header-secondary,
+.btn-header-secondary {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+    backdrop-filter: none !important;
+}
+
+.premium-header-card .btn-header-secondary:hover,
+.btn-header-secondary:hover {
+    background: #e2e8f0 !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+    transform: translateY(-2px);
+}
+
 /* Dark Mode Overrides for Premium Header */
 .dark-mode .premium-header-card {
     background: linear-gradient(135deg, #151c27 0%, #1e293b 100%) !important;
     border: 1px solid #4b5563 !important;
+}
+
+/* Global Context Menu */
+.custom-context-menu {
+    display: none;
+    position: fixed;
+    z-index: 999999;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 0;
+    min-width: 220px;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.custom-context-menu .cm-header {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+}
+.custom-context-menu a,
+.custom-context-menu button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 9px 16px;
+    font-size: 13px;
+    color: #334155;
+    background: transparent;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.custom-context-menu a:hover,
+.custom-context-menu button:hover {
+    background: #f1f5f9;
+    color: #4338ca;
+}
+.custom-context-menu a.cm-danger,
+.custom-context-menu button.cm-danger {
+    color: #ef4444;
+}
+.custom-context-menu a.cm-danger:hover,
+.custom-context-menu button.cm-danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.custom-context-menu i {
+    width: 20px;
+    font-size: 14px;
+    margin-right: 10px;
+    text-align: center;
+}
+.custom-context-menu .cm-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 4px 0;
+}
+.dark-mode .custom-context-menu {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+.dark-mode .custom-context-menu .cm-header {
+    color: #94a3b8 !important;
+    border-bottom-color: #334155 !important;
+}
+.dark-mode .custom-context-menu a,
+.dark-mode .custom-context-menu button {
+    color: #e2e8f0 !important;
+}
+.dark-mode .custom-context-menu a:hover,
+.dark-mode .custom-context-menu button:hover {
+    background: #334155 !important;
+    color: #818cf8 !important;
+}
+.dark-mode .custom-context-menu a.cm-danger:hover,
+.dark-mode .custom-context-menu button.cm-danger:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+}
+.dark-mode .custom-context-menu .cm-divider {
+    background: #334155 !important;
+}
+tr.context-menu-active {
+    background-color: #f1f5f9 !important;
+}
+.dark-mode tr.context-menu-active {
+    background-color: #334155 !important;
 }
 
 .form-card-header {
@@ -3827,7 +3944,7 @@ table.dataTable thead th,
 
 .header-right {
     float: right !important;
-    width: calc(100% - 260px) !important;
+    width: calc(100% - 250px) !important;
     height: 70px !important;
     margin: 0 !important;
     padding: 0 28px !important;
@@ -5707,6 +5824,8 @@ table.dataTable td,
 }
 .left-side-bar .menu-block {
     height: calc(100vh - 120px) !important;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* ==========================================

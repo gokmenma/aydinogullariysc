@@ -24,8 +24,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Model\ReportControlModel;
 
 $reportControlModel = new ReportControlModel();
-$month = $_GET['month'];
-$year = $_GET['year'];
+$month = $_GET['month'] ?? '';
+$year = $_GET['year'] ?? '';
 $control_list = $reportControlModel->getReportControlList($month, $year);
 
 $spreadsheet = new Spreadsheet();

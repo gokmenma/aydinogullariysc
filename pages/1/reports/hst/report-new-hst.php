@@ -89,7 +89,7 @@ if ($_POST) {
 
         audit_log("create", "report", "Hidrostatik Test Raporu oluşturuldu: " . $report_number, "reports", $lastid);
 
-        header("Location: index.php?p=reports/hst/report-new-hst&type=2&st=newsuccess");
+        header("Location: index.php?p=reports/hst/report-new-hst&type=2&st=newsuccess&last_id=" . $lastid);
         exit;
 
     } catch (PDOException $e) {
@@ -99,16 +99,69 @@ if ($_POST) {
     }
 }
 
-if (@$_GET["st"] == "empties") {
-    showAlert("alert", "Lütfen tüp sahibi firmayı seçiniz!");
-}
-if (@$_GET["st"] == "newsuccess") {
-    showAlert("success", "Hidrostatik Test Raporu başarıyla oluşturuldu!");
-}
-if (@$_GET["st"] == "error") {
-    showAlert("alert", "Rapor kaydedilirken bir hata oluştu. Lütfen tekrar deneyiniz.");
-}
+$st = $_GET["st"] ?? '';
+$created_id = (int)($_GET["last_id"] ?? 0);
 ?>
+
+<?php if ($st === "newsuccess"): ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof Swal !== "undefined") {
+        Swal.fire({
+            title: 'Başarılı!',
+            text: 'Hidrostatik Test Raporu başarıyla oluşturuldu.',
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa fa-list"></i> Rapor Listesine Git',
+            cancelButtonText: '<i class="fa fa-plus"></i> Yeni Rapor Ekle',
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#64748b',
+            reverseButtons: true
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                window.location.href = 'index.php?p=reports/reports';
+            } else {
+                window.history.replaceState({}, document.title, 'index.php?p=reports/hst/report-new-hst&type=2');
+            }
+        });
+    } else {
+        alert('Hidrostatik Test Raporu başarıyla oluşturuldu!');
+    }
+});
+</script>
+<?php elseif ($st === "empties"): ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof Swal !== "undefined") {
+        Swal.fire({
+            title: 'Eksik Bilgi!',
+            text: 'Lütfen tüp sahibi firmayı ve zorunlu alanları doldurunuz.',
+            icon: 'warning',
+            confirmButtonText: 'Tamam',
+            confirmButtonColor: '#f59e0b'
+        }).then(function() {
+            window.history.replaceState({}, document.title, 'index.php?p=reports/hst/report-new-hst&type=2');
+        });
+    }
+});
+</script>
+<?php elseif ($st === "error"): ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof Swal !== "undefined") {
+        Swal.fire({
+            title: 'Hata!',
+            text: 'Rapor kaydedilirken bir hata oluştu. Lütfen tekrar deneyiniz.',
+            icon: 'error',
+            confirmButtonText: 'Tamam',
+            confirmButtonColor: '#ef4444'
+        }).then(function() {
+            window.history.replaceState({}, document.title, 'index.php?p=reports/hst/report-new-hst&type=2');
+        });
+    }
+});
+</script>
+<?php endif; ?>
 
 <style>
     .hst-report-wrapper {

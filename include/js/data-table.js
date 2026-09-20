@@ -135,11 +135,11 @@ $(document).ready(function () {
   var tableId = $(".data-table").attr("id");
   
   // Skip initialization for tables managed elsewhere
-  if (tableId === "customerlist" || tableId === "service-table" || tableId === "itemsTable" || tableId === "tblProducts" || tableId === "reportTable") {
+  if (tableId === "customerlist" || tableId === "service-table" || tableId === "itemsTable" || tableId === "tblProducts" || tableId === "reportTable" || tableId === "fillingTable" || tableId === "controlTable") {
     return;
   }
   
-  table = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable").DataTable({
+  table = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable, #fillingTable, #controlTable").DataTable({
     autoWidth: false,
      lengthMenu: [
       [10, 25, 50, -1],

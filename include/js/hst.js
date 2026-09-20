@@ -292,4 +292,29 @@ $(document).on("click", "#deleteAll", function () {
 // Sayfa yüklendiğinde satır sayacını başlat
 $(document).ready(function () {
     updateRowCount();
+
+    // Form Gönderiminde Çift Tıklamayı Önleme ve Yükleniyor Göstergesi
+    $("#myForm").on("submit", function (e) {
+        var customerVal = $("#customer").val();
+        if (!customerVal) {
+            e.preventDefault();
+            if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+                var sw = typeof Swal !== "undefined" ? Swal : swal;
+                sw.fire({
+                    title: "Eksik Bilgi!",
+                    text: "Lütfen tüp sahibi firmayı seçiniz.",
+                    icon: "warning",
+                    confirmButtonText: "Tamam",
+                    confirmButtonColor: "#f59e0b"
+                });
+            } else {
+                alert("Lütfen tüp sahibi firmayı seçiniz.");
+            }
+            return false;
+        }
+
+        var $btn = $("#submitButton");
+        $btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Kaydediliyor...');
+    });
 });
+
