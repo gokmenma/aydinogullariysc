@@ -283,7 +283,6 @@ foreach ($statusDistribution as $sd) {
 }
 
 .table-modern {
-    table-layout: fixed;
     width: 100% !important;
     margin-bottom: 0 !important;
 }
@@ -293,28 +292,42 @@ foreach ($statusDistribution as $sd) {
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.2px;
     border-bottom: 2px solid #e2e8f0;
-    padding: 10px 8px;
+    padding: 8px 6px;
     vertical-align: middle;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .table-modern tbody td {
-    padding: 10px 8px;
+    padding: 8px 6px;
     vertical-align: middle;
     border-bottom: 1px solid #f1f5f9;
     font-size: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .table-modern tbody tr:hover td {
     background: #f8fafc;
 }
-.table-no-scroll {
-    overflow-x: hidden !important;
+.table-modern .col-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+.table-modern .col-main {
     width: 100%;
+    max-width: 0;
+}
+.table-modern .col-main .cell-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+.table-no-scroll {
+    overflow-x: auto !important;
+    width: 100%;
+}
+.text-nowrap {
+    white-space: nowrap !important;
 }
 .cell-ellipsis {
     white-space: nowrap;
@@ -595,14 +608,14 @@ foreach ($statusDistribution as $sd) {
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 44%;">Tedarikçi Firma</th>
-                                    <th style="width: 18%;" class="text-center">Sipariş</th>
-                                    <th style="width: 24%;" class="text-right">Toplam Harcama</th>
-                                    <th style="width: 14%;" class="text-right">Son Alım</th>
+                                    <th class="col-fit text-center p-1">#</th>
+                                    <th class="col-main">Tedarikçi Firma</th>
+                                    <th class="col-fit text-center">Sipariş</th>
+                                    <th class="col-fit text-right">Toplam Harcama</th>
+                                    <th class="col-fit text-right">Son Alım</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -611,10 +624,10 @@ foreach ($statusDistribution as $sd) {
                                         $rankClass = $index === 0 ? 'rank-badge-1' : ($index === 1 ? 'rank-badge-2' : ($index === 2 ? 'rank-badge-3' : 'rank-badge-default'));
                                     ?>
                                         <tr>
-                                            <td class="text-center p-1">
+                                            <td class="col-fit text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="cell-ellipsis font-weight-bold text-dark font-12" title="<?php echo htmlspecialchars($s->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($s->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                                     <?php if (!empty($s->deleted_at)) : ?>
@@ -625,14 +638,14 @@ foreach ($statusDistribution as $sd) {
                                                     <?php echo htmlspecialchars($s->city ?: 'Şehir Belirtilmemiş', ENT_QUOTES, 'UTF-8'); ?>
                                                 </div>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="font-weight-bold text-dark font-12"><?php echo $s->total_orders; ?></span>
-                                                <span class="font-11 text-muted"> / <span class="text-success font-weight-bold"><?php echo $s->completed_orders; ?></span></span>
+                                                <span class="font-11 text-muted"> / <span class="text-success font-weight-bold" title="Tamamlanan"><?php echo $s->completed_orders; ?></span></span>
                                             </td>
-                                            <td class="text-right font-weight-bold text-primary font-12">
+                                            <td class="col-fit text-right font-weight-bold text-primary font-12 text-nowrap">
                                                 <?php echo formatCurrencyTR($s->total_amount); ?>
                                             </td>
-                                            <td class="text-right font-11 text-muted">
+                                            <td class="col-fit text-right font-11 text-muted text-nowrap">
                                                 <?php echo !empty($s->last_order_date) ? date('d.m.Y', strtotime($s->last_order_date)) : '-'; ?>
                                             </td>
                                         </tr>
@@ -665,14 +678,14 @@ foreach ($statusDistribution as $sd) {
                 </div>
                 <div class="card-body p-0">
                     <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 44%;">Personel</th>
-                                    <th style="width: 18%;" class="text-center">İşlem / Tamamlanan</th>
-                                    <th style="width: 24%;" class="text-right">Toplam Hacim</th>
-                                    <th style="width: 14%;" class="text-right">Son Aktivite</th>
+                                    <th class="col-fit text-center p-1">#</th>
+                                    <th class="col-main">Personel</th>
+                                    <th class="col-fit text-center" title="Toplam İşlem / Tamamlanan">İşlem / Biten</th>
+                                    <th class="col-fit text-right">Toplam Hacim</th>
+                                    <th class="col-fit text-right">Son Aktivite</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -682,10 +695,10 @@ foreach ($statusDistribution as $sd) {
                                         $initials = mb_substr($u->user_name, 0, 2, 'UTF-8');
                                     ?>
                                         <tr>
-                                            <td class="text-center p-1">
+                                            <td class="col-fit text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="d-flex align-items-center" style="gap: 8px;">
                                                     <div class="pur-avatar-badge" style="width: 30px; height: 30px; font-size: 11px; flex-shrink: 0;">
                                                         <?php echo strtoupper($initials); ?>
@@ -700,14 +713,14 @@ foreach ($statusDistribution as $sd) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center text-nowrap">
                                                 <span class="font-weight-bold text-dark font-12"><?php echo $u->total_orders; ?></span>
-                                                <span class="font-11 text-muted"> / <span class="text-success font-weight-bold"><?php echo $u->completed_orders; ?></span></span>
+                                                <span class="font-11 text-muted"> / <span class="text-success font-weight-bold" title="Tamamlanan"><?php echo $u->completed_orders; ?></span></span>
                                             </td>
-                                            <td class="text-right font-weight-bold font-12" style="color: #4f46e5;">
+                                            <td class="col-fit text-right font-weight-bold font-12 text-nowrap" style="color: #4f46e5;">
                                                 <?php echo formatCurrencyTR($u->total_amount); ?>
                                             </td>
-                                            <td class="text-right font-11 text-muted">
+                                            <td class="col-fit text-right font-11 text-muted text-nowrap">
                                                 <?php echo !empty($u->last_order_date) ? date('d.m.Y', strtotime($u->last_order_date)) : '-'; ?>
                                             </td>
                                         </tr>
@@ -741,18 +754,18 @@ foreach ($statusDistribution as $sd) {
                     </a>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-no-scroll">
-                        <table class="table table-modern table-hover m-0">
+                    <div class="table-responsive">
+                        <table class="table table-modern table-hover m-0 no-filter">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">Sipariş No</th>
-                                    <th style="width: 25%;">Tedarikçi Firma</th>
-                                    <th style="width: 12%;" class="text-center">İşlem Tipi</th>
-                                    <th style="width: 14%;">Oluşturan</th>
-                                    <th style="width: 10%;">Tarih</th>
-                                    <th style="width: 13%;" class="text-right">Tutar (TL)</th>
-                                    <th style="width: 10%;" class="text-center">Durum</th>
-                                    <th style="width: 60px;" class="text-center">İşlem</th>
+                                    <th class="col-fit">Sipariş No</th>
+                                    <th class="col-main" style="min-width: 140px;">Tedarikçi Firma</th>
+                                    <th class="col-fit text-center">İşlem Tipi</th>
+                                    <th class="col-fit">Oluşturan</th>
+                                    <th class="col-fit">Tarih</th>
+                                    <th class="col-fit text-right">Tutar</th>
+                                    <th class="col-fit text-center">Durum</th>
+                                    <th class="col-fit text-center">İşlem</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -775,12 +788,12 @@ foreach ($statusDistribution as $sd) {
                                         $st = (int)($rp->state ?? 0);
                                     ?>
                                         <tr>
-                                            <td>
+                                            <td class="col-fit">
                                                 <a href="<?php echo $editLink; ?>" class="font-weight-bold text-primary font-12 cell-ellipsis" title="<?php echo htmlspecialchars($rp->siparisNo ?: ('#'.$rp->id), ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($rp->siparisNo ?: ('#'.$rp->id), ENT_QUOTES, 'UTF-8'); ?>
                                                 </a>
                                             </td>
-                                            <td>
+                                            <td class="col-main">
                                                 <div class="cell-ellipsis font-weight-bold text-dark font-12" title="<?php echo htmlspecialchars($rp->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <?php echo htmlspecialchars($rp->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                                 </div>
@@ -788,23 +801,23 @@ foreach ($statusDistribution as $sd) {
                                                     <div class="cell-ellipsis font-10 text-muted"><?php echo htmlspecialchars($rp->city, ENT_QUOTES, 'UTF-8'); ?></div>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center">
                                                 <span class="badge <?php echo $typeBadge; ?> px-2 py-1 font-10" style="border-radius: 4px;">
                                                     <?php echo $typeLabel; ?>
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td class="col-fit">
                                                 <div class="cell-ellipsis font-11 text-dark" title="<?php echo htmlspecialchars($rp->creator_name, ENT_QUOTES, 'UTF-8'); ?>">
                                                     <i class="fa fa-user mr-1 text-muted"></i><?php echo htmlspecialchars($rp->creator_name, ENT_QUOTES, 'UTF-8'); ?>
                                                 </div>
                                             </td>
-                                            <td class="font-11 text-muted">
+                                            <td class="col-fit font-11 text-muted text-nowrap">
                                                 <?php echo !empty($rp->create_time) ? date('d.m.Y', strtotime($rp->create_time)) : '-'; ?>
                                             </td>
-                                            <td class="text-right font-weight-bold text-dark font-12">
+                                            <td class="col-fit text-right font-weight-bold text-dark font-12 text-nowrap">
                                                 <?php echo formatCurrencyTR($rp->parsed_amount); ?>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center">
                                                 <?php if ($st === 2) : ?>
                                                     <span class="badge badge-success px-2 py-1 font-10" style="border-radius: 4px;"><i class="fa fa-check mr-1"></i>Tamam</span>
                                                 <?php elseif ($st === 1) : ?>
@@ -815,7 +828,7 @@ foreach ($statusDistribution as $sd) {
                                                     <span class="badge badge-warning px-2 py-1 font-10" style="border-radius: 4px;"><i class="fa fa-clock-o mr-1"></i>Bekliyor</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="col-fit text-center">
                                                 <a href="<?php echo $editLink; ?>" class="btn btn-outline-primary btn-xs py-1 px-2" title="Düzenle / Detay">
                                                     <i class="fa fa-pencil"></i>
                                                 </a>

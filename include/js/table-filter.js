@@ -246,7 +246,7 @@ App.TableFilter = {
     },
 
     attachToTable: function (table) {
-        if (!table || table.classList.contains('no-filter')) return;
+        if (!table || table.classList.contains('no-filter') || table.classList.contains('table-modern') || table.classList.contains('dash-table')) return;
         App.TableFilter.relocateSearchInput(table);
         const tableId = table.id;
         if (!tableId) return;

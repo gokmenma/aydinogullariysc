@@ -341,6 +341,12 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 box-shadow: 0 1px 3px rgba(4, 120, 87, 0.15);
             }
 
+            .offer-status-control .status-option[data-status="3"].active {
+                color: #b91c1c;
+                background: #fee2e2;
+                box-shadow: 0 1px 3px rgba(185, 28, 28, 0.15);
+            }
+
             .dark-mode .offer-status-control {
                 border-color: #475569;
                 background: #1e293b;
@@ -369,16 +375,54 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
+                position: relative;
             }
 
-            .form-field.select-open {
+            .form-field:focus-within,
+            .form-field.select-open,
+            .form-field:has(.bootstrap-select.show),
+            .form-field:has(.bootstrap-select.open) {
                 position: relative;
-                z-index: 1060;
+                z-index: 1060 !important;
             }
 
             .form-field.select-open .bootstrap-select,
-            .form-field.select-open .dropdown-menu {
-                z-index: 1061;
+            .form-field.select-open .dropdown-menu,
+            .form-field .bootstrap-select.show .dropdown-menu,
+            .form-field .bootstrap-select.open .dropdown-menu {
+                z-index: 1070 !important;
+            }
+
+            .status-select-field {
+                position: relative;
+                z-index: 100;
+            }
+
+            .status-select-field.select-open,
+            .status-select-field:focus-within,
+            .status-select-field .bootstrap-select.show,
+            .status-select-field .bootstrap-select.open {
+                z-index: 1100 !important;
+            }
+
+            .status-select-field .dropdown-menu {
+                z-index: 1105 !important;
+            }
+
+            #reject_reason_wrapper {
+                position: relative;
+                z-index: 10;
+            }
+
+            #reject_reason_wrapper.select-open,
+            #reject_reason_wrapper:focus-within,
+            #reject_reason_wrapper .bootstrap-select.show,
+            #reject_reason_wrapper .bootstrap-select.open {
+                z-index: 1050 !important;
+            }
+
+            #reject_reason_wrapper .dropdown-menu {
+                z-index: 1055 !important;
             }
 
             .customer-select-field {
@@ -419,6 +463,149 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                     grid-template-columns: 1fr;
                     gap: 20px;
                 }
+            }
+
+            .offer-totals-drawer {
+                position: fixed;
+                top: 50%;
+                right: 0;
+                z-index: 1065;
+                width: 310px;
+                max-width: calc(100vw - 24px);
+                transform: translate(100%, -50%);
+                transition: transform 0.28s ease;
+            }
+
+            .offer-totals-drawer.is-open {
+                transform: translate(0, -50%);
+            }
+
+            .offer-totals-toggle {
+                position: absolute;
+                top: 50%;
+                right: 100%;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-height: 112px;
+                padding: 12px 10px;
+                border: 0;
+                border-radius: 12px 0 0 12px;
+                background: linear-gradient(180deg, #2563eb, #1e3a5f);
+                color: #fff;
+                box-shadow: -6px 8px 22px rgba(30, 58, 95, 0.25);
+                transform: translateY(-50%);
+                cursor: pointer;
+            }
+
+            .offer-totals-toggle span {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: .04em;
+                line-height: 1;
+                writing-mode: vertical-rl;
+            }
+
+            .offer-totals-toggle i {
+                transition: transform 0.28s ease;
+            }
+
+            .offer-totals-drawer.is-open .offer-totals-toggle i {
+                transform: rotate(180deg);
+            }
+
+            .offer-totals-panel {
+                overflow: hidden;
+                border: 1px solid rgba(148, 163, 184, .32);
+                border-right: 0;
+                border-radius: 18px 0 0 18px;
+                background: rgba(255, 255, 255, .97);
+                box-shadow: -12px 16px 38px rgba(15, 23, 42, .18);
+                backdrop-filter: blur(12px);
+            }
+
+            .offer-totals-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 18px 20px;
+                background: linear-gradient(135deg, #1e3a5f, #2d5986);
+                color: #fff;
+            }
+
+            .offer-totals-head h5,
+            .offer-totals-head p {
+                margin: 0;
+                color: inherit;
+            }
+
+            .offer-totals-head h5 { font-size: 16px; font-weight: 700; }
+            .offer-totals-head p { margin-top: 3px; font-size: 11.5px; opacity: .72; }
+            .offer-totals-head i { font-size: 22px; opacity: .9; }
+            .offer-totals-body { padding: 16px 18px 18px; }
+
+            .offer-total-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 10px 2px;
+                border-bottom: 1px solid #edf2f7;
+            }
+
+            .offer-total-row:last-of-type { border-bottom: 0; }
+            .offer-total-row span { color: #64748b; font-size: 13px; }
+            .offer-total-row strong { color: #1e3a5f; font-size: 14px; }
+
+            .offer-grand-total {
+                margin-top: 12px;
+                padding: 15px;
+                border-radius: 12px;
+                background: #eff6ff;
+                text-align: center;
+            }
+
+            .offer-grand-total span {
+                display: block;
+                color: #64748b;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+            }
+
+            .offer-grand-total strong {
+                display: block;
+                margin-top: 4px;
+                color: #1d4ed8;
+                font-size: 24px;
+                line-height: 1.2;
+            }
+
+            .offer-totals-backdrop {
+                position: fixed;
+                inset: 0;
+                z-index: 1060;
+                display: none;
+                background: rgba(15, 23, 42, .38);
+            }
+
+            .dark-mode .offer-totals-panel { background: rgba(15, 23, 42, .97); border-color: #334155; }
+            .dark-mode .offer-total-row { border-color: #334155; }
+            .dark-mode .offer-total-row span { color: #94a3b8; }
+            .dark-mode .offer-total-row strong { color: #e2e8f0; }
+            .dark-mode .offer-grand-total { background: #172554; }
+            .dark-mode .offer-grand-total span { color: #93c5fd; }
+            .dark-mode .offer-grand-total strong { color: #dbeafe; }
+
+            @media (max-width: 575.98px) {
+                .offer-totals-drawer { width: min(300px, calc(100vw - 54px)); }
+                .offer-totals-drawer.is-open + .offer-totals-backdrop { display: block; }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .offer-totals-drawer,
+                .offer-totals-toggle i { transition: none; }
             }
 
             .form-field .form-control,
@@ -561,6 +748,9 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                     <button type="button" class="status-option<?php echo $offer_statu == 2 ? ' active' : ''; ?>" data-status="2" aria-pressed="<?php echo $offer_statu == 2 ? 'true' : 'false'; ?>">
                         <i class="fa fa-check"></i>Tamamlandı
                     </button>
+                    <button type="button" class="status-option<?php echo $offer_statu == 3 ? ' active' : ''; ?>" data-status="3" aria-pressed="<?php echo $offer_statu == 3 ? 'true' : 'false'; ?>">
+                        <i class="fa fa-times-circle"></i>Kabul Edilmedi
+                    </button>
                 </div>
             </div>
 
@@ -624,12 +814,43 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         </div>
 
                         <!-- Teklif Durumu -->
-                        <div class="form-field">
+                        <div class="form-field status-select-field">
                             <label for="offerstatu"><font color="red">(*)</font> Teklif Durumu</label>
                             <select name="offerstatu" id="offerstatu" data-style="bg-white" class="selectpicker form-control">
                                 <option <?php echo $offer_statu == 1 ? ' selected' : '' ?> value="1">Bekleyen</option>
                                 <option <?php echo $offer_statu == 2 ? ' selected' : '' ?> value="2">Tamamlandı</option>
+                                <option <?php echo $offer_statu == 3 ? ' selected' : '' ?> value="3">Kabul Edilmedi</option>
                             </select>
+                        </div>
+
+                        <!-- Kabul Edilmeme Bilgileri (Kabul Edilmedi seçildiğinde görünür) -->
+                        <div id="reject_reason_wrapper" class="form-field p-3 rounded" style="background: #fef2f2; border: 1px solid #fecaca; <?php echo $offer_statu == 3 ? '' : 'display: none;'; ?>">
+                            <label for="reject_reason" class="text-danger font-weight-bold mb-2">
+                                <i class="fa fa-exclamation-circle mr-1"></i> Kabul Edilmeme Nedeni
+                            </label>
+                            <?php
+                            $reject_reasons = [
+                                'Fiyat Yüksek Bulundu',
+                                'Rakip Firma Tercih Edildi',
+                                'Bütçe Yetersizliği / Bütçe İptali',
+                                'Proje / İhtiyaç İptal Edildi',
+                                'Teslimat Süresi / Termin Uyuşmazlığı',
+                                'Teknik / Şartname Uyuşmazlığı',
+                                'Müşteriye Ulaşılamadı / Yanıt Alınamadı',
+                                'Diğer'
+                            ];
+                            $current_reject_reason = $offer->reject_reason ?? '';
+                            ?>
+                            <select name="reject_reason" id="reject_reason" data-style="bg-white" class="selectpicker form-control mb-2" title="Kabul edilmeme nedeni seçiniz...">
+                                <option value="">-- Neden Seçiniz --</option>
+                                <?php foreach ($reject_reasons as $reason): ?>
+                                    <option value="<?php echo htmlspecialchars($reason, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $current_reject_reason === $reason ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($reason, ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <label for="reject_detail" class="text-muted font-weight-bold mt-2 mb-1" style="font-size:12px;">Kabul Edilmeme Açıklaması / Detaylar</label>
+                            <textarea name="reject_detail" id="reject_detail" rows="2" class="form-control" placeholder="Müşterinin geri bildirimi, fiyat farkı veya detaylı açıklama yazınız..."><?php echo htmlspecialchars($offer->reject_detail ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
 
                         <!-- Dosya -->
@@ -1184,6 +1405,33 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
     </div> <!-- Close .offer-manage-wrapper -->
 
+    <aside id="offerTotalsDrawer" class="offer-totals-drawer" aria-label="Teklif toplamları">
+        <button type="button" id="offerTotalsToggle" class="offer-totals-toggle" aria-controls="offerTotalsDrawer" aria-expanded="false">
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            <span>Toplamlar</span>
+        </button>
+        <div class="offer-totals-panel">
+            <div class="offer-totals-head">
+                <div>
+                    <h5>Teklif Özeti</h5>
+                    <p>Değerler anlık güncellenir</p>
+                </div>
+                <i class="fa fa-calculator" aria-hidden="true"></i>
+            </div>
+            <div class="offer-totals-body">
+                <div class="offer-total-row"><span>Euro toplam</span><strong id="drawerEuroTotal">0,00 €</strong></div>
+                <div class="offer-total-row"><span>Dolar toplam</span><strong id="drawerDollarTotal">0,00 $</strong></div>
+                <div class="offer-total-row"><span>TL toplam</span><strong id="drawerTryTotal">0,00 ₺</strong></div>
+                <div class="offer-total-row"><span>KDV</span><strong id="drawerVatRate">%0</strong></div>
+                <div class="offer-grand-total">
+                    <span>Genel Toplam</span>
+                    <strong id="drawerGrandTotal">0,00 ₺</strong>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <div id="offerTotalsBackdrop" class="offer-totals-backdrop" aria-hidden="true"></div>
+
     <!-- Tablonun içine eklendiği zaman satır silince diğer satırlarda çalışmıyor -->
     <?php include_once 'offer-modal.php'; ?>
 </form>
@@ -1196,6 +1444,29 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 $(document).ready(function() {
     updateAltToplam();
 
+    var $totalsDrawer = $('#offerTotalsDrawer');
+    var $totalsToggle = $('#offerTotalsToggle');
+
+    function setTotalsDrawer(open) {
+        $totalsDrawer.toggleClass('is-open', open);
+        $totalsToggle.attr('aria-expanded', open ? 'true' : 'false');
+    }
+
+    $totalsToggle.on('click', function() {
+        setTotalsDrawer(!$totalsDrawer.hasClass('is-open'));
+    });
+
+    $('#offerTotalsBackdrop').on('click', function() {
+        setTotalsDrawer(false);
+    });
+
+    $(document).on('keydown', function(event) {
+        if (event.key === 'Escape' && $totalsDrawer.hasClass('is-open')) {
+            setTotalsDrawer(false);
+            $totalsToggle.trigger('focus');
+        }
+    });
+
     function syncOfferStatusControl(status) {
         var normalizedStatus = String(status || '1');
 
@@ -1203,6 +1474,12 @@ $(document).ready(function() {
             var isActive = String($(this).data('status')) === normalizedStatus;
             $(this).toggleClass('active', isActive).attr('aria-pressed', isActive ? 'true' : 'false');
         });
+
+        if (normalizedStatus === '3') {
+            $('#reject_reason_wrapper').slideDown(200);
+        } else {
+            $('#reject_reason_wrapper').slideUp(200);
+        }
     }
 
     $('.offer-status-control .status-option').on('click', function() {
@@ -1222,11 +1499,11 @@ $(document).ready(function() {
 
     syncOfferStatusControl($('#offerstatu').val());
 
-    $('.selectpicker')
-        .on('shown.bs.select', function() {
+    $(document)
+        .on('shown.bs.select', '.selectpicker', function() {
             $(this).closest('.form-field').addClass('select-open');
         })
-        .on('hidden.bs.select', function() {
+        .on('hidden.bs.select', '.selectpicker', function() {
             $(this).closest('.form-field').removeClass('select-open');
         });
 
@@ -1239,6 +1516,25 @@ $(document).ready(function() {
         });
     }
 });
+
+function syncOfferTotalsDrawer() {
+    function value(selector) {
+        return $(selector).val() || '0.00';
+    }
+
+    function localized(rawValue) {
+        var numericValue = Number(rawValue);
+        return Number.isFinite(numericValue)
+            ? numericValue.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : '0,00';
+    }
+
+    $('#drawerEuroTotal').text(localized(value('#euro_kdvli_toplam')) + ' €');
+    $('#drawerDollarTotal').text(localized(value('#dolar_kdvli_toplam')) + ' $');
+    $('#drawerTryTotal').text(localized(value('#tl_kdvli_toplam')) + ' ₺');
+    $('#drawerVatRate').text('%' + (value('#Kdv') || '0'));
+    $('#drawerGrandTotal').text(value('#tl_toplam_karsilik') + ' ₺');
+}
 
 $(function() {
     var el = document.getElementById('sortable');

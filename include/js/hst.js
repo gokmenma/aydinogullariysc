@@ -1,204 +1,295 @@
-$(document).on("click", "#addRow", function () {
-  addRow();
-});
+// Hidrostatik Test Raporu (HST) JavaScript Modülü
 
-function addRow() {
-  var rowCount = $("#hstTable tbody tr").length + 1;
-  console.log(rowCount);
-  $("#hstTable tbody").append(
-    "<tr tabindex='" +
-      rowCount +
-      "'>" +
-      '<td class="pl-2">' +
-      '<button class="sil btn btn-sm btn-danger"> Sil</button>' +
-      "</td>" +
-      '<td><input required type="text" class="form-control region" id="testno" name="testno[]" value=""></td>' +
-      "<td>" +
-      '<input type="text" class="form-control region" name="kg[]" value="">' +
-      "</td>" +
-      "<td>" +
-      '<input type="text" required autocomplete="off" class="form-control region" name="cinsi[]" value="">' +
-      "</td>" +
-      "<td>" +
-      '<input type="text" required autocomplete="off" class="form-control region" name="imalatci_firma[]"' +
-      'value="">' +
-      "</td>" +
-      "<td>" +
-      '<input type="text" required autocomplete="off" class="form-control imal" name="imal_tarihi[]" value="">' +
-      "</td>" +
-      "<td>" +
-      '<input type="text" required autocomplete="off" class="form-control region" name="serino[]" value="">' +
-      "</td>" +
-      "<td>" +
-      '<select required data-tooltip="" name="tse_belgesi[]" class="form-control" data-style="bg-white border">' +
-      '<option value="">Seçiniz</option>' +
-      '<option value="1">VAR</option>' +
-      '<option value="0">YOK</option>' +
-      "</select>" +
-      "</td>" +
-      "<td>" +
-      '<select required data-tooltip="" name="yuzey_durumu[]" class="form-control" data-style="bg-white border">' +
-      '<option value="">Seçiniz</option>' +
-      '<option value="0">OLUMSUZ</option>' +
-      '<option value="1">OLUMLU</option>' +
-      "</select>" +
-      "</td>" +
-      "<td>" +
-      '<select required name="sizdirmazlik_deneyi[]" class="form-control" data-style="bg-white border">' +
-      '<option value="">Seçiniz</option>' +
-      '<option value="1">VAR</option>' +
-      '<option value="0">YOK</option>' +
-      "</select>" +
-      "</td>" +
-      "<td>" +
-      '<select required name="esneme_deneyi[]" class="form-control" data-style="bg-white border">' +
-      '<option value="">Seçiniz</option>' +
-      '<option value="1">OLUMLU</option>' +
-      '<option value="0">OLUMSUZ</option>' +
-      "</select>" +
-      "</td>" +
-      "<td>" +
-      '<textarea type="text" autocomplete="off" class="form-control things" style="height:40px;resize:both" name="things[]"' +
-      'value="<?php echo $notes; ?>"></textarea>' +
-      "</td>" +
-      "</tr>"
-  );
-
+function updateRowCount() {
+    var count = $("#hstTable tbody tr").length;
+    $("#rowCountBadge").text(count + " Satır");
+    $("#totalDeviceCount").text(count);
 }
 
-//Satır silme Butonu
+function getRowTemplate(index, data) {
+    data = data || {};
+    var testno = data.testno || "";
+    var kg = data.kg || "";
+    var cinsi = data.cinsi || "";
+    var imalatci_firma = data.imalatci_firma || "";
+    var imal_tarihi = data.imal_tarihi || "";
+    var serino = data.serino || "";
+    var tse_belgesi = data.tse_belgesi !== undefined ? String(data.tse_belgesi) : "1";
+    var yuzey_durumu = data.yuzey_durumu !== undefined ? String(data.yuzey_durumu) : "1";
+    var sizdirmazlik_deneyi = data.sizdirmazlik_deneyi !== undefined ? String(data.sizdirmazlik_deneyi) : "1";
+    var esneme_deneyi = data.esneme_deneyi !== undefined ? String(data.esneme_deneyi) : "1";
+    var things = data.things || "";
+
+    return '<tr tabindex="' + index + '">' +
+        '<td class="text-center align-middle" style="width: 45px;">' +
+            '<button type="button" class="sil btn btn-sm btn-delete-row" title="Satırı Sil">' +
+                '<i class="fa fa-trash"></i>' +
+            '</button>' +
+        '</td>' +
+        '<td style="min-width: 90px;">' +
+            '<input required type="text" class="form-control font-weight-bold text-center" name="testno[]" value="' + testno + '" placeholder="Test No">' +
+        '</td>' +
+        '<td style="min-width: 80px;">' +
+            '<input type="text" class="form-control text-center" name="kg[]" value="' + kg + '" placeholder="Kg">' +
+        '</td>' +
+        '<td style="min-width: 110px;">' +
+            '<input type="text" required autocomplete="off" class="form-control" name="cinsi[]" value="' + cinsi + '" placeholder="Cinsi">' +
+        '</td>' +
+        '<td style="min-width: 140px;">' +
+            '<input type="text" required autocomplete="off" class="form-control" name="imalatci_firma[]" value="' + imalatci_firma + '" placeholder="İmalatçı Firma">' +
+        '</td>' +
+        '<td style="min-width: 95px;">' +
+            '<input type="text" required autocomplete="off" class="form-control text-center imal" name="imal_tarihi[]" value="' + imal_tarihi + '" placeholder="İmal Tarihi">' +
+        '</td>' +
+        '<td style="min-width: 110px;">' +
+            '<input type="text" required autocomplete="off" class="form-control text-center" name="serino[]" value="' + serino + '" placeholder="Seri No">' +
+        '</td>' +
+        '<td style="min-width: 100px;">' +
+            '<select required name="tse_belgesi[]" class="form-control custom-select-status">' +
+                '<option value="">Seçiniz</option>' +
+                '<option value="1" ' + (tse_belgesi === "1" ? 'selected' : '') + '>VAR</option>' +
+                '<option value="0" ' + (tse_belgesi === "0" ? 'selected' : '') + '>YOK</option>' +
+            '</select>' +
+        '</td>' +
+        '<td style="min-width: 110px;">' +
+            '<select required name="yuzey_durumu[]" class="form-control custom-select-status">' +
+                '<option value="">Seçiniz</option>' +
+                '<option value="1" ' + (yuzey_durumu === "1" ? 'selected' : '') + '>OLUMLU</option>' +
+                '<option value="0" ' + (yuzey_durumu === "0" ? 'selected' : '') + '>OLUMSUZ</option>' +
+            '</select>' +
+        '</td>' +
+        '<td style="min-width: 120px;">' +
+            '<select required name="sizdirmazlik_deneyi[]" class="form-control custom-select-status">' +
+                '<option value="">Seçiniz</option>' +
+                '<option value="1" ' + (sizdirmazlik_deneyi === "1" ? 'selected' : '') + '>VAR</option>' +
+                '<option value="0" ' + (sizdirmazlik_deneyi === "0" ? 'selected' : '') + '>YOK</option>' +
+            '</select>' +
+        '</td>' +
+        '<td style="min-width: 110px;">' +
+            '<select required name="esneme_deneyi[]" class="form-control custom-select-status">' +
+                '<option value="">Seçiniz</option>' +
+                '<option value="1" ' + (esneme_deneyi === "1" ? 'selected' : '') + '>OLUMLU</option>' +
+                '<option value="0" ' + (esneme_deneyi === "0" ? 'selected' : '') + '>OLUMSUZ</option>' +
+            '</select>' +
+        '</td>' +
+        '<td style="min-width: 180px;">' +
+            '<input type="text" autocomplete="off" class="form-control" name="things[]" value="' + things + '" placeholder="Düşünceler / Not">' +
+        '</td>' +
+    '</tr>';
+}
+
+function addRow(data) {
+    var rowCount = $("#hstTable tbody tr").length + 1;
+    var rowHtml = getRowTemplate(rowCount, data);
+    $("#hstTable tbody").append(rowHtml);
+    updateRowCount();
+}
+
+// Tek satır ekle butonu
+$(document).on("click", "#addRow", function () {
+    addRow();
+});
+
+// Satır silme butonu
 $("#hstTable").on("click", ".sil", function (e) {
-  e.preventDefault();
-
-  var removedRowIndex = $(this).closest("tr").index() + 1;
-  $(this).closest("tr").remove();
-});
-
-$(document).on("click", "#addMultiRowModal", function () {
-  var satir_sayisi = $("#eklenecek_satir_sayisi").val();
-
-  if (satir_sayisi > 100) {
-    swal.fire({
-      title: "Uyarı!",
-      text: "Bir seferde en fazla 100 satır ekleyebilirsiniz.",
-      icon: "warning",
-      confirmButtonText: "Tamam"
-    });
-    satir_sayisi = 100;
-    return;
-  }
-  if (satir_sayisi > 0) {
-    for (var i = 0; i < satir_sayisi; i++) {
-      addRow();
+    e.preventDefault();
+    var tbody = $("#hstTable tbody");
+    if (tbody.find("tr").length <= 1) {
+        if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+            var sw = typeof Swal !== "undefined" ? Swal : swal;
+            sw.fire({
+                title: "Bilgi",
+                text: "Tabloda en az 1 satır bulunmalıdır.",
+                icon: "info",
+                confirmButtonText: "Tamam"
+            });
+        } else {
+            alert("Tabloda en az 1 satır bulunmalıdır.");
+        }
+        return;
     }
-  }
+    $(this).closest("tr").remove();
+    updateRowCount();
 });
 
-$("#file_name").change(function () {
-  var filename = $(this).val();
+// Çoklu satır ekleme butonu modal tetikleyici
+$(document).on("click", "#addMultiRowModal", function () {
+    var satir_sayisi = parseInt($("#eklenecek_satir_sayisi").val(), 10) || 0;
 
-  var fileExtension = ["xlsx", "xls", "csv"];
-  if ($.inArray(filename.split(".").pop().toLowerCase(), fileExtension) == -1) {
-    $("#lblWarning").show();
-    $("#lblWarning").text(
-      "Yalnızca xls veya xlsx uzantılı dosyalar yükleyebilirsiniz."
-    );
-    $("#file_name").val("");
-  } else {
-    $("#lblWarning").hide();
-  }
+    if (satir_sayisi > 100) {
+        if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+            var sw = typeof Swal !== "undefined" ? Swal : swal;
+            sw.fire({
+                title: "Uyarı!",
+                text: "Bir seferde en fazla 100 satır ekleyebilirsiniz.",
+                icon: "warning",
+                confirmButtonText: "Tamam"
+            });
+        }
+        satir_sayisi = 100;
+    }
+
+    if (satir_sayisi > 0) {
+        for (var i = 0; i < satir_sayisi; i++) {
+            addRow();
+        }
+    }
+});
+
+// Excel dosya uzantı kontrolü
+$("#file_name").change(function () {
+    var filename = $(this).val();
+    var fileExtension = ["xlsx", "xls", "csv"];
+    if (filename && $.inArray(filename.split(".").pop().toLowerCase(), fileExtension) === -1) {
+        $("#lblWarning").show().text("Yalnızca .xlsx, .xls veya .csv uzantılı dosyalar yükleyebilirsiniz.");
+        $("#file_name").val("");
+    } else {
+        $("#lblWarning").hide().text("");
+    }
 });
 
 function readExcel(file) {
-  return new Promise((resolve, reject) => {
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      var data = e.target.result;
-      var workbook = XLSX.read(data, {
-        type: "binary"
-      });
-      var json_object = []; // JSON nesnelerini tutacak bir dizi
-      workbook.SheetNames.forEach(function (sheetName) {
-        var XL_row_object = XLSX.utils.sheet_to_row_object_array(
-          workbook.Sheets[sheetName]
-        );
-        json_object = json_object.concat(XL_row_object); // Diziyi güncelle
-      });
-      resolve(json_object); // Promise'i çöz ve json_object'i döndür
-    };
-    reader.onerror = function (ex) {
-      reject(ex); // Hata durumunda Promise'i reddet
-    };
-    reader.readAsBinaryString(file);
-  });
+    return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, { type: "binary" });
+                var json_object = [];
+                workbook.SheetNames.forEach(function (sheetName) {
+                    var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+                    json_object = json_object.concat(XL_row_object);
+                });
+                resolve(json_object);
+            } catch (err) {
+                reject(err);
+            }
+        };
+        reader.onerror = function (ex) {
+            reject(ex);
+        };
+        reader.readAsBinaryString(file);
+    });
 }
 
-
-// readExcel fonksiyonunu kullanma
+// Excel'den Yükle butonu
 $(document).on("click", "#uploadFromXlsButton", function () {
-  var file_name = $("#file_name");
-  var file = file_name[0].files[0];
-  
+    var fileInput = $("#file_name")[0];
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+        if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+            var sw = typeof Swal !== "undefined" ? Swal : swal;
+            sw.fire({
+                title: "Dosya Seçilmedi",
+                text: "Lütfen önce geçerli bir Excel dosyası seçiniz.",
+                icon: "warning",
+                confirmButtonText: "Tamam"
+            });
+        }
+        return;
+    }
 
-  readExcel(file)
-    .then(function (json_object) {
-       //console.log(json_object); // Burada json_object ile işlemlerinizi yapabilirsiniz
-      for (var i = 0; i < json_object.length; i++) {
-        var row = json_object[i];
-        
-        var lastRow = $("#hstTable tbody tr:last").clone();
-        $("#hstTable tbody").append(lastRow);
-        lastRow.find("input, select, textarea").each(function () {
-          //satır numarasını consola yazdırır
-          var name = $(this).attr("name").replace("[]", "");
-          var value = row[name]; // Atanacak değer
+    var file = fileInput.files[0];
 
-          if ($(this).is("select")) {
-            $(this).removeAttr("selected");
-            $(this).val(value); // Eşleşen değeri atayın
-            
-          } else {
-            console.log('name:', name, 'value:', value);
-            $(this).val(value); // Diğer input türleri için değeri doğrudan atayın
-          }
+    readExcel(file)
+        .then(function (json_object) {
+            if (!json_object || json_object.length === 0) {
+                if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+                    var sw = typeof Swal !== "undefined" ? Swal : swal;
+                    sw.fire({
+                        title: "Veri Bulunamadı",
+                        text: "Yüklenen dosyada okunabilir veri satırı bulunamadı.",
+                        icon: "info",
+                        confirmButtonText: "Tamam"
+                    });
+                }
+                return;
+            }
+
+            // Tablodaki tek boş satır varsa temizleyip ekleyelim
+            var currentRows = $("#hstTable tbody tr");
+            var isFirstEmpty = false;
+            if (currentRows.length === 1) {
+                var firstTestNo = currentRows.find('input[name="testno[]"]').val();
+                var firstCinsi = currentRows.find('input[name="cinsi[]"]').val();
+                if (!firstTestNo && !firstCinsi) {
+                    isFirstEmpty = true;
+                }
+            }
+            if (isFirstEmpty) {
+                $("#hstTable tbody").empty();
+            }
+
+            for (var i = 0; i < json_object.length; i++) {
+                var row = json_object[i];
+                addRow({
+                    testno: row["testno"] || row["Test No"] || row["TEST NO"] || "",
+                    kg: row["kg"] || row["Kg"] || row["KG"] || "",
+                    cinsi: row["cinsi"] || row["Cinsi"] || row["CİNSİ"] || "",
+                    imalatci_firma: row["imalatci_firma"] || row["İmalatçı Firma"] || row["İMALATÇI FİRMA"] || "",
+                    imal_tarihi: row["imal_tarihi"] || row["İmal Tarihi"] || row["İMAL TARİHİ"] || "",
+                    serino: row["serino"] || row["Seri No"] || row["SERİ NO"] || "",
+                    tse_belgesi: (row["tse_belgesi"] !== undefined ? row["tse_belgesi"] : (row["TSE Belgesi"] === "VAR" || row["TSE"] === "1" ? "1" : "0")),
+                    yuzey_durumu: (row["yuzey_durumu"] !== undefined ? row["yuzey_durumu"] : (row["Yüzey Durumu"] === "OLUMSUZ" || row["YÜZEY DURUMU"] === "0" ? "0" : "1")),
+                    sizdirmazlik_deneyi: (row["sizdirmazlik_deneyi"] !== undefined ? row["sizdirmazlik_deneyi"] : (row["Sızdırmazlık"] === "YOK" || row["SIZDIRMAZLIK"] === "0" ? "0" : "1")),
+                    esneme_deneyi: (row["esneme_deneyi"] !== undefined ? row["esneme_deneyi"] : (row["Esneme Deneyi"] === "OLUMSUZ" || row["ESNEME"] === "0" ? "0" : "1")),
+                    things: row["things"] || row["Düşünceler"] || row["DÜŞÜNCELER"] || row["Not"] || ""
+                });
+            }
+
+            if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+                var sw = typeof Swal !== "undefined" ? Swal : swal;
+                sw.fire({
+                    title: "Başarılı!",
+                    text: json_object.length + " adet cihaz kaydı başarıyla aktarıldı.",
+                    icon: "success",
+                    confirmButtonText: "Harika"
+                });
+            }
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+                var sw = typeof Swal !== "undefined" ? Swal : swal;
+                sw.fire({
+                    title: "Hata!",
+                    text: "Excel dosyası okunurken bir sorun oluştu: " + error.message,
+                    icon: "error",
+                    confirmButtonText: "Tamam"
+                });
+            }
         });
-      }
-    })
-    .catch(function (error) {
-      console.error(error); // Hata yönetimi
-    });
-    
-  //setTooltip();
 });
 
-$("#deleteAll").click(function () {
-  swal
-    .fire({
-      title: "Emin misiniz?",
-      text: "Tüm satırları silmek istediğinize emin misiniz?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Evet",
-      cancelButtonText: "Hayır"
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        $("#hstTable tbody tr").remove();
+// Tüm Satırları Sil butonu
+$(document).on("click", "#deleteAll", function () {
+    var executeDelete = function () {
+        $("#hstTable tbody").empty();
         addRow();
-      }
-    });
+    };
+
+    if (typeof Swal !== "undefined" || typeof swal !== "undefined") {
+        var sw = typeof Swal !== "undefined" ? Swal : swal;
+        sw.fire({
+            title: "Emin misiniz?",
+            text: "Tablodaki tüm satırlar silinecektir!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Evet, Sil",
+            cancelButtonText: "Vazgeç",
+            confirmButtonColor: "#ef4444"
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                executeDelete();
+            }
+        });
+    } else {
+        if (confirm("Tablodaki tüm satırları silmek istediğinize emin misiniz?")) {
+            executeDelete();
+        }
+    }
 });
 
-function setTooltip() {
-  // `data-tooltip` özelliğine sahip tüm elemanlar için döngü
-  $(".region").each(function () {
-    // Elemanın kendi metnini al
-    // console.log('selfText:', $(this).val());
-
-    var selfText = $(this).val();
-    // `title` özelliğini elemanın metniyle güncelle
-    $(this).attr("data-tooltip", selfText);
-  });
-}
-
-
+// Sayfa yüklendiğinde satır sayacını başlat
+$(document).ready(function () {
+    updateRowCount();
+});

@@ -6,7 +6,7 @@
                 <h5 class="modal-title font-weight-bold text-dark d-flex align-items-center" id="uploadfromxlsModalTitle" style="font-size: 15px;">
                     <i class="fa fa-file-excel-o text-success mr-2 font-18"></i> Cihazları Excel'den Yükle
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -21,17 +21,17 @@
                     <i class="fa fa-info-circle mr-2 font-16 text-info"></i>
                     <div>
                         Örnek şablon dosyasını indirmek için 
-                        <a href="pages/1/reports/hst/sablon.xlsx" download class="font-weight-bold text-primary text-underline">buraya tıklayın</a>.
+                        <a href="templates/cihaz_kontrol_sablonu.xlsx" download class="font-weight-bold text-primary text-underline">buraya tıklayın</a>.
                     </div>
                 </div>
 
                 <div id="lblWarning" class="alert alert-danger py-2 px-3 font-13 mb-0" style="display: none; border-radius: 8px;"></div>
             </div>
             <div class="modal-footer bg-light border-top py-2 px-3">
-                <button type="button" class="btn btn-sm btn-secondary font-13 px-3" data-dismiss="modal">
+                <button type="button" class="btn btn-sm btn-secondary font-13 px-3" data-dismiss="modal" data-bs-dismiss="modal">
                     <i class="fa fa-times mr-1"></i> Vazgeç
                 </button>
-                <button type="button" class="btn btn-sm btn-primary font-13 px-3" id="uploadFromXlsButton" data-dismiss="modal">
+                <button type="button" class="btn btn-sm btn-primary font-13 px-3" id="uploadFromXlsButton">
                     <i class="fa fa-upload mr-1"></i> Yükle ve Aktar
                 </button>
             </div>

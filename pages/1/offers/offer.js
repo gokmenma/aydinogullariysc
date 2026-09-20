@@ -308,6 +308,10 @@ function araToplam() {
   $("#tl_toplam_karsilik").val(formatCurrency(tl_toplam_karsilik));
   $("#sale-tl").text(formatCurrency(tl_ara_toplam_karsilik));
   $("#sale-tl-input").val(tl_ara_toplam_karsilik.toFixed(2));
+
+  if (typeof syncOfferTotalsDrawer === "function") {
+    syncOfferTotalsDrawer();
+  }
 }
 
 function formatCurrency(value) {
@@ -378,14 +382,14 @@ $("#offerFooter").change(function () {
 //getOfferTemplate($('#offerHeader'), "Header");
 //getOfferTemplate($('#offerFooter'), "Footer");
 
-$("#servicebutton").on("click", function () {
+$("#servicebutton").on("click", function (event) {
   var offerstatu = $("#offerstatu").val();
-  if (offerstatu == 1) {
-    event.preventDefault();
+  if (offerstatu != 2) {
+    if (event) event.preventDefault();
     swal.fire({
       title: "Uyarı",
-      text: "Teklif durumu tamanlandı olan tekliflere servis oluşturabilirsiniz",
-      icon: "error"
+      text: "Sadece tamamlanan (onaylanan) tekliflere servis oluşturabilirsiniz",
+      icon: "warning"
     });
   }
 });

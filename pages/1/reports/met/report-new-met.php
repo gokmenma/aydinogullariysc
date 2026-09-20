@@ -1,831 +1,764 @@
 <?php
-//Rapor Ekleme Yetkisi
-//permcontrol("reportadd");
-ini_set('display_errors', 'On');
- //error_reporting(E_ALL);
+// Rapor Ekleme Yetkisi
+permcontrol("reportadd");
 
 $getNumber = setNumber("met");
-$getNumber=sprintf("%04d", $getNumber);
-$new_report_number = "MTR" . $getNumber;
-$type = $_GET["type"];
-
+$new_report_number = "MTR" . sprintf("%04d", $getNumber);
+$type = $_GET["type"] ?? 3;
 
 if ($_POST) {
+    $cinsi = $_POST["cinsi"] ?? [];
+    $dolapSayisi = count($cinsi);
 
-    if(isset($_POST["cinsi"])){
+    $report_number = $_POST["report_number"] ?? $new_report_number;
+    $customer_id = (int)($_POST["customer"] ?? 0);
+    $control_date = $_POST["control_date"] ?? date("d.m.Y");
+    $next_control_date = $_POST["next_control_date"] ?? date("d.m.Y", strtotime("+1 year"));
+    $controller_id = (int)($_POST["controller"] ?? 0);
+    $creator = sesset("id");
+    $create_time = date("Y-m-d H:i:s");
+    $criteria = $_POST["criteria"] ?? '';
 
-
-    $report_number = $_POST["report_number"];
-    $customer_id = $_POST["customer"];
-    $control_date = $_POST["control_date"];
-    $next_control_date = $_POST["next_control_date"];
-    $controller_id = $_POST["controller"];
-    $creator=sesset("id");
-    $regDate= date("Y-m-d");
+    if (empty($customer_id)) {
+        header("Location: index.php?p=reports/met/report-new-met&type=3&st=empties");
+        exit;
+    }
 
     // DOLAP BİLGİLERİ
-    $criteria= $_POST["criteria"];
-    $cinsi = @$_POST["cinsi"];
-    $bulundugu_kisim = @$_POST["bulundugu_kisim"];
-    $ozellikler = @$_POST["ozellikler"];
-    $control_date_closet = @$_POST["control_date_closet"];
-    $next_control_date_closet = @$_POST["next_control_date_closet"];
-    $vana_durum = @$_POST["vana_durum"];
-    $hortum_baglanti_durum = @$_POST["hortum_baglanti_durum"];
-    $levha_durum = @$_POST["levha_durum"];
-    $pas_durum = @$_POST["pas_durum"];
-    $kilit_durum = @$_POST["kilit_durum"];
-    $hortum_durum = @$_POST["hortum_durum"];
-    $basinc_degeri = @$_POST["basinc_degeri"];
-    $nozul_durum = @$_POST["nozul_durum"];
-    $aciklama = @$_POST["aciklama"];
+    $bulundugu_kisim = $_POST["bulundugu_kisim"] ?? [];
+    $ozellikler = $_POST["ozellikler"] ?? [];
+    $control_date_closet = $_POST["control_date_closet"] ?? [];
+    $next_control_date_closet = $_POST["next_control_date_closet"] ?? [];
+    $vana_durum = $_POST["vana_durum"] ?? [];
+    $hortum_baglanti_durum = $_POST["hortum_baglanti_durum"] ?? [];
+    $levha_durum = $_POST["levha_durum"] ?? [];
+    $pas_durum = $_POST["pas_durum"] ?? [];
+    $kilit_durum = $_POST["kilit_durum"] ?? [];
+    $hortum_durum = $_POST["hortum_durum"] ?? [];
+    $basinc_degeri = $_POST["basinc_degeri"] ?? [];
+    $nozul_durum = $_POST["nozul_durum"] ?? [];
+    $aciklama = $_POST["aciklama"] ?? [];
 
-
-    $data = array();
-
-    // 1'den 30'a kadar olan maddeleri diziye ekle
+    $data = [];
     for ($i = 1; $i <= 30; $i++) {
-        $data["madde$i"] = $_POST["madde$i"]; // 
+        $data["madde$i"] = $_POST["madde$i"] ?? "1";
     }
-    // JSON formatına dönüştür
-    $jsonData = json_encode($data);
+    $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-//Giriş Sayfası Kayıt Bilgilleri
     try {
-        $query = $ac->prepare("INSERT INTO reports SET report_number = ?, 
-                                                        report_type = ?,customer_id = ?, control_date = ?, 
-                                                        next_control_date = ?, controller_id = ? , report_matters = ?,
-                                                        creator = ?, create_time = ?, subNotes = ?");
-        $query->execute(
-            array(
-                $report_number,
-                $type, $customer_id, $control_date,
-                $next_control_date, $controller_id, $jsonData, 
-                $creator,$regDate,$criteria
-            )
-       );
-       $lastid=$ac->lastInsertId();
-       //DOLAP SAYFASI KAYIT BİLGİLERİ 
-       $dolapSayisi=count($cinsi);
-       for ($i=0; $i < $dolapSayisi; $i++) { 
-        
-           $insq = $ac->prepare("INSERT INTO report_met_content SET report_id = ? , 
-                                        cinsi = ? ,                    bulundugu_kisim = ? ,      ozellikler = ? , 
-                                        control_date_closet = ? ,      next_control_date_closet = ? ,    vana_durum = ? , 
-                                        hortum_baglanti_durum = ? ,    levha_durum = ? ,          pas_durum = ? , 
-                                        kilit_durum = ? ,              hortum_durum = ? ,         basinc_degeri = ? , 
-                                        nozul_durum = ? ,              aciklama = ?       ");
-                                    $insq->execute(array($lastid,
-                                        $cinsi[$i],                    $bulundugu_kisim[$i],      $ozellikler[$i],
-                                        $control_date_closet[$i],      $next_control_date_closet[$i],    $vana_durum[$i],
-                                        $hortum_baglanti_durum[$i],    $levha_durum[$i],          $pas_durum[$i],
-                                        $kilit_durum[$i],              $hortum_durum[$i],         $basinc_degeri[$i],
-                                        $nozul_durum[$i],              $aciklama[$i]));
-        }
-       //DOLAP SAYFASI KAYIT BİLGİLERİ\\
+        $query = $ac->prepare("INSERT INTO reports SET 
+            report_number = ?, 
+            report_type = ?, 
+            customer_id = ?, 
+            control_date = ?, 
+            next_control_date = ?, 
+            controller_id = ?, 
+            report_matters = ?,
+            creator = ?, 
+            create_time = ?, 
+            subNotes = ?");
+        $query->execute([
+            $report_number,
+            $type,
+            $customer_id,
+            $control_date,
+            $next_control_date,
+            $controller_id,
+            $jsonData,
+            $creator,
+            $create_time,
+            $criteria
+        ]);
+        $lastid = $ac->lastInsertId();
 
-       // EKLER SAYFASI KAYIT BİLGİLERİ
-            if(isset($_FILES["report_attach"])) {
-                $dosyaSayisi = count($_FILES["report_attach"]["name"]);
-                $dosya_aciklama=$_POST["attach_description"];
-                
-                for ($i = 0; $i < $dosyaSayisi; $i++) { 
-                    if ($_FILES["report_attach"]["error"][$i] == UPLOAD_ERR_OK) {
-                                    
-                        $dizin = "files/reports/";
-                        $kaynak = $_FILES["report_attach"]["tmp_name"][$i];
-                        $rast1 = uniqid();
-                        $hedef = $dizin . $rast1 . "_" . basename($_FILES["report_attach"]["name"][$i]);
-                        
-                        $upx = move_uploaded_file($kaynak, $hedef);
-                        
-                        if($upx) {
-                        
+        // DOLAP SAYFASI KAYIT BİLGİLERİ
+        if ($dolapSayisi > 0) {
+            $insq = $ac->prepare("INSERT INTO report_met_content SET 
+                report_id = ?, 
+                cinsi = ?, 
+                bulundugu_kisim = ?, 
+                ozellikler = ?, 
+                control_date_closet = ?, 
+                next_control_date_closet = ?, 
+                vana_durum = ?, 
+                hortum_baglanti_durum = ?, 
+                levha_durum = ?, 
+                pas_durum = ?, 
+                kilit_durum = ?, 
+                hortum_durum = ?, 
+                basinc_degeri = ?, 
+                nozul_durum = ?, 
+                aciklama = ?");
+
+            for ($i = 0; $i < $dolapSayisi; $i++) {
+                if (empty($cinsi[$i]) && empty($bulundugu_kisim[$i])) {
+                    continue;
+                }
+                $insq->execute([
+                    $lastid,
+                    $cinsi[$i] ?? '',
+                    $bulundugu_kisim[$i] ?? '',
+                    $ozellikler[$i] ?? '',
+                    $control_date_closet[$i] ?? $control_date,
+                    $next_control_date_closet[$i] ?? $next_control_date,
+                    $vana_durum[$i] ?? '1',
+                    $hortum_baglanti_durum[$i] ?? '1',
+                    $levha_durum[$i] ?? '1',
+                    $pas_durum[$i] ?? '1',
+                    $kilit_durum[$i] ?? '1',
+                    $hortum_durum[$i] ?? '1',
+                    $basinc_degeri[$i] ?? '',
+                    $nozul_durum[$i] ?? '1',
+                    $aciklama[$i] ?? ''
+                ]);
+            }
+        }
+
+        // EKLER SAYFASI KAYIT BİLGİLERİ
+        if (isset($_FILES["report_attach"]) && is_array($_FILES["report_attach"]["name"])) {
+            $dosyaSayisi = count($_FILES["report_attach"]["name"]);
+            $dosya_aciklama = $_POST["attach_description"] ?? [];
+            $upload_dir = "files/reports/";
+
+            if (!is_dir($upload_dir)) {
+                @mkdir($upload_dir, 0775, true);
+            }
+
+            for ($i = 0; $i < $dosyaSayisi; $i++) {
+                if (isset($_FILES["report_attach"]["error"][$i]) && $_FILES["report_attach"]["error"][$i] == UPLOAD_ERR_OK) {
+                    $orig_name = basename($_FILES["report_attach"]["name"][$i]);
+                    $clean_name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $orig_name);
+                    $new_filename = uniqid() . "_" . $clean_name;
+                    $target_file = $upload_dir . $new_filename;
+
+                    if (move_uploaded_file($_FILES["report_attach"]["tmp_name"][$i], $target_file)) {
                         $ins = $ac->prepare("INSERT INTO files SET
                             report_id = ?,
-                            fileDescription = ? ,
+                            fileDescription = ?,
                             filename = ?,
                             size = ?,
                             creativer = ?");
-                            $ins->execute(array($lastid,$dosya_aciklama[$i], $rast1 . "_" . basename($_FILES["report_attach"]["name"][$i]), $_FILES["report_attach"]["size"][$i], sesset("id")));
-
-
-                        }
+                        $ins->execute([
+                            $lastid,
+                            $dosya_aciklama[$i] ?? '',
+                            $new_filename,
+                            $_FILES["report_attach"]["size"][$i] ?? 0,
+                            sesset("id")
+                        ]);
                     }
                 }
             }
-       // EKLER SAYFASI KAYIT BİLGİLERİ
+        }
 
-       
-       $getNumber += 1;
-       $upquery = $ac->prepare("UPDATE define_numbers SET met = ?");
-       $upquery->execute(array($getNumber));
+        $getNumber += 1;
+        $upquery = $ac->prepare("UPDATE define_numbers SET met = ?");
+        $upquery->execute([$getNumber]);
 
-       header("Location: index.php?p=reports/met/report-new-met&st=newsuccess&type=3");
+        audit_log("create", "report", "Mekanik Tesisat Kontrol Raporu oluşturuldu: " . $report_number, "reports", $lastid);
+
+        header("Location: index.php?p=reports/met/report-new-met&st=newsuccess&type=3");
+        exit;
+
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
+        error_log("MET Raporu Ekleme Hatası: " . $e->getMessage());
+        header("Location: index.php?p=reports/met/report-new-met&type=3&st=error");
+        exit;
     }
-} else {
-    header("Location: index.php?p=reports/met/report-new-met&st=empties");
 }
 
-
-}
-
-
-                                    
-
-?>
-<form enctype="multipart/form-data" id="myForm" method="POST">
-    <div class="content pd-20 bg-white border-radius-16 box-shadow mb-10">
-        <div class="clearfix">
-            <div class="pull-left">
-                <h4 class="text-blue">
-                    <?php echo $pdat["p_title"]; ?>
-                </h4>
-                <p class="mb-30 font-14">Sayfadaki <font color="red">(*)</font> yıldız ile belirtilen alanları boş
-                    bırakmayın..<br></p>
-            </div>
-            <div class="float-right mb-20">
-                <button type="button" id="submitButton" onclick="validateForm('reports/met/report-new-met&type=3')" data-tooltip="Kaydet" data-placement="bottom"
-                    class="btn btn-sm btn-primary"><i class="fa fa-save"></i> Kaydet</button>
-
-                <a href="index.php?p=reports/reports" data-tooltip="Listeye Dön" data-tooltip-location="bottom"
-                    class="btn btn-sm btn-secondary text-white">
-                    <i class="fa fa-list mr-1"></i>Listeye Dön</a>
-            </div>
-        </div>
-
-
-
-        <ul class="nav nav-pills mb-30" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
-                    type="button" role="tab" aria-controls="pills-home" aria-selected="true">GİRİŞ</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-content"
-                    type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Dolap Listesi</button>
-            </li>
-
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-tab" data-bs-toggle="pill" data-bs-target="#pills-attach"
-                    type="button" role="tab" aria-controls="pills-disabled" aria-selected="false">Ekler</button>
-            </li>
-        </ul>
-    </div>
-    <div class="tab-content" id="pills-tabContent">
-
-        <!-- HOME TAB   -->
-        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab"
-            tabindex="0">
-            <div class="content pd-20 bg-white border-radius-16 box-shadow mb-10">
-                <div class="clearfix mb-20">
-                    <div class="pull-left">
-                        <h4 class="text-blue">
-                            Giriş Bilgileri
-                        </h4>
-                    </div>
-                </div>
-                <div class="row">
-
-                    <!-- 1.KOLON  -->
-                    <div class="col-md-6 col-sm-12">
-
-
-                        <!-- RAPOR NO -->
-                        <div class="form-group row">
-                            <label for="reportnumber" class="col-md-4"> Rapor No:</label>
-                            <div class="col-md-8">
-                                <input required name="report_number" type="text"
-                                    value="<?php echo $new_report_number ?>" class="form-control">
-                            </div>
-                        </div>
-                        <!-- RAPOR NO -->
-
-                        <!-- FİRMA ADI -->
-                        <div class="form-group row">
-
-                            <label for="customer" class="col-md-4"> Firma :</label>
-                            <div class="col-md-8">
-                                <?php customers("customer", ""); ?>
-                            </div>
-                        </div>
-                        <!-- FİRMA ADI -->
-
-
-                    </div>
-                    <!-- 1.KOLON  -->
-
-                    <!-- 2.KOLON  -->
-                    <div class="col-md-6 col-sm-12">
-
-                        <div class="form-group row">
-                            <label for="reportnumber" class="col-md-4"> Kontrolü Yapan Mühendis:</label>
-                            <div class="col-md-8">
-                                <?php userandjob("controller", ""); ?>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="control_date" class="col-md-4" for="">Kontrol Tarihi</label>
-                            <div class="col-md-8">
-                                <input required type="text" name="control_date" class="form-control date-picker"
-                                    autocomplete="off" placeholder="Kontrol Tarihi">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="next_control_date" class="col-md-4" for="">Sonraki Kontrol Tarihi</label>
-                            <div class="col-md-8">
-                                <input required type="text" name="next_control_date" class="form-control date-picker"
-                                    autocomplete="off" placeholder="Sonraki Kontrol Tarihi">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- 2.KOLON  -->
-
-
-            <!-- MADDELER -->
-            <div class="content pd-20 bg-white border-radius-16 box-shadow mb-10">
-
-                <div class="clearfix">
-                    <div class="pull-left">
-                        <h4 class="text-blue">
-                            Maddeler
-                        </h4>
-                        <p class="mb-30 font-14">RAPORUN HAZIRLANMASINDA TEMEL DAYANAK:6331 SAYILI KANUNUN İŞ
-                            EKİPMANLARININ
-                            KULLANIMINDA SAĞLIK VE GÜVENLİK ŞARTLARI YÖNETMELİĞİNİN EK-III BAKIM, ONARIM VE
-                            PERİYODİK
-                            KONTROLLER İLE İLGİLİ HUSUSLAR(MADDE 1.7) <br></p>
-                    </div>
-                </div>
-
-                <div class="row mt-20">
-                    <div class="col-md-12">
-
-
-                        <div class="form-group row">
-                            <div class="col-md-3 col-sm-12 text-wrap">
-                                1.7.2.
-                                <p>
-                                    İş Ekipmanlarına Ait Teknik Özellikler
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12">
-                                Raporun bu bölümünde periyodik kontrole tabi tutulacak İG ekipmanlarının adı,
-                                markası, modeli,
-                                imal
-                                yılı, ekipmanın seri numarası, konumu, kullanım amacı ile gerek görülen teknik
-                                özellikler ve
-                                diğer
-                                bilgilere yer verilir.
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.3.
-                                <p>
-                                    Periyodik Kontrol Metodu
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                İlgili standart numarası ve adı, periyodik kontrol esnasında kullanılan
-                                ekipmanların özellikleri
-                                ve
-                                diğer bilgiler belirtilir.
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.3. MADDE GEREĞİ:
-                                <p>
-                                    Kontrol Metodun İlgili Standart Numarası Ve Adı
-
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12">
-                                TS 11368 YANGIN ÖNLEME-HORTUM DOLAPLARI
-                                <p>
-                                    TS 11926 YANGIN MUSLUKLARI TESİS VE KULLANIM KURALLARINA GÖRE YILLIK YAPILAN
-                                    UYGUNLUK KONTROLÜ
-                                </p>
-
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.4.
-                                <p>
-                                    Tespit ve Değerlendirme
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                Raporun bu bölümünde EK-III madde 1.7.3' te belirlenen kurallar ve yapılan
-                                periyodik kontrolden
-                                elde edilen değerlerin , yine EK-III madde 1.7.2' de yer verilen iş ekipmanının
-                                teknik
-                                özelliklerini karşılayıp karşılamadığı husus ile ilgili standart ve teknik
-                                litaretürde yer alan
-                                sınır değerlere uygun olup olmadığı kıyaslanarak değerlendirilir.Periyodik
-                                kontrolde uygulanan
-                                test ve diğer işlemlere ilişkin bilgilere yer verilir.
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-12 col-sm-12 text-blue">
-                                1.7.4.
-                                <p>
-                                    Tespit ve Değerlendirme
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MADDE KOLONLARI 1 -->
-
-                    <?php
-                    // BİRİNCİ KOLON SORULARI
-                    $sql = $ac->prepare("SELECT met as soru FROM report_questions WHERE met != ''");
-                    $sql->execute(array());
-                    $question = $sql->fetchAll(PDO::FETCH_ASSOC);
-                    $questions = $sql->rowCount();
-                    $first_col = intVal($questions / 2);
-                    ?>
-                   
-                   <div class="matters col-md-12 col-sm-12 matters-container">
-                        <div class="col-md-6 col-sm-12 matters">
-                           <?php                       
-                            for ($i = 0; $i < 15; $i++) {
-                                if ($i < $first_col) {
-                                    $row_number=$i + 1;
-                                    $select_name ="madde". $row_number
-                                    ?>
-                                    <div class="form-group row">
-                                        <label for="" class="col-md-1 text-warning ">
-                                            <?php echo $i + 1 ?>
-                                        </label>
-                                        <label for="" class="col-md-8">
-                                            <?php echo $question[$i]["soru"]; ?>
-                                        </label>
-                                        <?php optionselect($select_name, "", 'required', '', 'col-md-3') ?>
-                                    </div>
-                                    
-                                <?php }
-                            }
-                            ?>
-                        </div>
-                        <div class="col-md-6 matters">
-                           <?php                       
-                            for ($i = 15; $i < count($question); $i++) {
-                                if ($i >= $first_col) {
-                                    $row_number=$i + 1;
-                                    $select_name ="madde". $row_number
-                                   
-                                    ?>
-
-                                    <div class="form-group row d-flex">
-                                        <label for="" class="col-md-1 text-warning">
-                                            <?php echo $i + 1 ?>
-                                        </label>
-                                        <label for="" class="col-md-8">
-                                            <?php echo $question[$i]["soru"]; ?>
-                                        </label>
-                                        <?php optionselect($select_name, "", 'required', '', 'col-md-3') ?>
-                                    </div>
-                                <?php }
-                            }
-                            ?>
-                        </div>
-                    </div>
-
-                    <!-- MADDE KOLONLARI 1 -->
-
-
-
-
-                    <!-- MADDELER DEVAM EDİYOR -->
-                    <div class="col-md-12 mt-20">
-
-                        <div class="form-group row">
-                            <div class="col-md-3 col-sm-12 text-wrap">
-                                1.7.5.
-                                <p>
-                                    Test, Deney Ve Muayene:
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12">
-                                İş ekipmanının periyodik kontrolü esnasında yapılan test deney ve muayene (hidrostatik
-                                test, statik test,dinamik test, tahribatsız muayene yöntemleri ve benzeri) sonuçları
-                                belirtilir.
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.5. MADDE GEREĞİ
-                                <p>
-                                    İş Ekipmanın Periyodik Kontrolünde Yapılan Deney Ve Muayeneler
-
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                <textarea name="" class="form-control selectpicker" id="" style="height:60px"
-                                    placeholder="">FONKSİYONEL TEST HİDROFOR HİDROSTATİK POMPA YAPILDI.</textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.6.
-                                <p>
-                                    İkaz Ve Öneriler:
-
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12">
-                                Yapılan periyodik kontrol sonucunda İG sağlığı ve güvenliği yönünden uygun bulunmayan
-                                hususların belirlenmesi halinde, bunların nasıl uygun hale getirileceğine ilişkin
-                                öneriler ile bu hususlar giderilmeden iş ekipmanlarının kullanımının güvenli olmayacağı
-                                belirtilir.
-
-                            </div>
-                        </div>
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.5. MADDE GEREĞİ
-                                <p>
-                                    İş Ekipmanın Periyodik Kontrolünde Yapılan Deney Ve Muayeneler
-
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                <textarea name="" class="form-control selectpicker" id=""
-                                    style="height:120px">DOLAP  SİSTEMİNDE KRİTİK ALANDA YAPILAN BASINÇ TESTİNDE SORUN GÖZLENMEMİŞTİR. YANGIN DOLAPLARI HİDROFOR VE POMPALAR İNCELENMİŞTİR. FİRMADA BULUNAN .. M3 ELEKTRİKLİ.. BAR ANA YANGIN POMPASI,...  M3  DİZEL ... BAR YEDEK YANGIN POMPASI, ... M3 JOKEY POMPA,MEVCUT HALİ İLE UYGUNDUR. ... TONLUK SU TANKI UYGUNDUR,... ADET YANGIN DOLABI UYGUNDUR.</textarea>
-                            </div>
-                        </div>
-
-
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.7.
-                                <p>
-                                    Sonuç Ve Kanaat
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                Raporun bu bölümünde periyodik kontrole tabi tutulan iş ekipmanının varsa tespit edilen
-                                ve giderilen noksanlıklar açıklanarak, bir sonraki periyodik kontrole kadar geçecek süre
-                                içerisinde görevini güvenli bir şekilde yapıp yapamayacağını açıkça belirtilir.
-                            </div>
-                        </div>
-
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.7. MADDE GEREĞİ
-                                <p>
-                                    SONUÇ VE KANAAT
-
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                <textarea name="" class="form-control selectpicker"
-                                    id="">6331 Sayılı Kanun gereği çıkartılan İş Ekipmanlarının Kullanımında Sağlık ve Güvenlik şartları Yönetmeliğine ve BİNALARDA YANGINDA KORUNMA YÖNETMELİĞİ Projede belirtilen kriterlere uygun olup olmadığının belirlenmesine yönelik olarak yapılan. Ayrıca TS 9811, TS EN 671-3, TS EN 12416-1 + A2, TS EN 12416-2 + A1,TS EN 12845 + A2 standartlarında belirtilen kritelere uygun olarak yapılan Periyodik Kontrole göre YANGIN SÖNDÜRME SİSTEMİ 1 YIL SÜREYLE KULLANIMA UYGUNDUR. Uygunluğunun devamlılığından işveren sorumludur.</textarea>
-                            </div>
-                        </div>
-
-
-                        <div class="form-group row ">
-                            <div class="col-md-3 col-sm-12">
-                                1.7.8.
-                                <p>
-                                    ONAY
-                                </p>
-
-                            </div>
-                            <div class="col-md-9 col-sm-12 ">
-                                Bu bölümde periyodik kontrolleri yapmaya yetkili kişinin/kişilerin kimlik bilgileri,
-                                mesleği, diploma tarihi ve numarasına ilişkin bilgiler, Bakanlık kayıt numarası ile
-                                raporun kaç nüsha olarak düzenlendiğini belirterek, imza altına alınır.Yukarıdaki
-                                bilgilerin veya yetkili kişinin imzasının bulunmadığı raporlar geçersizdir.
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- HOME TAB   -->
-
-        <!-- YANGIN DOLAP LİSTESİ -->
-        <div class="tab-pane fade" id="pills-content" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
-            <div class="content pd-20 bg-white border-radius-16 box-shadow mb-10">
-                <div class="clearfix mb-20">
-                    <div class="pull-left">
-                        <h4 class="text-blue">
-                            Yangın Dolap Listesi
-                        </h4>
-                    </div>
-                </div>
-
-
-                <!--  KONTROL KRİTERLERİ -->
-                <div class="form-group row">
-                    <label for="criteria" class="col-md-2">
-                        Kontrol Kriterleri
-                    </label>
-                    <div class="col-md-10">
-                        <div class="html-editor">
-                            <textarea style="height:100px; resize:vertical" name="criteria"
-                                class="textarea_editor form-control"
-                                placeholder="İlgili Standartları yazınız"></textarea><br>
-                        </div>
-                    </div>
-                </div>
-                <!--  KONTROL KRİTERLERİ -->
-
-            </div>
-            <div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
-                <div class="clearfix mb-30">
-                    <div class="pull-left">
-                        <h4 class="text-blue">
-                            Cihaz Kontrol Bilgileri
-                        </h4>
-
-                    </div>
-
-                </div>
-                <!-- TABLO -->
-                <style>
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 0;
-                        border: 1px solid #444;
-
-                    }
-
-
-                    .hack1 {
-                        display: table;
-                        table-layout: fixed;
-                        width: 100%;
-                        margin-bottom: 100px;
-                    }
-
-                    .hack2 {
-                        display: table-cell;
-                        overflow-x: auto;
-                        width: 100%;
-
-                    }
-
-                    .table>thead {
-                        background-color: rgba(0,0,0,0.03) !important;
-                        color: inherit !important;
-                    }
-
-                    .table>thead th {
-                        color: inherit !important;
-                        border-bottom: 1px solid rgba(0,0,0,0.1);
-                    }
-
-                    .border-dashed {
-                        border-style: dashed !important;
-                        border-width: 2px !important;
-                        border-color: #dee2e6 !important;
-                        border-radius: 8px;
-                        transition: all 0.3s ease;
-                    }
-
-                    .border-dashed:hover, .border-dashed.highlight {
-                        border-color: #007bff !important;
-                        background-color: #f8f9fa !important;
-                    }
-
-                    .rpr-date,
-                    #cihazno,
-                    .date-input {
-                        min-width: 120px;
-                    }
-
-                    .region {
-                        min-width: 150px;
-                    }
-
-                    .things {
-                        min-width: 240px;
-                    }
-                </style>
-                <div class="hack1">
-                    <div class="hack2">
-                        <table id="metTable" class="table">
-                            <thead>
-                                <tr class="text-center">
-
-                                    <th>İşlem</th>
-                                    <th>S.N</th>
-                                    <th>Cihazın Cinsi
-                                    <th>Bulunduğu Kısım
-                                    <th>Özellikleri (Mt)
-                                    <th>Kontrol Tarihi
-                                    <th>Bir Sonraki Kontrol Tarihi
-                                    <th>Vana Uygun Mu?
-                                    <th>Hortum Bağlantıları Uygun Mu?
-                                    <th>Levha Uygun Mu ?
-                                    <th>Paslanma Var Mı ?
-                                    <th>Kilit Uygun Mu?
-                                    <th>Hortum Durumu Uygun Mu ?
-                                    <th>Bulunduğu Hattaki Basınç Değeri Nedir?
-                                    <th>Nozul Durumu Uygun Mu?
-                                    <th>Açıklama
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                include_once "report-row-met.php";
-                                
-                                ?>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                        <button type="button" class="btn btn-sm btn-primary" id="addRow">Yeni
-                                            Satır</button>
-                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#excelModal" data-bs-toggle="modal" data-bs-target="#excelModal">
-                                            <i class="fa fa-file-excel-o"></i> Excel'den Yükle
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-                <!-- TABLO -->
-
-
-            </div>
-
-        </div>
-        <!-- YANGIN DOLAP LİSTESİ -->
-
-        <div class="tab-pane fade" id="pills-attach" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">
-            <div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
-                <div class="clearfix mb-30">
-                    <div class="pull-left">
-                        <h4 class="text-blue">
-                            Rapor Ek Dosyaları
-                        </h4>
-
-                    </div>
-
-                </div>
-                <!-- TABLO -->
-                <style>
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 0;
-                        border: 1px solid #444;
-
-                    }
-
-
-                    .hack1 {
-                        display: table;
-                        table-layout: fixed;
-                        width: 100%;
-                        margin-bottom: 100px;
-                    }
-
-                    .hack2 {
-                        display: table-cell;
-                        overflow-x: auto;
-                        width: 100%;
-
-                    }
-
-                    .table>thead {
-                        background-color: rgba(0,0,0,0.03) !important;
-                        color: inherit !important;
-                    }
-
-                    .rpr-date,
-                    #cihazno,
-                    .date-input {
-                        min-width: 120px;
-                    }
-
-                    .region {
-                        min-width: 150px;
-                    }
-
-                    .things {
-                        min-width: 240px;
-                    }
-                </style>
-                <div class="hack1">
-                    <div class="hack2">
-                        <table id="metTablefile" class="table">
-                            <thead>
-                                <tr class="text-center">
-
-                                    <th>İşlem</th>
-                                    <th>Açıklama
-                                    <th>Dosya
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                include_once "report-row-met-attach.php"
-                                ?>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="16" class="pt-3 pb-3 pl-2">
-                                        <button type="button" class="btn btn-sm btn-primary" id="addRowfile">Yeni
-                                            Satır</button>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-                <!-- TABLO -->
-
-
-            </div>
-
-        </div>
-
-    </div>
-
-</form>
-
-<!-- Excel Upload Modal -->
-<div class="modal fade" id="excelModal" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="excelModalLabel">Excel'den Cihaz Yükle</h5>
-        <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="drop-area" class="border-dashed border-2 p-5 text-center bg-light cursor-pointer">
-            <i class="fa fa-cloud-upload fa-3x text-primary mb-3"></i>
-            <h5>Dosyayı buraya sürükleyin veya tıklayın</h5>
-            <p class="text-muted">Desteklenen formatlar: .xlsx, .xls</p>
-            <input type="file" id="uploadExcel" accept=".xlsx, .xls" style="display:none;">
-        </div>
-        
-        <div id="file-info" class="mt-3" style="display:none;">
-            <div class="alert alert-info d-flex justify-content-between align-items-center mb-0">
-                <span id="filename-display" class="text-truncate mr-2"></span>
-                <i class="fa fa-check-circle text-success"></i>
-            </div>
-        </div>
-      </div>
-      <div class="modal-footer d-flex justify-content-between">
-        <div>
-            <a href="templates/cihaz_kontrol_sablonu.xlsx" class="btn btn-outline-primary">
-                <i class="fa fa-download"></i> Şablonu İndir
-            </a>
-        </div>
-        <div>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Kapat</button>
-            <button type="button" id="processExcel" class="btn btn-success" disabled>Yükle</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="include/js/met.js"></script>
-<?php
 if (@$_GET["st"] == "empties") {
-    showAlert("alert", "Dolap Bilgisi sayfasında en az bir adet dolap eklemeniz gerekmektedir!");
+    showAlert("alert", "Lütfen firma seçimini yapınız!");
 }
 if (@$_GET["st"] == "newsuccess") {
-    showAlert("success", "İşlem Başarı ile tamamlandı!", "&type=3");
+    showAlert("success", "Mekanik Tesisat Kontrol Raporu başarıyla oluşturuldu!");
+}
+if (@$_GET["st"] == "error") {
+    showAlert("alert", "Rapor kaydedilirken bir hata oluştu. Lütfen tekrar deneyiniz.");
 }
 ?>
+
+<style>
+    .met-report-wrapper {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding-bottom: 40px;
+    }
+
+    /* Minimal Table Container Matching premium-theme */
+    .met-table-wrapper {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .met-table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .premium-table.met-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        border: none !important;
+    }
+
+    .premium-table.met-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        font-size: 11px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 8px 6px !important;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #f1f5f9;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .premium-table.met-table thead tr.main-head th {
+        background: #f1f5f9;
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    .premium-table.met-table td {
+        padding: 4px 4px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        border-right: 1px solid #f8fafc;
+        background: #ffffff;
+    }
+
+    .premium-table.met-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .premium-table.met-table .form-control {
+        height: 30px !important;
+        padding: 2px 6px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .premium-table.met-table .form-control:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12) !important;
+        background: #fff !important;
+    }
+
+    .premium-table.met-table .btn-delete-row {
+        padding: 0 !important;
+        width: 26px;
+        height: 26px;
+        line-height: 26px;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fee2e2;
+        border-color: #fecaca;
+        color: #ef4444;
+        transition: all 0.2s;
+    }
+
+    .premium-table.met-table .btn-delete-row:hover {
+        background-color: #ef4444;
+        border-color: #ef4444;
+        color: #ffffff;
+    }
+
+    .premium-table.met-table select.custom-select-status {
+        font-size: 11px !important;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        padding: 2px 4px !important;
+    }
+
+    .table-actions-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .table-actions-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* Custom Nav Pills Matching Premium Theme */
+    .custom-report-pills {
+        display: flex;
+        gap: 8px;
+        background: #f1f5f9;
+        padding: 6px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .custom-report-pills .nav-link {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .custom-report-pills .nav-link:hover {
+        color: #1e293b;
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .custom-report-pills .nav-link.active {
+        color: #0284c7;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .matter-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s;
+    }
+
+    .matter-card:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .matter-number {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: #e0f2fe;
+        color: #0284c7;
+        font-weight: 700;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .matter-text {
+        flex: 1;
+        font-size: 12px;
+        color: #334155;
+        line-height: 1.4;
+    }
+
+    .matter-select {
+        width: 140px;
+        flex-shrink: 0;
+    }
+
+    /* Dark Mode Overrides */
+    .dark-mode .met-table-wrapper {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .dark-mode .premium-table.met-table thead th {
+        background: #0f172a !important;
+        color: #cbd5e1;
+        border-color: #334155;
+    }
+
+    .dark-mode .premium-table.met-table thead tr.main-head th {
+        background: #1e293b !important;
+        color: #f8fafc;
+        border-color: #334155;
+    }
+
+    .dark-mode .premium-table.met-table td {
+        background: #1e293b;
+        border-color: #334155;
+        color: #e2e8f0;
+    }
+
+    .dark-mode .premium-table.met-table tbody tr:hover td {
+        background: #283548;
+    }
+
+    .dark-mode .premium-table.met-table .form-control {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+
+    .dark-mode .custom-report-pills {
+        background: #0f172a;
+    }
+
+    .dark-mode .custom-report-pills .nav-link {
+        color: #94a3b8;
+    }
+
+    .dark-mode .custom-report-pills .nav-link.active {
+        color: #38bdf8;
+        background: #1e293b;
+    }
+
+    .dark-mode .matter-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .dark-mode .matter-card:hover {
+        background: #283548;
+    }
+
+    .dark-mode .matter-text {
+        color: #cbd5e1;
+    }
+
+    .dark-mode .matter-number {
+        background: #0369a1;
+        color: #e0f2fe;
+    }
+</style>
+
+<form enctype="multipart/form-data" id="myForm" method="POST">
+    <div class="met-report-wrapper">
+        <!-- Header Card -->
+        <div class="premium-header-card animate-fade-in">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                        <i class="fa fa-wrench"></i>
+                    </div>
+                    <div class="header-title">
+                        <h4>Mekanik Tesisat Kontrol Raporu</h4>
+                        <span class="header-number-badge">
+                            <i class="fa fa-tag"></i> Rapor No: <?php echo htmlspecialchars($new_report_number, ENT_QUOTES, 'UTF-8'); ?>
+                        </span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="index.php?p=reports/reports" class="btn-header btn-header-list">
+                        <i class="fa fa-list"></i> Listeye Dön
+                    </a>
+                    <button type="submit" id="submitButton" class="btn-header btn-header-save">
+                        <i class="fa fa-save"></i> Raporu Kaydet
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Pills Navigation -->
+        <ul class="nav custom-report-pills animate-fade-in" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-home-tab" data-toggle="pill" data-target="#pills-home" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
+                    <i class="fa fa-info-circle mr-1"></i> Giriş Bilgileri & Maddeler
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-content-tab" data-toggle="pill" data-target="#pills-content" data-bs-toggle="pill" data-bs-target="#pills-content" type="button" role="tab" aria-controls="pills-content" aria-selected="false">
+                    <i class="fa fa-list-alt mr-1"></i> Dolap & Cihaz Listesi
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-attach-tab" data-toggle="pill" data-target="#pills-attach" data-bs-toggle="pill" data-bs-target="#pills-attach" type="button" role="tab" aria-controls="pills-attach" aria-selected="false">
+                    <i class="fa fa-paperclip mr-1"></i> Ek Belgeler
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            <!-- TAB 1: GİRİŞ BİLGİLERİ & MADDELER -->
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <!-- Kart 1: Giriş Bilgileri -->
+                <div class="form-card mb-4 animate-fade-in">
+                    <div class="form-card-header">
+                        <div class="card-icon card-icon-blue">
+                            <i class="fa fa-building-o"></i>
+                        </div>
+                        <div>
+                            <h5>Genel Giriş Bilgileri</h5>
+                            <p>Rapor numarası, müşteri seçimi, denetçi ve kontrol tarihleri</p>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <!-- Rapor No -->
+                        <div class="form-field">
+                            <label for="report_number"><font color="red">(*)</font> Rapor No:</label>
+                            <input required name="report_number" id="report_number" type="text" readonly value="<?php echo htmlspecialchars($new_report_number, ENT_QUOTES, 'UTF-8'); ?>" class="form-control font-weight-bold bg-light" placeholder="Rapor No">
+                        </div>
+
+                        <!-- Firma Adı -->
+                        <div class="form-field">
+                            <label for="customer"><font color="red">(*)</font> Firma:</label>
+                            <select required name="customer" id="customer" data-live-search="true" data-size="10" class="form-control selectpicker" data-style="bg-white border">
+                                <option disabled selected value="">Firma Seçiniz</option>
+                                <?php
+                                $compquery = $ac->prepare("SELECT id, company FROM customers WHERE deleted_at IS NULL ORDER BY company ASC");
+                                $compquery->execute();
+                                while ($company = $compquery->fetch(PDO::FETCH_ASSOC)) {
+                                ?>
+                                    <option value="<?php echo $company["id"]; ?>">
+                                        <?php echo htmlspecialchars($company["company"], ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+
+                        <!-- Kontrolü Yapan Mühendis -->
+                        <div class="form-field">
+                            <label for="controller"><font color="red">(*)</font> Kontrolü Yapan Mühendis:</label>
+                            <select required name="controller" id="controller" data-live-search="true" class="form-control selectpicker" data-style="bg-white border">
+                                <option disabled selected value="">Mühendis Seçiniz</option>
+                                <?php
+                                $userquery = $ac->prepare("SELECT id, username, meslek FROM users ORDER BY username ASC");
+                                $userquery->execute();
+                                while ($usr = $userquery->fetch(PDO::FETCH_ASSOC)) {
+                                ?>
+                                    <option value="<?php echo $usr["id"]; ?>">
+                                        <?php echo htmlspecialchars($usr["username"] . (!empty($usr["meslek"]) ? " (" . $usr["meslek"] . ")" : ""), ENT_QUOTES, 'UTF-8'); ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+
+                        <!-- Kontrol Tarihi -->
+                        <div class="form-field">
+                            <label for="control_date"><font color="red">(*)</font> Kontrol Tarihi:</label>
+                            <input required type="text" autocomplete="off" name="control_date" id="control_date" class="form-control date-picker" value="<?php echo date('d.m.Y'); ?>" placeholder="Kontrol Tarihi">
+                        </div>
+
+                        <!-- Sonraki Kontrol Tarihi -->
+                        <div class="form-field">
+                            <label for="next_control_date"><font color="red">(*)</font> Sonraki Kontrol Tarihi:</label>
+                            <input required type="text" autocomplete="off" name="next_control_date" id="next_control_date" class="form-control date-picker" value="<?php echo date('d.m.Y', strtotime('+1 year')); ?>" placeholder="Sonraki Kontrol Tarihi">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kart 2: Kontrol Maddeleri -->
+                <div class="form-card mb-4 animate-fade-in">
+                    <div class="form-card-header">
+                        <div class="card-icon card-icon-green">
+                            <i class="fa fa-check-square-o"></i>
+                        </div>
+                        <div>
+                            <h5>Rapor Kontrol Maddeleri (Yönetmelik ve Standartlar)</h5>
+                            <p class="mb-0">6331 Sayılı Kanun İş Ekipmanlarının Kullanımında Sağlık ve Güvenlik Şartları Yönetmeliği (Madde 1.7)</p>
+                        </div>
+                    </div>
+
+                    <?php
+                    $sql = $ac->prepare("SELECT met as soru FROM report_questions WHERE met != '' ORDER BY id ASC");
+                    $sql->execute();
+                    $question = $sql->fetchAll(PDO::FETCH_ASSOC);
+                    $totalQuestions = count($question);
+                    $half = ceil($totalQuestions / 2);
+                    ?>
+
+                    <div class="row">
+                        <div class="col-lg-6 col-md-12">
+                            <?php for ($i = 0; $i < $half; $i++) { 
+                                $num = $i + 1;
+                                $soru = $question[$i]["soru"] ?? "";
+                            ?>
+                                <div class="matter-card">
+                                    <div class="matter-number"><?php echo $num; ?></div>
+                                    <div class="matter-text"><?php echo htmlspecialchars($soru, ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div class="matter-select">
+                                        <select name="madde<?php echo $num; ?>" class="form-control custom-select-status">
+                                            <option value="1" selected>UYGUN</option>
+                                            <option value="0">UYGUN DEĞİL</option>
+                                            <option value="2">DEĞERLENDİRME DIŞI</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+
+                        <div class="col-lg-6 col-md-12">
+                            <?php for ($i = $half; $i < $totalQuestions; $i++) { 
+                                $num = $i + 1;
+                                $soru = $question[$i]["soru"] ?? "";
+                            ?>
+                                <div class="matter-card">
+                                    <div class="matter-number"><?php echo $num; ?></div>
+                                    <div class="matter-text"><?php echo htmlspecialchars($soru, ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div class="matter-select">
+                                        <select name="madde<?php echo $num; ?>" class="form-control custom-select-status">
+                                            <option value="1" selected>UYGUN</option>
+                                            <option value="0">UYGUN DEĞİL</option>
+                                            <option value="2">DEĞERLENDİRME DIŞI</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: DOLAP & CİHAZ LİSTESİ -->
+            <div class="tab-pane fade" id="pills-content" role="tabpanel" aria-labelledby="pills-content-tab">
+                <!-- Kart: Kontrol Kriterleri -->
+                <div class="form-card mb-4 animate-fade-in">
+                    <div class="form-card-header">
+                        <div class="card-icon card-icon-orange">
+                            <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <div>
+                            <h5>Kontrol Kriterleri & Standart Açıklamaları</h5>
+                            <p>İlgili standartlar, yapılan deneyler ve sonuç kanaatleri</p>
+                        </div>
+                    </div>
+
+                    <div class="form-field full-width">
+                        <label for="criteria" class="font-weight-600 mb-1">Kontrol Kriterleri & İlgili Standartlar:</label>
+                        <div class="html-editor">
+                            <textarea style="height: 100px; resize: vertical;" name="criteria" id="criteria" class="textarea_editor form-control" placeholder="İlgili standartları ve kriterleri yazınız">TS 11368 YANGIN ÖNLEME-HORTUM DOLAPLARI, TS 11926 YANGIN MUSLUKLARI TESİS VE KULLANIM KURALLARINA GÖRE YILLIK YAPILAN UYGUNLUK KONTROLÜ</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kart: Cihaz / Dolap Tablosu -->
+                <div class="form-card mb-4 animate-fade-in">
+                    <div class="form-card-header">
+                        <div class="card-icon card-icon-blue">
+                            <i class="fa fa-list"></i>
+                        </div>
+                        <div>
+                            <h5>Yangın Dolap & Tesisat Kontrol Bilgileri</h5>
+                            <p>Tesisat ve dolap ekipmanlarının detaylı muayene sonuçları</p>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="table-actions-toolbar">
+                        <div class="table-actions-left">
+                            <button type="button" class="btn btn-sm btn-primary" id="addRow">
+                                <i class="fa fa-plus mr-1"></i> Yeni Satır Ekle
+                            </button>
+                            <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#exampleModalCenter" id="addMultiRow">
+                                <i class="fa fa-list-ol mr-1"></i> Çoklu Satır Ekle
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#uploadfromxlsModal">
+                                <i class="fa fa-file-excel-o mr-1"></i> Excel'den Yükle
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="deleteAll">
+                                <i class="fa fa-trash-o mr-1"></i> Tümünü Sil
+                            </button>
+                        </div>
+                        <div>
+                            <span class="badge badge-primary px-3 py-2 font-13 font-weight-bold" id="rowCountBadge">1 Satır</span>
+                        </div>
+                    </div>
+
+                    <!-- Tablo -->
+                    <div class="met-table-wrapper">
+                        <div class="met-table-responsive">
+                            <table id="metTable" class="table premium-table met-table mb-0">
+                                <thead>
+                                    <tr class="main-head text-center">
+                                        <th style="width: 45px;"><i class="fa fa-cog"></i></th>
+                                        <th style="width: 50px;">S.N</th>
+                                        <th style="min-width: 130px;">Cihazın Cinsi</th>
+                                        <th style="min-width: 140px;">Bulunduğu Kısım</th>
+                                        <th style="min-width: 100px;">Özellikleri (Mt)</th>
+                                        <th style="min-width: 105px;">Kontrol Tarihi</th>
+                                        <th style="min-width: 105px;">Sonraki Kontrol</th>
+                                        <th style="min-width: 110px;">Vana Uygun Mu?</th>
+                                        <th style="min-width: 110px;">Hortum Bağlantı</th>
+                                        <th style="min-width: 110px;">Levha Uygun Mu?</th>
+                                        <th style="min-width: 110px;">Paslanma Var Mı?</th>
+                                        <th style="min-width: 110px;">Kilit Uygun Mu?</th>
+                                        <th style="min-width: 110px;">Hortum Durumu</th>
+                                        <th style="min-width: 90px;">Basınç (Bar)</th>
+                                        <th style="min-width: 110px;">Nozul Durumu</th>
+                                        <th style="min-width: 160px;">Açıklama</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $tabindex = 0;
+                                    $sirano = 1;
+                                    include "report-row-met.php";
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: EK BELGELER -->
+            <div class="tab-pane fade" id="pills-attach" role="tabpanel" aria-labelledby="pills-attach-tab">
+                <div class="form-card mb-4 animate-fade-in">
+                    <div class="form-card-header">
+                        <div class="card-icon card-icon-green">
+                            <i class="fa fa-folder-open-o"></i>
+                        </div>
+                        <div>
+                            <h5>Rapor Ek Dosyaları & Belgeleri</h5>
+                            <p>Raporla ilişkili test sertifikaları, fotoğraflar ve ek belgeler</p>
+                        </div>
+                    </div>
+
+                    <div class="table-actions-toolbar">
+                        <div class="table-actions-left">
+                            <button type="button" class="btn btn-sm btn-primary" id="addRowfile">
+                                <i class="fa fa-plus mr-1"></i> Yeni Dosya Ekle
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="met-table-wrapper">
+                        <div class="met-table-responsive">
+                            <table id="metTablefile" class="table premium-table met-table mb-0">
+                                <thead>
+                                    <tr class="main-head text-center">
+                                        <th style="width: 45px;"><i class="fa fa-cog"></i></th>
+                                        <th style="min-width: 250px;">Açıklama</th>
+                                        <th style="min-width: 200px;">Dosya</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    include "report-row-met-attach.php";
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<?php include_once "upload-from-xls-modal.php"; ?>
+<?php include_once "addMultipleRow-modal.php"; ?>
+<script src="src/plugins/xlsx/xlsx.full.min.js"></script>
+<script src="include/js/met.js"></script>

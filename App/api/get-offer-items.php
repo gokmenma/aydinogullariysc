@@ -369,9 +369,13 @@ foreach ($results as $r) {
     $item_kdv = $item_net * ($kdv_rate / 100);
     $item_grand_total = $item_net + $item_kdv;
     
-    $durum_badge = $r["statu"] == 2 
-        ? "<span class='badge badge-success'>".$r['durum']."</span>" 
-        : "<span class='badge badge-warning'>".$r['durum']."</span>";
+    if ($r["statu"] == 2) {
+        $durum_badge = "<span class='badge badge-success'>".$r['durum']."</span>";
+    } elseif ($r["statu"] == 3) {
+        $durum_badge = "<span class='badge badge-danger'>".$r['durum']."</span>";
+    } else {
+        $durum_badge = "<span class='badge badge-warning'>".$r['durum']."</span>";
+    }
         
     $actions = '
         <a href="index.php?p=offer-view&id='.$r['oid'].'" target="_blank" class="btn btn-sm btn-outline-secondary" data-tooltip="Göster"><i class="fa fa-eye"></i></a>

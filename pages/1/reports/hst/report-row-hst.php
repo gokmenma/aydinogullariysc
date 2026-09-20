@@ -1,63 +1,70 @@
-<tr tabindex="<?php echo $tabindex ;?>"> 
-    <td class="pl-2">
-        <button class="sil btn btn-sm btn-danger"> Sil</button>
+<?php
+$tabindex = $tabindex ?? 0;
+$testno = $testno ?? '';
+$kg = $kg ?? '';
+$cinsi = $cinsi ?? '';
+$imalatci_firma = $imalatci_firma ?? '';
+$imal_tarihi = $imal_tarihi ?? '';
+$serino = $serino ?? '';
+$tse_belgesi = isset($tse_belgesi) ? (string)$tse_belgesi : '1';
+$yuzey_durumu = isset($yuzey_durumu) ? (string)$yuzey_durumu : '1';
+$sizdirmazlik_deneyi = isset($sizdirmazlik_deneyi) ? (string)$sizdirmazlik_deneyi : '1';
+$esneme_deneyi = isset($esneme_deneyi) ? (string)$esneme_deneyi : '1';
+$things = $things ?? '';
+?>
+<tr tabindex="<?php echo (int)$tabindex; ?>">
+    <td class="text-center align-middle" style="width: 45px;">
+        <button type="button" class="sil btn btn-sm btn-delete-row" title="Satırı Sil">
+            <i class="fa fa-trash"></i>
+        </button>
     </td>
-    <td><input required type="text" class="form-control region" id="testno" name="testno[]" value="<?php echo $testno ?>"></td>
-    <td>
-        <input type="text" class="form-control region" name="kg[]" value="<?php echo $kg ?>">
+    <td style="min-width: 90px;">
+        <input required type="text" class="form-control font-weight-bold text-center" name="testno[]" value="<?php echo htmlspecialchars($testno, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Test No">
     </td>
-    <td>
-        <input type="text" required autocomplete="off" class="form-control region" name="cinsi[]" value="<?php echo $cinsi; ?>">
+    <td style="min-width: 80px;">
+        <input type="text" class="form-control text-center" name="kg[]" value="<?php echo htmlspecialchars($kg, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Kg">
     </td>
-    <td>
-        <input type="text" required autocomplete="off" class="form-control region" name="imalatci_firma[]"
-            value="<?php echo $imalatci_firma; ?>">
+    <td style="min-width: 110px;">
+        <input type="text" required autocomplete="off" class="form-control" name="cinsi[]" value="<?php echo htmlspecialchars($cinsi, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cinsi">
     </td>
-    <td>
-        <input type="text" required autocomplete="off" class="form-control imal" name="imal_tarihi[]" value="<?php echo $imal_tarihi; ?>">
+    <td style="min-width: 140px;">
+        <input type="text" required autocomplete="off" class="form-control" name="imalatci_firma[]" value="<?php echo htmlspecialchars($imalatci_firma, ENT_QUOTES, 'UTF-8'); ?>" placeholder="İmalatçı Firma">
     </td>
-    <td>
-        <input type="text" required autocomplete="off" class="form-control region" name="serino[]" value="<?php echo $serino; ?>">
+    <td style="min-width: 95px;">
+        <input type="text" required autocomplete="off" class="form-control text-center imal" name="imal_tarihi[]" value="<?php echo htmlspecialchars($imal_tarihi, ENT_QUOTES, 'UTF-8'); ?>" placeholder="İmal Tarihi">
     </td>
-    <td>
-        <select required name="tse_belgesi[]" class="form-control region" data-style="bg-white border">
+    <td style="min-width: 110px;">
+        <input type="text" required autocomplete="off" class="form-control text-center" name="serino[]" value="<?php echo htmlspecialchars($serino, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Seri No">
+    </td>
+    <td style="min-width: 100px;">
+        <select required name="tse_belgesi[]" class="form-control custom-select-status">
             <option value="">Seçiniz</option>
-            <option <?php echo $tse_belgesi == "0" ? " selected" : "" ;?> value="0">YOK</option>
-            <option <?php echo $tse_belgesi == "1" ? " selected" : "" ;?> value="1">VAR</option>
+            <option value="1" <?php echo $tse_belgesi === "1" ? "selected" : ""; ?>>VAR</option>
+            <option value="0" <?php echo $tse_belgesi === "0" ? "selected" : ""; ?>>YOK</option>
         </select>
     </td>
-    <td>
-        <select required name="yuzey_durumu[]" class="form-control region" data-style="bg-white border">
+    <td style="min-width: 110px;">
+        <select required name="yuzey_durumu[]" class="form-control custom-select-status">
             <option value="">Seçiniz</option>
-            <option <?php echo $yuzey_durumu == "1" ? " selected" : "" ;?> value="1">OLUMLU</option>
-            <option <?php echo $yuzey_durumu == "0" ? " selected" : "" ;?> value="0">OLUMSUZ</option>
+            <option value="1" <?php echo $yuzey_durumu === "1" ? "selected" : ""; ?>>OLUMLU</option>
+            <option value="0" <?php echo $yuzey_durumu === "0" ? "selected" : ""; ?>>OLUMSUZ</option>
         </select>
     </td>
-
-    <td>
-        <select required name="sizdirmazlik_deneyi[]" class="form-control" data-style="bg-white border">
+    <td style="min-width: 120px;">
+        <select required name="sizdirmazlik_deneyi[]" class="form-control custom-select-status">
             <option value="">Seçiniz</option>
-            <option <?php echo $sizdirmazlik_deneyi == "0" ? " selected" : "" ;?> value="0">YOK</option>
-            <option <?php echo $sizdirmazlik_deneyi == "1" ? " selected" : "" ;?> value="1">VAR</option>
+            <option value="1" <?php echo $sizdirmazlik_deneyi === "1" ? "selected" : ""; ?>>VAR</option>
+            <option value="0" <?php echo $sizdirmazlik_deneyi === "0" ? "selected" : ""; ?>>YOK</option>
         </select>
     </td>
-    <td>
-        <select required name="esneme_deneyi[]" class="form-control" data-style="bg-white border">
+    <td style="min-width: 110px;">
+        <select required name="esneme_deneyi[]" class="form-control custom-select-status">
             <option value="">Seçiniz</option>
-            <option <?php echo $esneme_deneyi == "1" ? " selected" : "" ;?> value="1">OLUMLU</option>
-            <option <?php echo $esneme_deneyi == "0" ? " selected" : "" ;?> value="0">OLUMSUZ</option>
+            <option value="1" <?php echo $esneme_deneyi === "1" ? "selected" : ""; ?>>OLUMLU</option>
+            <option value="0" <?php echo $esneme_deneyi === "0" ? "selected" : ""; ?>>OLUMSUZ</option>
         </select>
     </td>
-
-    <td>
-    <textarea type="text" autocomplete="off" class="form-control things" style="height:40px;resize:both" name="things[]"
-            value="<?php echo $notes; ?>"><?php echo $things ?></textarea>
+    <td style="min-width: 180px;">
+        <input type="text" autocomplete="off" class="form-control" name="things[]" value="<?php echo htmlspecialchars($things, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Düşünceler / Not">
     </td>
-     
-</tr> 
-
-<style>
-    .imal{
-        width: 100px;
-    }
-</style>
+</tr>

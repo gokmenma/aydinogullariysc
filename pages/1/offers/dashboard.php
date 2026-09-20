@@ -55,6 +55,7 @@ $topCustomers = $offerModel->getTopCustomers(10, $startDate, $endDate);
 $topUsers = $offerModel->getTopUsers(10, $startDate, $endDate);
 $monthlyTrends = $offerModel->getMonthlyTrends(12);
 $statusDistribution = $offerModel->getStatusDistribution($startDate, $endDate);
+$rejectReasonsData = $offerModel->getRejectReasonDistribution($startDate, $endDate);
 $recentOffers = $offerModel->getRecentOffersSummary(10);
 $topValueOffers = $offerModel->getTopValueOffers(5);
 
@@ -212,7 +213,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     background: #ffffff;
     border-radius: 14px;
     border: 1px solid #e2e8f0;
-    padding: 22px 20px;
+    padding: 20px 18px;
     box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -238,24 +239,26 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 .offer-kpi-card.kpi-indigo::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
 .offer-kpi-card.kpi-emerald::before { background: linear-gradient(90deg, #10b981, #34d399); }
 .offer-kpi-card.kpi-amber::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.offer-kpi-card.kpi-rose::before { background: linear-gradient(90deg, #ef4444, #f87171); }
 .offer-kpi-card.kpi-purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
 
 .offer-kpi-icon {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 19px;
 }
 .kpi-icon-indigo { background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
 .kpi-icon-emerald { background: rgba(16, 185, 129, 0.12); color: #059669; }
 .kpi-icon-amber { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.kpi-icon-rose { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
 .kpi-icon-purple { background: rgba(139, 92, 246, 0.12); color: #7c3aed; }
 
 .offer-kpi-label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: #64748b;
     text-transform: uppercase;
@@ -263,13 +266,13 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
     margin-bottom: 4px;
 }
 .offer-kpi-value {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 700;
     color: #0f172a;
     line-height: 1.2;
 }
 .offer-kpi-sub {
-    font-size: 13px;
+    font-size: 12.5px;
     color: #64748b;
     margin-top: 6px;
 }
@@ -362,10 +365,15 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 .dark-mode .offer-dash-hero,
 .dark-mode .offer-kpi-card,
 .dark-mode .offer-filter-pills,
-.dark-mode .crm-card {
+.dark-mode .crm-card,
+.dark-mode .card {
     background: #1e293b !important;
     border-color: #334155 !important;
     color: #f1f5f9 !important;
+}
+.dark-mode .card-header {
+    background: #1e293b !important;
+    border-color: #334155 !important;
 }
 .dark-mode .offer-dash-hero {
     border-left-color: #6366f1 !important;
@@ -439,7 +447,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                     Teklif Yönetimi & Performans Paneli
                                 </h2>
                                 <p class="offer-hero-desc">
-                                    Müşteri teklif dağılımları, satış temsilcisi performansları, onay trendleri ve finansal hacim analizi.
+                                    Müşteri teklif dağılımları, satışa dönüşme ve kayıp nedenleri analizi, ciro trendleri ve temsilci performansı.
                                 </p>
                             </div>
                         </div>
@@ -502,7 +510,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
         </div>
     </div>
 
-    <!-- 3. KPI KARTLARI (4'LÜ GRID) -->
+    <!-- 3. KPI KARTLARI (4 TEMEL METRİK) -->
     <div class="row mb-3">
         <!-- Toplam Teklif -->
         <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
@@ -575,27 +583,25 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
             </div>
         </div>
 
-        <!-- Ortalama Teklif Tutarı -->
+        <!-- Kabul Edilmeyen / Kaybedilen Teklifler -->
         <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
-            <div class="offer-kpi-card kpi-purple">
+            <div class="offer-kpi-card kpi-rose">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
-                        <div class="offer-kpi-label">Ortalama Teklif</div>
-                        <div class="offer-kpi-value text-purple" style="font-size: 22px;"><?php echo formatCurrencyTR($summary->avg_amount); ?></div>
+                        <div class="offer-kpi-label">Kabul Edilmeyen</div>
+                        <div class="offer-kpi-value text-danger"><?php echo number_format($summary->lost_count ?? 0, 0, ',', '.'); ?></div>
                     </div>
-                    <div class="offer-kpi-icon kpi-icon-purple">
-                        <i class="fa fa-line-chart"></i>
+                    <div class="offer-kpi-icon kpi-icon-rose">
+                        <i class="fa fa-times-circle-o"></i>
                     </div>
                 </div>
                 <div class="offer-kpi-sub">
-                    <div class="font-weight-bold text-dark">
-                        Bu Ay Ciro: <span class="text-purple font-weight-bold"><?php echo formatCompactTR($summary->this_month->won_amount); ?></span>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="font-weight-bold text-dark">Kayıp Tutar: <span class="text-danger font-weight-bold"><?php echo formatCompactTR($summary->lost_amount ?? 0); ?></span></span>
+                        <span class="badge badge-danger px-2 py-1 font-11">%<?php echo $summary->lost_rate ?? 0; ?> Kayıp</span>
                     </div>
-                    <div class="font-11 text-muted mt-1">
-                        Aylık Teklif Değişimi: 
-                        <span class="<?php echo $summary->month_growth_rate >= 0 ? 'text-success' : 'text-danger'; ?> font-weight-bold">
-                            <i class="fa <?php echo $summary->month_growth_rate >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'; ?>"></i> %<?php echo abs($summary->month_growth_rate); ?>
-                        </span>
+                    <div class="progress mt-2" style="height: 6px; border-radius: 4px; background: #e2e8f0;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo min(100, $summary->lost_rate ?? 0); ?>%;"></div>
                     </div>
                 </div>
             </div>
@@ -610,8 +616,8 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                 <div class="card-body p-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                         <div>
-                            <h5 class="font-weight-bold mb-1"><i class="fa fa-bar-chart text-primary mr-2"></i> Aylık Teklif & Ciro Trendi (Son 12 Ay)</h5>
-                            <p class="text-muted font-13 mb-0">Aylara göre açılan toplam teklifler, onaylanan teklifler ve toplam hacim dağılımı</p>
+                            <h5 class="font-weight-bold mb-1"><i class="fa fa-bar-chart text-primary mr-2"></i> Aylık Teklif, Onay & Kayıp Trendi (Son 12 Ay)</h5>
+                            <p class="text-muted font-13 mb-0">Aylara göre açılan teklifler, onaylanan ve kabul edilmeyen adetleri ile ciro hacmi</p>
                         </div>
                         <div>
                             <span class="badge badge-light p-2 font-12 border"><i class="fa fa-info-circle text-info mr-1"></i> İnteraktif Grafiktir</span>
@@ -628,7 +634,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                 <div class="card-body p-4 d-flex flex-direction-column flex-column justify-content-between">
                     <div>
                         <h5 class="font-weight-bold mb-1"><i class="fa fa-pie-chart text-warning mr-2"></i> Teklif Durum Dağılımı</h5>
-                        <p class="text-muted font-13 mb-3">Tekliflerin onay ve bekleme oranları</p>
+                        <p class="text-muted font-13 mb-3">Tekliflerin onay, bekleme ve ret oranları</p>
                         <div id="chart-status-donut" style="min-height: 230px;"></div>
                     </div>
                     <div class="mt-3 pt-3 border-top">
@@ -637,14 +643,21 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                 <span style="width: 12px; height: 12px; border-radius: 3px; background: #10b981; display: inline-block; margin-right: 8px;"></span>
                                 <span class="font-13">Tamamlandı / Onaylandı</span>
                             </div>
-                            <span class="font-13 font-weight-bold"><?php echo $summary->won_count; ?> Adet</span>
+                            <span class="font-13 font-weight-bold text-success"><?php echo $summary->won_count; ?> Adet</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
                             <div class="d-flex align-items-center">
                                 <span style="width: 12px; height: 12px; border-radius: 3px; background: #f59e0b; display: inline-block; margin-right: 8px;"></span>
                                 <span class="font-13">Bekleyen Teklifler</span>
                             </div>
-                            <span class="font-13 font-weight-bold"><?php echo $summary->pending_count; ?> Adet</span>
+                            <span class="font-13 font-weight-bold text-warning"><?php echo $summary->pending_count; ?> Adet</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <span style="width: 12px; height: 12px; border-radius: 3px; background: #ef4444; display: inline-block; margin-right: 8px;"></span>
+                                <span class="font-13">Kabul Edilmeyenler</span>
+                            </div>
+                            <span class="font-13 font-weight-bold text-danger"><?php echo $summary->lost_count ?? 0; ?> Adet</span>
                         </div>
                     </div>
                 </div>
@@ -652,7 +665,88 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
         </div>
     </div>
 
-    <!-- 5. DETAYLI ÖZET TABLOLARI: EN ÇOK TEKLİF VERİLEN FİRMALAR & PERSONELLER -->
+    <!-- 5. KABUL EDİLMEME & KAYIP NEDENLERİ ANALİZİ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0" style="border-radius: 14px; border-left: 4px solid #ef4444 !important;">
+                <div class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
+                    <div>
+                        <h5 class="font-weight-bold mb-1 text-danger">
+                            <i class="fa fa-pie-chart mr-2"></i> Kabul Edilmeme (Kayıp) Nedenleri Analizi
+                        </h5>
+                        <p class="text-muted font-13 mb-0">Tekliflerin satışa dönüşmeme gerekçeleri, kayıp ciro etkisi ve neden bazlı dağılım</p>
+                    </div>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <span class="badge badge-light border px-3 py-2 font-12">
+                            Toplam Kayıp Teklif: <strong class="text-danger"><?php echo number_format($rejectReasonsData['total_count'], 0, ',', '.'); ?> Adet</strong>
+                        </span>
+                        <span class="badge badge-light border px-3 py-2 font-12">
+                            Kaçan Hacim: <strong class="text-danger"><?php echo formatCurrencyTR($rejectReasonsData['total_amount']); ?></strong>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <?php if (!empty($rejectReasonsData['items'])) : ?>
+                        <div class="row align-items-center">
+                            <!-- Nedenler Grafiği -->
+                            <div class="col-lg-6 mb-4 mb-lg-0">
+                                <div id="chart-reject-reasons" style="min-height: 280px;"></div>
+                            </div>
+                            <!-- Nedenler Tablosu / Listesi -->
+                            <div class="col-lg-6">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead>
+                                            <tr class="text-muted font-11 text-uppercase" style="border-bottom: 2px solid #e2e8f0;">
+                                                <th style="width: 45%;">Kabul Edilmeme Nedeni</th>
+                                                <th style="width: 15%;" class="text-center">Adet</th>
+                                                <th style="width: 20%;" class="text-right">Kaçan Tutar</th>
+                                                <th style="width: 20%;" class="text-center">Pay %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($rejectReasonsData['items'] as $item) : ?>
+                                                <tr>
+                                                    <td class="font-weight-bold text-dark font-13 py-2">
+                                                        <i class="fa fa-tag text-danger mr-1 font-11"></i>
+                                                        <?php echo htmlspecialchars($item->reason, ENT_QUOTES, 'UTF-8'); ?>
+                                                    </td>
+                                                    <td class="text-center font-weight-bold font-13 py-2 text-danger">
+                                                        <?php echo $item->count; ?>
+                                                    </td>
+                                                    <td class="text-right font-weight-bold text-dark font-12 py-2">
+                                                        <?php echo formatCurrencyTR($item->amount); ?>
+                                                    </td>
+                                                    <td class="text-center py-2">
+                                                        <div class="d-flex align-items-center justify-content-center" style="gap: 6px;">
+                                                            <div class="progress flex-grow-1" style="height: 6px; width: 45px; border-radius: 3px; background: #fee2e2;">
+                                                                <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo min(100, $item->percentage); ?>%;"></div>
+                                                            </div>
+                                                            <span class="font-11 font-weight-bold text-muted">%<?php echo $item->percentage; ?></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    <?php else : ?>
+                        <div class="text-center py-4">
+                            <div class="mb-2">
+                                <i class="fa fa-check-circle text-success" style="font-size: 36px;"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-dark">Seçilen dönemde kabul edilmeyen teklif kaydı bulunmamaktadır.</h6>
+                            <p class="text-muted font-13 mb-0">Kabul edilmeyen teklif kaydedildikçe satışa dönüşmeme nedenleri burada otomatik analiz edilecektir.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. DETAYLI ÖZET TABLOLARI: EN ÇOK TEKLİF VERİLEN FİRMALAR & PERSONELLER -->
     <div class="row mb-4">
         <!-- En Çok Teklif Verilen Firmalar -->
         <div class="col-lg-6 mb-3 mb-lg-0">
@@ -752,32 +846,31 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                             <thead>
                                 <tr>
                                     <th style="width: 32px;" class="text-center">#</th>
-                                    <th style="width: 40%;">Kullanıcı / Temsilci</th>
+                                    <th style="width: 40%;">Personel</th>
                                     <th style="width: 18%;" class="text-center">Teklif / Onay</th>
-                                    <th style="width: 24%;" class="text-right">Oluşturulan Tutar</th>
-                                    <th style="width: 18%;" class="text-center">Başarı</th>
+                                    <th style="width: 24%;" class="text-right">Teklif Hacmi</th>
+                                    <th style="width: 18%;" class="text-center">Kazanma</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($topUsers)) : ?>
                                     <?php foreach ($topUsers as $index => $u) : 
                                         $rankClass = $index === 0 ? 'rank-badge-1' : ($index === 1 ? 'rank-badge-2' : ($index === 2 ? 'rank-badge-3' : 'rank-badge-default'));
-                                        $initials = mb_substr($u->username, 0, 2, 'UTF-8');
                                     ?>
                                         <tr>
                                             <td class="text-center p-1">
                                                 <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $index + 1; ?></span>
                                             </td>
                                             <td>
-                                                <div class="d-flex align-items-center" style="gap: 8px;">
-                                                    <div class="user-avatar-badge" style="width: 30px; height: 30px; font-size: 11px; flex-shrink: 0;">
-                                                        <?php echo strtoupper($initials); ?>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-avatar-badge mr-2" style="width: 28px; height: 28px; font-size: 11px; flex-shrink: 0;">
+                                                        <?php echo mb_substr($u->username, 0, 1, 'UTF-8'); ?>
                                                     </div>
                                                     <div style="min-width: 0; flex: 1;">
-                                                        <div class="cell-ellipsis font-weight-bold text-dark font-12" title="<?php echo htmlspecialchars($u->username, ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <div class="cell-ellipsis font-weight-bold text-dark" title="<?php echo htmlspecialchars($u->username, ENT_QUOTES, 'UTF-8'); ?>">
                                                             <?php echo htmlspecialchars($u->username, ENT_QUOTES, 'UTF-8'); ?>
                                                         </div>
-                                                        <div class="cell-ellipsis font-11 text-muted" title="<?php echo htmlspecialchars($u->user_title ?: 'Temsilci', ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <div class="cell-ellipsis font-11 text-muted">
                                                             <?php echo htmlspecialchars($u->user_title ?: 'Temsilci', ENT_QUOTES, 'UTF-8'); ?>
                                                         </div>
                                                     </div>
@@ -787,13 +880,13 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                                 <span class="font-weight-bold text-dark font-12"><?php echo $u->total_offers; ?></span>
                                                 <span class="font-11 text-muted"> / <span class="text-success font-weight-bold"><?php echo $u->won_offers; ?></span></span>
                                             </td>
-                                            <td class="text-right font-weight-bold text-indigo font-12" style="color: #4f46e5;">
+                                            <td class="text-right font-weight-bold text-indigo font-12" style="color: #6366f1;">
                                                 <?php echo formatCurrencyTR($u->total_amount); ?>
                                             </td>
                                             <td class="text-center">
                                                 <div class="d-flex align-items-center justify-content-center" style="gap: 4px;">
                                                     <div class="progress flex-grow-1" style="height: 5px; width: 35px; border-radius: 3px; background: #e2e8f0;">
-                                                        <div class="progress-bar bg-indigo" role="progressbar" style="background: #6366f1; width: <?php echo min(100, $u->win_rate); ?>%;"></div>
+                                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo min(100, $u->win_rate); ?>%;"></div>
                                                     </div>
                                                     <span class="font-11 font-weight-bold text-dark">%<?php echo $u->win_rate; ?></span>
                                                 </div>
@@ -802,7 +895,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                     <?php endforeach; ?>
                                 <?php else : ?>
                                     <tr>
-                                        <td colspan="5" class="text-center py-4 text-muted font-13">Seçilen dönemde personel teklif verisi bulunamadı.</td>
+                                        <td colspan="5" class="text-center py-4 text-muted font-13">Seçilen dönemde teklif hazırlayan temsilci kaydı bulunamadı.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -813,20 +906,20 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
         </div>
     </div>
 
-    <!-- 6. EN YÜKSEK TUTARLI TEKLİFLER & SON OLUŞTURULAN TEKLİFLER -->
-    <div class="row">
+    <!-- 7. SON OLUŞTURULAN & EN YÜKSEK TUTARLI TEKLİFLER TABLOLARI -->
+    <div class="row mb-4">
         <!-- Son Oluşturulan Teklifler -->
-        <div class="col-lg-12">
-            <div class="card shadow-sm border-0" style="border-radius: 14px;">
-                <div class="card-header bg-white border-0 pt-4 pb-2 px-3 d-flex justify-content-between align-items-center flex-wrap" style="gap: 8px;">
+        <div class="col-lg-7 mb-3 mb-lg-0">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 14px;">
+                <div class="card-header bg-white border-0 pt-4 pb-2 px-3 d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="font-weight-bold mb-1 font-16">
-                            <i class="fa fa-history text-muted mr-1"></i> Son Oluşturulan Teklifler
+                            <i class="fa fa-history text-secondary mr-1"></i> Son Teklif Hareketleri
                         </h5>
-                        <p class="text-muted font-12 mb-0">Sistemde kaydedilen en son 10 teklif kaydı</p>
+                        <p class="text-muted font-12 mb-0">Sistemde oluşturulan en son 10 teklif kaydı</p>
                     </div>
-                    <a href="index.php?p=offers/list" class="btn btn-xs btn-primary py-1 px-3 font-12" style="border-radius: 6px;">
-                        Tüm Teklifleri Görüntüle <i class="fa fa-arrow-right ml-1"></i>
+                    <a href="index.php?p=offers/list" class="btn btn-xs btn-outline-secondary py-1 px-2 font-12" style="border-radius: 6px;">
+                        Tüm Liste <i class="fa fa-angle-right"></i>
                     </a>
                 </div>
                 <div class="card-body p-0">
@@ -834,68 +927,125 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                         <table class="table table-modern table-hover m-0">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%;">Teklif No</th>
-                                    <th style="width: 24%;">Firma Adı</th>
-                                    <th style="width: 20%;">Konu / Başlık</th>
-                                    <th style="width: 14%;">Oluşturan</th>
-                                    <th style="width: 10%;">Tarih</th>
-                                    <th style="width: 12%;" class="text-right">Tutar (TL)</th>
-                                    <th style="width: 10%;" class="text-center">Durum</th>
-                                    <th style="width: 80px;" class="text-center">İşlem</th>
+                                    <th style="width: 22%;">Teklif No</th>
+                                    <th style="width: 32%;">Firma Adı</th>
+                                    <th style="width: 22%;" class="text-right">Tutar</th>
+                                    <th style="width: 24%;" class="text-center">Durum</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($recentOffers)) : ?>
-                                    <?php foreach ($recentOffers as $ro) : ?>
+                                    <?php foreach ($recentOffers as $offer) : 
+                                        if ($offer->statu == 2) {
+                                            $badgeClass = "badge-success";
+                                            $badgeText = "Tamamlandı";
+                                        } elseif ($offer->statu == 3) {
+                                            $badgeClass = "badge-danger";
+                                            $badgeText = "Kabul Edilmedi";
+                                        } else {
+                                            $badgeClass = "badge-warning";
+                                            $badgeText = "Bekliyor";
+                                        }
+                                    ?>
                                         <tr>
                                             <td>
-                                                <a href="index.php?p=offers/offer-manage&id=<?php echo $ro->id; ?>" class="font-weight-bold text-primary font-12 cell-ellipsis" title="<?php echo htmlspecialchars($ro->offerNumber, ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <?php echo htmlspecialchars($ro->offerNumber, ENT_QUOTES, 'UTF-8'); ?>
+                                                <a href="index.php?p=offers/offer-manage&id=<?php echo $offer->id; ?>" class="font-weight-bold text-primary font-12 cell-ellipsis">
+                                                    <?php echo htmlspecialchars($offer->offerNumber, ENT_QUOTES, 'UTF-8'); ?>
                                                 </a>
+                                                <span class="font-11 text-muted"><?php echo !empty($offer->created_at) ? date('d.m.Y', strtotime($offer->created_at)) : ''; ?></span>
                                             </td>
                                             <td>
-                                                <div class="cell-ellipsis font-weight-bold text-dark font-12" title="<?php echo htmlspecialchars($ro->company_name, ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <?php echo htmlspecialchars($ro->company_name, ENT_QUOTES, 'UTF-8'); ?>
+                                                <div class="cell-ellipsis font-weight-bold text-dark" title="<?php echo htmlspecialchars($offer->company_name, ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <?php echo htmlspecialchars($offer->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <div class="cell-ellipsis text-muted font-12" title="<?php echo htmlspecialchars($ro->offer_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <?php echo htmlspecialchars($ro->offer_subject ?: '-', ENT_QUOTES, 'UTF-8'); ?>
+                                                <div class="cell-ellipsis font-11 text-muted">
+                                                    <?php echo htmlspecialchars($offer->creator_name ?: 'Bilinmeyen', ENT_QUOTES, 'UTF-8'); ?>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <div class="cell-ellipsis font-11 text-dark" title="<?php echo htmlspecialchars($ro->creator_name ?: 'Bilinmiyor', ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <i class="fa fa-user mr-1 text-muted"></i><?php echo htmlspecialchars($ro->creator_name ?: 'Bilinmiyor', ENT_QUOTES, 'UTF-8'); ?>
-                                                </div>
-                                            </td>
-                                            <td class="font-11 text-muted">
-                                                <?php echo !empty($ro->created_at) ? date('d.m.Y', strtotime($ro->created_at)) : '-'; ?>
                                             </td>
                                             <td class="text-right font-weight-bold text-dark font-12">
-                                                <?php echo formatCurrencyTR($ro->amount); ?>
+                                                <?php echo formatCurrencyTR($offer->amount); ?>
                                             </td>
                                             <td class="text-center">
-                                                <?php if ((int)$ro->statu === 2) : ?>
-                                                    <span class="badge badge-success px-2 py-1 font-10" style="border-radius: 4px;"><i class="fa fa-check mr-1"></i>Onay</span>
-                                                <?php else : ?>
-                                                    <span class="badge badge-warning px-2 py-1 font-10" style="border-radius: 4px;"><i class="fa fa-clock-o mr-1"></i>Bekliyor</span>
+                                                <span class="badge <?php echo $badgeClass; ?> font-11 py-1 px-2" title="<?php echo htmlspecialchars($offer->reject_reason ?? $badgeText, ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <?php echo $badgeText; ?>
+                                                </span>
+                                                <?php if ($offer->statu == 3 && !empty($offer->reject_reason)): ?>
+                                                    <div class="font-10 text-danger cell-ellipsis mt-1" title="<?php echo htmlspecialchars($offer->reject_reason, ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <?php echo htmlspecialchars($offer->reject_reason, ENT_QUOTES, 'UTF-8'); ?>
+                                                    </div>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="index.php?p=offers/offer-manage&id=<?php echo $ro->id; ?>" class="btn btn-outline-primary btn-xs py-1 px-2" title="Düzenle">
-                                                        <i class="fa fa-pencil"></i>
-                                                    </a>
-                                                    <a href="index.php?p=offer-view&id=<?php echo $ro->id; ?>" target="_blank" class="btn btn-outline-secondary btn-xs py-1 px-2" title="Görüntüle">
-                                                        <i class="fa fa-eye"></i>
-                                                    </a>
-                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else : ?>
                                     <tr>
-                                        <td colspan="8" class="text-center py-4 text-muted font-13">Henüz teklif kaydı bulunmamaktadır.</td>
+                                        <td colspan="4" class="text-center py-4 text-muted font-13">Teklif kaydı bulunamadı.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- En Yüksek Tutarlı Teklifler -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 14px;">
+                <div class="card-header bg-white border-0 pt-4 pb-2 px-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="font-weight-bold mb-1 font-16">
+                            <i class="fa fa-trophy text-warning mr-1"></i> En Yüksek Tutarlı 5 Teklif
+                        </h5>
+                        <p class="text-muted font-12 mb-0">Hacim büyüklüğüne göre öne çıkan projeler</p>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-no-scroll">
+                        <table class="table table-modern table-hover m-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 48%;">Teklif & Firma</th>
+                                    <th style="width: 32%;" class="text-right">Tutar</th>
+                                    <th style="width: 20%;" class="text-center">Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($topValueOffers)) : ?>
+                                    <?php foreach ($topValueOffers as $offer) : 
+                                        if ($offer->statu == 2) {
+                                            $badgeClass = "badge-success";
+                                            $badgeText = "Tamamlandı";
+                                        } elseif ($offer->statu == 3) {
+                                            $badgeClass = "badge-danger";
+                                            $badgeText = "Kabul Edilmedi";
+                                        } else {
+                                            $badgeClass = "badge-warning";
+                                            $badgeText = "Bekliyor";
+                                        }
+                                    ?>
+                                        <tr>
+                                            <td>
+                                                <a href="index.php?p=offers/offer-manage&id=<?php echo $offer->id; ?>" class="font-weight-bold text-primary font-12 cell-ellipsis">
+                                                    <?php echo htmlspecialchars($offer->offerNumber, ENT_QUOTES, 'UTF-8'); ?>
+                                                </a>
+                                                <div class="cell-ellipsis font-11 text-muted" title="<?php echo htmlspecialchars($offer->company_name, ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <?php echo htmlspecialchars($offer->company_name, ENT_QUOTES, 'UTF-8'); ?>
+                                                </div>
+                                            </td>
+                                            <td class="text-right font-weight-bold text-success font-12">
+                                                <?php echo formatCurrencyTR($offer->amount); ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge <?php echo $badgeClass; ?> font-10 py-1 px-2">
+                                                    <?php echo $badgeText; ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted font-13">Teklif kaydı bulunamadı.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -908,26 +1058,35 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
 
 </div>
 
-<!-- ApexCharts Script Başlatma -->
+<!-- ApexCharts Scriptleri -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    // 1. Aylık Teklif & Ciro Trend Grafiği
-    var monthlyData = <?php echo json_encode($monthlyTrends, JSON_UNESCAPED_UNICODE); ?>;
+$(document).ready(function() {
+    // 1. Aylık Trend Grafiği (Mixed: Bar + Line)
+    var monthlyData = <?php echo json_encode($monthlyTrends); ?>;
     
     var trendOptions = {
-        series: [{
-            name: 'Toplam Teklif Adedi',
-            type: 'column',
-            data: monthlyData.total_offers
-        }, {
-            name: 'Kazanılan Teklif Adedi',
-            type: 'column',
-            data: monthlyData.won_offers
-        }, {
-            name: 'Toplam Teklif Hacmi (₺)',
-            type: 'line',
-            data: monthlyData.total_amount
-        }],
+        series: [
+            {
+                name: 'Kazanılan Teklifler',
+                type: 'column',
+                data: monthlyData.won_offers
+            },
+            {
+                name: 'Bekleyen Teklifler',
+                type: 'column',
+                data: monthlyData.pending_offers
+            },
+            {
+                name: 'Kabul Edilmeyenler',
+                type: 'column',
+                data: monthlyData.lost_offers || []
+            },
+            {
+                name: 'Toplam Ciro Hacmi (₺)',
+                type: 'line',
+                data: monthlyData.total_amount
+            }
+        ],
         chart: {
             height: 330,
             type: 'line',
@@ -937,26 +1096,19 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             fontFamily: 'Geist, sans-serif'
         },
-        colors: ['#4f46e5', '#10b981', '#f59e0b'],
         stroke: {
-            width: [0, 0, 3],
+            width: [0, 0, 0, 3],
             curve: 'smooth'
         },
         plotOptions: {
             bar: {
-                columnWidth: '40%',
+                columnWidth: '45%',
                 borderRadius: 4
             }
         },
+        colors: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'],
         fill: {
-            opacity: [0.85, 0.85, 1],
-            gradient: {
-                inverseColors: false,
-                shade: 'light',
-                type: "vertical",
-                opacityFrom: 0.85,
-                opacityTo: 0.55
-            }
+            opacity: [0.85, 0.85, 0.85, 1]
         },
         labels: monthlyData.categories,
         markers: {
@@ -985,10 +1137,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 show: false
             },
             {
+                show: false
+            },
+            {
                 opposite: true,
                 title: {
                     text: 'Toplam Hacim (₺)',
-                    style: { color: '#f59e0b' }
+                    style: { color: '#6366f1' }
                 },
                 labels: {
                     formatter: function (val) {
@@ -1008,7 +1163,7 @@ document.addEventListener("DOMContentLoaded", function () {
             intersect: false,
             y: {
                 formatter: function (y, { seriesIndex }) {
-                    if (seriesIndex === 2) {
+                    if (seriesIndex === 3) {
                         return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(y);
                     }
                     return y + " Adet";
@@ -1026,18 +1181,19 @@ document.addEventListener("DOMContentLoaded", function () {
     trendChart.render();
 
     // 2. Durum Dağılımı Donut Grafiği
-    var wonCount = <?php echo (int)$summary->won_count; ?>;
-    var pendingCount = <?php echo (int)$summary->pending_count; ?>;
+    var wonCount = <?php echo (int)($summary->won_count ?? 0); ?>;
+    var pendingCount = <?php echo (int)($summary->pending_count ?? 0); ?>;
+    var lostCount = <?php echo (int)($summary->lost_count ?? 0); ?>;
 
     var donutOptions = {
-        series: [wonCount, pendingCount],
+        series: [wonCount, pendingCount, lostCount],
         chart: {
             type: 'donut',
             height: 250,
             fontFamily: 'Geist, sans-serif'
         },
-        labels: ['Tamamlandı / Onaylandı', 'Bekliyor'],
-        colors: ['#10b981', '#f59e0b'],
+        labels: ['Tamamlandı / Onaylandı', 'Bekliyor', 'Kabul Edilmedi'],
+        colors: ['#10b981', '#f59e0b', '#ef4444'],
         plotOptions: {
             pie: {
                 donut: {
@@ -1067,7 +1223,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tooltip: {
             y: {
                 formatter: function (val) {
-                    var total = wonCount + pendingCount;
+                    var total = wonCount + pendingCount + lostCount;
                     var pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
                     return val + " Teklif (" + pct + "%)";
                 }
@@ -1078,7 +1234,72 @@ document.addEventListener("DOMContentLoaded", function () {
     var donutChart = new ApexCharts(document.querySelector("#chart-status-donut"), donutOptions);
     donutChart.render();
 
-    // 3. Flatpickr Tarih Seçici Başlatma
+    // 3. Kabul Edilmeme Nedenleri Grafiği (Yatay Bar)
+    var rejectData = <?php echo json_encode($rejectReasonsData['items']); ?>;
+    if (rejectData && rejectData.length > 0) {
+        var reasonCategories = rejectData.map(function(item) { return item.reason; });
+        var reasonCounts = rejectData.map(function(item) { return parseInt(item.count); });
+        var reasonAmounts = rejectData.map(function(item) { return parseFloat(item.amount); });
+
+        var rejectChartOptions = {
+            series: [{
+                name: 'Teklif Adedi',
+                data: reasonCounts
+            }],
+            chart: {
+                type: 'bar',
+                height: 280,
+                toolbar: { show: false },
+                fontFamily: 'Geist, sans-serif'
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    borderRadius: 6,
+                    barHeight: '55%',
+                    distributed: true
+                }
+            },
+            colors: ['#ef4444', '#f87171', '#fb7185', '#e11d48', '#f43f5e', '#be123c', '#9f1239', '#881337'],
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val + " Adet";
+                },
+                style: {
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    colors: ['#ffffff']
+                }
+            },
+            xaxis: {
+                categories: reasonCategories,
+                labels: {
+                    style: { colors: '#64748b', fontSize: '12px' }
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: { colors: '#334155', fontSize: '12px', fontWeight: 500 }
+                }
+            },
+            legend: { show: false },
+            tooltip: {
+                y: {
+                    formatter: function(val, { dataPointIndex }) {
+                        var amount = reasonAmounts[dataPointIndex] || 0;
+                        var formattedAmount = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount);
+                        return val + " Adet (Kaçan Hacim: " + formattedAmount + ")";
+                    }
+                }
+            }
+        };
+
+        var rejectChart = new ApexCharts(document.querySelector("#chart-reject-reasons"), rejectChartOptions);
+        rejectChart.render();
+    }
+
+    // 4. Flatpickr Tarih Seçici Başlatma
     if (typeof flatpickr !== 'undefined') {
         flatpickr("#offer_start_date", {
             dateFormat: "Y-m-d",

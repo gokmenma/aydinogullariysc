@@ -1,283 +1,454 @@
 <?php
+// Rapor Ekleme Yetkisi
+permcontrol("reportadd");
 
-$type = $_GET["type"];
 $getNumber = setNumber("hst");
 $new_report_number = "HSTR000" . $getNumber;
+$type = $_GET["type"] ?? 2;
 
 if ($_POST) {
-    // SATIRLARDAKİ VERİLER TANIMLANIYOR
-    $testno = $_POST["testno"];
+    $testno = $_POST["testno"] ?? [];
     $cihazSayisi = count($testno);
 
-    $report_number = $_POST["report_number"];
-    $servisno = $_POST["servisno"];
-    $customer_id = $_POST["customer"];
-    $test_date = $_POST["test_date"];
-    $notes = $_POST["notes"];
+    $report_number = $_POST["report_number"] ?? $new_report_number;
+    $servisno = $_POST["servisno"] ?? '';
+    $customer_id = (int)($_POST["customer"] ?? 0);
+    $test_date = $_POST["test_date"] ?? date("d.m.Y");
+    $notes = $_POST["notes"] ?? '';
     $creator = sesset("id");
+    $create_time = date("Y-m-d H:i:s");
 
+    if (empty($customer_id)) {
+        header("Location: index.php?p=reports/hst/report-new-hst&type=2&st=empties");
+        exit;
+    }
 
+    try {
+        $sql = $ac->prepare("INSERT INTO reports SET 
+            report_number = ?, 
+            report_type = ?, 
+            isemrino = ?, 
+            customer_id = ?, 
+            test_date = ?, 
+            notes = ?,
+            creator = ?,
+            create_time = ?");
+        $sql->execute([$report_number, 2, $servisno, $customer_id, $test_date, $notes, $creator, $create_time]);
+        $lastid = $ac->lastInsertId();
 
+        $kg = $_POST["kg"] ?? [];
+        $cinsi = $_POST["cinsi"] ?? [];
+        $imalatci_firma = $_POST["imalatci_firma"] ?? [];
+        $imal_tarihi = $_POST["imal_tarihi"] ?? [];
+        $serino = $_POST["serino"] ?? [];
+        $tse_belgesi = $_POST["tse_belgesi"] ?? [];
+        $yuzey_durumu = $_POST["yuzey_durumu"] ?? [];
+        $sizdirmazlik_deneyi = $_POST["sizdirmazlik_deneyi"] ?? [];
+        $esneme_deneyi = $_POST["esneme_deneyi"] ?? [];
+        $things = $_POST["things"] ?? [];
 
-    $kg = $_POST["kg"];
-    $cinsi = $_POST["cinsi"];
-    $imalatci_firma = $_POST["imalatci_firma"];
-    $imal_tarihi = $_POST["imal_tarihi"];
-    $serino = $_POST["serino"];
-    $tse_belgesi = $_POST["tse_belgesi"];
-    $yuzey_durumu = $_POST["yuzey_durumu"];
-    $sizdirmazlik_deneyi = $_POST["sizdirmazlik_deneyi"];
-    $esneme_deneyi = $_POST["esneme_deneyi"];
-    $things = $_POST["things"];
+        if ($cihazSayisi > 0) {
+            $rowquery = $ac->prepare("INSERT INTO report_hst_content SET 
+                report_id = ?, 
+                testno = ?, 
+                kg = ?, 
+                cinsi = ?, 
+                imalatci_firma = ?, 
+                imal_tarihi = ?, 
+                serino = ?, 
+                tse_belgesi = ?, 
+                yuzey_durumu = ?, 
+                sizdirmazlik_deneyi = ?, 
+                esneme_deneyi = ?, 
+                things = ?");
 
-
-
-    if (!$customer) {
-        try {
-            $sql = $ac->prepare("INSERT INTO reports SET report_number = ?, 
-                                                         report_type = ?, 
-                                                         isemrino= ?, 
-                                                         customer_id = ?, 
-                                                         test_date = ?, 
-                                                         notes = ? ,
-                                                         creator = ?   ");
-            $sql->execute(array($report_number, 2, $servisno, $customer_id, $test_date, $notes, $creator));
-            $lastid = $ac->lastInsertId();
-
-
-
-            try {
-                for ($i = 0; $i < $cihazSayisi; $i++) {
-
-
-                    $rowquery = $ac->prepare("INSERT INTO report_hst_content SET  report_id = ? , 
-                                                                            testno = ? , kg = ? , cinsi = ? , 
-                                                                            imalatci_firma = ? , imal_tarihi = ? , serino = ? , 
-                                                                            tse_belgesi = ? ,yuzey_durumu = ? ,sizdirmazlik_deneyi = ? , 
-                                                                            esneme_deneyi = ? ,things = ?");
-                    $rowquery->execute(
-                        array(
-                            $lastid,
-                            $testno[$i],
-                            $kg[$i],
-                            $cinsi[$i],
-                            $imalatci_firma[$i],
-                            $imal_tarihi[$i],
-                            $serino[$i],
-                            $tse_belgesi[$i],
-                            $yuzey_durumu[$i],
-                            $sizdirmazlik_deneyi[$i],
-                            $esneme_deneyi[$i],
-                            $things[$i]
-                        )
-                    );
+            for ($i = 0; $i < $cihazSayisi; $i++) {
+                if (empty($testno[$i]) && empty($cinsi[$i])) {
+                    continue;
                 }
-
-            } catch (Exception $e) {
-                echo "Error: " . $e->getMessage();
+                $rowquery->execute([
+                    $lastid,
+                    $testno[$i] ?? '',
+                    $kg[$i] ?? '',
+                    $cinsi[$i] ?? '',
+                    $imalatci_firma[$i] ?? '',
+                    $imal_tarihi[$i] ?? '',
+                    $serino[$i] ?? '',
+                    $tse_belgesi[$i] ?? '1',
+                    $yuzey_durumu[$i] ?? '1',
+                    $sizdirmazlik_deneyi[$i] ?? '1',
+                    $esneme_deneyi[$i] ?? '1',
+                    $things[$i] ?? ''
+                ]);
             }
-            $getNumber += 1;
-            $upquery = $ac->prepare("UPDATE define_numbers SET hst = ?");
-            $upquery->execute(array($getNumber));
-
-            header("Location: index.php?p=reports/hst/report-new-hst&st=newsuccess");
-
-        } catch (PDOException $e) {
-            echo "Error: " . $e->getMessage();
         }
+
+        $getNumber += 1;
+        $upquery = $ac->prepare("UPDATE define_numbers SET hst = ?");
+        $upquery->execute([$getNumber]);
+
+        audit_log("create", "report", "Hidrostatik Test Raporu oluşturuldu: " . $report_number, "reports", $lastid);
+
+        header("Location: index.php?p=reports/hst/report-new-hst&type=2&st=newsuccess");
+        exit;
+
+    } catch (PDOException $e) {
+        error_log("HST Raporu Ekleme Hatası: " . $e->getMessage());
+        header("Location: index.php?p=reports/hst/report-new-hst&type=2&st=error");
+        exit;
     }
 }
-if ($_GET["st"] == "newsuccess") {
-    showAlert("success", "İşlem Başarı ile tamamlandı!");
 
+if (@$_GET["st"] == "empties") {
+    showAlert("alert", "Lütfen tüp sahibi firmayı seçiniz!");
 }
-
+if (@$_GET["st"] == "newsuccess") {
+    showAlert("success", "Hidrostatik Test Raporu başarıyla oluşturuldu!");
+}
+if (@$_GET["st"] == "error") {
+    showAlert("alert", "Rapor kaydedilirken bir hata oluştu. Lütfen tekrar deneyiniz.");
+}
 ?>
+
+<style>
+    .hst-report-wrapper {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding-bottom: 40px;
+    }
+
+    /* Minimal Table Container Matching premium-theme */
+    .hst-table-wrapper {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .hst-table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .premium-table.hst-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        border: none !important;
+    }
+
+    .premium-table.hst-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        font-size: 11px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 8px 6px !important;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #f1f5f9;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .premium-table.hst-table thead tr.main-head th {
+        background: #f1f5f9;
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    .premium-table.hst-table td {
+        padding: 4px 4px !important;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        border-right: 1px solid #f8fafc;
+        background: #ffffff;
+    }
+
+    .premium-table.hst-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .premium-table.hst-table .form-control {
+        height: 30px !important;
+        padding: 2px 6px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff;
+        transition: all 0.15s ease-in-out;
+    }
+
+    .premium-table.hst-table .form-control:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12) !important;
+        background: #fff !important;
+    }
+
+    .premium-table.hst-table .btn-delete-row {
+        padding: 0 !important;
+        width: 26px;
+        height: 26px;
+        line-height: 26px;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fee2e2;
+        border-color: #fecaca;
+        color: #ef4444;
+        transition: all 0.2s;
+    }
+
+    .premium-table.hst-table .btn-delete-row:hover {
+        background-color: #ef4444;
+        border-color: #ef4444;
+        color: #ffffff;
+    }
+
+    .premium-table.hst-table select.custom-select-status {
+        font-size: 11px !important;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        padding: 2px 4px !important;
+    }
+
+    .premium-table.hst-table select.custom-select-status option[value="1"] {
+        color: #16a34a;
+        font-weight: 600;
+    }
+
+    .premium-table.hst-table select.custom-select-status option[value="0"] {
+        color: #dc2626;
+        font-weight: 600;
+    }
+
+    .table-actions-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .table-actions-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* Dark Mode Overrides */
+    .dark-mode .hst-table-wrapper {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .dark-mode .premium-table.hst-table thead th {
+        background: #0f172a !important;
+        color: #cbd5e1;
+        border-color: #334155;
+    }
+
+    .dark-mode .premium-table.hst-table thead tr.main-head th {
+        background: #1e293b !important;
+        color: #f8fafc;
+        border-color: #334155;
+    }
+
+    .dark-mode .premium-table.hst-table td {
+        background: #1e293b;
+        border-color: #334155;
+        color: #e2e8f0;
+    }
+
+    .dark-mode .premium-table.hst-table tbody tr:hover td {
+        background: #283548;
+    }
+
+    .dark-mode .premium-table.hst-table .form-control {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+
+    .dark-mode .premium-table.hst-table .btn-delete-row {
+        background-color: #450a0a;
+        border-color: #7f1d1d;
+        color: #f87171;
+    }
+
+    .dark-mode .premium-table.hst-table .btn-delete-row:hover {
+        background-color: #ef4444;
+        border-color: #ef4444;
+        color: #ffffff;
+    }
+</style>
+
 <form enctype="multipart/form-data" id="myForm" method="POST">
-    <div class="content pd-20 bg-white border-radius-16 box-shadow mb-20">
-        <div class="clearfix mb-20">
-            <div class="pull-left">
-                <h5 class="text-blue">Hidrostatik Test Raporu</h5>
-                <p class="font-14"> </p>
-            </div>
-            <div class="float-right">
-                <button id="submitButton" onclick="validateForm()" data-tooltip="Kaydet" data-placement="bottom"
-                    class="btn btn-sm btn-primary"><i class="fa fa-save"></i> Kaydet</button>
-
-                <a href="index.php?p=reports/reports" class="btn btn-sm btn-secondary"><i class="fa fa-list"></i>
-                    Listeye Dön</a>
+    <div class="hst-report-wrapper">
+        <!-- Header Card -->
+        <div class="premium-header-card animate-fade-in">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                        <i class="fa fa-tint"></i>
+                    </div>
+                    <div class="header-title">
+                        <h4>Hidrostatik Test Raporu</h4>
+                        <span class="header-number-badge">
+                            <i class="fa fa-tag"></i> Rapor No: <?php echo htmlspecialchars($new_report_number, ENT_QUOTES, 'UTF-8'); ?>
+                        </span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="index.php?p=reports/reports" class="btn-header btn-header-list">
+                        <i class="fa fa-list"></i> Listeye Dön
+                    </a>
+                    <button type="submit" id="submitButton" class="btn-header btn-header-save">
+                        <i class="fa fa-save"></i> Raporu Kaydet
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="row">
-            <!-- 1. KOLON -->
-
-
-            <!-- RAPOR NO -->
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label class="col-md-4" for="">Rapor No :</label>
-                    <div class="col-md-8">
-                        <input type="text" name="report_number" class="form-control" readonly
-                            value="<?php echo $new_report_number ?>">
-                    </div>
+        <!-- Kart 1: Genel Rapor & Tüp Sahibi Tanımı -->
+        <div class="form-card mb-4 animate-fade-in">
+            <div class="form-card-header">
+                <div class="card-icon card-icon-blue">
+                    <i class="fa fa-building-o"></i>
                 </div>
-                <div class="form-group row">
-                    <label class="col-md-4" for="">Tüp Sahibi Firma :</label>
-                    <div class="col-md-8">
-                        <?php customers("customer", "") ?>
-                    </div>
+                <div>
+                    <h5>Genel Rapor & Tüp Sahibi Tanımı</h5>
+                    <p>Rapor numarası, müşteri seçimi, servis fişi ve deney tarihi</p>
                 </div>
             </div>
-            <!-- RAPOR NO -->
 
-            <!-- 1. KOLON SONU -->
-
-
-            <!-- 2. KOLON -->
-            <div class="col-md-6">
-                <div class="form-group row">
-                    <label for="servisno" class="col-md-4" for="">Servis Fiş No :</label>
-                    <div class="col-md-8">
-                        <input required type="text" name="servisno" class="form-control" value="">
-                    </div>
+            <div class="form-grid">
+                <!-- Rapor No -->
+                <div class="form-field">
+                    <label for="report_number"><font color="red">(*)</font> Rapor No:</label>
+                    <input required name="report_number" id="report_number" type="text" readonly value="<?php echo htmlspecialchars($new_report_number, ENT_QUOTES, 'UTF-8'); ?>" class="form-control font-weight-bold bg-light" placeholder="Rapor No">
                 </div>
-                <div class="form-group row">
-                    <label for="test_date" class="col-md-4" for="">Deney Tarihi :</label>
-                    <div class="col-md-8">
-                        <input required type="text" autocomplete="off" name="test_date" class="form-control date-picker"
-                            placeholder="Deney Tarihini giriniz!">
-                    </div>
-                </div>
-            </div>
-            <!-- 2. KOLON -->
-        </div>
-        <!-- RAPOR ALTI AÇIKLAMA -->
-        <div class="form-group row">
-            <label for="company" class="col-md-2">
-                Rapor Altı Açıklama
-            </label>
-            <div class="col-md-10">
-                <div class="html-editor">
-                    <textarea style="height:100px; resize:vertical" name="notes" class="textarea_editor form-control"
-                        placeholder="Raporun altına yazılacak açıklamayı yazınız">Yukarıda künyesi belirtilen {cihazSayisi} Adet tüp / tüplerin 16-HYB-1004 Nolu 11.11.2010 Tarihli TSE HİZMET YETERLİLİK BELGESİ' ne dayanılarak bu rapor hazırlanmıştır.</textarea><br>
-                </div>
-            </div>
-        </div>
-        <!-- RAPOR ALTI AÇIKLAMA -->
-    </div>
 
-    <div class="content pd-20 bg-white border-radius-16 box-shadow mb-30">
-        <div class="clearfix mb-30">
-            <div class="pull-left">
-                <h4 class="text-blue">
-                    Cihaz Kontrol Bilgileri
-                </h4>
-
-            </div>
-
-        </div>
-        <!-- TABLO -->
-        <style>
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 0;
-                border: 1px solid #444;
-
-            }
-
-
-            .hack1 {
-                display: table;
-                table-layout: fixed;
-                width: 100%;
-                margin-bottom: 100px;
-            }
-
-            .hack2 {
-                display: table-cell;
-                overflow-x: auto;
-                width: 100%;
-
-            }
-
-    
-
-            .rpr-date,
-            #cihazno,
-            .date-input {
-                min-width: 120px;
-            }
-
-            .region {
-                min-width: 150px;
-            }
-
-            .things {
-                min-width: 240px;
-            }
-            select{
-                min-width: 120px;
-            }
-        </style>
-        <div class="hack1">
-            <div class="hack2">
-                <table id="hstTable" class="table">
-                    <thead>
-                        <tr class="text-center">
-
-                            <th>İşlem</th>
-                            <th>Test No</th>
-                            <th>Kg</th>
-                            <th>Cinsi</th>
-                            <th>Tüp İmalatcı Firma</th>
-                            <th>Tüp İmal Tarihi</th>
-                            <th>Seri No</th>
-                            <th>Tse Belgesi</th>
-                            <th>Tüp Yüzey Durumu</th>
-                            <th>Sızdırmazlık Deneyi</th>
-                            <th>Esneme Deneyi</th>
-                            <th>Düşünceler</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
+                <!-- Tüp Sahibi Firma -->
+                <div class="form-field">
+                    <label for="customer"><font color="red">(*)</font> Tüp Sahibi Firma:</label>
+                    <select required name="customer" id="customer" data-live-search="true" data-size="10" class="form-control selectpicker" data-style="bg-white border">
+                        <option disabled selected value="">Firma Seçiniz</option>
                         <?php
-                        $tabindex = 0;
-                        $tse_belgesi = 1;
-                        $yuzey_durumu = 0;
-                        $sizdirmazlik_deneyi = 1;
-                        $esneme_deneyi = 0;
-                        include_once "report-row-hst.php"
-                            ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="16" class="pt-3 pb-3 pl-2">
-                                <button type="button" class="btn btn-sm btn-primary" id="addRow">Yeni Satır</button>
+                        $compquery = $ac->prepare("SELECT id, company FROM customers WHERE deleted_at IS NULL ORDER BY company ASC");
+                        $compquery->execute();
+                        while ($company = $compquery->fetch(PDO::FETCH_ASSOC)) {
+                        ?>
+                            <option value="<?php echo $company["id"]; ?>">
+                                <?php echo htmlspecialchars($company["company"], ENT_QUOTES, 'UTF-8'); ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                </div>
 
-                                <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                                    data-target="#exampleModalCenter" id="addMultiRow">Çoklu Satır Ekle</button>
-                                <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-sm btn-secondary" data-toggle="modal"
-                                    data-target="#uploadfromxlsModal">
-                                    Cihazları Excelden Yükle
-                                </button>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <!-- Servis Fiş No -->
+                <div class="form-field">
+                    <label for="servisno"><font color="red">(*)</font> Servis Fiş No / İş Emri:</label>
+                    <input required type="text" name="servisno" id="servisno" class="form-control" placeholder="Örn: SF-2026-001 veya SN123">
+                </div>
+
+                <!-- Deney Tarihi -->
+                <div class="form-field">
+                    <label for="test_date"><font color="red">(*)</font> Deney Tarihi:</label>
+                    <input required type="text" autocomplete="off" name="test_date" id="test_date" class="form-control date-picker" value="<?php echo date('d.m.Y'); ?>" placeholder="Deney Tarihi">
+                </div>
+            </div>
+
+            <!-- Rapor Altı Açıklama -->
+            <div class="form-field full-width mt-3">
+                <label for="notes" class="font-weight-600 mb-1">Rapor Altı Açıklama:</label>
+                <div class="html-editor">
+                    <textarea style="height: 100px; resize: vertical;" name="notes" id="notes" class="textarea_editor form-control" placeholder="Rapor altına eklenecek açıklama metnini yazınız">Yukarıda künyesi belirtilen tüp / tüplerin 16-HYB-1004 Nolu 11.11.2010 Tarihli TSE HİZMET YETERLİLİK BELGESİ' ne dayanılarak bu rapor hazırlanmıştır.</textarea>
+                </div>
             </div>
         </div>
-        <!-- TABLO -->
 
+        <!-- Kart 2: Cihaz Test & Kontrol Bilgileri -->
+        <div class="form-card mb-4 animate-fade-in">
+            <div class="form-card-header">
+                <div class="card-icon card-icon-green">
+                    <i class="fa fa-flask"></i>
+                </div>
+                <div>
+                    <h5>Cihaz / Tüp Test & Kontrol Bilgileri</h5>
+                    <p>Hidrostatik deney ve kontrol sonuçları tablosu</p>
+                </div>
+            </div>
 
+            <!-- Tablo İşlem Araç Çubuğu (Toolbar) -->
+            <div class="table-actions-toolbar">
+                <div class="table-actions-left">
+                    <button type="button" class="btn btn-sm btn-primary" id="addRow">
+                        <i class="fa fa-plus mr-1"></i> Yeni Satır Ekle
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#exampleModalCenter" id="addMultiRow">
+                        <i class="fa fa-list-ol mr-1"></i> Çoklu Satır Ekle
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#uploadfromxlsModal">
+                        <i class="fa fa-file-excel-o mr-1"></i> Excel'den Yükle
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="deleteAll">
+                        <i class="fa fa-trash-o mr-1"></i> Tümünü Sil
+                    </button>
+                </div>
+                <div>
+                    <span class="badge badge-primary px-3 py-2 font-13 font-weight-bold" id="rowCountBadge">1 Satır</span>
+                </div>
+            </div>
+
+            <!-- Tablo -->
+            <div class="hst-table-wrapper">
+                <div class="hst-table-responsive">
+                    <table id="hstTable" class="table premium-table hst-table mb-0">
+                        <thead>
+                            <tr class="main-head text-center">
+                                <th style="width: 45px;"><i class="fa fa-cog"></i></th>
+                                <th style="min-width: 90px;">Test No</th>
+                                <th style="min-width: 80px;">Kg</th>
+                                <th style="min-width: 110px;">Cinsi</th>
+                                <th style="min-width: 140px;">İmalatçı Firma</th>
+                                <th style="min-width: 95px;">İmal Tarihi</th>
+                                <th style="min-width: 110px;">Seri No</th>
+                                <th style="min-width: 100px;">TSE Belgesi</th>
+                                <th style="min-width: 110px;">Yüzey Durumu</th>
+                                <th style="min-width: 120px;">Sızdırmazlık Deneyi</th>
+                                <th style="min-width: 110px;">Esneme Deneyi</th>
+                                <th style="min-width: 180px;">Düşünceler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $tabindex = 0;
+                            $tse_belgesi = 1;
+                            $yuzey_durumu = 1;
+                            $sizdirmazlik_deneyi = 1;
+                            $esneme_deneyi = 1;
+                            include "report-row-hst.php";
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-
-
-
 </form>
-<?php include_once "upload-from-xls-modal.php" ?>
-<?php include_once "addMultipleRow-modal.php" ?>
+
+<?php include_once "upload-from-xls-modal.php"; ?>
+<?php include_once "addMultipleRow-modal.php"; ?>
+<script src="src/plugins/xlsx/xlsx.full.min.js"></script>
 <script src="include/js/hst.js"></script>

@@ -389,9 +389,14 @@ $sirano = $start + 1;
 
 foreach ($results as $of) {
     // Durum Badge'i
-    $durum_badge = $of["statu"] == 2 
-        ? "<span class='badge badge-success' data-tooltip='".$of['durum']."'>".$of['durum']."</span>" 
-        : "<span class='badge badge-warning' data-tooltip='".$of['durum']."'>".$of['durum']."</span>";
+    if ($of["statu"] == 2) {
+        $durum_badge = "<span class='badge badge-success' data-tooltip='".$of['durum']."'>".$of['durum']."</span>";
+    } elseif ($of["statu"] == 3) {
+        $rejectTooltip = !empty($of['reject_reason']) ? htmlspecialchars($of['reject_reason'], ENT_QUOTES, 'UTF-8') : 'Kabul Edilmedi';
+        $durum_badge = "<span class='badge badge-danger' data-tooltip='".$rejectTooltip."'>".$of['durum']."</span>";
+    } else {
+        $durum_badge = "<span class='badge badge-warning' data-tooltip='".$of['durum']."'>".$of['durum']."</span>";
+    }
 
     // İşlem Butonları
     $islem_butonlari = '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';

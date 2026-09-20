@@ -7,10 +7,8 @@ use PDOException;
 use App\Model\BaseModel;
 use App\Helper\Helper;
 
-
 class OfferModel extends BaseModel 
 {
-
     protected $table = 'offers';
     protected $productTable = 'offermatters';
 
@@ -19,31 +17,31 @@ class OfferModel extends BaseModel
         parent::__construct($this->table);
     }
 
-
     /**
      * Teklifleri Listelemek için firma adıyla birlikte getirir
-     * 
      */
     public function getOffersWithCompanyName($sablonlari_goster = false)
-
     {
         $condition = $sablonlari_goster ? "WHERE o.is_template = 1" : "WHERE o.is_template = 0";
         $sql = $this->db->prepare("SELECT 
-                                            o.*,  
-                                            c.company as company_name, 
-                                            c.id as customer_id,
-                                            u.username as creator_name,
-                                            CASE
-                                                WHEN o.statu = 1 THEN 'Bekliyor'
-                                                WHEN o.statu = 2 then 'Tamamlandı'
-                                            END AS durum
-                                        FROM 
-                                            $this->table o
-                                        LEFT JOIN 
-                                            customers c ON o.cid = c.id
-                                        LEFT JOIN 
-                                            users u ON o.creativer = u.id");
-                                               
+                                        o.*,  
+                                        c.company as company_name, 
+                                        c.id as customer_id,
+                                        u.username as creator_name,
+                                        CASE
+                                            WHEN o.statu = 1 THEN 'Bekliyor'
+                                            WHEN o.statu = 2 THEN 'Tamamlandı'
+                                            WHEN o.statu = 3 THEN 'Kabul Edilmedi'
+                                            ELSE 'Diğer'
+                                        END AS durum
+                                    FROM 
+                                        $this->table o
+                                    LEFT JOIN 
+                                        customers c ON o.cid = c.id
+                                    LEFT JOIN 
+                                        users u ON o.creativer = u.id
+                                    $condition");
+                                           
         $sql->execute();
         return $sql->fetchAll(PDO::FETCH_OBJ);
     }
@@ -70,42 +68,52 @@ class OfferModel extends BaseModel
         return $sql->rowCount();
     }
 
-    //Teklifi Kopyala
+    // Teklifi Kopyala
     public function copyOffer($id)
     {
-
         $offer = $this->find($id);
-        //Offer'ın tüm alanlarını döngüyle al
+        if (!$offer) {
+            return false;
+        }
+
+        $data = [];
+        // Offer'ın tüm alanlarını döngüyle al
         foreach ($offer as $key => $value) {
-            //id ve created_at hariç diğer alanları yeni offer'a ekle
+            // id ve created_at hariç diğer alanları yeni offer'a ekle
             if ($key != 'id' && $key != 'created_at' && $key != 'offerNumber') {
                 $data[$key] = $value;
             } else if ($key == 'offerNumber') {
-                //Teklif numarasını oluştur
+                // Teklif numarasını oluştur
                 $data[$key] = Helper::generateNumber('offer', 'TK');
             }
-            //is_template alanını 0 yap
-            $data['is_template'] = 0;
-
-            //oluşturan kullanıcıyı al
-            $data['creativer'] = $_SESSION["lid"];
-
-            //tarihi bugn yap
-            $data['created_at'] = date('Y-m-d H:i:s');
-
-            //Güncelleme tarihini de bugün yap
-            $data['updated_at'] = date('Y-m-d H:i:s');
         }
 
-        //Offer'ı kaydet
+        // is_template alanını 0 yap
+        $data['is_template'] = 0;
+        // Kopyalanan teklifin başlangıç durumu Bekliyor olsun
+        $data['statu'] = 1;
+        $data['reject_reason'] = null;
+        $data['reject_detail'] = null;
+        $data['reject_date'] = null;
+        $data['onay_tarihi'] = null;
+
+        // oluşturan kullanıcıyı al
+        $data['creativer'] = $_SESSION["lid"] ?? null;
+
+        // tarihi bugün yap
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['updated_at'] = date('Y-m-d H:i:s');
+
+        // Offer'ı kaydet
+        $this->table = 'offers';
         $newOfferId = $this->save($data);
         Helper::setDefineNumber('offer');
 
-        //Offer'a ait ürünleri al
+        // Offer'a ait ürünleri al
         $offerProducts = $this->getOfferProducts($id);
-        //Ürünleri döngüyle al,oid alanına yeni offer'ın id'sini ekle
+        // Ürünleri döngüyle al, oid alanına yeni offer'ın id'sini ekle
         foreach ($offerProducts as $product) {
-            //id ve created_at hariç diğer alanları yeni offer'a ekle
+            $productData = [];
             foreach ($product as $key => $value) {
                 if ($key != 'id' && $key != 'created_at' && $key != 'oid') {
                     $productData[$key] = $value;
@@ -113,47 +121,37 @@ class OfferModel extends BaseModel
                     $productData[$key] = $newOfferId;
                 }
             }
-            //Ürünü kaydet
+            // Ürünü kaydet
             $this->saveOfferProduct($productData);
         }
+
+        return $newOfferId;
     }
 
-    //convertToTry
+    // convertToTry
     public function convertToTry($id)
     {
         $offer = $this->find($id);
 
-        // offer yoksa hata döndür
         if (!$offer) {
-            $status = 'error';
-            $message = 'Teklif bulunamadı.';
-
             $res = [
-                'status' => $status,
-                'message' => $message
+                'status' => 'error',
+                'message' => 'Teklif bulunamadı.'
             ];
             return json_encode($res);
         }
 
-
         $offerProducts = $this->getOfferProducts($id);
         $alt_toplam = 0;
         foreach ($offerProducts as $product) {
-            // Para birimi TL ise devam et
             if ($product->salecur == 'TRY') {
                 $alt_toplam += $product->total_price;
                 continue;
             }
 
-
             $currency = $product->salecur == "EUR" ? $offer->curEuro : $offer->curDollar;
-            //Ürünün alış fiyatını TL'ye çevir
             $buyprice = $product->buyprice * $currency;
-
-            // Ürünün satış fiyatını TL'ye çevir
             $saleprice = $product->saleprice * $currency;
-
-            //Alt Toplam Hesapla
             $satır_toplam = $product->amount * $saleprice;
             $data = [
                 "id" => $product->id,
@@ -162,17 +160,12 @@ class OfferModel extends BaseModel
                 "saleprice" => $saleprice,
                 "salecur" => 'TRY',
                 "total_price" => $satır_toplam,
-
             ];
 
-
             $this->saveOfferProduct($data);
-
-            //Alt toplamı hesapla
             $alt_toplam += $satır_toplam;
         }
 
-        //Teklifin toplamını güncelle
         $iskonto = ($offer->euro_iskonto * $offer->curEuro) + ($offer->dolar_iskonto * $offer->curDollar) + ($offer->tl_iskonto);
         $kdv = ($offer->euro_kdv * $offer->curEuro) + ($offer->dolar_kdv * $offer->curDollar) + ($offer->tl_kdv);
         $tl_toplam = $alt_toplam + $kdv - $iskonto;
@@ -195,7 +188,6 @@ class OfferModel extends BaseModel
         $this->table = 'offers';
         $this->save($data);
 
-
         $res = [
             'status' => 'success',
             'message' => 'Teklif TRY\'ye çevrildi.'
@@ -203,50 +195,37 @@ class OfferModel extends BaseModel
         return json_encode($res);
     }
 
-
-    /*Bekleyen ve tamamlanan teklif sayılarını döndürür 
-    * return int
-    */
+    /* Bekleyen ve tamamlanan teklif sayılarını döndürür */
     public function getOfferCountWaitingAndDone()
     {
         $sql = $this->db->prepare("SELECT
-                                            COUNT(CASE WHEN statu = 1 THEN 1 END) AS bekleyen_teklif,
-                                            COUNT(CASE WHEN statu = 2 THEN 1 END) AS tamamlanan_teklif
-                                        FROM offers;");
+                                        COUNT(CASE WHEN statu = 1 THEN 1 END) AS bekleyen_teklif,
+                                        COUNT(CASE WHEN statu = 2 THEN 1 END) AS tamamlanan_teklif,
+                                        COUNT(CASE WHEN statu = 3 THEN 1 END) AS reddedilen_teklif
+                                    FROM offers;");
         $sql->execute();
         return $sql->fetch(PDO::FETCH_OBJ);
     }
 
-    /* Teklif Silme
-    * return int
-    */
+    /* Teklif Silme */
     public function deleteOffer($id)
     {
         try {
             $this->db->beginTransaction();
 
-            // Teklifin ürünlerini sil
             $this->deleteOfferProduct($id);
-            // Teklifi sil
             $sql = $this->db->prepare("DELETE FROM offers WHERE id = :id");
             $sql->bindParam(':id', $id, PDO::PARAM_INT);
             $sql->execute();
-            // Eğer silme işlemi başarılıysa commit et
             $this->db->commit();
-            // Silinen satır sayısını döndür
             return $sql->rowCount();
         } catch (PDOException $ex) {
-            // Hata durumunda rollback yap
             $this->db->rollBack();
-            // Hata mesajını döndür
             throw new Exception("Teklif silinirken hata oluştu: " . $ex->getMessage());
         }
     }
 
-    /*Teklfifin durumunu getir 
-    * @param int $id Teklif ID'si
-    * @return int 1: Bekliyor, 2: Tamamlandı
-    */
+    /* Teklifin durumunu getir */
     public function getOfferStatus($id)
     {
         $sql = $this->db->prepare("SELECT statu FROM $this->table WHERE id = :id");
@@ -261,13 +240,13 @@ class OfferModel extends BaseModel
         }
     }
 
-    //Teklif Numarası Var mı Kontrol
+    // Teklif Numarası Var mı Kontrol
     public function checkOfferNumberExists($offerNumber, $excludeId = 0)
     {
         if ($excludeId > 0) {
             $sql = $this->db->prepare("SELECT COUNT(*) as count 
-                                              FROM $this->table 
-                                              WHERE offerNumber = :offerNumber AND id != :excludeId");
+                                          FROM $this->table 
+                                          WHERE offerNumber = :offerNumber AND id != :excludeId");
             $sql->bindParam(':offerNumber', $offerNumber, PDO::PARAM_STR);
             $sql->bindParam(':excludeId', $excludeId, PDO::PARAM_INT);
         } else {
@@ -310,9 +289,11 @@ class OfferModel extends BaseModel
                     COUNT(*) as total_count,
                     COUNT(CASE WHEN statu = 1 THEN 1 END) as pending_count,
                     COUNT(CASE WHEN statu = 2 THEN 1 END) as won_count,
+                    COUNT(CASE WHEN statu = 3 THEN 1 END) as lost_count,
                     COALESCE(SUM(tl_toplam_karsilik), SUM(total_price), 0) as total_amount,
                     COALESCE(SUM(CASE WHEN statu = 1 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as pending_amount,
                     COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount,
+                    COALESCE(SUM(CASE WHEN statu = 3 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as lost_amount,
                     COALESCE(AVG(COALESCE(tl_toplam_karsilik, total_price, 0)), 0) as avg_amount
                 FROM offers 
                 WHERE {$whereClause}";
@@ -324,9 +305,13 @@ class OfferModel extends BaseModel
         $stmt->execute();
         $summary = $stmt->fetch(PDO::FETCH_OBJ);
 
-        // Kazanma / Başarı Oranı
+        // Kazanma / Başarı Oranı & Kayıp Oranı
         $summary->win_rate = $summary->total_count > 0 
             ? round(($summary->won_count / $summary->total_count) * 100, 1) 
+            : 0;
+
+        $summary->lost_rate = $summary->total_count > 0 
+            ? round(($summary->lost_count / $summary->total_count) * 100, 1) 
             : 0;
 
         // Bu ayki metrikler
@@ -335,8 +320,10 @@ class OfferModel extends BaseModel
         $stmtThisMonth = $this->db->prepare("SELECT 
                                                 COUNT(*) as count,
                                                 COUNT(CASE WHEN statu = 2 THEN 1 END) as won_count,
+                                                COUNT(CASE WHEN statu = 3 THEN 1 END) as lost_count,
                                                 COALESCE(SUM(tl_toplam_karsilik), SUM(total_price), 0) as amount,
-                                                COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount
+                                                COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount,
+                                                COALESCE(SUM(CASE WHEN statu = 3 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as lost_amount
                                             FROM offers 
                                             WHERE is_template = 0 AND DATE(created_at) BETWEEN ? AND ?");
         $stmtThisMonth->execute([$thisMonthStart, $thisMonthEnd]);
@@ -347,7 +334,11 @@ class OfferModel extends BaseModel
         $lastMonthEnd = date('Y-m-t', strtotime('-1 month'));
         $stmtLastMonth = $this->db->prepare("SELECT 
                                                 COUNT(*) as count,
-                                                COALESCE(SUM(tl_toplam_karsilik), SUM(total_price), 0) as amount 
+                                                COUNT(CASE WHEN statu = 2 THEN 1 END) as won_count,
+                                                COUNT(CASE WHEN statu = 3 THEN 1 END) as lost_count,
+                                                COALESCE(SUM(tl_toplam_karsilik), SUM(total_price), 0) as amount,
+                                                COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount,
+                                                COALESCE(SUM(CASE WHEN statu = 3 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as lost_amount
                                             FROM offers 
                                             WHERE is_template = 0 AND DATE(created_at) BETWEEN ? AND ?");
         $stmtLastMonth->execute([$lastMonthStart, $lastMonthEnd]);
@@ -361,6 +352,64 @@ class OfferModel extends BaseModel
         }
 
         return $summary;
+    }
+
+    /**
+     * Kabul edilmeme (ret) nedenlerine göre adet ve tutar dağılımı
+     * 
+     * @param string|null $startDate
+     * @param string|null $endDate
+     * @return array
+     */
+    public function getRejectReasonDistribution($startDate = null, $endDate = null)
+    {
+        $where = ["is_template = 0", "statu = 3"];
+        $params = [];
+
+        if (!empty($startDate)) {
+            $where[] = "DATE(created_at) >= :start_date";
+            $params[':start_date'] = $startDate;
+        }
+        if (!empty($endDate)) {
+            $where[] = "DATE(created_at) <= :end_date";
+            $params[':end_date'] = $endDate;
+        }
+
+        $whereClause = implode(" AND ", $where);
+
+        $sql = "SELECT 
+                    COALESCE(NULLIF(TRIM(reject_reason), ''), 'Belirtilmedi') as reason,
+                    COUNT(*) as count,
+                    COALESCE(SUM(COALESCE(tl_toplam_karsilik, total_price, 0)), 0) as amount
+                FROM offers
+                WHERE {$whereClause}
+                GROUP BY reason
+                ORDER BY count DESC, amount DESC";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        $totalLostCount = 0;
+        $totalLostAmount = 0;
+        foreach ($results as $r) {
+            $totalLostCount += (int)$r->count;
+            $totalLostAmount += (float)$r->amount;
+        }
+
+        foreach ($results as $r) {
+            $r->percentage = $totalLostCount > 0 ? round(($r->count / $totalLostCount) * 100, 1) : 0;
+            $r->amount_percentage = $totalLostAmount > 0 ? round(($r->amount / $totalLostAmount) * 100, 1) : 0;
+        }
+
+        return [
+            'total_count' => $totalLostCount,
+            'total_amount' => $totalLostAmount,
+            'items' => $results
+        ];
     }
 
     /**
@@ -397,8 +446,10 @@ class OfferModel extends BaseModel
                     COUNT(o.id) as total_offers,
                     COUNT(CASE WHEN o.statu = 2 THEN 1 END) as won_offers,
                     COUNT(CASE WHEN o.statu = 1 THEN 1 END) as pending_offers,
+                    COUNT(CASE WHEN o.statu = 3 THEN 1 END) as lost_offers,
                     COALESCE(SUM(COALESCE(o.tl_toplam_karsilik, o.total_price, 0)), 0) as total_amount,
-                    COALESCE(SUM(CASE WHEN o.statu = 2 THEN COALESCE(o.tl_toplam_karsilik, o.total_price, 0) ELSE 0 END), 0) as won_amount
+                    COALESCE(SUM(CASE WHEN o.statu = 2 THEN COALESCE(o.tl_toplam_karsilik, o.total_price, 0) ELSE 0 END), 0) as won_amount,
+                    COALESCE(SUM(CASE WHEN o.statu = 3 THEN COALESCE(o.tl_toplam_karsilik, o.total_price, 0) ELSE 0 END), 0) as lost_amount
                 FROM offers o
                 LEFT JOIN customers c ON o.cid = c.id
                 WHERE {$whereClause}
@@ -455,8 +506,10 @@ class OfferModel extends BaseModel
                     COUNT(o.id) as total_offers,
                     COUNT(CASE WHEN o.statu = 2 THEN 1 END) as won_offers,
                     COUNT(CASE WHEN o.statu = 1 THEN 1 END) as pending_offers,
+                    COUNT(CASE WHEN o.statu = 3 THEN 1 END) as lost_offers,
                     COALESCE(SUM(COALESCE(o.tl_toplam_karsilik, o.total_price, 0)), 0) as total_amount,
-                    COALESCE(SUM(CASE WHEN o.statu = 2 THEN COALESCE(o.tl_toplam_karsilik, o.total_price, 0) ELSE 0 END), 0) as won_amount
+                    COALESCE(SUM(CASE WHEN o.statu = 2 THEN COALESCE(o.tl_toplam_karsilik, o.total_price, 0) ELSE 0 END), 0) as won_amount,
+                    COALESCE(SUM(CASE WHEN o.statu = 3 THEN COALESCE(o.tl_toplam_karsilik, o.total_price, 0) ELSE 0 END), 0) as lost_amount
                 FROM offers o
                 LEFT JOIN users u ON o.creativer = u.id
                 WHERE {$whereClause}
@@ -496,8 +549,10 @@ class OfferModel extends BaseModel
                     COUNT(*) as total_offers,
                     COUNT(CASE WHEN statu = 2 THEN 1 END) as won_offers,
                     COUNT(CASE WHEN statu = 1 THEN 1 END) as pending_offers,
+                    COUNT(CASE WHEN statu = 3 THEN 1 END) as lost_offers,
                     COALESCE(SUM(COALESCE(tl_toplam_karsilik, total_price, 0)), 0) as total_amount,
-                    COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount
+                    COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount,
+                    COALESCE(SUM(CASE WHEN statu = 3 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as lost_amount
                 FROM offers
                 WHERE is_template = 0 AND created_at >= ?
                 GROUP BY LEFT(created_at, 7)
@@ -507,7 +562,6 @@ class OfferModel extends BaseModel
         $stmt->execute([$startDate]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // İndeksli harita yapalım
         $map = [];
         foreach ($rows as $r) {
             if (!empty($r['ym'])) {
@@ -526,8 +580,10 @@ class OfferModel extends BaseModel
             'total_offers' => [],
             'won_offers' => [],
             'pending_offers' => [],
+            'lost_offers' => [],
             'total_amount' => [],
-            'won_amount' => []
+            'won_amount' => [],
+            'lost_amount' => []
         ];
 
         for ($i = $monthsCount - 1; $i >= 0; $i--) {
@@ -540,14 +596,18 @@ class OfferModel extends BaseModel
                 $trendData['total_offers'][] = (int)$map[$ym]['total_offers'];
                 $trendData['won_offers'][] = (int)$map[$ym]['won_offers'];
                 $trendData['pending_offers'][] = (int)$map[$ym]['pending_offers'];
+                $trendData['lost_offers'][] = (int)($map[$ym]['lost_offers'] ?? 0);
                 $trendData['total_amount'][] = round((float)$map[$ym]['total_amount'], 2);
                 $trendData['won_amount'][] = round((float)$map[$ym]['won_amount'], 2);
+                $trendData['lost_amount'][] = round((float)($map[$ym]['lost_amount'] ?? 0), 2);
             } else {
                 $trendData['total_offers'][] = 0;
                 $trendData['won_offers'][] = 0;
                 $trendData['pending_offers'][] = 0;
+                $trendData['lost_offers'][] = 0;
                 $trendData['total_amount'][] = 0;
                 $trendData['won_amount'][] = 0;
+                $trendData['lost_amount'][] = 0;
             }
         }
 
@@ -581,7 +641,8 @@ class OfferModel extends BaseModel
                     statu,
                     CASE 
                         WHEN statu = 1 THEN 'Bekliyor' 
-                        WHEN statu = 2 THEN 'Tamamlandı / Onaylandı' 
+                        WHEN statu = 2 THEN 'Tamamlandı / Kabul Edildi' 
+                        WHEN statu = 3 THEN 'Kabul Edilmedi'
                         ELSE 'Diğer' 
                     END as status_title,
                     COUNT(*) as count,
@@ -614,6 +675,8 @@ class OfferModel extends BaseModel
                     o.offer_subject,
                     o.created_at,
                     o.statu,
+                    o.reject_reason,
+                    o.reject_detail,
                     COALESCE(o.tl_toplam_karsilik, o.total_price, 0) as amount,
                     c.id as customer_id,
                     COALESCE(c.company, 'Bilinmeyen Firma') as company_name,
@@ -645,6 +708,8 @@ class OfferModel extends BaseModel
                     o.offer_subject,
                     o.created_at,
                     o.statu,
+                    o.reject_reason,
+                    o.reject_detail,
                     COALESCE(o.tl_toplam_karsilik, o.total_price, 0) as amount,
                     c.id as customer_id,
                     COALESCE(c.company, 'Bilinmeyen Firma') as company_name,

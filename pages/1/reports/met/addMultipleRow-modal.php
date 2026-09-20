@@ -6,7 +6,7 @@
                 <h5 class="modal-title font-weight-bold text-dark d-flex align-items-center" id="multiRowModalTitle" style="font-size: 15px;">
                     <i class="fa fa-plus-circle text-primary mr-2 font-18"></i> Çoklu Satır Ekle
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -18,10 +18,10 @@
                 </div>
             </div>
             <div class="modal-footer bg-light border-top py-2 px-3">
-                <button type="button" class="btn btn-sm btn-secondary font-13 px-3" data-dismiss="modal">
+                <button type="button" class="btn btn-sm btn-secondary font-13 px-3" data-dismiss="modal" data-bs-dismiss="modal">
                     <i class="fa fa-times mr-1"></i> Vazgeç
                 </button>
-                <button type="button" class="btn btn-sm btn-primary font-13 px-3" data-dismiss="modal" id="addMultiRowModal">
+                <button type="button" class="btn btn-sm btn-primary font-13 px-3" id="addMultiRowModal">
                     <i class="fa fa-plus mr-1"></i> Satırları Ekle
                 </button>
             </div>
