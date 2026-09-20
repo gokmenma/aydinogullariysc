@@ -1,20 +1,22 @@
 <?php
 
-$uid = $_GET["id"];
+$uid = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
 
-if (!permtrue("useredit") && sesset("id") != $_GET["id"]) {
-	header("Location: index.php");
+if ($uid <= 0) {
+	header("Location:index.php?p=users");
+	exit;
 }
+
+if ($uid === (int) sesset("id")) {
+	header("Location:index.php?p=profile");
+	exit;
+}
+
+permcontrol("useredit");
 
 $conts = $ac->prepare("SELECT * FROM users WHERE id = ?");
 $conts->execute(array($uid));
 $cc = $conts->fetch(PDO::FETCH_ASSOC);
-
-
-if (!@$_GET["id"]) {
-	header("Location:index.php?p=users");
-	exit;
-}
 
 
 

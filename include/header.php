@@ -52,7 +52,7 @@
 					<i class="fa fa-angle-down ml-1 text-muted font-12"></i>
 				</a>
 				<div class="dropdown-menu dropdown-menu-right">
-					<a class="dropdown-item" href="index.php?p=user-edit&id=<?php echo sesset("id"); ?>">
+					<a class="dropdown-item" href="index.php?p=profile">
 						<i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i> Profil Düzenle
 					</a>
 					<a class="dropdown-item" href="index.php?p=settings">
