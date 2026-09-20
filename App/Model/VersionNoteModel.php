@@ -14,9 +14,9 @@ class VersionNoteModel extends BaseModel
     }
 
     /**
-     * Tüm sürüm notlarını en yeniden en eskiye sıralı olarak getirir.
+     * Sürüm notlarını tarih, kategori, arama ve sayfalama kriterlerine göre getirir.
      */
-    public function getNotes($limit = null, $category = null, $search = null)
+    public function getNotes($limit = null, $offset = 0, $category = null, $search = null, $startDate = null, $endDate = null)
     {
         $sql = "SELECT * FROM {$this->table} WHERE 1=1";
         $params = [];
@@ -26,9 +26,20 @@ class VersionNoteModel extends BaseModel
             $params[] = $category;
         }
 
+        if (!empty($startDate)) {
+            $sql .= " AND created_at >= ?";
+            $params[] = $startDate . ' 00:00:00';
+        }
+
+        if (!empty($endDate)) {
+            $sql .= " AND created_at <= ?";
+            $params[] = $endDate . ' 23:59:59';
+        }
+
         if (!empty($search)) {
-            $sql .= " AND (title LIKE ? OR description LIKE ? OR version_tag LIKE ?)";
+            $sql .= " AND (title LIKE ? OR description LIKE ? OR version_tag LIKE ? OR author LIKE ?)";
             $searchTerm = "%{$search}%";
+            $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -38,11 +49,51 @@ class VersionNoteModel extends BaseModel
 
         if ($limit !== null && is_numeric($limit)) {
             $sql .= " LIMIT " . (int)$limit;
+            if ($offset !== null && is_numeric($offset) && $offset > 0) {
+                $sql .= " OFFSET " . (int)$offset;
+            }
         }
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Filtrelere göre toplam kayıt sayısını döner.
+     */
+    public function countNotes($category = null, $search = null, $startDate = null, $endDate = null)
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE 1=1";
+        $params = [];
+
+        if (!empty($category) && $category !== 'all') {
+            $sql .= " AND category = ?";
+            $params[] = $category;
+        }
+
+        if (!empty($startDate)) {
+            $sql .= " AND created_at >= ?";
+            $params[] = $startDate . ' 00:00:00';
+        }
+
+        if (!empty($endDate)) {
+            $sql .= " AND created_at <= ?";
+            $params[] = $endDate . ' 23:59:59';
+        }
+
+        if (!empty($search)) {
+            $sql .= " AND (title LIKE ? OR description LIKE ? OR version_tag LIKE ? OR author LIKE ?)";
+            $searchTerm = "%{$search}%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn();
     }
 
     /**
@@ -56,6 +107,7 @@ class VersionNoteModel extends BaseModel
             'improvement' => 0,
             'bugfix' => 0,
             'security' => 0,
+            'other' => 0,
             'last_date' => null
         ];
 
