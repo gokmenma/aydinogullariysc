@@ -1,0 +1,80 @@
+-- Migration: Create View view_offers
+-- Date: 2026-09-21 12:22:00
+-- Description: Teklifler ve Teklif Kalemleri modüllerinin ihtiyaç duyduğu view_offers SQL görünümünün (VIEW) oluşturulması.
+
+CREATE OR REPLACE VIEW `view_offers` AS 
+SELECT 
+    `o`.`id` AS `id`,
+    `o`.`offerNumber` AS `offerNumber`,
+    `o`.`cid` AS `cid`,
+    `o`.`company_authors` AS `company_authors`,
+    `o`.`payment_period` AS `payment_period`,
+    `o`.`offer_subject` AS `offer_subject`,
+    `o`.`statu` AS `statu`,
+    `o`.`reject_reason` AS `reject_reason`,
+    `o`.`reject_detail` AS `reject_detail`,
+    `o`.`reject_date` AS `reject_date`,
+    `o`.`description` AS `description`,
+    `o`.`created_at` AS `created_at`,
+    `o`.`total_price` AS `total_price`,
+    `o`.`mycompany` AS `mycompany`,
+    `o`.`authors` AS `authors`,
+    `o`.`offer_date` AS `offer_date`,
+    `o`.`tax` AS `tax`,
+    `o`.`creativer` AS `creativer`,
+    `o`.`regdate` AS `regdate`,
+    `o`.`updater` AS `updater`,
+    `o`.`updated_at` AS `updated_at`,
+    `o`.`notes` AS `notes`,
+    `o`.`currency` AS `currency`,
+    `o`.`dollar` AS `dollar`,
+    `o`.`euro` AS `euro`,
+    `o`.`offer_header` AS `offer_header`,
+    `o`.`offer_header_content` AS `offer_header_content`,
+    `o`.`offer_footer` AS `offer_footer`,
+    `o`.`offer_footer_content` AS `offer_footer_content`,
+    `o`.`file` AS `file`,
+    `o`.`Kdv` AS `Kdv`,
+    `o`.`iskonto` AS `iskonto`,
+    `o`.`subdescription` AS `subdescription`,
+    `o`.`buyTotal` AS `buyTotal`,
+    `o`.`tl_alis_toplam` AS `tl_alis_toplam`,
+    `o`.`tl_satis_toplam` AS `tl_satis_toplam`,
+    `o`.`saleTotal` AS `saleTotal`,
+    `o`.`amountTotal` AS `amountTotal`,
+    `o`.`curDollar` AS `curDollar`,
+    `o`.`curEuro` AS `curEuro`,
+    `o`.`DolarTotal` AS `DolarTotal`,
+    `o`.`EuroTotal` AS `EuroTotal`,
+    `o`.`TLTotal` AS `TLTotal`,
+    `o`.`tl_iskonto` AS `tl_iskonto`,
+    `o`.`euro_iskonto` AS `euro_iskonto`,
+    `o`.`dolar_iskonto` AS `dolar_iskonto`,
+    `o`.`euro_alt_toplam` AS `euro_alt_toplam`,
+    `o`.`dolar_alt_toplam` AS `dolar_alt_toplam`,
+    `o`.`tl_alt_toplam` AS `tl_alt_toplam`,
+    `o`.`euro_ara_toplam` AS `euro_ara_toplam`,
+    `o`.`dolar_ara_toplam` AS `dolar_ara_toplam`,
+    `o`.`tl_ara_toplam` AS `tl_ara_toplam`,
+    `o`.`euro_kdv` AS `euro_kdv`,
+    `o`.`dolar_kdv` AS `dolar_kdv`,
+    `o`.`tl_kdv` AS `tl_kdv`,
+    `o`.`euro_kdvli_toplam` AS `euro_kdvli_toplam`,
+    `o`.`dolar_kdvli_toplam` AS `dolar_kdvli_toplam`,
+    `o`.`tl_kdvli_toplam` AS `tl_kdvli_toplam`,
+    `o`.`tl_toplam_karsilik` AS `tl_toplam_karsilik`,
+    `o`.`is_template` AS `is_template`,
+    `o`.`reg_date` AS `reg_date`,
+    `o`.`onay_tarihi` AS `onay_tarihi`,
+    `c`.`company` AS `company_name`,
+    `c`.`id` AS `customer_id`,
+    `u`.`username` AS `creator_name`,
+    CASE 
+        WHEN `o`.`statu` = 1 THEN 'Bekliyor' 
+        WHEN `o`.`statu` = 2 THEN 'Tamamlandı' 
+        WHEN `o`.`statu` = 3 THEN 'Kabul Edilmedi' 
+        ELSE 'Diğer' 
+    END AS `durum` 
+FROM ((`offers` `o` 
+LEFT JOIN `customers` `c` ON (`o`.`cid` = `c`.`id`)) 
+LEFT JOIN `users` `u` ON (`o`.`creativer` = `u`.`id`));

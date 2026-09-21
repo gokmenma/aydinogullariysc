@@ -490,6 +490,29 @@ class BackupService
                 }
             }
 
+            // Görünümleri (VIEW) getir ve dışa aktar
+            $viewsStmt = $this->db->query("SHOW FULL TABLES WHERE Table_type = 'VIEW'");
+            $views = $viewsStmt ? $viewsStmt->fetchAll(PDO::FETCH_NUM) : [];
+
+            if (!empty($views)) {
+                fwrite($handle, "--\n-- Görünümler (VIEW Yapıları)\n--\n\n");
+                foreach ($views as $viewRow) {
+                    $viewName = $viewRow[0];
+
+                    fwrite($handle, "--\n-- Görünüm yapısı: `$viewName`\n--\n");
+                    fwrite($handle, "DROP VIEW IF EXISTS `$viewName`;\n");
+
+                    $createStmt = $this->db->query("SHOW CREATE VIEW `$viewName`");
+                    $createRow = $createStmt ? $createStmt->fetch(PDO::FETCH_NUM) : null;
+                    if (!empty($createRow[1])) {
+                        // Farklı sunucu/kullanıcılara taşınabilir olması için DEFINER temizlenir
+                        $cleanViewSql = preg_replace('/DEFINER=\S+/', '', $createRow[1]);
+                        $cleanViewSql = preg_replace('/CREATE ALGORITHM=\S+/', 'CREATE OR REPLACE', $cleanViewSql);
+                        fwrite($handle, $cleanViewSql . ";\n\n");
+                    }
+                }
+            }
+
             fwrite($handle, "SET FOREIGN_KEY_CHECKS=1;\n");
             fclose($handle);
 
