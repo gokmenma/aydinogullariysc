@@ -399,10 +399,22 @@ foreach ($results as $r) {
     ];
 }
 
+$columnCounts = [];
+try {
+    $stDurum = $ac->query("SELECT vo.durum, COUNT(*) as cnt FROM offermatters om JOIN view_offers vo ON om.oid = vo.id WHERE vo.is_template = 0 GROUP BY vo.durum ORDER BY cnt DESC");
+    if ($stDurum) {
+        $cDurum = $stDurum->fetchAll(PDO::FETCH_KEY_PAIR);
+        $columnCounts[12] = $cDurum;
+        $columnCounts[13] = $cDurum;
+        $columnCounts['durum'] = $cDurum;
+    }
+} catch (Exception $e) {}
+
 echo json_encode([
     "draw" => intval($draw),
     "recordsTotal" => intval($recordsTotal),
     "recordsFiltered" => intval($recordsFiltered),
-    "data" => $data
+    "data" => $data,
+    "columnCounts" => $columnCounts
 ]);
 exit;

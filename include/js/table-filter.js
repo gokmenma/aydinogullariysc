@@ -13,43 +13,6 @@ App.TableFilter = {
     hooksBound: false,
     xhrBound: false,
 
-    KNOWN_COLUMN_OPTIONS: {
-        'durum': [
-            'Bekliyor', 'Çalışıyor', 'Tamamlandı', 'İptal Edildi', 'İptal',
-            'FATURA KESİLDİ', 'BEDELSİZ', 'PRF', 'KEŞİF / ZİYARET', 'MUHASEBEYE TESLİM EDİLDİ.',
-            'Onaylandı', 'Reddedildi', 'Revize', 'Hazırlanıyor', 'Gönderildi', 'Beklemede',
-            'Aktif', 'Pasif', 'Randevu Verildi', 'Yedek Parça Bekleniyor', 'Atölyede', 'Test Aşamasında'
-        ],
-        'status': [
-            'Bekliyor', 'Çalışıyor', 'Tamamlandı', 'İptal Edildi', 'İptal',
-            'Onaylandı', 'Reddedildi', 'Revize', 'Aktif', 'Pasif'
-        ],
-        'sözleşme': [
-            'Sözleşmeli', 'Sözleşme Bekliyor', 'Bekliyor', 'Sözleşme Yapıldı', 'S.Kapsamında Değildir', 'Sözleşme Yapılmadı', 'Yapılmadı'
-        ],
-        'muhasebe': [
-            'Teslim Bekliyor', 'Teslim Alındı', 'İade Alındı'
-        ],
-        'işlem türü': [
-            'Oluşturma', 'Güncelleme', 'Silme', 'Giriş', 'Çıkış', 'Dışa Aktarma', 'Sayfa Ziyareti', 'Görüntüleme', 'Durum Değişikliği', 'Hata', 'Kritik'
-        ],
-        'olay': [
-            'Oluşturma', 'Güncelleme', 'Silme', 'Giriş', 'Çıkış', 'Dışa Aktarma', 'Sayfa Ziyareti', 'Görüntüleme', 'Durum Değişikliği', 'Hata'
-        ],
-        'modül': [
-            'Genel', 'Auth', 'Offers', 'Services', 'Customers', 'Products', 'Purchases', 'Reports', 'Settings', 'Users', 'Version_notes', 'Backup_gdrive', 'Send-mail-accounts', 'Permissions', 'Logs'
-        ],
-        'para birimi': [
-            'TRY', 'USD', 'EUR', 'GBP', 'TL', '₺', '$', '€'
-        ],
-        'ödeme vadesi': [
-            'Peşin', '15 Gün', '30 Gün', '45 Gün', '60 Gün', '90 Gün', '120 Gün', 'Aylık', 'Yıllık', 'Kredi Kartı', 'Havale / EFT'
-        ],
-        'seviye': [
-            'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'DEBUG', 'NOTICE', 'ALERT', 'EMERGENCY'
-        ]
-    },
-
     SVG_FILTER_ICON: '<svg class="tf-funnel-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; pointer-events:none;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>',
     SVG_PLUS_ICON: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
     SVG_TRASH_ICON: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
@@ -127,48 +90,6 @@ App.TableFilter = {
         });
     },
 
-    findPageSelectOptions: function (th, cleanTitle) {
-        const titleLower = App.TableFilter.toTrLower(cleanTitle);
-        const options = [];
-
-        let selectors = [];
-        if (titleLower.indexOf('durum') !== -1 || titleLower.indexOf('statu') !== -1) {
-            selectors = ['#filter_status', '#filter_statu', '#filter_pstatu', 'select[name*="status"]', 'select[name*="statu"]', 'select[name*="durum"]'];
-        } else if (titleLower.indexOf('oluşturan') !== -1 || titleLower.indexOf('kullanıcı') !== -1 || titleLower.indexOf('user') !== -1 || titleLower.indexOf('yetkili') !== -1) {
-            selectors = ['#filter_user', '#filter_creator', '#filter_author', 'select[name*="user"]', 'select[name*="creator"]', 'select[name*="author"]'];
-        } else if (titleLower.indexOf('firma') !== -1 || titleLower.indexOf('müşteri') !== -1 || titleLower.indexOf('customer') !== -1 || titleLower.indexOf('company') !== -1) {
-            selectors = ['#filter_company', '#filter_customer', '#filter_cid', 'select[name*="company"]', 'select[name*="customer"]', 'select[name*="cid"]'];
-        } else if (titleLower.indexOf('modül') !== -1 || titleLower.indexOf('module') !== -1) {
-            selectors = ['#filter_module', 'select[name*="module"]'];
-        } else if (titleLower.indexOf('bölge') !== -1 || titleLower.indexOf('region') !== -1) {
-            selectors = ['#filter_region', '#filter_bolge', 'select[name*="region"]', 'select[name*="bolge"]'];
-        } else if (titleLower.indexOf('sözleşme') !== -1 || titleLower.indexOf('contract') !== -1) {
-            selectors = ['#filter_contract', '#filter_contract_status', '#filter_sozlesme', 'select[name*="contract"]', 'select[name*="sozlesme"]'];
-        } else if (titleLower.indexOf('para') !== -1 || titleLower.indexOf('currency') !== -1) {
-            selectors = ['#filter_currency', 'select[name*="currency"]', 'select[name*="para"]'];
-        } else if (titleLower.indexOf('vade') !== -1 || titleLower.indexOf('ödeme') !== -1 || titleLower.indexOf('payment') !== -1) {
-            selectors = ['#filter_payment_period', 'select[name*="payment"]', 'select[name*="vade"]'];
-        } else if (titleLower.indexOf('seviye') !== -1 || titleLower.indexOf('level') !== -1) {
-            selectors = ['#filter_level', 'select[name*="level"]'];
-        }
-
-        selectors.forEach(sel => {
-            document.querySelectorAll(sel).forEach(selectEl => {
-                selectEl.querySelectorAll('option').forEach(opt => {
-                    const text = opt.textContent.trim();
-                    const val = opt.value;
-                    if (text && text !== '-' && text !== 'Seçiniz' && text !== 'Seçiniz...' && text !== 'Tümü' && text !== 'Tümünü Seç' && text !== 'Filtrele' && val !== '') {
-                        if (!options.includes(text)) {
-                            options.push(text);
-                        }
-                    }
-                });
-            });
-        });
-
-        return options;
-    },
-
     bindDataTableHooks: function () {
         if (!window.jQuery || !$.fn || !$.fn.dataTable || App.TableFilter.hooksBound) return;
         App.TableFilter.hooksBound = true;
@@ -218,8 +139,21 @@ App.TableFilter = {
         if (!App.TableFilter.xhrBound) {
             App.TableFilter.xhrBound = true;
             $(document).on('xhr.dt', function (e, settings, json, xhr) {
-                if (json && json.data && Array.isArray(json.data) && settings.nTable) {
-                    App.TableFilter.harvestRowsFromData(settings.nTable, json.data);
+                if (json && settings.nTable) {
+                    const table = settings.nTable;
+                    const tableId = table.id;
+                    if (tableId && json.columnCounts && typeof json.columnCounts === 'object') {
+                        App.TableFilter.columnOptionPool[tableId] = App.TableFilter.columnOptionPool[tableId] || {};
+                        Object.keys(json.columnCounts).forEach(colKey => {
+                            const cCounts = json.columnCounts[colKey];
+                            if (!isNaN(parseInt(colKey, 10)) && isFinite(colKey)) {
+                                App.TableFilter.columnOptionPool[tableId][parseInt(colKey, 10)] = cCounts;
+                            }
+                        });
+                    }
+                    if (json.data && Array.isArray(json.data)) {
+                        App.TableFilter.harvestRowsFromData(settings.nTable, json.data);
+                    }
                 }
             });
         }
@@ -233,7 +167,8 @@ App.TableFilter = {
                     App.TableFilter.attachToTable(tableNode);
                     App.TableFilter.relocateSearchInput(tableNode);
                     try {
-                        const rows = api.rows({ page: 'current' }).data().toArray();
+                        const isServer = api.init().serverSide;
+                        const rows = isServer ? api.rows({ page: 'current' }).data().toArray() : api.rows().data().toArray();
                         if (rows && rows.length) {
                             App.TableFilter.harvestRowsFromData(tableNode, rows);
                         }
@@ -247,7 +182,8 @@ App.TableFilter = {
                     App.TableFilter.attachToTable(tableNode);
                     App.TableFilter.relocateSearchInput(tableNode);
                     try {
-                        const rows = api.rows({ page: 'current' }).data().toArray();
+                        const isServer = api.init().serverSide;
+                        const rows = isServer ? api.rows({ page: 'current' }).data().toArray() : api.rows().data().toArray();
                         if (rows && rows.length) {
                             App.TableFilter.harvestRowsFromData(tableNode, rows);
                         }
@@ -666,8 +602,19 @@ App.TableFilter = {
         const counts = {}; // value -> count
         const tableId = table.id;
 
-        // 1. DataTables API'sinden çek (tüm hafızadaki veriler veya mevcut sayfa)
-        if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
+        // 1. Önce sunucudan gelen veya havuzdaki gerçek veritabanı toplam sayıları var mı kontrol et (serverSide tablolar için)
+        if (tableId && App.TableFilter.columnOptionPool[tableId] && App.TableFilter.columnOptionPool[tableId][colIndex]) {
+            const pool = App.TableFilter.columnOptionPool[tableId][colIndex];
+            Object.keys(pool).forEach(val => {
+                const poolCnt = parseInt(pool[val], 10);
+                if (poolCnt > 0) {
+                    counts[val] = poolCnt;
+                }
+            });
+        }
+
+        // 2. Eğer havuzda henüz yoksa veya client-side tabloysa DataTables API'sinden çek
+        if (Object.keys(counts).length === 0 && window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
             try {
                 const dt = $(table).DataTable();
                 dt.column(colIndex).data().each(function (cellData) {
@@ -679,78 +626,33 @@ App.TableFilter = {
             } catch (err) {}
         }
 
-        // 2. DOM hücrelerinden de kontrol et ve say
-        table.querySelectorAll('tbody tr').forEach(row => {
-            if (row.classList.contains('search-input-row') || row.classList.contains('dataTables_empty') || row.classList.contains('tf-no-records-row')) return;
-            const cell = row.cells[colIndex];
-            if (cell) {
-                const txt = App.TableFilter.extractCellTextFromNode(cell);
-                if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
-                    if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
-                        if (!counts[txt]) counts[txt] = 1;
-                    } else {
+        // 3. DOM hücrelerinden de kontrol et ve say (DOM tablosu veya ilk yükleme)
+        if (Object.keys(counts).length === 0) {
+            const domRows = (App.TableFilter.domPagingState[tableId] && App.TableFilter.domPagingState[tableId].allRows)
+                ? App.TableFilter.domPagingState[tableId].allRows
+                : table.querySelectorAll('tbody tr');
+
+            domRows.forEach(row => {
+                if (row.classList && (row.classList.contains('search-input-row') || row.classList.contains('dataTables_empty') || row.classList.contains('tf-no-records-row'))) return;
+                const cell = row.cells ? row.cells[colIndex] : null;
+                if (cell) {
+                    const txt = App.TableFilter.extractCellTextFromNode(cell);
+                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
                         counts[txt] = (counts[txt] || 0) + 1;
                     }
                 }
+            });
+        }
+
+        // Yalnızca sayısı 0'dan büyük olan gerçek kayıtları filtrele (0 olanlar dahil edilmez)
+        const filteredCounts = {};
+        Object.keys(counts).forEach(k => {
+            if (counts[k] > 0) {
+                filteredCounts[k] = counts[k];
             }
         });
 
-        // 3. Havuzda birikmiş geçmiş AJAX veya sayfa verileri varsa ekle (sayfa değişse de seçenek kaybolmasın)
-        if (tableId && App.TableFilter.columnOptionPool[tableId] && App.TableFilter.columnOptionPool[tableId][colIndex]) {
-            const pool = App.TableFilter.columnOptionPool[tableId][colIndex];
-            Object.keys(pool).forEach(val => {
-                if (counts[val] === undefined) {
-                    counts[val] = 0;
-                }
-            });
-        }
-
-        // 4. Sütun başlığından bilinen sistem seçeneklerini ve sayfa formlarındaki select seçeneklerini ekle
-        const th = table.querySelectorAll('thead th')[colIndex];
-        if (th) {
-            const rawTitle = th.childNodes.length > 0 ? (th.childNodes[0].textContent || th.textContent).trim() : th.textContent.trim();
-            const cleanTitle = rawTitle.replace(/\s+/g, ' ');
-            const titleLower = App.TableFilter.toTrLower(cleanTitle);
-
-            // 4a. th dataset custom options
-            if (th.dataset.filterOptions) {
-                try {
-                    const customOpts = JSON.parse(th.dataset.filterOptions);
-                    if (Array.isArray(customOpts)) {
-                        customOpts.forEach(o => {
-                            const trimmed = String(o).trim();
-                            if (trimmed && counts[trimmed] === undefined) counts[trimmed] = 0;
-                        });
-                    }
-                } catch (e) {
-                    th.dataset.filterOptions.split(',').forEach(o => {
-                        const trimmed = o.trim();
-                        if (trimmed && counts[trimmed] === undefined) counts[trimmed] = 0;
-                    });
-                }
-            }
-
-            // 4b. Sayfadaki ilgili filtre select kutularından tüm seçenekleri çek
-            const pageSelectOpts = App.TableFilter.findPageSelectOptions(th, cleanTitle);
-            pageSelectOpts.forEach(optVal => {
-                if (counts[optVal] === undefined) {
-                    counts[optVal] = 0;
-                }
-            });
-
-            // 4c. Sistem genelindeki bilinen domain seçeneklerini ekle
-            Object.keys(App.TableFilter.KNOWN_COLUMN_OPTIONS).forEach(knownKey => {
-                if (titleLower.indexOf(knownKey) !== -1) {
-                    App.TableFilter.KNOWN_COLUMN_OPTIONS[knownKey].forEach(knownVal => {
-                        if (counts[knownVal] === undefined) {
-                            counts[knownVal] = 0;
-                        }
-                    });
-                }
-            });
-        }
-
-        return counts;
+        return filteredCounts;
     },
 
     initOperatorSelect2: function (container) {
@@ -772,24 +674,25 @@ App.TableFilter = {
     renderFilterBody: function (type, table, colIndex) {
         if (type === 'select') {
             const counts = App.TableFilter.getDistinctColumnValues(table, colIndex);
-            const values = Object.keys(counts).sort((a, b) => a.localeCompare(b, 'tr', { sensitivity: 'base' }));
-
-            // Önceden seçilmiş değerler varsa koru
             const tableId = table.id;
             const existingFilter = (App.TableFilter.activeFilters[tableId] && App.TableFilter.activeFilters[tableId][colIndex]) || null;
             const preselectedVals = (existingFilter && existingFilter.values) || [];
+
+            // Yalnızca sayısı > 0 olan veya halihazırda seçilmiş olan gerçek seçenekleri listele
+            const values = Object.keys(counts)
+                .filter(val => (counts[val] > 0) || (preselectedVals.indexOf(val) !== -1))
+                .sort((a, b) => a.localeCompare(b, 'tr', { sensitivity: 'base' }));
 
             let rowsHtml = '';
             values.forEach(val => {
                 const isSelected = preselectedVals.indexOf(val) !== -1;
                 const cnt = counts[val] || 0;
                 const escapedVal = val.replace(/"/g, '&quot;');
-                const badgeClass = cnt > 0 ? 'tf-checkbox-badge' : 'tf-checkbox-badge tf-badge-zero';
                 rowsHtml += `
                     <label class="tf-checkbox-row ${isSelected ? 'is-checked' : ''}">
                         <input type="checkbox" class="tf-checkbox-control" value="${escapedVal}" ${isSelected ? 'checked' : ''}>
                         <span class="tf-checkbox-text">${escapedVal}</span>
-                        <span class="${badgeClass}">${cnt}</span>
+                        <span class="tf-checkbox-badge">${cnt}</span>
                     </label>
                 `;
             });
@@ -800,7 +703,7 @@ App.TableFilter = {
 
             let html = `
                 <div class="tf-select-filter-wrap">
-                    <div class="tf-search-wrap">
+                    <div class="tf-search-wrap tf-search-box">
                         <span class="tf-search-icon">${App.TableFilter.SVG_SEARCH_ICON}</span>
                         <input type="text" class="form-control form-control-sm tf-select-search" placeholder="Listede ara..." autocomplete="off">
                     </div>

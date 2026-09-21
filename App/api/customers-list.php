@@ -101,11 +101,20 @@ try {
         ];
     }
 
+    $columnCounts = [];
+    try {
+        $stGrp = $ac->query("SELECT cg.title, COUNT(*) as cnt FROM customers c LEFT JOIN cgroups cg ON c.grp = cg.id WHERE cg.title IS NOT NULL AND cg.title != '' GROUP BY cg.id, cg.title ORDER BY cnt DESC");
+        if ($stGrp) { $columnCounts[2] = $stGrp->fetchAll(PDO::FETCH_KEY_PAIR); }
+        $stRep = $ac->query("SELECT c.represant, COUNT(*) as cnt FROM customers c WHERE c.represant IS NOT NULL AND c.represant != '' GROUP BY c.represant ORDER BY cnt DESC");
+        if ($stRep) { $columnCounts[3] = $stRep->fetchAll(PDO::FETCH_KEY_PAIR); }
+    } catch (Exception $e) {}
+
     echo json_encode([
         "draw" => $draw,
         "recordsTotal" => $totalRecords,
         "recordsFiltered" => $filteredRecords,
-        "data" => $records
+        "data" => $records,
+        "columnCounts" => $columnCounts
     ]);
 } catch (Exception $e) {
     http_response_code(500);

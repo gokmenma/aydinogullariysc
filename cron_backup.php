@@ -16,14 +16,22 @@ use App\Model\BackupModel;
 
 $isCli = (php_sapi_name() === 'cli' || defined('STDIN'));
 $backupType = 'full';
+$userId = null;
+$logId = null;
 
 if ($isCli) {
-    // CLI argümanlarını oku
+    // CLI argümanlarını oku: argv[1] = type, argv[2] = userId, argv[3] = logId
     global $argv;
     if (isset($argv[1])) {
         if (in_array($argv[1], ['full', 'db', 'files'], true)) {
             $backupType = $argv[1];
         }
+    }
+    if (isset($argv[2]) && is_numeric($argv[2]) && (int)$argv[2] > 0) {
+        $userId = (int)$argv[2];
+    }
+    if (isset($argv[3]) && is_numeric($argv[3]) && (int)$argv[3] > 0) {
+        $logId = (int)$argv[3];
     }
 } else {
     // Web üzerinden çağrılıyorsa token doğrulaması zorunludur
@@ -45,6 +53,12 @@ if ($isCli) {
     if (isset($_GET['type']) && in_array($_GET['type'], ['full', 'db', 'files'], true)) {
         $backupType = $_GET['type'];
     }
+    if (isset($_GET['user_id']) && is_numeric($_GET['user_id'])) {
+        $userId = (int)$_GET['user_id'];
+    }
+    if (isset($_GET['log_id']) && is_numeric($_GET['log_id'])) {
+        $logId = (int)$_GET['log_id'];
+    }
 }
 
 @ignore_user_abort(true);
@@ -55,10 +69,14 @@ if (!$isCli) {
     // Validated token!
     http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode([
+    $resJson = json_encode([
         'status' => 'started',
         'message' => 'Yedekleme işlemi başlatıldı ve arka planda yürütülüyor.'
     ], JSON_UNESCAPED_UNICODE);
+    
+    header('Content-Length: ' . strlen($resJson));
+    header('Connection: close');
+    echo $resJson;
 
     // FastCGI / LiteSpeed bağlantıyı hemen sonlandırıp arka planda devam etsin
     if (function_exists('fastcgi_finish_request')) {
@@ -80,7 +98,7 @@ if (!$isCli) {
 
 try {
     $backupService = new BackupService();
-    $result = $backupService->runBackup($backupType);
+    $result = $backupService->runBackup($backupType, $userId, $logId);
 
     if ($isCli) {
         if ($result['success']) {

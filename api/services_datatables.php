@@ -515,6 +515,54 @@ foreach ($projects as $project) {
     $response['data'][] = $row;
 }
 
+// Sütun filtre seçenek sayıları (TableFilter için veritabanı toplamları)
+$columnCounts = [];
+try {
+    // 3: Bölge
+    $stBolge = $ac->query("SELECT r.title, COUNT(*) as cnt FROM projects p JOIN units r ON r.id = p.region AND r.title != '' GROUP BY r.id, r.title ORDER BY cnt DESC");
+    if ($stBolge) { $columnCounts[3] = $stBolge->fetchAll(PDO::FETCH_KEY_PAIR); }
+
+    // 4: Hizmet Türü
+    $stHizmet = $ac->query("SELECT s.title, COUNT(*) as cnt FROM projects p JOIN units s ON s.id = p.servicestype AND s.title != '' GROUP BY s.id, s.title ORDER BY cnt DESC");
+    if ($stHizmet) { $columnCounts[4] = $stHizmet->fetchAll(PDO::FETCH_KEY_PAIR); }
+
+    // 7: Sözleşme Durumu
+    $stSozlesme = $ac->query("SELECT 
+        CASE 
+            WHEN p.contract_statu = 2 THEN 'Sözleşmeli'
+            WHEN p.contract_statu = 1 THEN 'Bekliyor'
+            WHEN p.contract_statu = 3 THEN 'Yapılmadı'
+            WHEN p.contract_statu = 4 THEN 'S.Kapsamında Değildir'
+            ELSE 'Belirtilmedi'
+        END as lbl, COUNT(*) as cnt FROM projects p GROUP BY p.contract_statu ORDER BY cnt DESC");
+    if ($stSozlesme) { $columnCounts[7] = $stSozlesme->fetchAll(PDO::FETCH_KEY_PAIR); }
+
+    // 8: Servis Durumu
+    $stDurum = $ac->query("SELECT st.title, COUNT(*) as cnt FROM projects p JOIN units st ON st.id = p.pstatu AND st.title != '' GROUP BY st.id, st.title ORDER BY cnt DESC");
+    if ($stDurum) { $columnCounts[8] = $stDurum->fetchAll(PDO::FETCH_KEY_PAIR); }
+
+    // 9: İş Emrini Oluşturan
+    $stCreator = $ac->query("SELECT u.username, COUNT(*) as cnt FROM projects p JOIN users u ON u.id = p.pcreativer AND u.username != '' GROUP BY u.id, u.username ORDER BY cnt DESC");
+    if ($stCreator) { $columnCounts[9] = $stCreator->fetchAll(PDO::FETCH_KEY_PAIR); }
+
+    // 11: Muhasebe Durumu
+    $stMuhasebe = $ac->query("SELECT 
+        CASE WHEN ar.action = 'received' THEN 'Teslim Alındı' ELSE 'Teslim Bekliyor' END as lbl, 
+        COUNT(*) as cnt 
+        FROM projects p 
+        LEFT JOIN (
+            SELECT l.service_id, l.action 
+            FROM service_accounting_receipt_logs l
+            INNER JOIN (
+                SELECT service_id, MAX(id) as max_id FROM service_accounting_receipt_logs GROUP BY service_id
+            ) lm ON lm.max_id = l.id
+        ) ar ON ar.service_id = p.id
+        GROUP BY lbl ORDER BY cnt DESC");
+    if ($stMuhasebe) { $columnCounts[11] = $stMuhasebe->fetchAll(PDO::FETCH_KEY_PAIR); }
+} catch (Exception $e) {}
+
+$response['columnCounts'] = $columnCounts;
+
 // Ensure no stray output breaks JSON
 if (function_exists('ob_get_level')) {
     while (ob_get_level() > 0) {

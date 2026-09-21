@@ -38,38 +38,26 @@ class BackupService
      */
     public function runBackupAsync(string $backupType = 'full', ?int $userId = null): array
     {
-        $executed = false;
-        $disabledFunctions = array_map('trim', explode(',', (string)ini_get('disable_functions')));
+        $timestamp = date('Y-m-d_H-i-s');
+        $mainZipName = "backup_{$backupType}_{$timestamp}.zip";
 
-        $canExec = function_exists('exec') && !in_array('exec', $disabledFunctions, true);
-        $canEscape = function_exists('escapeshellarg') && !in_array('escapeshellarg', $disabledFunctions, true);
+        // 1. Önce veritabanında 'in_progress' log kaydını anında oluştur (Kullanıcı arayüzünde hemen görünsün)
+        $logId = $this->backupModel->createLog([
+            'backup_type' => $backupType,
+            'file_name' => $mainZipName,
+            'file_path' => 'backups/' . $mainZipName,
+            'status' => 'in_progress',
+            'created_by' => $userId
+        ]);
 
-        if ($canExec && $canEscape) {
-            $phpBin = $this->detectPhpBinary();
-            $script = \escapeshellarg($this->rootDir . '/cron_backup.php');
-            $typeArg = \escapeshellarg($backupType);
-
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                if (function_exists('popen') && function_exists('pclose') && !in_array('popen', $disabledFunctions, true)) {
-                    @pclose(@popen("start /B {$phpBin} {$script} {$typeArg}", "r"));
-                    $executed = true;
-                }
-            } else {
-                @exec("{$phpBin} {$script} {$typeArg} > /dev/null 2>&1 &", $out, $returnCode);
-                if (isset($returnCode) && $returnCode === 0) {
-                    $executed = true;
-                }
-            }
-        }
-
-        // CLI exec çalışmadıysa veya paylaşımlı hostingde kısıtlıysa, arka plan HTTP Webhook ile tetikle
-        if (!$executed) {
-            $this->triggerBackupViaHttpAsync($backupType);
-        }
+        // 2. Arka planda kesintisiz non-blocking HTTP Webhook ile yedekleme motorunu başlat
+        $this->triggerBackupViaHttpAsync($backupType, $userId, $logId);
 
         return [
             'success' => true,
             'async' => true,
+            'log_id' => $logId,
+            'file_name' => $mainZipName,
             'message' => 'Yedekleme işlemi arka planda başlatıldı.'
         ];
     }
@@ -108,7 +96,7 @@ class BackupService
     /**
      * CLI erişimi olmayan sunucularda cron_backup.php'yi arka planda (non-blocking) tetikler
      */
-    protected function triggerBackupViaHttpAsync(string $backupType): void
+    protected function triggerBackupViaHttpAsync(string $backupType, ?int $userId = null, ?int $logId = null): void
     {
         $settings = $this->backupModel->getBackupSettings();
         $token = $settings['backup_cron_token'] ?? '';
@@ -119,15 +107,28 @@ class BackupService
         $baseUri = dirname($_SERVER['SCRIPT_NAME'] ?? '');
         $baseUri = ($baseUri === '/' || $baseUri === '\\') ? '' : rtrim($baseUri, '/\\');
         
-        $url = $protocol . $domain . $baseUri . '/cron_backup.php?token=' . urlencode($token) . '&type=' . urlencode($backupType);
+        $queryParams = [
+            'token' => $token,
+            'type' => $backupType
+        ];
+        if ($userId) {
+            $queryParams['user_id'] = $userId;
+        }
+        if ($logId) {
+            $queryParams['log_id'] = $logId;
+        }
+        
+        $url = $protocol . $domain . $baseUri . '/cron_backup.php?' . http_build_query($queryParams);
 
         if (function_exists('curl_init')) {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT_MS, 1200);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
             curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Connection: close']);
             @curl_exec($ch);
             @curl_close($ch);
         }
@@ -138,9 +139,10 @@ class BackupService
      *
      * @param string $backupType 'full' | 'db' | 'files'
      * @param int|null $userId
+     * @param int|null $existingLogId Önceden açılmış log ID (varsa kullanılır)
      * @return array Sonuç ve istatistik dizisi
      */
-    public function runBackup(string $backupType = 'full', ?int $userId = null): array
+    public function runBackup(string $backupType = 'full', ?int $userId = null, ?int $existingLogId = null): array
     {
         @ignore_user_abort(true);
         @set_time_limit(0);
@@ -153,13 +155,24 @@ class BackupService
         $mainZipName = "backup_{$backupType}_{$timestamp}.zip";
         $mainZipPath = $this->backupDir . '/' . $mainZipName;
 
-        $logId = $this->backupModel->createLog([
-            'backup_type' => $backupType,
-            'file_name' => $mainZipName,
-            'file_path' => 'backups/' . $mainZipName,
-            'status' => 'in_progress',
-            'created_by' => $userId
-        ]);
+        if ($existingLogId && $existingLogId > 0) {
+            $logId = $existingLogId;
+            $this->backupModel->updateLog($logId, [
+                'backup_type' => $backupType,
+                'file_name' => $mainZipName,
+                'file_path' => 'backups/' . $mainZipName,
+                'status' => 'in_progress',
+                'created_by' => $userId
+            ]);
+        } else {
+            $logId = $this->backupModel->createLog([
+                'backup_type' => $backupType,
+                'file_name' => $mainZipName,
+                'file_path' => 'backups/' . $mainZipName,
+                'status' => 'in_progress',
+                'created_by' => $userId
+            ]);
+        }
 
         // Olası ölümcül PHP / Sunucu kesintilerini yakalamak için kapatma kancası
         register_shutdown_function(function() use (&$logId, &$startTime, &$tempFiles) {

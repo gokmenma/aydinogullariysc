@@ -460,12 +460,32 @@ foreach ($results as $of) {
     $sirano++;
 }
 
+// --- 6.1 Sütun Filtre Seçenek Toplamları (Tüm Veri Kümesi) ---
+$columnCounts = [];
+$countable_cols = [
+    3 => 'company_name',
+    5 => 'durum',
+    7 => 'offer_subject',
+    8 => 'payment_period',
+    9 => 'creator_name'
+];
+$count_base_where = $sablonlari_goster ? "WHERE is_template = 1" : "WHERE is_template = 0";
+foreach ($countable_cols as $cIdx => $cName) {
+    try {
+        $st = $ac->query("SELECT $cName, COUNT(*) as cnt FROM $base_table $count_base_where AND $cName IS NOT NULL AND $cName != '' GROUP BY $cName ORDER BY cnt DESC");
+        if ($st) {
+            $columnCounts[$cIdx] = $st->fetchAll(PDO::FETCH_KEY_PAIR);
+        }
+    } catch (Exception $e) {}
+}
+
 // --- 7. Final JSON Çıktısı ---
 $response = [
     "draw" => intval($draw),
     "recordsTotal" => intval($recordsTotal),
     "recordsFiltered" => intval($recordsFiltered),
-    "data" => $data
+    "data" => $data,
+    "columnCounts" => $columnCounts
 ];
 
 header('Content-Type: application/json');
