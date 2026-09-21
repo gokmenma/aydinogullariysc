@@ -6,12 +6,12 @@ require_once dirname(__DIR__) . '/bootstrap.php';
 use App\Model\MenuOrderModel;
 
 // Oturum kontrolü
-$userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+$userId = (int)($_SESSION['lid'] ?? ($_SESSION['id'] ?? (function_exists('sesset') ? sesset("id") : 0)));
 if ($userId <= 0) {
     http_response_code(401);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Yetkisiz erişim. Lütfen giriş yapınız.'
+        'message' => 'Oturum süreniz dolmuş. Lütfen sayfayı yenileyip tekrar deneyiniz.'
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -47,7 +47,7 @@ switch ($action) {
 
         // Temizleme (Sanitization)
         $cleanMainOrder = array_values(array_filter(array_map('trim', $mainOrder), function($item) {
-            return !empty($item) && is_string($item) && preg_match('/^[a-zA-Z0-9_\-\/]+$/', $item);
+            return !empty($item) && is_string($item) && preg_match('/^[a-zA-Z0-9_\-\/\.\?\=\&]+$/', $item);
         }));
 
         $cleanSubOrder = [];
@@ -55,7 +55,7 @@ switch ($action) {
             foreach ($subOrder as $parentKey => $items) {
                 if (is_string($parentKey) && is_array($items)) {
                     $cleanSubOrder[$parentKey] = array_values(array_filter(array_map('trim', $items), function($subItem) {
-                        return !empty($subItem) && is_string($subItem) && preg_match('/^[a-zA-Z0-9_\-\/]+$/', $subItem);
+                        return !empty($subItem) && is_string($subItem) && preg_match('/^[a-zA-Z0-9_\-\/\.\?\=\&]+$/', $subItem);
                     }));
                 }
             }

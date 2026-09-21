@@ -835,12 +835,12 @@ if (!function_exists('formatRelativeTime')) {
                     <table class="data-table table-hover table-bordered" style="width: 100%;">
                         <thead>
                             <tr>
-                                <th style="width: 14%; min-width: 125px;">Tarih / Saat</th>
-                                <th style="width: 15%; min-width: 130px;">Kullanıcı</th>
-                                <th style="width: 14%; min-width: 115px;">İşlem Türü</th>
-                                <th style="width: 12%; min-width: 100px;" class="log-col-module">Modül</th>
-                                <th style="width: 33%; min-width: 240px;">Yapılan İşlem / Detay</th>
-                                <th style="width: 12%; min-width: 110px;" class="log-col-entity">İlgili Kayıt</th>
+                                <th style="width: 14%; min-width: 125px;" data-filter-type="date">Tarih / Saat</th>
+                                <th style="width: 15%; min-width: 130px;" data-filter-type="select">Kullanıcı</th>
+                                <th style="width: 14%; min-width: 115px;" data-filter-type="select">İşlem Türü</th>
+                                <th style="width: 12%; min-width: 100px;" class="log-col-module" data-filter-type="select">Modül</th>
+                                <th style="width: 33%; min-width: 240px;" data-filter-type="text">Yapılan İşlem / Detay</th>
+                                <th style="width: 12%; min-width: 110px;" class="log-col-entity" data-filter-type="text">İlgili Kayıt</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1873,9 +1873,9 @@ if (!function_exists('formatRelativeTime')) {
 <!-- ========================================================================= -->
 <script>
 $(document).ready(function() {
-    // Select2 Aktif Et
+    // Select2 Aktif Et (Sadece filtre formu için)
     if ($.fn.select2) {
-        $('.select2').select2({
+        $('#activityFilterForm .select2').select2({
             placeholder: "Seçiniz...",
             allowClear: true
         });

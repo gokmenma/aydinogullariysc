@@ -20,7 +20,10 @@ class MenuOrderModel extends BaseModel
     public function getOrderByUserId(int $userId): ?array
     {
         try {
-            $stmt = $this->db->prepare("SELECT menu_order FROM {$this->table} WHERE user_id = ? LIMIT 1");
+            if ($userId <= 0) {
+                return null;
+            }
+            $stmt = $this->db->prepare("SELECT `menu_order` FROM `{$this->table}` WHERE `user_id` = ? LIMIT 1");
             $stmt->execute([$userId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -47,17 +50,26 @@ class MenuOrderModel extends BaseModel
     public function saveOrder(int $userId, array $orderData): bool
     {
         try {
+            if ($userId <= 0) {
+                error_log("MenuOrderModel::saveOrder Error: Invalid userId " . $userId);
+                return false;
+            }
+
             $json = json_encode($orderData, JSON_UNESCAPED_UNICODE);
             $now = date('Y-m-d H:i:s');
 
             $stmt = $this->db->prepare("
-                INSERT INTO {$this->table} (user_id, menu_order, created_at, updated_at)
+                INSERT INTO `{$this->table}` (`user_id`, `menu_order`, `created_at`, `updated_at`)
                 VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE menu_order = VALUES(menu_order), updated_at = VALUES(updated_at)
+                ON DUPLICATE KEY UPDATE `menu_order` = ?, `updated_at` = ?
             ");
-            return $stmt->execute([$userId, $json, $now, $now]);
+            $res = $stmt->execute([$userId, $json, $now, $now, $json, $now]);
+            if (!$res) {
+                error_log("MenuOrderModel::saveOrder SQL Error: " . json_encode($stmt->errorInfo()));
+            }
+            return $res;
         } catch (Exception $e) {
-            error_log("MenuOrderModel::saveOrder Error: " . $e->getMessage());
+            error_log("MenuOrderModel::saveOrder Exception: " . $e->getMessage());
             return false;
         }
     }
@@ -71,7 +83,10 @@ class MenuOrderModel extends BaseModel
     public function resetOrder(int $userId): bool
     {
         try {
-            $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE user_id = ?");
+            if ($userId <= 0) {
+                return false;
+            }
+            $stmt = $this->db->prepare("DELETE FROM `{$this->table}` WHERE `user_id` = ?");
             return $stmt->execute([$userId]);
         } catch (Exception $e) {
             error_log("MenuOrderModel::resetOrder Error: " . $e->getMessage());

@@ -4,6 +4,13 @@
 (function () {
     'use strict';
 
+    function getApiUrl() {
+        // index.php ile aynı dizindeki api/menu_order.php yolunu üretir
+        var path = window.location.pathname;
+        var dir = path.substring(0, path.lastIndexOf('/'));
+        return (dir ? dir : '') + '/api/menu_order.php';
+    }
+
     function initMenuSortable() {
         if (typeof Sortable === 'undefined') {
             console.warn('SortableJS yüklenemedi.');
@@ -14,43 +21,47 @@
         if (!accordionMenu) return;
 
         // 1. Ana Menüleri Kendi Arasında Sıralama
-        Sortable.create(accordionMenu, {
-            animation: 150,
-            draggable: '> li.dropdown',
-            ghostClass: 'menu-sort-ghost',
-            chosenClass: 'menu-sort-chosen',
-            dragClass: 'menu-sort-drag',
-            delay: 100,
-            delayOnTouchOnly: true,
-            touchStartThreshold: 5,
-            onEnd: function () {
-                saveCurrentMenuOrder();
-            }
-        });
-
-        // 2. Alt Menüleri Kendi Üst Menüsü Altında Sıralama
-        var submenus = accordionMenu.querySelectorAll('ul.submenu');
-        submenus.forEach(function (submenu) {
-            var parentKey = submenu.getAttribute('data-parent-key') || 'default';
-
-            Sortable.create(submenu, {
-                group: {
-                    name: 'submenu-' + parentKey,
-                    pull: false,
-                    put: false
-                },
+        if (!accordionMenu._sortableInstance) {
+            accordionMenu._sortableInstance = Sortable.create(accordionMenu, {
                 animation: 150,
-                draggable: '> li',
-                ghostClass: 'submenu-sort-ghost',
-                chosenClass: 'submenu-sort-chosen',
-                dragClass: 'submenu-sort-drag',
-                delay: 100,
+                draggable: '> li.dropdown',
+                ghostClass: 'menu-sort-ghost',
+                chosenClass: 'menu-sort-chosen',
+                dragClass: 'menu-sort-drag',
+                delay: 80,
                 delayOnTouchOnly: true,
                 touchStartThreshold: 5,
                 onEnd: function () {
                     saveCurrentMenuOrder();
                 }
             });
+        }
+
+        // 2. Alt Menüleri Kendi Üst Menüsü Altında Sıralama
+        var submenus = accordionMenu.querySelectorAll('ul.submenu');
+        submenus.forEach(function (submenu) {
+            var parentKey = submenu.getAttribute('data-parent-key') || 'default';
+
+            if (!submenu._sortableInstance) {
+                submenu._sortableInstance = Sortable.create(submenu, {
+                    group: {
+                        name: 'submenu-' + parentKey,
+                        pull: false,
+                        put: false
+                    },
+                    animation: 150,
+                    draggable: '> li',
+                    ghostClass: 'submenu-sort-ghost',
+                    chosenClass: 'submenu-sort-chosen',
+                    dragClass: 'submenu-sort-drag',
+                    delay: 80,
+                    delayOnTouchOnly: true,
+                    touchStartThreshold: 5,
+                    onEnd: function () {
+                        saveCurrentMenuOrder();
+                    }
+                });
+            }
         });
     }
 
@@ -92,7 +103,7 @@
                 }
             });
 
-            fetch('api/menu_order.php', {
+            fetch(getApiUrl(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -104,19 +115,28 @@
                     sub_order: subOrder
                 })
             })
-            .then(function (res) { return res.json(); })
+            .then(function (res) {
+                return res.text().then(function(text) {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('API geçersiz JSON döndü:', text);
+                        return { status: 'error', message: 'Sunucudan beklenmeyen yanıt alındı.' };
+                    }
+                });
+            })
             .then(function (data) {
-                if (data.status === 'success') {
+                if (data && data.status === 'success') {
                     showToast('Menü sıralaması kaydedildi', 'success');
                 } else {
-                    showToast(data.message || 'Sıralama kaydedilemedi', 'error');
+                    showToast((data && data.message) ? data.message : 'Sıralama kaydedilemedi', 'error');
                 }
             })
             .catch(function (err) {
                 console.error('Menü kaydetme hatası:', err);
                 showToast('Bağlantı hatası oluştu', 'error');
             });
-        }, 300);
+        }, 250);
     }
 
     function resetMenuOrder() {
@@ -143,7 +163,7 @@
     }
 
     function executeResetOrder() {
-        fetch('api/menu_order.php', {
+        fetch(getApiUrl(), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -151,9 +171,17 @@
             },
             body: JSON.stringify({ action: 'reset' })
         })
-        .then(function (res) { return res.json(); })
+        .then(function (res) {
+            return res.text().then(function(text) {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    return { status: 'error', message: 'Sunucudan beklenmeyen yanıt alındı.' };
+                }
+            });
+        })
         .then(function (data) {
-            if (data.status === 'success') {
+            if (data && data.status === 'success') {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: 'success',
@@ -169,7 +197,7 @@
                     window.location.reload();
                 }
             } else {
-                showToast(data.message || 'Sıfırlama başarısız oldu.', 'error');
+                showToast((data && data.message) ? data.message : 'Sıfırlama başarısız oldu.', 'error');
             }
         })
         .catch(function (err) {

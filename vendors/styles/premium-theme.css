@@ -4754,14 +4754,16 @@ table.dataTable thead th,
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 280px;
-    overflow-y: auto;
+    overflow: visible;
 }
 
 .tf-rules-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 2px;
 }
 
 .tf-rule-row {
@@ -4871,28 +4873,194 @@ table.dataTable thead th,
     font-size: 12px;
 }
 
-.tf-checkbox-list {
-    max-height: 180px;
-    overflow-y: auto;
+.tf-select-filter-wrap {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 4px 0;
+    gap: 8px;
+    width: 100%;
 }
 
-.tf-checkbox-item {
+.tf-search-box {
+    position: relative;
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12.5px;
-    color: #334155;
-    cursor: pointer;
-    margin: 0 !important;
 }
 
-.tf-checkbox-item input {
-    margin: 0;
+.tf-search-icon {
+    position: absolute;
+    left: 10px;
+    color: #94a3b8;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tf-select-search {
+    width: 100% !important;
+    height: 32px !important;
+    border-radius: 7px !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 4px 10px 4px 30px !important;
+    font-size: 12px !important;
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    outline: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.tf-select-search:focus {
+    border-color: #2563eb !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
+}
+
+.tf-select-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+}
+
+.tf-select-quick-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tf-link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #2563eb;
     cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.tf-link-btn:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.tf-link-btn.tf-deselect-all {
+    color: #64748b;
+}
+
+.tf-link-divider {
+    color: #cbd5e1;
+    font-size: 10px;
+}
+
+.tf-selected-count {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tf-checkbox-list {
+    max-height: 210px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.tf-checkbox-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.tf-checkbox-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tf-checkbox-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.tf-checkbox-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.tf-checkbox-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 !important;
+    user-select: none;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+    border: 1px solid transparent;
+}
+
+.tf-checkbox-row:hover {
+    background-color: #f1f5f9;
+}
+
+.tf-checkbox-row.is-checked {
+    background-color: #eff6ff;
+    border-color: #dbeafe;
+}
+
+.tf-checkbox-control {
+    width: 15px !important;
+    height: 15px !important;
+    margin: 0 !important;
+    cursor: pointer;
+    accent-color: #2563eb;
+    flex-shrink: 0;
+}
+
+.tf-checkbox-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+.tf-checkbox-row.is-checked .tf-checkbox-text {
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.tf-checkbox-badge {
+    flex-shrink: 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    line-height: 1.2;
+}
+
+.tf-checkbox-row.is-checked .tf-checkbox-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #bfdbfe;
+}
+
+.tf-no-items {
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+    padding: 18px 10px;
 }
 
 .tf-footer {
@@ -4937,6 +5105,70 @@ table.dataTable thead th,
     background: #27272a;
     border-color: #27272a;
     color: #ffffff;
+}
+
+.dark-mode .tf-search-icon {
+    color: #64748b !important;
+}
+
+.dark-mode .tf-select-search {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+.dark-mode .tf-select-search:focus {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
+.dark-mode .tf-link-btn {
+    color: #38bdf8 !important;
+}
+
+.dark-mode .tf-link-btn.tf-deselect-all {
+    color: #94a3b8 !important;
+}
+
+.dark-mode .tf-link-divider {
+    color: #475569 !important;
+}
+
+.dark-mode .tf-checkbox-list::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+.dark-mode .tf-checkbox-row:hover {
+    background-color: #334155;
+}
+
+.dark-mode .tf-checkbox-row.is-checked {
+    background-color: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+
+.dark-mode .tf-checkbox-control {
+    accent-color: #38bdf8;
+}
+
+.dark-mode .tf-checkbox-text {
+    color: #e2e8f0;
+}
+
+.dark-mode .tf-checkbox-row.is-checked .tf-checkbox-text {
+    color: #38bdf8;
+}
+
+.dark-mode .tf-checkbox-badge {
+    background: #0f172a;
+    color: #94a3b8;
+    border-color: #334155;
+}
+
+.dark-mode .tf-checkbox-row.is-checked .tf-checkbox-badge {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.4);
 }
 
 /* Dark Mode Overrides for TableFilter */

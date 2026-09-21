@@ -6,13 +6,14 @@
 window.App = window.App || {};
 
 App.TableFilter = {
-    activeFilters: {}, // tableId -> { colIndex -> { type: 'text'|'number'|'date'|'select', rules: [...] } }
+    activeFilters: {}, // tableId -> { colIndex -> { type: 'text'|'number'|'date'|'select', rules: [...], values: [...] } }
     hooksBound: false,
 
     SVG_FILTER_ICON: '<svg class="tf-funnel-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; pointer-events:none;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>',
     SVG_PLUS_ICON: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
     SVG_TRASH_ICON: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
     SVG_CALENDAR_ICON: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+    SVG_SEARCH_ICON: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
 
     init: function (container) {
         App.TableFilter.bindDataTableHooks();
@@ -62,7 +63,7 @@ App.TableFilter = {
 
         if ($.fn.dataTable.ext && $.fn.dataTable.ext.search) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {
-                const tableId = settings.sTableId || (settings.nTable ? settings.nTable.id : null);
+                const tableId = settings.sTableId || (settings.nTable ? (settings.nTable.id || $(settings.nTable).attr('id')) : null);
                 if (!tableId || !App.TableFilter.activeFilters[tableId]) return true;
 
                 const tableFilters = App.TableFilter.activeFilters[tableId];
@@ -77,8 +78,12 @@ App.TableFilter = {
                     if (filterDef.type === 'select') {
                         const selectedVals = filterDef.values || [];
                         if (selectedVals.length > 0) {
-                            const cText = (cellValue || '').trim();
-                            const match = selectedVals.some(v => v.trim() === cText);
+                            const cText = App.TableFilter.extractCellTextFromRaw(cellValue);
+                            const cTextLower = App.TableFilter.toTrLower(cText);
+                            const match = selectedVals.some(v => {
+                                const vLower = App.TableFilter.toTrLower(v);
+                                return vLower === cTextLower || cTextLower.indexOf(vLower) !== -1;
+                            });
                             if (!match) return false;
                         }
                     } else if (filterDef.rules && filterDef.rules.length > 0) {
@@ -182,6 +187,44 @@ App.TableFilter = {
             .trim();
     },
 
+    extractCellTextFromRaw: function (raw) {
+        if (raw === null || raw === undefined) return '';
+        let str = String(raw).trim();
+        if (!str) return '';
+
+        // If it looks like HTML, strip tags while keeping clean text
+        if (str.indexOf('<') !== -1) {
+            const temp = document.createElement('div');
+            temp.innerHTML = str;
+
+            // Remove decorative elements, avatars, icons, buttons
+            temp.querySelectorAll('.user-mini-avatar, .avatar, script, style, button, i, svg').forEach(el => el.remove());
+
+            // Look for semantic text elements first
+            const mainTextEl = temp.querySelector('.font-12.weight-600, .weight-600, .badge, .module-tag, .entity-pill, .log-message, span, strong');
+            if (mainTextEl && mainTextEl.textContent.trim()) {
+                str = mainTextEl.textContent.trim();
+            } else {
+                str = temp.textContent || '';
+            }
+        }
+
+        return str.replace(/\s+/g, ' ').trim();
+    },
+
+    extractCellTextFromNode: function (cellNode) {
+        if (!cellNode) return '';
+        const clone = cellNode.cloneNode(true);
+        clone.querySelectorAll('.user-mini-avatar, .avatar, script, style, button, i, svg').forEach(el => el.remove());
+
+        const mainTextEl = clone.querySelector('.font-12.weight-600, .weight-600, .badge, .module-tag, .entity-pill, .log-message');
+        if (mainTextEl && mainTextEl.textContent.trim()) {
+            return mainTextEl.textContent.replace(/\s+/g, ' ').trim();
+        }
+
+        return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    },
+
     parseNum: function (val) {
         if (val === null || val === undefined) return NaN;
         let str = String(val).replace(/<[^>]*>/g, '').trim();
@@ -227,7 +270,8 @@ App.TableFilter = {
         let t = App.TableFilter.toTrLower(title);
 
         if (t.includes('tarih') || t.includes('date') || t.includes('bitis') || t.includes('bitiş') ||
-            t.includes('baslangic') || t.includes('başlangıç') || t.includes('vade') || t.includes('onay')) {
+            t.includes('baslangic') || t.includes('başlangıç') || t.includes('vade') || t.includes('onay') ||
+            t.includes('zaman') || t.includes('saat')) {
             return 'date';
         }
 
@@ -238,7 +282,11 @@ App.TableFilter = {
             return 'number';
         }
 
-        if (t === 'durum' || t === 'statu' || t === 'statü') {
+        if (t.includes('durum') || t.includes('statu') || t.includes('statü') ||
+            t.includes('kullanici') || t.includes('kullanıcı') || t.includes('user') ||
+            t.includes('islem turu') || t.includes('işlem türü') || t.includes('islem tipi') || t.includes('işlem tipi') ||
+            t.includes('modul') || t.includes('modül') || t.includes('seviye') || t.includes('level') ||
+            t.includes('kategori') || t.includes('birim') || t.includes('para birimi') || t.includes('odeme') || t.includes('ödeme')) {
             return 'select';
         }
 
@@ -334,7 +382,7 @@ App.TableFilter = {
                     }
                 });
 
-                App.TableFilter.initSelect2Inputs(popover, popover);
+                App.TableFilter.bindSelectSearch(popover);
             }
 
             // Prevent DataTables sorting on trigger click / mousedown
@@ -361,22 +409,20 @@ App.TableFilter = {
                 if (filterType === 'select') {
                     const body = popover.querySelector('.tf-body');
                     body.innerHTML = App.TableFilter.renderFilterBody('select', table, index);
+                    App.TableFilter.bindSelectSearch(popover);
                 }
 
                 // Position popover
                 const rect = triggerBtn.getBoundingClientRect();
                 popover.style.top = (rect.bottom + window.scrollY + 6) + 'px';
                 let leftPos = rect.left + window.scrollX - 20;
-                if (leftPos + 310 > window.innerWidth) {
-                    leftPos = window.innerWidth - 325;
+                if (leftPos + 320 > window.innerWidth) {
+                    leftPos = window.innerWidth - 335;
                 }
                 if (leftPos < 10) leftPos = 10;
                 popover.style.left = leftPos + 'px';
 
                 popover.classList.add('show');
-
-                // Initialize Select2 in popover
-                App.TableFilter.initSelect2Inputs(popover, popover);
 
                 // Initialize Flatpickr if date
                 if (filterType === 'date') {
@@ -385,63 +431,179 @@ App.TableFilter = {
 
                 // Focus first input
                 setTimeout(function () {
-                    const firstInput = popover.querySelector('.tf-input');
+                    const firstInput = popover.querySelector('.tf-select-search') || popover.querySelector('.tf-input');
                     if (firstInput) firstInput.focus();
                 }, 50);
             });
         });
     },
 
-    initSelect2Inputs: function (container, popover) {
-        if (!window.jQuery || !$.fn.select2) return;
-        const $target = $(container || document);
-        const parentEl = popover || ($target.hasClass('tf-popover') ? $target : $target.closest('.tf-popover'));
+    bindSelectSearch: function (popover) {
+        if (!popover) return;
+        const searchInput = popover.querySelector('.tf-select-search');
+        const countLabel = popover.querySelector('.tf-selected-count');
+        const rows = popover.querySelectorAll('.tf-checkbox-row');
 
-        $target.find('.tf-operator-select').each(function () {
-            const $this = $(this);
-            if ($this.hasClass('select2-hidden-accessible')) return;
+        function updateSelectedCount() {
+            if (!countLabel) return;
+            const total = rows.length;
+            const checked = popover.querySelectorAll('.tf-checkbox-control:checked').length;
+            if (checked > 0) {
+                countLabel.textContent = `${checked} / ${total} seçili`;
+                countLabel.classList.add('text-primary');
+                countLabel.classList.remove('text-muted');
+            } else {
+                countLabel.textContent = `${total} öğe`;
+                countLabel.classList.remove('text-primary');
+                countLabel.classList.add('text-muted');
+            }
+        }
 
-            $this.select2({
-                dropdownParent: parentEl && parentEl.length ? parentEl : $('body'),
-                minimumResultsForSearch: Infinity,
-                width: '100%'
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const query = App.TableFilter.toTrLower(this.value);
+                rows.forEach(row => {
+                    const text = App.TableFilter.toTrLower(row.querySelector('.tf-checkbox-text').textContent);
+                    if (text.indexOf(query) !== -1) {
+                        row.style.display = 'flex';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
             });
+        }
 
-            $this.on('change', function () {
-                App.TableFilter.onOperatorChange(this);
+        // Live visual toggle for row checkbox
+        popover.querySelectorAll('.tf-checkbox-control').forEach(cb => {
+            cb.addEventListener('change', function () {
+                const row = this.closest('.tf-checkbox-row');
+                if (row) {
+                    if (this.checked) row.classList.add('is-checked');
+                    else row.classList.remove('is-checked');
+                }
+                updateSelectedCount();
             });
         });
+
+        // "Tümünü Seç"
+        const selectAllBtn = popover.querySelector('.tf-select-all');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                popover.querySelectorAll('.tf-checkbox-row').forEach(row => {
+                    if (row.style.display !== 'none') {
+                        const cb = row.querySelector('.tf-checkbox-control');
+                        if (cb) {
+                            cb.checked = true;
+                            row.classList.add('is-checked');
+                        }
+                    }
+                });
+                updateSelectedCount();
+            });
+        }
+
+        // "Temizle / Seçimi Kaldır"
+        const deselectAllBtn = popover.querySelector('.tf-deselect-all');
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                popover.querySelectorAll('.tf-checkbox-row').forEach(row => {
+                    const cb = row.querySelector('.tf-checkbox-control');
+                    if (cb) {
+                        cb.checked = false;
+                        row.classList.remove('is-checked');
+                    }
+                });
+                updateSelectedCount();
+            });
+        }
+
+        updateSelectedCount();
+    },
+
+    getDistinctColumnValues: function (table, colIndex) {
+        const counts = {}; // value -> count
+
+        // 1. DataTables API'sinden çekmeyi dene
+        if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
+            try {
+                const dt = $(table).DataTable();
+                dt.column(colIndex).data().each(function (cellData) {
+                    const txt = App.TableFilter.extractCellTextFromRaw(cellData);
+                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
+                        counts[txt] = (counts[txt] || 0) + 1;
+                    }
+                });
+            } catch (err) {}
+        }
+
+        // 2. DOM hücrelerinden de kontrol et ve say
+        if (Object.keys(counts).length === 0) {
+            table.querySelectorAll('tbody tr').forEach(row => {
+                if (row.classList.contains('search-input-row') || row.classList.contains('dataTables_empty') || row.classList.contains('tf-no-records-row')) return;
+                const cell = row.cells[colIndex];
+                if (cell) {
+                    const txt = App.TableFilter.extractCellTextFromNode(cell);
+                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
+                        counts[txt] = (counts[txt] || 0) + 1;
+                    }
+                }
+            });
+        }
+
+        return counts;
     },
 
     renderFilterBody: function (type, table, colIndex) {
         if (type === 'select') {
-            const values = new Set();
-            table.querySelectorAll('tbody tr:not(.odd):not(.even):not(.dataTables_empty), tbody tr').forEach(row => {
-                if (row.classList.contains('search-input-row')) return;
-                const cell = row.cells[colIndex];
-                if (cell) {
-                    let txt = cell.textContent.trim();
-                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!') {
-                        values.add(txt);
-                    }
-                }
-            });
+            const counts = App.TableFilter.getDistinctColumnValues(table, colIndex);
+            const values = Object.keys(counts).sort((a, b) => a.localeCompare(b, 'tr', { sensitivity: 'base' }));
 
-            let html = '<div class="tf-checkbox-list">';
-            if (values.size === 0) {
-                html += '<div class="text-muted small p-2">Kayıtlı değer bulunamadı</div>';
-            } else {
-                Array.from(values).sort().forEach((val, idx) => {
-                    const chkId = `tf-chk-${table.id}-${colIndex}-${idx}`;
-                    html += `
-                        <div class="form-check tf-checkbox-item">
-                            <input class="form-check-input" type="checkbox" value="${val.replace(/"/g, '&quot;')}" id="${chkId}">
-                            <label class="form-check-label" for="${chkId}">${val}</label>
+            // Önceden seçilmiş değerler varsa koru
+            const tableId = table.id;
+            const existingFilter = (App.TableFilter.activeFilters[tableId] && App.TableFilter.activeFilters[tableId][colIndex]) || null;
+            const preselectedVals = (existingFilter && existingFilter.values) || [];
+
+            let html = `
+                <div class="tf-select-filter-wrap">
+                    <div class="tf-search-box">
+                        <span class="tf-search-icon">${App.TableFilter.SVG_SEARCH_ICON}</span>
+                        <input type="text" class="tf-select-search" placeholder="Listede ara..." autocomplete="off">
+                    </div>
+                    <div class="tf-select-actions">
+                        <div class="tf-select-quick-links">
+                            <button type="button" class="tf-link-btn tf-select-all">Tümünü Seç</button>
+                            <span class="tf-link-divider">•</span>
+                            <button type="button" class="tf-link-btn tf-deselect-all">Temizle</button>
                         </div>
+                        <span class="tf-selected-count text-muted font-11">${preselectedVals.length > 0 ? preselectedVals.length + ' / ' + values.length + ' seçili' : values.length + ' öğe'}</span>
+                    </div>
+                    <div class="tf-checkbox-list">
+            `;
+
+            if (values.length === 0) {
+                html += '<div class="tf-no-items">Filtrelenecek kayıt bulunamadı</div>';
+            } else {
+                values.forEach((val, idx) => {
+                    const chkId = `tf-chk-${table.id}-${colIndex}-${idx}`;
+                    const isChecked = preselectedVals.indexOf(val) !== -1 ? 'checked' : '';
+                    const cnt = counts[val] || 1;
+                    const escapedVal = val.replace(/"/g, '&quot;');
+                    html += `
+                        <label class="tf-checkbox-row ${isChecked ? 'is-checked' : ''}" for="${chkId}">
+                            <input class="tf-checkbox-control" type="checkbox" value="${escapedVal}" id="${chkId}" ${isChecked}>
+                            <span class="tf-checkbox-text" title="${escapedVal}">${val}</span>
+                            <span class="tf-checkbox-badge">${cnt}</span>
+                        </label>
                     `;
                 });
             }
-            html += '</div>';
+
+            html += `
+                    </div>
+                </div>
+            `;
             return html;
         }
 
@@ -503,7 +665,8 @@ App.TableFilter = {
         const selOp = ruleData ? ruleData.operator : operators[0].val;
         const val = ruleData ? (ruleData.value || '') : '';
 
-        let selectHtml = `<select class="form-select form-select-sm tf-operator-select" onchange="App.TableFilter.onOperatorChange(this)">`;
+        // Native temiz select - global select2 eklentilerinden etkilenmez
+        let selectHtml = `<select class="form-select form-select-sm tf-operator-select" data-select2-ignore="true" onchange="App.TableFilter.onOperatorChange(this)">`;
         operators.forEach(op => {
             const isSel = op.val === selOp ? ' selected' : '';
             selectHtml += `<option value="${op.val}"${isSel}>${op.text}</option>`;
@@ -559,8 +722,6 @@ App.TableFilter = {
         temp.innerHTML = App.TableFilter.renderRuleRow(type, true);
         const newRow = temp.firstElementChild;
         container.appendChild(newRow);
-
-        App.TableFilter.initSelect2Inputs(newRow, popover);
 
         if (type === 'date') {
             App.TableFilter.initDateInputs(newRow);
@@ -657,7 +818,22 @@ App.TableFilter = {
 
         // Reset inputs in popover
         popover.querySelectorAll('.tf-input').forEach(i => i.value = '');
-        popover.querySelectorAll('input[type="checkbox"]:checked').forEach(c => c.checked = false);
+        popover.querySelectorAll('.tf-checkbox-control:checked').forEach(c => c.checked = false);
+        popover.querySelectorAll('.tf-checkbox-row').forEach(r => {
+            r.classList.remove('is-checked');
+            r.style.display = 'flex';
+        });
+        const searchInp = popover.querySelector('.tf-select-search');
+        if (searchInp) searchInp.value = '';
+
+        const countLabel = popover.querySelector('.tf-selected-count');
+        if (countLabel) {
+            const total = popover.querySelectorAll('.tf-checkbox-row').length;
+            countLabel.textContent = `${total} öğe`;
+            countLabel.classList.remove('text-primary');
+            countLabel.classList.add('text-muted');
+        }
+
         const ruleRows = popover.querySelectorAll('.tf-rule-row');
         for (let i = 1; i < ruleRows.length; i++) {
             ruleRows[i].remove();
@@ -683,7 +859,22 @@ App.TableFilter = {
 
         document.querySelectorAll(`.tf-popover[data-table-id="${tableId}"]`).forEach(pop => {
             pop.querySelectorAll('.tf-input').forEach(i => i.value = '');
-            pop.querySelectorAll('input[type="checkbox"]:checked').forEach(c => c.checked = false);
+            pop.querySelectorAll('.tf-checkbox-control:checked').forEach(c => c.checked = false);
+            pop.querySelectorAll('.tf-checkbox-row').forEach(r => {
+                r.classList.remove('is-checked');
+                r.style.display = 'flex';
+            });
+            const searchInp = pop.querySelector('.tf-select-search');
+            if (searchInp) searchInp.value = '';
+
+            const countLabel = pop.querySelector('.tf-selected-count');
+            if (countLabel) {
+                const total = pop.querySelectorAll('.tf-checkbox-row').length;
+                countLabel.textContent = `${total} öğe`;
+                countLabel.classList.remove('text-primary');
+                countLabel.classList.add('text-muted');
+            }
+
             const ruleRows = pop.querySelectorAll('.tf-rule-row');
             for (let i = 1; i < ruleRows.length; i++) ruleRows[i].remove();
             $(pop).find('.tf-operator-select').each(function () {
@@ -809,9 +1000,97 @@ App.TableFilter = {
         summaryEl.innerHTML = summaryHtml;
     },
 
+    filterDOMTable: function (tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        const tableFilters = App.TableFilter.activeFilters[tableId];
+        const rows = table.querySelectorAll('tbody tr');
+        if (!rows.length) return;
+
+        // Remove existing no-records row if present
+        const existingNoRec = table.querySelector('.tf-no-records-row');
+        if (existingNoRec) existingNoRec.remove();
+
+        if (!tableFilters || Object.keys(tableFilters).length === 0) {
+            rows.forEach(row => {
+                if (!row.classList.contains('search-input-row') && !row.classList.contains('tf-no-records-row')) {
+                    row.style.display = '';
+                }
+            });
+            return;
+        }
+
+        const colIndexes = Object.keys(tableFilters);
+        let visibleCount = 0;
+        let totalCountableRows = 0;
+
+        rows.forEach(row => {
+            if (row.classList.contains('search-input-row') || row.classList.contains('tf-no-records-row')) return;
+            totalCountableRows++;
+
+            let matchRow = true;
+
+            for (let i = 0; i < colIndexes.length; i++) {
+                const colIdx = parseInt(colIndexes[i], 10);
+                const filterDef = tableFilters[colIdx];
+                const cell = row.cells[colIdx];
+                const cellText = cell ? App.TableFilter.extractCellTextFromNode(cell) : '';
+
+                if (filterDef.type === 'select') {
+                    const selectedVals = filterDef.values || [];
+                    if (selectedVals.length > 0) {
+                        const cTextLower = App.TableFilter.toTrLower(cellText);
+                        const match = selectedVals.some(v => {
+                            const vLower = App.TableFilter.toTrLower(v);
+                            return vLower === cTextLower || cTextLower.indexOf(vLower) !== -1;
+                        });
+                        if (!match) {
+                            matchRow = false;
+                            break;
+                        }
+                    }
+                } else if (filterDef.rules && filterDef.rules.length > 0) {
+                    const logic = filterDef.logic || (filterDef.type === 'text' ? 'or' : 'and');
+                    if (logic === 'or') {
+                        const passed = filterDef.rules.some(r => App.TableFilter.evaluateRule(cellText, r, filterDef.type));
+                        if (!passed) {
+                            matchRow = false;
+                            break;
+                        }
+                    } else {
+                        const passed = filterDef.rules.every(r => App.TableFilter.evaluateRule(cellText, r, filterDef.type));
+                        if (!passed) {
+                            matchRow = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (matchRow) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0 && totalCountableRows > 0) {
+            const colCount = table.querySelectorAll('thead th').length || 6;
+            const tbody = table.querySelector('tbody');
+            if (tbody) {
+                const noRecTr = document.createElement('tr');
+                noRecTr.className = 'tf-no-records-row text-center';
+                noRecTr.innerHTML = `<td colspan="${colCount}" class="text-muted p-4"><i class="fa fa-filter mr-1 text-primary"></i> Seçilen filtre kriterlerine uygun kayıt bulunamadı.</td>`;
+                tbody.appendChild(noRecTr);
+            }
+        }
+    },
+
     redrawTable: function (tableId) {
         const $table = $('#' + tableId);
-        if ($.fn.dataTable && $.fn.dataTable.isDataTable('#' + tableId)) {
+        if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable('#' + tableId)) {
             const dt = $table.DataTable();
             if (dt.init().serverSide) {
                 const colFilters = App.TableFilter.activeFilters[tableId] || {};
@@ -826,11 +1105,14 @@ App.TableFilter = {
             }
             dt.draw();
         }
+        // Also perform DOM row filtering to guarantee instant UI update across all table types
+        App.TableFilter.filterDOMTable(tableId);
     },
 
     evaluateRule: function (cellRaw, rule, type) {
         const op = rule.operator;
-        const cellText = App.TableFilter.toTrLower(cellRaw);
+        const cellClean = App.TableFilter.extractCellTextFromRaw(cellRaw);
+        const cellText = App.TableFilter.toTrLower(cellClean);
         const isBlank = cellText === '' || cellText === '-' || cellText === 'null';
 
         if (op === 'empty') return isBlank;
@@ -842,9 +1124,9 @@ App.TableFilter = {
             const targetValStr = String(rule.value || '').trim();
 
             if (op === 'contains') {
-                const cellClean = String(cellRaw).replace(/[₺$€\s.]/g, '').replace(',', '.');
+                const cClean = String(cellClean).replace(/[₺$€\s.]/g, '').replace(',', '.');
                 const targetClean = targetValStr.replace(/[₺$€\s.]/g, '').replace(',', '.');
-                if (cellClean.includes(targetClean)) return true;
+                if (cClean.includes(targetClean)) return true;
                 if (!isNaN(cellNum) && !isNaN(targetNum)) {
                     if (String(cellNum).includes(targetClean)) return true;
                 }
@@ -907,4 +1189,4 @@ $(document).ready(function () {
 // Periodic scanner for dynamically loaded AJAX tables
 setInterval(function () {
     App.TableFilter.init();
-}, 2000);
+}, 2500);
