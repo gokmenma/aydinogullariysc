@@ -42,12 +42,16 @@ class MailAccountModel extends BaseModel
     }
 
     /**
-     * Aktif kullanıcıları (personel) listeler.
+     * Aktif ve mail hesaplarına atanmış kullanıcıları (personel) listeler.
      */
     public function getActiveUsers()
     {
         try {
-            $stmt = $this->db->prepare("SELECT id, username, Unvan FROM users WHERE statu = 1 ORDER BY username ASC");
+            $sql = "SELECT id, username, Unvan, statu 
+                    FROM users 
+                    WHERE statu = 1 OR id IN (SELECT DISTINCT mail_user FROM {$this->table} WHERE mail_user IS NOT NULL AND mail_user > 0) 
+                    ORDER BY (statu = 1) DESC, username ASC";
+            $stmt = $this->db->prepare($sql);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

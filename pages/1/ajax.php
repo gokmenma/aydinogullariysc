@@ -234,6 +234,45 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
                 if (!$delRes['success']) {
                     throw new RuntimeException($delRes['message']);
                 }
+            } elseif ($_POST["page"] === "all-files") {
+                if (!permtrue("filedelete")) {
+                    throw new RuntimeException("Dosya silme yetkiniz bulunmuyor.");
+                }
+                $fileStmt = $ac->prepare("SELECT * FROM upfiles WHERE id = ?");
+                $fileStmt->execute([$id]);
+                $fileData = $fileStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$fileData) {
+                    throw new RuntimeException("Silinecek dosya kaydı bulunamadı.");
+                }
+                if (!empty($fileData['filename'])) {
+                    $physicalPath = __DIR__ . "/../../files/" . $fileData['filename'];
+                    if (file_exists($physicalPath) && is_file($physicalPath)) {
+                        @unlink($physicalPath);
+                    }
+                }
+                $delQ = $ac->prepare("DELETE FROM upfiles WHERE id = ?");
+                $delQ->execute([$id]);
+                audit_log("delete", "all-files", "Dosya silindi: " . ($fileData['filename'] ?? '#' . $id), "upfiles", $id, $fileData);
+            } elseif ($_POST["page"] === "file-categories") {
+                if (!permtrue("filedelete") && !permtrue("fileadd")) {
+                    throw new RuntimeException("Kategori silme yetkiniz bulunmuyor.");
+                }
+                // Check if any files are assigned to this category
+                $countStmt = $ac->prepare("SELECT COUNT(*) FROM upfiles WHERE cid = ?");
+                $countStmt->execute([$id]);
+                $linkedCount = (int)$countStmt->fetchColumn();
+                if ($linkedCount > 0) {
+                    throw new RuntimeException("Bu kategoriye ait {$linkedCount} adet dosya bulunmaktadır. Lütfen önce dosyaları siliniz veya başka bir kategoriye taşıyınız.");
+                }
+                $catStmt = $ac->prepare("SELECT * FROM upfile_categories WHERE id = ?");
+                $catStmt->execute([$id]);
+                $catData = $catStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$catData) {
+                    throw new RuntimeException("Kategori bulunamadı.");
+                }
+                $delQ = $ac->prepare("DELETE FROM upfile_categories WHERE id = ?");
+                $delQ->execute([$id]);
+                audit_log("delete", "file-categories", "Dosya kategorisi silindi: " . ($catData['title'] ?? '#' . $id), "upfile_categories", $id, $catData);
             } else {
                 $deleteTableMap = [
                     'all-files' => 'upfiles',

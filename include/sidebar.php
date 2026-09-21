@@ -241,20 +241,15 @@ $menuDefinitions = [
         'icon' => 'fa fa-file-zip-o',
         'visible' => (permtrue("fileadd") || permtrue("fileview") || permtrue("filedelete")),
         'items' => [
-            'new-file' => [
-                'title' => 'Dosya Yükle',
-                'link' => 'index.php?p=new-file',
-                'visible' => permtrue("fileadd")
-            ],
             'all-files' => [
-                'title' => 'Dosyaları Görüntüle',
+                'title' => 'Tüm Dosyalar',
                 'link' => 'index.php?p=all-files',
-                'visible' => permtrue("fileview")
+                'visible' => (permtrue("fileview") || permtrue("fileadd"))
             ],
             'file-categories' => [
                 'title' => 'Dosya Kategorileri',
                 'link' => 'index.php?p=file-categories',
-                'visible' => (permtrue("fileadd") && permtrue("fileview") && permtrue("filedelete"))
+                'visible' => (permtrue("fileview") || permtrue("fileadd") || permtrue("filedelete"))
             ]
         ]
     ],

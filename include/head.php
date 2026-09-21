@@ -62,6 +62,28 @@
 
 <script>
 	// Global Tema Değiştirme Fonksiyonu
+	window.syncWysihtml5Theme = function() {
+		try {
+			var isDark = document.documentElement.classList.contains('dark-mode') || (document.body && document.body.classList.contains('dark-mode'));
+			document.querySelectorAll('iframe.wysihtml5-sandbox').forEach(function(iframe) {
+				try {
+					var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+					if (doc && doc.body) {
+						if (isDark) {
+							doc.body.style.backgroundColor = '#0f172a';
+							doc.body.style.color = '#f8fafc';
+							doc.body.classList.add('dark-mode');
+						} else {
+							doc.body.style.backgroundColor = '#ffffff';
+							doc.body.style.color = '#1e293b';
+							doc.body.classList.remove('dark-mode');
+						}
+					}
+				} catch(innerErr) {}
+			});
+		} catch(e) {}
+	};
+
 	window.toggleTheme = function(e) {
 		if (e) {
 			if (e.preventDefault) e.preventDefault();
@@ -83,6 +105,7 @@
 			if (toggleBtn) toggleBtn.setAttribute('data-tooltip', 'Aydınlık Mod');
 			try { localStorage.setItem('theme', 'dark'); } catch(err){}
 		}
+		window.syncWysihtml5Theme();
 	};
 
 	// Sayfa render edilmeden önce tema durumunu ayarla (flicker önleme)
@@ -93,11 +116,15 @@
 				document.documentElement.classList.add('dark-mode');
 				document.addEventListener('DOMContentLoaded', function () {
 					if (document.body) document.body.classList.add('dark-mode');
+					setTimeout(window.syncWysihtml5Theme, 300);
+					setTimeout(window.syncWysihtml5Theme, 1000);
 				});
 			} else {
 				document.documentElement.classList.remove('dark-mode');
 				document.addEventListener('DOMContentLoaded', function () {
 					if (document.body) document.body.classList.remove('dark-mode');
+					setTimeout(window.syncWysihtml5Theme, 300);
+					setTimeout(window.syncWysihtml5Theme, 1000);
 				});
 			}
 

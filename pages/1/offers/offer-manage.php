@@ -679,54 +679,14 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 opacity: 0 !important;
             }
 
-            .html-editor iframe.wysihtml5-sandbox,
-            iframe.wysihtml5-sandbox {
-                width: 100% !important;
+            .offerHeaderContent iframe.wysihtml5-sandbox {
                 height: 190px !important;
                 min-height: 190px !important;
-                position: static !important;
-                border: 1.5px solid #e5e7eb !important;
-                border-radius: 0 0 10px 10px !important;
-                background: #fff !important;
-                display: block !important;
-                box-sizing: border-box !important;
             }
 
             .offerFooterContent iframe.wysihtml5-sandbox {
                 height: 220px !important;
                 min-height: 220px !important;
-            }
-
-            .html-editor .wysihtml5-toolbar {
-                border: 1.5px solid #e5e7eb !important;
-                border-bottom: none !important;
-                border-radius: 10px 10px 0 0 !important;
-                background: #f8fafc !important;
-                padding: 6px 8px !important;
-                margin-bottom: 0 !important;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px;
-                align-items: center;
-            }
-
-            .html-editor .wysihtml5-toolbar li {
-                float: none !important;
-                display: inline-flex !important;
-                margin-right: 0 !important;
-            }
-
-            .html-editor .wysihtml5-toolbar .btn {
-                border-radius: 6px !important;
-                padding: 4px 8px !important;
-                font-size: 12.5px !important;
-                background: #fff;
-                border: 1px solid #cbd5e1;
-                color: #334155;
-            }
-
-            .html-editor .wysihtml5-toolbar .btn:hover {
-                background: #f1f5f9;
             }
         </style>
 

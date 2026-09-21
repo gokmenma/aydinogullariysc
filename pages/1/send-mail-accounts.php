@@ -45,97 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || !empty($_POST)) {
             exit;
         }
 
-        $id = (int)($_POST["id"] ?? 0);
-        $mailAddress = trim($_POST["mail_address"] ?? '');
-        $mailPassword = $_POST["mail_password"] ?? '';
-        $description = trim($_POST["description"] ?? '');
-        $accountType = (int)($_POST["account_type"] ?? 1);
-        $mailUser = ($accountType === 2) ? (int)($_POST["mail_user"] ?? 1) : 1;
-
-        if (empty($mailAddress)) {
-            echo json_encode([
-                "status" => 400,
-                "message" => "Lütfen geçerli bir mail adresi giriniz."
-            ]);
-            exit;
-        }
-
-        if (!filter_var($mailAddress, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode([
-                "status" => 400,
-                "message" => "Geçersiz e-posta formatı!"
-            ]);
-            exit;
-        }
-
-        // Mükerrer kontrolü
-        if ($mailModel->isEmailExists($mailAddress, $action === "update" ? $id : null)) {
-            echo json_encode([
-                "status" => 400,
-                "message" => "Bu e-posta adresi sistemde zaten kayıtlıdır."
-            ]);
-            exit;
-        }
-
-        if ($action === "new") {
-            $createdId = $mailModel->createAccount([
-                'mail_address'  => $mailAddress,
-                'mail_password' => $mailPassword,
-                'description'   => $description,
-                'account_type'  => $accountType,
-                'mail_user'     => $mailUser,
-                'creator'       => $_SESSION['lid'] ?? 1
-            ]);
-
-            if ($createdId) {
-                echo json_encode([
-                    "status" => 200,
-                    "message" => "Mail adresi başarıyla eklendi."
-                ]);
-            } else {
-                echo json_encode([
-                    "status" => 400,
-                    "message" => "Mail adresi eklenirken bir sorun oluştu."
-                ]);
-            }
-            exit;
-
-        } else if ($action === "update") {
-            if ($id <= 0) {
-                echo json_encode([
-                    "status" => 400,
-                    "message" => "Geçersiz kayıt kimliği."
-                ]);
-                exit;
-            }
-
-            $updatePayload = [
-                'mail_address' => $mailAddress,
-                'description'  => $description,
-                'account_type' => $accountType,
-                'mail_user'    => $mailUser
-            ];
-
-            if ($mailPassword !== '') {
-                $updatePayload['mail_password'] = $mailPassword;
-            }
-
-            $updated = $mailModel->updateAccount($id, $updatePayload);
-
-            if ($updated) {
-                echo json_encode([
-                    "status" => 200,
-                    "message" => "Mail adresi başarıyla güncellendi."
-                ]);
-            } else {
-                echo json_encode([
-                    "status" => 400,
-                    "message" => "Güncelleme başarısız oldu."
-                ]);
-            }
-            exit;
-
-        } else if ($action === "delete") {
+        if ($action === "delete") {
+            $id = (int)($_POST["id"] ?? 0);
             if ($id <= 0) {
                 echo json_encode([
                     "status" => 400,
@@ -157,6 +68,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || !empty($_POST)) {
                 ]);
             }
             exit;
+        }
+
+        if ($action === "new" || $action === "update") {
+            $id = (int)($_POST["id"] ?? 0);
+            $mailAddress = trim($_POST["mail_address"] ?? '');
+            $mailPassword = $_POST["mail_password"] ?? '';
+            $description = trim($_POST["description"] ?? '');
+            $accountType = (int)($_POST["account_type"] ?? 1);
+            $mailUser = ($accountType === 2) ? (int)($_POST["mail_user"] ?? 1) : 1;
+
+            if (empty($mailAddress)) {
+                echo json_encode([
+                    "status" => 400,
+                    "message" => "Lütfen geçerli bir mail adresi giriniz."
+                ]);
+                exit;
+            }
+
+            if (!filter_var($mailAddress, FILTER_VALIDATE_EMAIL)) {
+                echo json_encode([
+                    "status" => 400,
+                    "message" => "Geçersiz e-posta formatı!"
+                ]);
+                exit;
+            }
+
+            // Mükerrer kontrolü
+            if ($mailModel->isEmailExists($mailAddress, $action === "update" ? $id : null)) {
+                echo json_encode([
+                    "status" => 400,
+                    "message" => "Bu e-posta adresi sistemde zaten kayıtlıdır."
+                ]);
+                exit;
+            }
+
+            if ($action === "new") {
+                $createdId = $mailModel->createAccount([
+                    'mail_address'  => $mailAddress,
+                    'mail_password' => $mailPassword,
+                    'description'   => $description,
+                    'account_type'  => $accountType,
+                    'mail_user'     => $mailUser,
+                    'creator'       => $_SESSION['lid'] ?? 1
+                ]);
+
+                if ($createdId) {
+                    echo json_encode([
+                        "status" => 200,
+                        "message" => "Mail adresi başarıyla eklendi."
+                    ]);
+                } else {
+                    echo json_encode([
+                        "status" => 400,
+                        "message" => "Mail adresi eklenirken bir sorun oluştu."
+                    ]);
+                }
+                exit;
+
+            } else if ($action === "update") {
+                if ($id <= 0) {
+                    echo json_encode([
+                        "status" => 400,
+                        "message" => "Geçersiz kayıt kimliği."
+                    ]);
+                    exit;
+                }
+
+                $updatePayload = [
+                    'mail_address' => $mailAddress,
+                    'description'  => $description,
+                    'account_type' => $accountType,
+                    'mail_user'    => $mailUser
+                ];
+
+                if ($mailPassword !== '') {
+                    $updatePayload['mail_password'] = $mailPassword;
+                }
+
+                $updated = $mailModel->updateAccount($id, $updatePayload);
+
+                if ($updated) {
+                    echo json_encode([
+                        "status" => 200,
+                        "message" => "Mail adresi başarıyla güncellendi."
+                    ]);
+                } else {
+                    echo json_encode([
+                        "status" => 400,
+                        "message" => "Güncelleme başarısız oldu."
+                    ]);
+                }
+                exit;
+            }
         }
 
         echo json_encode([
@@ -349,13 +353,13 @@ $usersList = $mailModel->getActiveUsers();
         display: none !important;
     }
 
-    /* Form & Table Card styling (Compact Header, Flush Table) */
+    /* Form & Table Card styling matching offers/list.php */
     .form-card {
         background: #ffffff;
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 0 !important;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        margin-bottom: 25px;
         border: 1px solid #e2e8f0;
         overflow: hidden;
     }
@@ -364,11 +368,11 @@ $usersList = $mailModel->getActiveUsers();
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 16px;
+        padding: 12px 18px;
         margin-bottom: 0;
         border-bottom: 1px solid #f1f5f9;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 10px;
     }
 
     .form-card-header .header-left-inner {
@@ -391,7 +395,7 @@ $usersList = $mailModel->getActiveUsers();
 
     .form-card-header h5 {
         margin: 0;
-        font-size: 14.5px;
+        font-size: 15px;
         font-weight: 700;
         color: #1e293b;
     }
@@ -401,28 +405,30 @@ $usersList = $mailModel->getActiveUsers();
         color: #64748b;
     }
 
-    /* Tablo Kompakt & Sıfır Kenar Boşluğu (Flush) */
-    #mailAccountsTable {
-        border-top: none !important;
-        border-left: none !important;
-        border-right: none !important;
-        margin-bottom: 0 !important;
+    .form-card .responsive {
+        padding: 4px !important;
     }
-    #mailAccountsTable th {
-        font-size: 12px;
-        font-weight: 600;
-        padding: 8px 12px;
-        background: #f8fafc;
-        color: #475569;
-        border-bottom: 2px solid #e2e8f0;
-        border-top: none !important;
-        white-space: nowrap !important;
-        vertical-align: middle !important;
+
+    .responsive {
+        overflow-x: hidden;
+        overflow-y: visible;
+        width: 100%;
+        min-height: 280px;
     }
-    #mailAccountsTable td {
-        font-size: 12.5px;
-        padding: 8px 12px;
-        vertical-align: middle;
+
+    /* DataTables'ın sabit genişliklerini ezmek için */
+    table.dataTable {
+        width: 100% !important;
+    }
+
+    .dataTables_length {
+        margin-left: 10px;
+    }
+
+    /* Dropdown menünün tablonun dışına taşabilmesi için */
+    table.data-table,
+    table.dataTable {
+        overflow: visible !important;
     }
 
     /* Segment Card Styling */
@@ -482,6 +488,351 @@ $usersList = $mailModel->getActiveUsers();
         border: 1px solid #e2e8f0 !important;
         font-size: 11px !important;
         font-weight: 600 !important;
+    }
+
+    /* Dark Mode Overrides */
+    .dark-mode .page-title-text h4 {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .page-title-text p {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .crm-kpi-card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+    .dark-mode .crm-kpi-label {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .crm-kpi-value {
+        color: #f8fafc !important;
+    }
+    .dark-mode .crm-kpi-footer {
+        border-top-color: #334155 !important;
+    }
+    .dark-mode .icon-primary { background: rgba(59, 130, 246, 0.15) !important; color: #60a5fa !important; }
+    .dark-mode .icon-emerald { background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; }
+    .dark-mode .icon-purple  { background: rgba(147, 51, 234, 0.15) !important; color: #c084fc !important; }
+    .dark-mode .icon-amber   { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; }
+
+    .dark-mode .soft-primary { background: rgba(59, 130, 246, 0.2) !important; color: #93c5fd !important; }
+    .dark-mode .soft-emerald { background: rgba(16, 185, 129, 0.2) !important; color: #6ee7b7 !important; }
+    .dark-mode .soft-purple  { background: rgba(147, 51, 234, 0.2) !important; color: #d8b4fe !important; }
+
+    .dark-mode .form-card {
+        background: #282828 !important;
+        border-color: #383838 !important;
+    }
+    .dark-mode .form-card-header {
+        border-bottom: 2px solid #383838 !important;
+    }
+    .dark-mode .form-card-header h5 {
+        color: #60a5fa !important;
+    }
+    .dark-mode .form-card-header p {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .form-card-header .card-icon {
+        background: #1e293b !important;
+        color: #60a5fa !important;
+    }
+    /* Mail Address Link */
+    .mail-addr-link {
+        color: #0f172a !important;
+        text-decoration: none !important;
+        transition: color 0.15s ease, transform 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .mail-addr-link:hover {
+        color: #0284c7 !important;
+        text-decoration: none !important;
+    }
+    .mail-addr-link:hover i {
+        transform: scale(1.15);
+    }
+    .dark-mode .mail-addr-link {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .mail-addr-link:hover {
+        color: #38bdf8 !important;
+    }
+
+    /* Modal Polishing & Input Borders */
+    #mailAccountModal .modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+    #mailAccountModal .modal-header {
+        padding: 16px 20px;
+        background: #ffffff;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    #mailAccountModal .modal-body {
+        padding: 20px 22px;
+        background: #ffffff;
+    }
+    #mailAccountModal .modal-footer {
+        padding: 14px 22px;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+    }
+    
+    /* Perfect unified input groups with complete borders */
+    #mailAccountModal .input-group {
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        background: #ffffff;
+        overflow: hidden;
+        display: flex;
+        align-items: stretch;
+    }
+    #mailAccountModal .input-group:focus-within {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+    }
+    #mailAccountModal .input-group-prepend {
+        margin-right: 0 !important;
+        display: flex;
+    }
+    #mailAccountModal .input-group-prepend .input-group-text {
+        background: #f8fafc !important;
+        border: none !important;
+        border-right: 1px solid #e2e8f0 !important;
+        color: #64748b !important;
+        padding: 0 14px !important;
+        font-size: 14px;
+        border-radius: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    #mailAccountModal .input-group .form-control {
+        border: none !important;
+        box-shadow: none !important;
+        height: 42px !important;
+        font-size: 13.5px !important;
+        padding: 8px 12px !important;
+        background: transparent !important;
+        color: #1e293b !important;
+        border-radius: 0 !important;
+        flex: 1 1 auto;
+    }
+    #mailAccountModal .input-group-append {
+        margin-left: 0 !important;
+        display: flex;
+    }
+    #mailAccountModal .input-group-append .btn {
+        border: none !important;
+        box-shadow: none !important;
+        background: #f8fafc !important;
+        border-left: 1px solid #e2e8f0 !important;
+        color: #64748b !important;
+        padding: 0 14px !important;
+        border-radius: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    #mailAccountModal .input-group-append .btn:hover {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+    }
+    
+    /* Standalone modal inputs */
+    #mailAccountModal select.form-control,
+    #mailAccountModal input.form-control:not(.input-group .form-control) {
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        height: 42px !important;
+        font-size: 13.5px !important;
+        padding: 8px 12px !important;
+        background: #ffffff !important;
+        color: #1e293b !important;
+        box-shadow: none !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    #mailAccountModal select.form-control:focus,
+    #mailAccountModal input.form-control:not(.input-group .form-control):focus {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+    }
+
+    /* Modal Select2 Styling */
+    #mailAccountModal .select2-container {
+        width: 100% !important;
+        display: block !important;
+    }
+    #mailAccountModal .select2-container--default .select2-selection--single {
+        height: 42px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        background: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    #mailAccountModal .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b !important;
+        font-size: 13.5px !important;
+        line-height: normal !important;
+        padding-left: 12px !important;
+        padding-right: 32px !important;
+        display: flex;
+        align-items: center;
+    }
+    #mailAccountModal .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #94a3b8 !important;
+    }
+    #mailAccountModal .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        right: 8px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #mailAccountModal .select2-container--default.select2-container--focus .select2-selection--single,
+    #mailAccountModal .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #0284c7 !important;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+    }
+    
+    /* Select2 Dropdown inside modal */
+    .select2-dropdown {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        z-index: 999999 !important;
+        overflow: hidden !important;
+    }
+    .select2-container--default .select2-search--dropdown {
+        padding: 8px !important;
+        background: #f8fafc;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px !important;
+        padding: 6px 10px !important;
+        font-size: 13px !important;
+        outline: none !important;
+    }
+    .select2-container--default .select2-results__option {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+    }
+
+    /* Modal Dark Mode */
+    .dark-mode #mailAccountModal .modal-content {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+    }
+    .dark-mode #mailAccountModal .modal-header {
+        background: #1e293b !important;
+        border-bottom-color: #334155 !important;
+    }
+    .dark-mode #mailAccountModal .modal-header h5 {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #mailAccountModal .modal-body {
+        background: #1e293b !important;
+    }
+    .dark-mode #mailAccountModal .modal-footer {
+        background: #0f172a !important;
+        border-top-color: #334155 !important;
+    }
+    .dark-mode #mailAccountModal label {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #mailAccountModal .input-group {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+    }
+    .dark-mode #mailAccountModal .input-group:focus-within {
+        border-color: #38bdf8 !important;
+    }
+    .dark-mode #mailAccountModal .input-group-prepend .input-group-text,
+    .dark-mode #mailAccountModal .input-group-append .btn {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #94a3b8 !important;
+    }
+    .dark-mode #mailAccountModal .input-group .form-control {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #mailAccountModal select.form-control,
+    .dark-mode #mailAccountModal input.form-control:not(.input-group .form-control) {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #mailAccountModal select.form-control:focus,
+    .dark-mode #mailAccountModal input.form-control:not(.input-group .form-control):focus {
+        border-color: #38bdf8 !important;
+    }
+    .dark-mode #mailAccountModal .card-box {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode #mailAccountModal .acc-type-radio:checked + .card-box {
+        background: rgba(2, 132, 199, 0.25) !important;
+        border-color: #38bdf8 !important;
+    }
+    .dark-mode #mailAccountModal .card-box strong {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #mailAccountModal .modal-info-box {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        color: #94a3b8 !important;
+    }
+    .dark-mode #mailAccountModal .select2-container--default .select2-selection--single {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+    }
+    .dark-mode #mailAccountModal .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #mailAccountModal .select2-container--default.select2-container--focus .select2-selection--single,
+    .dark-mode #mailAccountModal .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #38bdf8 !important;
+    }
+    .dark-mode .select2-dropdown {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .select2-container--default .select2-search--dropdown {
+        background: #0f172a !important;
+    }
+    .dark-mode .select2-container--default .select2-search--dropdown .select2-search__field {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .select2-container--default .select2-results__option {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+    }
+    .dark-mode .data-table .form-control {
+        background: #1e1e1e !important;
+        color: #e2e8f0 !important;
+        border-color: #383838 !important;
     }
 </style>
 
@@ -592,31 +943,36 @@ $usersList = $mailModel->getActiveUsers();
     </div>
 
     <!-- Tablo Kartı -->
-    <div class="form-card animate-fade-in">
-        <div class="form-card-header">
+    <div class="form-card animate-fade-in mx-1">
+        <div class="form-card-header d-flex justify-content-between align-items-center">
             <div class="header-left-inner">
                 <div class="card-icon">
-                    <i class="fa fa-list-alt"></i>
+                    <i class="fa fa-list"></i>
                 </div>
                 <div>
                     <h5>Tanımlı E-Posta Hesapları</h5>
-                    <p>Giden e-postalarda kullanılacak yetkilendirilmiş hesap listesi</p>
+                    <p>Anlık arama, sütun filtreleme ve e-posta hesabı yönetimi</p>
                 </div>
+            </div>
+            <div class="d-flex align-items-center" style="gap: 8px;">
+                <button type="button" id="toggleKpiSummary" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle / Göster" style="border-radius: 6px; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fa fa-chevron-up"></i>
+                </button>
             </div>
         </div>
 
-        <div class="table-responsive p-0">
-            <table class="table table-hover table-striped" id="mailAccountsTable" style="width: 100%;">
+        <div class="responsive">
+            <table id="mailAccountsTable" class="data-table table-hover table-bordered" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th class="text-center" style="width: 40px;">#</th>
-                        <th>MAIL ADRESI</th>
-                        <th class="text-center" style="width: 130px;">HESAP TÜRÜ</th>
-                        <th>YETKILI / KULLANICI</th>
-                        <th>AÇIKLAMA</th>
-                        <th class="text-center" style="width: 140px;">EKLEYEN</th>
-                        <th class="text-center" style="width: 130px;">KAYIT TARIHI</th>
-                        <th class="text-center" style="width: 80px;">İŞLEM</th>
+                        <th class="text-center" style="width: 50px;">Sıra No</th>
+                        <th>Mail Adresi</th>
+                        <th class="text-center" style="width: 140px;">Hesap Türü</th>
+                        <th>Yetkili / Kullanıcı</th>
+                        <th>Açıklama</th>
+                        <th class="text-center" style="width: 130px;">Ekleyen</th>
+                        <th class="text-center" style="width: 140px;">Kayıt Tarihi</th>
+                        <th class="no-export text-center" style="width: 1%; white-space: nowrap;">İşlem</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -629,13 +985,25 @@ $usersList = $mailModel->getActiveUsers();
                         $desc = htmlspecialchars($row['description'] ?? '', ENT_QUOTES, 'UTF-8');
                         $createTime = htmlspecialchars($row['create_time'] ?? '-', ENT_QUOTES, 'UTF-8');
                         $creatorName = htmlspecialchars($row['creator_name'] ?? ($row['creator'] ? 'Kullanıcı #' . $row['creator'] : 'Sistem'), ENT_QUOTES, 'UTF-8');
+                        $mailUserId = (int)($row['mail_user'] ?? 0);
+                        $mailUserName = htmlspecialchars($row['mail_user_name'] ?? '', ENT_QUOTES, 'UTF-8');
+                        $mailUserTitle = htmlspecialchars($row['mail_user_title'] ?? '', ENT_QUOTES, 'UTF-8');
                     ?>
                         <tr id="mail-row-<?php echo $accId; ?>" data-id="<?php echo $accId; ?>">
                             <td class="text-center font-weight-bold text-muted"><?php echo $seq++; ?></td>
                             <td>
-                                <span class="font-weight-bold text-dark font-13">
+                                <a href="javascript:void(0);" class="btn-edit-account mail-addr-link font-weight-bold font-13" 
+                                    data-id="<?php echo $accId; ?>" 
+                                    data-email="<?php echo $mailAddr; ?>" 
+                                    data-type="<?php echo $accType; ?>" 
+                                    data-user="<?php echo $mailUserId; ?>" 
+                                    data-user-name="<?php echo $mailUserName; ?>"
+                                    data-user-title="<?php echo $mailUserTitle; ?>"
+                                    data-desc="<?php echo $desc; ?>"
+                                    data-has-pass="<?php echo !empty($row['mail_password']) ? '1' : '0'; ?>"
+                                    title="Düzenlemek için tıklayın">
                                     <i class="fa fa-envelope-o text-primary mr-1"></i> <?php echo $mailAddr; ?>
-                                </span>
+                                </a>
                                 <?php if (!empty($row['mail_password'])): ?>
                                     <span class="mail-badge mail-badge-smtp ml-1" title="Bu hesaba özel SMTP şifresi tanımlanmıştır">
                                         <i class="fa fa-key mr-1"></i> SMTP Tanımlı
@@ -659,13 +1027,11 @@ $usersList = $mailModel->getActiveUsers();
                                         <i class="fa fa-users mr-1"></i> Tüm Personel
                                     </span>
                                 <?php else: 
-                                    $userName = $row['mail_user_name'] ?? '';
-                                    $userTitle = $row['mail_user_title'] ?? '';
-                                    $displayName = !empty($userName) ? $userName : 'Kullanıcı #' . $row['mail_user'];
+                                    $displayName = !empty($mailUserName) ? $mailUserName : ($mailUserId > 0 ? 'Kullanıcı #' . $mailUserId : '-');
                                 ?>
-                                    <span class="font-weight-bold text-dark"><?php echo htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8'); ?></span>
-                                    <?php if (!empty($userTitle)): ?>
-                                        <small class="text-muted d-block font-11"><?php echo htmlspecialchars($userTitle, ENT_QUOTES, 'UTF-8'); ?></small>
+                                    <span class="font-weight-bold text-dark"><?php echo $displayName; ?></span>
+                                    <?php if (!empty($mailUserTitle)): ?>
+                                        <small class="text-muted d-block font-11"><?php echo $mailUserTitle; ?></small>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </td>
@@ -690,7 +1056,9 @@ $usersList = $mailModel->getActiveUsers();
                                         data-id="<?php echo $accId; ?>" 
                                         data-email="<?php echo $mailAddr; ?>" 
                                         data-type="<?php echo $accType; ?>" 
-                                        data-user="<?php echo (int)$row['mail_user']; ?>" 
+                                        data-user="<?php echo $mailUserId; ?>" 
+                                        data-user-name="<?php echo $mailUserName; ?>"
+                                        data-user-title="<?php echo $mailUserTitle; ?>"
                                         data-desc="<?php echo $desc; ?>"
                                         data-has-pass="<?php echo !empty($row['mail_password']) ? '1' : '0'; ?>"
                                         title="Düzenle">
@@ -715,25 +1083,25 @@ $usersList = $mailModel->getActiveUsers();
 
 <!-- Modal Ekle/Düzenle -->
 <div class="modal fade" id="mailAccountModal" tabindex="-1" role="dialog" aria-labelledby="mailAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 500px;">
-        <div class="modal-content" style="border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.12);">
-            <div class="modal-header d-flex align-items-center justify-content-between" style="padding: 14px 20px; border-bottom: 1px solid #f1f5f9;">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center" style="gap: 12px;">
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);">
                         <i class="fa fa-at" id="modalHeaderIcon"></i>
                     </div>
                     <div>
                         <h5 class="modal-title font-weight-bold mb-0" id="mailAccountModalLabel" style="font-size: 16px; color: #1e293b;">Yeni Mail Hesabı Ekle</h5>
-                        <small class="text-muted font-12">E-posta, şifre ve kullanıcı tanımlaması</small>
+                        <small class="text-muted font-12">Giden e-postalarda kullanılacak hesap ve şifre yapılandırması</small>
                     </div>
                 </div>
-                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat" style="font-size: 24px; color: #94a3b8; outline: none; opacity: 0.8;">
+                <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat" style="font-size: 24px; color: #94a3b8; outline: none; opacity: 0.8; cursor: pointer;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
             <form id="mailAccountForm" method="post" novalidate>
-                <div class="modal-body p-4" style="background: #ffffff;">
+                <div class="modal-body">
                     <input type="hidden" id="form_account_id" name="id" value="0">
                     <input type="hidden" id="form_action" name="action" value="new">
 
@@ -742,26 +1110,26 @@ $usersList = $mailModel->getActiveUsers();
                         <label class="font-weight-bold text-dark font-12 mb-2 d-block">
                             Hesap Türü <span class="text-danger">*</span>
                         </label>
-                        <div class="d-flex" style="gap: 10px;">
+                        <div class="d-flex" style="gap: 12px;">
                             <label class="account-type-card flex-fill cursor-pointer mb-0" for="acc_type_general">
                                 <input type="radio" name="account_type" id="acc_type_general" value="1" class="d-none acc-type-radio">
-                                <div class="card-box p-2 text-center border rounded transition-all" style="border-radius: 8px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc;">
-                                    <div class="type-icon mb-1" style="font-size: 16px; color: #059669;">
+                                <div class="card-box p-3 text-center border rounded transition-all">
+                                    <div class="type-icon mb-1" style="font-size: 18px; color: #059669;">
                                         <i class="fa fa-globe"></i>
                                     </div>
                                     <strong class="d-block font-12 text-dark">Genel Mail</strong>
-                                    <small class="text-muted font-11">Tüm Personel</small>
+                                    <small class="text-muted font-11">Tüm Personel Erişebilir</small>
                                 </div>
                             </label>
 
                             <label class="account-type-card flex-fill cursor-pointer mb-0" for="acc_type_user">
                                 <input type="radio" name="account_type" id="acc_type_user" value="2" class="d-none acc-type-radio" checked>
-                                <div class="card-box p-2 text-center border rounded transition-all" style="border-radius: 8px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc;">
-                                    <div class="type-icon mb-1" style="font-size: 16px; color: #2563eb;">
+                                <div class="card-box p-3 text-center border rounded transition-all">
+                                    <div class="type-icon mb-1" style="font-size: 18px; color: #2563eb;">
                                         <i class="fa fa-user"></i>
                                     </div>
                                     <strong class="d-block font-12 text-dark">Kullanıcı Maili</strong>
-                                    <small class="text-muted font-11">Özel Atanmış</small>
+                                    <small class="text-muted font-11">Seçili Personele Özel</small>
                                 </div>
                             </label>
                         </div>
@@ -774,11 +1142,11 @@ $usersList = $mailModel->getActiveUsers();
                         </label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-light text-muted border-right-0" style="border-radius: 6px 0 0 6px;">
+                                <span class="input-group-text">
                                     <i class="fa fa-envelope-o"></i>
                                 </span>
                             </div>
-                            <input type="email" class="form-control" id="modal_mail_address" name="mail_address" placeholder="ornek@aydinogullari.com" required style="border-radius: 0 6px 6px 0; font-size: 13px;">
+                            <input type="email" class="form-control" id="modal_mail_address" name="mail_address" placeholder="ornek@aydinogullari.com" required autocomplete="off">
                         </div>
                     </div>
 
@@ -789,20 +1157,21 @@ $usersList = $mailModel->getActiveUsers();
                         </label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text bg-light text-muted border-right-0" style="border-radius: 6px 0 0 6px;">
+                                <span class="input-group-text">
                                     <i class="fa fa-lock"></i>
                                 </span>
                             </div>
-                            <input type="password" class="form-control" id="modal_mail_password" name="mail_password" placeholder="Bu hesaba özel SMTP şifresi..." style="border-radius: 0; font-size: 13px;">
+                            <input type="password" class="form-control" id="modal_mail_password" name="mail_password" placeholder="Bu hesaba özel SMTP şifresi..." autocomplete="new-password">
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-secondary border-left-0" id="btnToggleMailPass" style="border-radius: 0 6px 6px 0; background: #f8fafc;" title="Şifreyi Göster/Gizle">
+                                <button type="button" class="btn" id="btnToggleMailPass" title="Şifreyi Göster/Gizle">
                                     <i class="fa fa-eye text-muted" id="iconToggleMailPass"></i>
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted font-11 mt-1 d-block" id="help_mail_password">
-                            <i class="fa fa-info-circle mr-1"></i> Mail gönderiminde bu hesaba özel SMTP şifresi kullanılır. Boş bırakırsanız panel ana ayarları kullanılır.
-                        </small>
+                        <div class="modal-info-box p-2 px-3 mt-2 rounded border d-flex align-items-center" style="gap: 8px; font-size: 11.5px; background: #f8fafc; border-color: #e2e8f0; color: #475569;">
+                            <i class="fa fa-info-circle text-primary font-14 flex-shrink-0"></i>
+                            <span>Bu hesaba özel SMTP şifresi tanımlayabilirsiniz. Boş bırakılırsa panel ana SMTP ayarları kullanılır.</span>
+                        </div>
                     </div>
 
                     <!-- Kullanıcı Seçimi (Kullanıcı Maili için) -->
@@ -810,14 +1179,17 @@ $usersList = $mailModel->getActiveUsers();
                         <label class="font-weight-bold text-dark font-12 mb-1" for="modal_mail_user">
                             Hesap Sahibi Personel <span class="text-danger">*</span>
                         </label>
-                        <select class="form-control" id="modal_mail_user" name="mail_user" style="width: 100%; font-size: 13px; border-radius: 6px;">
+                        <select class="form-control select2" id="modal_mail_user" name="mail_user" style="width: 100%;">
                             <option value="">-- Personel Seçiniz --</option>
                             <?php foreach ($usersList as $u):
                                 $uid = (int)$u['id'];
                                 $uname = htmlspecialchars($u['username'] ?? '', ENT_QUOTES, 'UTF-8');
                                 $utitle = htmlspecialchars($u['Unvan'] ?? '', ENT_QUOTES, 'UTF-8');
                             ?>
-                                <option value="<?php echo $uid; ?>">
+                                <option value="<?php echo $uid; ?>" 
+                                    data-person-id="<?php echo $uid; ?>" 
+                                    data-fullname="<?php echo $uname; ?>" 
+                                    data-title="<?php echo $utitle; ?>">
                                     <?php echo $uname . (!empty($utitle) ? " ({$utitle})" : ""); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -827,15 +1199,17 @@ $usersList = $mailModel->getActiveUsers();
                     <!-- Açıklama -->
                     <div class="form-group mb-0">
                         <label class="font-weight-bold text-dark font-12 mb-1" for="modal_description">
-                            Açıklama / Not
+                            Açıklama / Not <small class="text-muted font-11 font-weight-normal">(Opsiyonel)</small>
                         </label>
-                        <input type="text" class="form-control" id="modal_description" name="description" placeholder="Örn: Proje & Satış Departmanı" style="border-radius: 6px; font-size: 13px;">
+                        <input type="text" class="form-control" id="modal_description" name="description" placeholder="Örn: Proje & Satış Departmanı">
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between">
-                    <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-dismiss="modal" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4" id="btnSaveAccount">
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal" style="border-radius: 8px; height: 36px; font-weight: 500;">
+                        Vazgeç
+                    </button>
+                    <button type="submit" class="btn btn-action-primary" id="btnSaveAccount" style="height: 36px; padding: 0 20px;">
                         <i class="fa fa-save mr-1"></i> <span id="saveBtnText">Kaydet</span>
                     </button>
                 </div>
@@ -860,43 +1234,135 @@ $(document).ready(function() {
         }
     });
 
-    // KPI Collapse Durumu Kontrolü
+    // KPI Summary Section Toggle & LocalStorage
     var $kpiSection = $('#kpiSummarySection');
-    var $kpiBtn = $('#kpiToggleBtn');
-    
-    if (localStorage.getItem('aydinogullari_kpi_mailaccounts_collapsed') === 'true') {
+    var isKpiCollapsed = localStorage.getItem('aydinogullari_kpi_mailaccounts_collapsed') === 'true';
+    if (isKpiCollapsed) {
         $kpiSection.addClass('is-collapsed');
-        $kpiBtn.addClass('active btn-secondary').removeClass('btn-outline-secondary');
+        $('#kpiToggleBtn').addClass('active btn-secondary').removeClass('btn-outline-secondary');
+        $('#toggleKpiSummary i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
     }
 
-    $kpiBtn.on('click', function(e) {
-        e.preventDefault();
-        $kpiSection.toggleClass('is-collapsed');
-        var isCollapsed = $kpiSection.hasClass('is-collapsed');
-        localStorage.setItem('aydinogullari_kpi_mailaccounts_collapsed', isCollapsed);
-        
-        if (isCollapsed) {
-            $kpiBtn.addClass('active btn-secondary').removeClass('btn-outline-secondary');
+    function toggleKpiSummary() {
+        var willCollapse = !$kpiSection.hasClass('is-collapsed');
+        if (willCollapse) {
+            $kpiSection.addClass('is-collapsed');
+            $('#kpiToggleBtn').addClass('active btn-secondary').removeClass('btn-outline-secondary');
+            $('#toggleKpiSummary i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            localStorage.setItem('aydinogullari_kpi_mailaccounts_collapsed', 'true');
         } else {
-            $kpiBtn.removeClass('active btn-secondary').addClass('btn-outline-secondary');
+            $kpiSection.removeClass('is-collapsed');
+            $('#kpiToggleBtn').removeClass('active btn-secondary').addClass('btn-outline-secondary');
+            $('#toggleKpiSummary i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            localStorage.setItem('aydinogullari_kpi_mailaccounts_collapsed', 'false');
         }
+    }
+
+    $(document).on('click', '#kpiToggleBtn, #toggleKpiSummary', function(e) {
+        e.preventDefault();
+        toggleKpiSummary();
     });
 
     // DataTable Başlatma
     var table = null;
     if ($.fn.DataTable && !$.fn.DataTable.isDataTable('#mailAccountsTable')) {
         table = $('#mailAccountsTable').DataTable({
-            responsive: true,
+            retrieve: true,
+            responsive: false,
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tümü"]],
-            order: [[0, 'asc']]
+            language: {
+                url: "include/js/tr.json"
+            },
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, searchable: false, targets: [0, 7] },
+                { className: "text-center", targets: [0, 2, 5, 6, 7] }
+            ],
+            initComplete: function () {
+                if (window.App && window.App.TableFilter) {
+                    App.TableFilter.attachToTable(this.api().table().node());
+                }
+            }
         });
+    }
+
+    // Select2 Formatlama Fonksiyonları
+    function formatUserOption(item) {
+        if (!item.id) return item.text;
+        var $el = $(item.element);
+        var fullname = $el.data('fullname') || item.text;
+        var title = $el.data('title');
+        
+        var $wrap = $('<div style="padding: 2px 0; line-height: 1.25;"></div>');
+        var $name = $('<div style="font-weight: 600; font-size: 13px;"></div>').text(fullname);
+        $wrap.append($name);
+        
+        if (title) {
+            var $sub = $('<div style="font-size: 11px; opacity: 0.75; margin-top: 1px;"></div>').text(title);
+            $wrap.append($sub);
+        }
+        
+        return $wrap;
+    }
+
+    function formatUserSelection(item) {
+        if (!item.id) return item.text;
+        var $el = $(item.element);
+        var fullname = $el.data('fullname') || item.text;
+        var title = $el.data('title');
+        if (title) {
+            return fullname + ' (' + title + ')';
+        }
+        return fullname;
+    }
+
+    // Select2 Başlatma
+    if ($.fn.select2) {
+        $('#modal_mail_user').select2({
+            dropdownParent: $('#mailAccountModal'),
+            placeholder: '-- Personel Seçiniz --',
+            allowClear: true,
+            width: '100%',
+            templateResult: formatUserOption,
+            templateSelection: formatUserSelection
+        });
+    }
+
+    // Güvenli Kullanıcı Seçim Fonksiyonu
+    function setModalUser(userId, userName, userTitle) {
+        var $select = $('#modal_mail_user');
+        if (!userId || userId == '0' || userId === 0 || userId === '') {
+            $select.val('').trigger('change');
+            return;
+        }
+        
+        var strId = String(userId);
+        if ($select.find('option[value="' + strId + '"]').length === 0) {
+            var displayLabel = userName || ('Personel #' + strId);
+            if (userTitle) displayLabel += ' (' + userTitle + ')';
+            var newOpt = $('<option>', {
+                value: strId,
+                text: displayLabel
+            }).attr('data-person-id', strId).attr('data-fullname', userName || displayLabel).attr('data-title', userTitle || '');
+            $select.append(newOpt);
+        }
+        
+        $select.val(strId).trigger('change');
     }
 
     // Modal Hesap Türü Değişimi
     $('input[name="account_type"]').on('change', function() {
         if ($(this).val() == '2') {
             $('#group_mail_user').slideDown(150);
+            if (!$('#modal_mail_user').val()) {
+                var origUser = $('#mailAccountForm').data('orig-user');
+                var origName = $('#mailAccountForm').data('orig-user-name');
+                var origTitle = $('#mailAccountForm').data('orig-user-title');
+                if (origUser && origUser != '0') {
+                    setModalUser(origUser, origName, origTitle);
+                }
+            }
         } else {
             $('#group_mail_user').slideUp(150);
         }
@@ -906,6 +1372,7 @@ $(document).ready(function() {
     $('#btnOpenAddModal').on('click', function(e) {
         e.preventDefault();
         $('#mailAccountForm')[0].reset();
+        $('#mailAccountForm').removeData('orig-user').removeData('orig-user-name').removeData('orig-user-title');
         $('#form_account_id').val('0');
         $('#form_action').val('new');
         $('#mailAccountModalLabel').text('Yeni Mail Hesabı Ekle');
@@ -916,8 +1383,9 @@ $(document).ready(function() {
         $('#iconToggleMailPass').removeClass('fa-eye-slash').addClass('fa-eye');
         
         // Varsayılan Kullanıcı Hesabı
-        $('#acc_type_user').prop('checked', true).trigger('change');
-        $('#modal_mail_user').val('');
+        $('#acc_type_user').prop('checked', true);
+        $('#group_mail_user').show();
+        $('#modal_mail_user').val('').trigger('change');
 
         $('#mailAccountModal').modal('show');
     });
@@ -926,12 +1394,14 @@ $(document).ready(function() {
     $(document).on('click', '.btn-edit-account', function(e) {
         e.preventDefault();
         var btn = $(this);
-        var id = btn.data('id');
-        var email = btn.data('email');
-        var type = btn.data('type');
-        var user = btn.data('user');
-        var desc = btn.data('desc');
-        var hasPass = btn.data('has-pass');
+        var id = btn.attr('data-id') || btn.data('id');
+        var email = btn.attr('data-email') || btn.data('email') || '';
+        var type = btn.attr('data-type') || btn.data('type') || 1;
+        var user = btn.attr('data-user') || btn.data('user') || '';
+        var userName = btn.attr('data-user-name') || btn.data('user-name') || '';
+        var userTitle = btn.attr('data-user-title') || btn.data('user-title') || '';
+        var desc = btn.attr('data-desc') || btn.data('desc') || '';
+        var hasPass = btn.attr('data-has-pass') || btn.data('has-pass');
 
         $('#form_account_id').val(id);
         $('#form_action').val('update');
@@ -951,14 +1421,27 @@ $(document).ready(function() {
             $('#modal_mail_password').attr('placeholder', 'Şifre tanımlı değil (İsteğe bağlı giriniz)');
         }
 
-        if (type == 1) {
-            $('#acc_type_general').prop('checked', true).trigger('change');
+        // Orijinal kullanıcıyı formda sakla
+        $('#mailAccountForm').data('orig-user', user);
+        $('#mailAccountForm').data('orig-user-name', userName);
+        $('#mailAccountForm').data('orig-user-title', userTitle);
+
+        if (parseInt(type) === 1) {
+            $('#acc_type_general').prop('checked', true);
+            $('#group_mail_user').hide();
+            setModalUser(user, userName, userTitle);
         } else {
-            $('#acc_type_user').prop('checked', true).trigger('change');
-            $('#modal_mail_user').val(user);
+            $('#acc_type_user').prop('checked', true);
+            $('#group_mail_user').show();
+            setModalUser(user, userName, userTitle);
         }
 
         $('#mailAccountModal').modal('show');
+    });
+
+    // Modal açıldığında e-posta alanına odaklan
+    $('#mailAccountModal').on('shown.bs.modal', function () {
+        $('#modal_mail_address').trigger('focus');
     });
 
     // Form Gönderimi (AJAX)
