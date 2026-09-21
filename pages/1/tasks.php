@@ -241,6 +241,9 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 						
 						$lastDateFormatted = !empty($row["last_date"]) ? htmlspecialchars($row["last_date"], ENT_QUOTES, 'UTF-8') : '-';
 						$regDateFormatted = !empty($row["regdate"]) ? htmlspecialchars($row["regdate"], ENT_QUOTES, 'UTF-8') : '-';
+						$taskTitleEscaped = htmlspecialchars($row["title"] ?? '', ENT_QUOTES, 'UTF-8');
+						$taskDescEscaped = htmlspecialchars($row["description"] ?? '', ENT_QUOTES, 'UTF-8');
+						$creatorNameEscaped = htmlspecialchars($creatorName, ENT_QUOTES, 'UTF-8');
 
 						// Gecikme Kontrolü (Son tarih geçmiş ve yapılmamış ise)
 						$isOverdue = false;
@@ -250,8 +253,21 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 								$isOverdue = true;
 							}
 						}
+
+						$canEdit = (function_exists('permtrue') && permtrue("todoedit")) ? '1' : '0';
+						$canDelete = (function_exists('permtrue') && permtrue("tododelete") && $status !== 1) ? '1' : '0';
 					?>
-						<tr class="<?php echo $status === 1 ? 'task-row-done' : ''; ?>">
+						<tr class="<?php echo $status === 1 ? 'task-row-done' : ''; ?>"
+							data-id="<?php echo $row['id']; ?>"
+							data-title="<?php echo $taskTitleEscaped; ?>"
+							data-status="<?php echo $status; ?>"
+							data-status-text="<?php echo $statusText; ?>"
+							data-creator="<?php echo $creatorNameEscaped; ?>"
+							data-sdate="<?php echo $regDateFormatted; ?>"
+							data-lastdate="<?php echo $lastDateFormatted; ?>"
+							data-desc="<?php echo $taskDescEscaped; ?>"
+							data-can-edit="<?php echo $canEdit; ?>"
+							data-can-delete="<?php echo $canDelete; ?>">
 							<!-- #Sıra -->
 							<td class="text-center font-weight-bold" style="vertical-align: middle; color: #64748b;">
 								<?php echo $rowNum; ?>
@@ -269,17 +285,17 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 										class="task-title-link view-task-btn <?php echo $status === 1 ? 'task-title-done' : ''; ?>" 
 										style="font-size: 14.5px; text-decoration: none;"
 										data-id="<?php echo $row['id']; ?>"
-										data-title="<?php echo htmlspecialchars($row['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+										data-title="<?php echo $taskTitleEscaped; ?>"
 										data-status="<?php echo $status; ?>"
 										data-status-text="<?php echo $statusText; ?>"
-										data-creator="<?php echo htmlspecialchars($creatorName, ENT_QUOTES, 'UTF-8'); ?>"
+										data-creator="<?php echo $creatorNameEscaped; ?>"
 										data-sdate="<?php echo $regDateFormatted; ?>"
 										data-lastdate="<?php echo $lastDateFormatted; ?>"
-										data-desc="<?php echo htmlspecialchars($row['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+										data-desc="<?php echo $taskDescEscaped; ?>">
 										<?php if ($status === 1) { ?>
 											<i class="fa fa-check text-success mr-1"></i>
 										<?php } ?>
-										<?php echo htmlspecialchars($row["title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+										<?php echo $taskTitleEscaped; ?>
 									</a>
 									<?php if (!empty($shortDesc)) { ?>
 										<small class="text-muted mt-1" style="font-size: 12.5px; line-height: 1.35;">
@@ -295,7 +311,7 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 									<div class="user-avatar-placeholder mr-2">
 										<i class="fa fa-user"></i>
 									</div>
-									<span class="font-weight-500"><?php echo htmlspecialchars($creatorName, ENT_QUOTES, 'UTF-8'); ?></span>
+									<span class="font-weight-500"><?php echo $creatorNameEscaped; ?></span>
 								</div>
 							</td>
 
@@ -320,13 +336,13 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 										class="btn btn-sm btn-outline-primary task-action-btn view-task-btn" 
 										title="Görevi İncele"
 										data-id="<?php echo $row['id']; ?>"
-										data-title="<?php echo htmlspecialchars($row['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+										data-title="<?php echo $taskTitleEscaped; ?>"
 										data-status="<?php echo $status; ?>"
 										data-status-text="<?php echo $statusText; ?>"
-										data-creator="<?php echo htmlspecialchars($creatorName, ENT_QUOTES, 'UTF-8'); ?>"
+										data-creator="<?php echo $creatorNameEscaped; ?>"
 										data-sdate="<?php echo $regDateFormatted; ?>"
 										data-lastdate="<?php echo $lastDateFormatted; ?>"
-										data-desc="<?php echo htmlspecialchars($row['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+										data-desc="<?php echo $taskDescEscaped; ?>">
 										<i class="fa fa-eye"></i>
 									</button>
 
@@ -373,14 +389,16 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 										</a>
 									<?php } ?>
 
-									<!-- Sil Butonu -->
+									<!-- Sil Butonu (SweetAlert2 Tetikleyici) -->
 									<?php if (function_exists('permtrue') && permtrue("tododelete") && $status !== 1) { ?>
-										<a href="index.php?p=tasks&mode=delete&code=04md177&id=<?php echo $row["id"]; ?>" 
-											onclick="return confirm('\'<?php echo addslashes(htmlspecialchars($row["title"] ?? '', ENT_QUOTES, 'UTF-8')); ?>\' başlıklı görevi silmek istediğinize emin misiniz?');" 
-											class="btn btn-sm btn-outline-danger task-action-btn" 
-											title="Sil">
+										<button type="button" 
+											class="btn btn-sm btn-outline-danger task-action-btn btn-delete-task" 
+											title="Sil"
+											data-id="<?php echo $row["id"]; ?>"
+											data-title="<?php echo $taskTitleEscaped; ?>"
+											data-url="index.php?p=tasks&mode=delete&code=04md177&id=<?php echo $row["id"]; ?>">
 											<i class="fa fa-trash"></i>
-										</a>
+										</button>
 									<?php } ?>
 
 								</div>
@@ -880,6 +898,112 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 }
 
 /* Dark Mode Desteği */
+/* Context Menu Stilleri */
+.custom-context-menu {
+	position: fixed;
+	z-index: 99999;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+	padding: 6px 0;
+	min-width: 220px;
+	max-width: 320px;
+	display: none;
+	animation: cmFadeIn 0.15s ease-out;
+}
+@keyframes cmFadeIn {
+	from { opacity: 0; transform: scale(0.96); }
+	to { opacity: 1; transform: scale(1); }
+}
+.custom-context-menu .cm-header {
+	padding: 8px 14px 6px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	border-bottom: 1px solid #f1f5f9;
+	margin-bottom: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.custom-context-menu a,
+.custom-context-menu button {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 8px 14px;
+	font-size: 13.5px;
+	color: #334155;
+	text-decoration: none;
+	background: none;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+.custom-context-menu a:hover,
+.custom-context-menu button:hover {
+	background-color: #f1f5f9;
+	color: #0f172a;
+	text-decoration: none;
+}
+.custom-context-menu a.cm-danger,
+.custom-context-menu button.cm-danger {
+	color: #ef4444;
+}
+.custom-context-menu a.cm-danger:hover,
+.custom-context-menu button.cm-danger:hover {
+	background-color: #fef2f2;
+	color: #dc2626;
+}
+.custom-context-menu i {
+	width: 18px;
+	text-align: center;
+	font-size: 14px;
+	margin-right: 8px;
+}
+.custom-context-menu .cm-divider {
+	height: 1px;
+	background: #f1f5f9;
+	margin: 4px 0;
+}
+tr.context-menu-active {
+	background-color: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* Dark Mode Desteği */
+.dark-mode .custom-context-menu {
+	background: #1e293b !important;
+	border-color: #334155 !important;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+.dark-mode .custom-context-menu .cm-header {
+	color: #94a3b8 !important;
+	border-bottom-color: #334155 !important;
+}
+.dark-mode .custom-context-menu a,
+.dark-mode .custom-context-menu button {
+	color: #e2e8f0 !important;
+}
+.dark-mode .custom-context-menu a:hover,
+.dark-mode .custom-context-menu button:hover {
+	background-color: #334155 !important;
+	color: #ffffff !important;
+}
+.dark-mode .custom-context-menu a.cm-danger:hover,
+.dark-mode .custom-context-menu button.cm-danger:hover {
+	background-color: rgba(239, 68, 68, 0.2) !important;
+	color: #fca5a5 !important;
+}
+.dark-mode .custom-context-menu .cm-divider {
+	background: #334155 !important;
+}
+.dark-mode tr.context-menu-active {
+	background-color: rgba(99, 102, 241, 0.18) !important;
+}
 .dark-mode .premium-modal-content,
 .dark-mode .premium-modal-header,
 .dark-mode .task-desc-box {
@@ -986,18 +1110,16 @@ $(document).ready(function () {
 		}
 	});
 
-	// Görev Detay Modalı Tetikleyici
-	$(document).on("click", ".view-task-btn", function (e) {
-		e.preventDefault();
-		var btn = $(this);
-		var tid = btn.attr("data-id");
-		var title = btn.attr("data-title");
-		var status = parseInt(btn.attr("data-status"), 10);
-		var statusText = btn.attr("data-status-text");
-		var creator = btn.attr("data-creator");
-		var sdate = btn.attr("data-sdate");
-		var lastdate = btn.attr("data-lastdate");
-		var desc = btn.attr("data-desc");
+	// Görev Detay Modalı Gösterme Fonksiyonu
+	function showTaskDetails(data) {
+		var tid = data.id || "";
+		var title = data.title || "";
+		var status = parseInt(data.status, 10);
+		var statusText = data.statusText || "";
+		var creator = data.creator || "";
+		var sdate = data.sdate || "";
+		var lastdate = data.lastdate || "";
+		var desc = data.desc || "";
 
 		$("#viewModalTitle").text(title || "Görev Detayı");
 		$("#viewModalTaskSubtitle").text("Görev Kaydı #" + tid);
@@ -1026,6 +1148,7 @@ $(document).ready(function () {
 			actionsHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=3" class="btn btn-sm btn-danger mr-2" style="border-radius: 6px;"><i class="fa fa-undo mr-1"></i> Yapılmadı Olarak Geri Al</a>';
 		} else if (status === 2) {
 			actionsHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=1" class="btn btn-sm btn-success mr-2" style="border-radius: 6px;"><i class="fa fa-check mr-1"></i> Yapıldı Olarak İşaretle</a>';
+			actionsHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=3" class="btn btn-sm btn-danger" style="border-radius: 6px;"><i class="fa fa-times mr-1"></i> Yapılmadı Olarak İşaretle</a>';
 		}
 		$("#viewModalStatusActions").html(actionsHtml);
 
@@ -1040,6 +1163,190 @@ $(document).ready(function () {
 			viewModal.show();
 		} else {
 			$('#viewTaskModal').modal('show');
+		}
+	}
+
+	// Görev Detay Modalı Tetikleyici
+	$(document).on("click", ".view-task-btn", function (e) {
+		e.preventDefault();
+		var btn = $(this);
+		showTaskDetails({
+			id: btn.attr("data-id"),
+			title: btn.attr("data-title"),
+			status: btn.attr("data-status"),
+			statusText: btn.attr("data-status-text"),
+			creator: btn.attr("data-creator"),
+			sdate: btn.attr("data-sdate"),
+			lastdate: btn.attr("data-lastdate"),
+			desc: btn.attr("data-desc")
+		});
+	});
+
+	// SweetAlert2 ile Görev Silme Onay Fonksiyonu
+	function confirmDeleteTask(taskTitle, deleteUrl) {
+		if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+			Swal.fire({
+				title: 'Görevi Silmek İstiyor Musunuz?',
+				html: '<b>"' + $('<div>').text(taskTitle || 'Seçilen Görev').html() + '"</b> başlıklı görev silinecektir.<br><small class="text-muted" style="font-size: 13px; display: inline-block; margin-top: 6px;">Bu işlem geri alınamaz.</small>',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#ef4444',
+				cancelButtonColor: '#64748b',
+				confirmButtonText: '<i class="fa fa-trash mr-1"></i> Evet, Sil',
+				cancelButtonText: '<i class="fa fa-times mr-1"></i> Vazgeç',
+				focusCancel: true,
+				customClass: {
+					confirmButton: 'btn btn-danger font-weight-600',
+					cancelButton: 'btn btn-secondary font-weight-600',
+					actions: 'd-flex justify-content-center align-items-center gap-2'
+				},
+				buttonsStyling: false
+			}).then(function (result) {
+				if (result.isConfirmed) {
+					window.location.href = deleteUrl;
+				}
+			});
+		} else {
+			if (confirm("'" + taskTitle + "' başlıklı görevi silmek istediğinize emin misiniz?")) {
+				window.location.href = deleteUrl;
+			}
+		}
+	}
+
+	// Tablodaki Sil Butonu Tıklaması
+	$(document).on("click", ".btn-delete-task", function (e) {
+		e.preventDefault();
+		var btn = $(this);
+		var taskTitle = btn.attr("data-title") || "";
+		var deleteUrl = btn.attr("data-url");
+		confirmDeleteTask(taskTitle, deleteUrl);
+	});
+
+	// ========================================================
+	// TABLODA SAĞ TIK (CONTEXT MENU) İŞLEMLERİ
+	// ========================================================
+	$(document).on('contextmenu', '#tasksTable tbody tr', function (e) {
+		if ($(this).find('td').length <= 1) return;
+
+		e.preventDefault();
+
+		var $tr = $(this);
+		$('#tasksTable tbody tr').removeClass('context-menu-active');
+		$tr.addClass('context-menu-active');
+
+		var tid = $tr.attr('data-id');
+		var taskTitle = $tr.attr('data-title') || 'Görev';
+		var status = parseInt($tr.attr('data-status'), 10);
+		var canEdit = $tr.attr('data-can-edit') === '1';
+		var canDelete = $tr.attr('data-can-delete') === '1';
+
+		var shortHeaderTitle = taskTitle.length > 28 ? taskTitle.substring(0, 28) + '...' : taskTitle;
+		var menuHtml = '<div class="cm-header"><i class="fa fa-tasks mr-1"></i> ' + $('<div>').text(shortHeaderTitle).html() + '</div>';
+
+		// 1. İncele / Detay Seçeneği
+		menuHtml += '<a href="#" class="cm-action-view" data-id="' + tid + '"><i class="fa fa-eye text-primary mr-2"></i> Görevi İncele</a>';
+
+		// 2. Durum Değiştirme Seçenekleri (Yetki varsa)
+		if (canEdit) {
+			menuHtml += '<div class="cm-divider"></div>';
+			if (status === 0) { // Yapılmadı ise
+				menuHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=1"><i class="fa fa-check text-success mr-2"></i> Yapıldı Olarak İşaretle</a>';
+				menuHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=2"><i class="fa fa-pause text-warning mr-2"></i> Görevi Ertele</a>';
+			} else if (status === 1) { // Yapıldı ise
+				menuHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=3"><i class="fa fa-undo text-secondary mr-2"></i> Yapılmadı Olarak Geri Al</a>';
+			} else if (status === 2) { // Ertelendi ise
+				menuHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=1"><i class="fa fa-check text-success mr-2"></i> Yapıldı Olarak İşaretle</a>';
+				menuHtml += '<a href="index.php?p=tasks&reg=true&md=update&id=' + tid + '&tt=3"><i class="fa fa-times text-danger mr-2"></i> Yapılmadı Olarak İşaretle</a>';
+			}
+
+			// 3. Düzenle Seçeneği
+			menuHtml += '<div class="cm-divider"></div>';
+			menuHtml += '<a href="index.php?p=task-edit&id=' + tid + '"><i class="fa fa-pencil text-info mr-2"></i> Görevi Düzenle</a>';
+		}
+
+		// 4. Sil Seçeneği (Yetki varsa ve tamamlanmamışsa)
+		if (canDelete) {
+			var deleteUrl = 'index.php?p=tasks&mode=delete&code=04md177&id=' + tid;
+			menuHtml += '<div class="cm-divider"></div>';
+			menuHtml += '<a href="#" class="cm-danger cm-action-delete" data-id="' + tid + '" data-title="' + $('<div>').text(taskTitle).html() + '" data-url="' + deleteUrl + '"><i class="fa fa-trash text-danger mr-2"></i> Görevi Sil</a>';
+		}
+
+		var $contextMenu = $('#customContextMenu');
+		if (!$contextMenu.length) {
+			$contextMenu = $('<div id="customContextMenu" class="custom-context-menu"></div>').appendTo('body');
+		}
+
+		$contextMenu.html(menuHtml);
+
+		var mouseX = e.clientX;
+		var mouseY = e.clientY;
+
+		$contextMenu.css({ display: 'block', visibility: 'hidden' });
+		var menuWidth = $contextMenu.outerWidth();
+		var menuHeight = $contextMenu.outerHeight();
+		var windowWidth = $(window).width();
+		var windowHeight = $(window).height();
+
+		if (mouseX + menuWidth > windowWidth) {
+			mouseX = windowWidth - menuWidth - 10;
+		}
+		if (mouseY + menuHeight > windowHeight) {
+			mouseY = windowHeight - menuHeight - 10;
+		}
+
+		$contextMenu.css({
+			top: mouseY + 'px',
+			left: mouseX + 'px',
+			visibility: 'visible',
+			opacity: '1'
+		});
+	});
+
+	// Context Menu'den İncele Tıklaması
+	$(document).on('click', '#customContextMenu .cm-action-view', function (e) {
+		e.preventDefault();
+		var tid = $(this).attr('data-id');
+		var $tr = $('#tasksTable tbody tr[data-id="' + tid + '"]');
+		if ($tr.length) {
+			showTaskDetails({
+				id: $tr.attr("data-id"),
+				title: $tr.attr("data-title"),
+				status: $tr.attr("data-status"),
+				statusText: $tr.attr("data-status-text"),
+				creator: $tr.attr("data-creator"),
+				sdate: $tr.attr("data-sdate"),
+				lastdate: $tr.attr("data-lastdate"),
+				desc: $tr.attr("data-desc")
+			});
+		}
+		$('#customContextMenu').hide();
+		$('#tasksTable tbody tr').removeClass('context-menu-active');
+	});
+
+	// Context Menu'den Sil Tıklaması
+	$(document).on('click', '#customContextMenu .cm-action-delete', function (e) {
+		e.preventDefault();
+		var item = $(this);
+		var taskTitle = item.attr('data-title');
+		var deleteUrl = item.attr('data-url');
+		$('#customContextMenu').hide();
+		$('#tasksTable tbody tr').removeClass('context-menu-active');
+		confirmDeleteTask(taskTitle, deleteUrl);
+	});
+
+	// Menü dışına tıklanınca veya sayfada kaydırma yapılınca kapat
+	$(document).on('click scroll', function (e) {
+		if (!$(e.target).closest('#customContextMenu').length) {
+			$('#customContextMenu').hide();
+			$('#tasksTable tbody tr').removeClass('context-menu-active');
+		}
+	});
+
+	// ESC basılınca context menu kapat
+	$(document).on('keydown', function (e) {
+		if (e.key === 'Escape' || e.keyCode === 27) {
+			$('#customContextMenu').hide();
+			$('#tasksTable tbody tr').removeClass('context-menu-active');
 		}
 	});
 });

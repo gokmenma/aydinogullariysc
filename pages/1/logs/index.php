@@ -1749,53 +1749,71 @@ $(document).ready(function() {
         $('#filtersCollapse').slideToggle(200);
     });
 
-    // Modal Kapatma
-    function closeLogDetailModal() {
+    // Global Modal Kapatma
+    window.closeLogDetailModal = function() {
+        var $modal = $('#logDetailModal');
+        if (typeof $modal.modal === 'function') {
+            $modal.modal('hide');
+        }
         var modalElement = document.getElementById('logDetailModal');
         if (window.bootstrap && window.bootstrap.Modal && modalElement) {
             var modalInstance = window.bootstrap.Modal.getInstance(modalElement);
             if (modalInstance) {
                 modalInstance.hide();
-                return;
             }
         }
-        if ($.fn.modal) {
-            $('#logDetailModal').modal('hide');
-        }
-    }
+    };
 
-    $('.btn-log-modal-close').on('click', function(event) {
-        event.preventDefault();
-        closeLogDetailModal();
+    $(document).on('click', '.btn-log-modal-close, [data-dismiss="modal"], [data-bs-dismiss="modal"]', function(event) {
+        if ($(this).closest('#logDetailModal').length) {
+            event.preventDefault();
+            window.closeLogDetailModal();
+        }
     });
 
-    // Detay Modalını Aç
-    $('.btn-detail-toggle').on('click', function() {
-        var btn = $(this);
-        var jsonVal = btn.attr('data-json');
-        var ip = btn.data('ip') || '-';
-        var url = btn.data('url') || '-';
-        var method = btn.data('method') || '-';
-        var level = btn.data('level') || 'INFO';
-        var date = btn.data('date') || '-';
-        var user = btn.data('user') || '-';
-        var eventName = btn.data('event') || 'İşlem';
-        var moduleName = btn.data('module') || '-';
-        var entityName = btn.data('entity') || '-';
-        var summary = btn.data('summary') || '-';
+    // Global Detay Modalını Aç
+    window.openLogDetail = function(triggerEl) {
+        var btn = $(triggerEl);
+        if (!btn.length) return;
+
+        var jsonVal = btn.attr('data-json') || btn.data('json') || '';
+        var ip = btn.attr('data-ip') || btn.data('ip') || '-';
+        var url = btn.attr('data-url') || btn.data('url') || '-';
+        var method = btn.attr('data-method') || btn.data('method') || '-';
+        var level = btn.attr('data-level') || btn.data('level') || 'INFO';
+        var date = btn.attr('data-date') || btn.data('date') || '-';
+        var user = btn.attr('data-user') || btn.data('user') || '-';
+        var eventName = btn.attr('data-event') || btn.data('event') || 'İşlem';
+        var moduleName = btn.attr('data-module') || btn.data('module') || '-';
+        var entityName = btn.attr('data-entity') || btn.data('entity') || '-';
+        var summary = btn.attr('data-summary') || btn.data('summary') || '-';
         
         var formattedJson = "-";
         var detailData = {};
         try {
-            var parsed = JSON.parse(jsonVal);
-            detailData = parsed.context && parsed.context.data
-                ? parsed.context.data
-                : (parsed.context || parsed);
-            formattedJson = Object.keys(detailData).length
-                ? JSON.stringify(detailData, null, 4)
-                : 'Bu işlem için ek veri bulunmuyor.';
+            if (jsonVal && typeof jsonVal === 'string' && jsonVal.trim() !== '') {
+                var parsed = JSON.parse(jsonVal);
+                if (parsed && typeof parsed === 'object') {
+                    detailData = (parsed.context && parsed.context.data && typeof parsed.context.data === 'object')
+                        ? parsed.context.data
+                        : ((parsed.context && typeof parsed.context === 'object') ? parsed.context : parsed);
+                }
+            } else if (jsonVal && typeof jsonVal === 'object') {
+                detailData = jsonVal;
+            }
+            
+            if (detailData && typeof detailData === 'object' && Object.keys(detailData).length > 0) {
+                formattedJson = JSON.stringify(detailData, null, 4);
+            } else {
+                formattedJson = 'Bu işlem için ek veri bulunmuyor.';
+            }
         } catch(e) {
-            formattedJson = jsonVal || 'Ek veri bulunmuyor.';
+            formattedJson = (typeof jsonVal === 'string' && jsonVal.trim() !== '') ? jsonVal : 'Ek veri bulunmuyor.';
+            detailData = {};
+        }
+
+        if (!detailData || typeof detailData !== 'object') {
+            detailData = {};
         }
 
         $('#modal-date-subtitle').text(date);
@@ -1811,7 +1829,7 @@ $(document).ready(function() {
 
         var changesBox = $('#modal-changes');
         var changesBody = changesBox.find('tbody').empty();
-        var changedFields = detailData.changed_fields || {};
+        var changedFields = (detailData && typeof detailData.changed_fields === 'object' && detailData.changed_fields !== null) ? detailData.changed_fields : {};
         var fieldLabels = {
             company: 'Firma Adı',
             email: 'E-posta',
@@ -1844,8 +1862,8 @@ $(document).ready(function() {
                 var change = changedFields[field] || {};
                 var row = $('<tr>');
                 $('<td>').addClass('weight-600').text(fieldLabels[field] || field).appendTo(row);
-                $('<td>').html('<span class="badge badge-log-view">' + (change.old === null || change.old === '' ? '(Boş)' : change.old) + '</span>').appendTo(row);
-                $('<td>').html('<span class="badge badge-log-create">' + (change.new === null || change.new === '' ? '(Boş)' : change.new) + '</span>').appendTo(row);
+                $('<td>').html('<span class="badge badge-log-view">' + (change.old === null || change.old === undefined || change.old === '' ? '(Boş)' : change.old) + '</span>').appendTo(row);
+                $('<td>').html('<span class="badge badge-log-create">' + (change.new === null || change.new === undefined || change.new === '' ? '(Boş)' : change.new) + '</span>').appendTo(row);
                 changesBody.append(row);
             });
             changesBox.show();
@@ -1863,7 +1881,25 @@ $(document).ready(function() {
         else if (level === 'DEBUG') badge.addClass('badge-log-create');
         else badge.addClass('badge-log-view');
 
-        $('#logDetailModal').modal('show');
+        var modalElement = document.getElementById('logDetailModal');
+        if (modalElement && modalElement.parentNode !== document.body) {
+            document.body.appendChild(modalElement);
+        }
+
+        if (typeof $('#logDetailModal').modal === 'function') {
+            $('#logDetailModal').modal('show');
+        } else if (window.bootstrap && window.bootstrap.Modal && modalElement) {
+            var modalInstance = (typeof window.bootstrap.Modal.getOrCreateInstance === 'function')
+                ? window.bootstrap.Modal.getOrCreateInstance(modalElement)
+                : (window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement));
+            modalInstance.show();
+        }
+    };
+
+    // Detay Modalını Aç (Event Delegation)
+    $(document).on('click', '.btn-detail-toggle', function(event) {
+        event.preventDefault();
+        window.openLogDetail(this);
     });
 
     // Panoya Kopyalama

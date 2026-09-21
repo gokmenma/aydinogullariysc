@@ -425,7 +425,7 @@ foreach ($logs as $row) {
 
     $col_module = '<span class="module-tag font-11"><i class="' . $mod_icon . ' mr-1 text-muted"></i>' . htmlspecialchars(ucfirst($module_name), ENT_QUOTES, 'UTF-8') . '</span>';
 
-    $detail_btn = '<button type="button" class="btn btn-xs btn-outline-primary btn-detail-toggle font-11" title="Detay görüntüle" '
+    $detail_btn = '<button type="button" class="btn btn-xs btn-outline-primary btn-detail-toggle font-11" onclick="window.openLogDetail && window.openLogDetail(this)" title="Detay görüntüle" '
         . 'data-json="' . htmlspecialchars($row['details'] ?? '', ENT_QUOTES, 'UTF-8') . '" '
         . 'data-ip="' . htmlspecialchars($row['ip_address'] ?: '0.0.0.0', ENT_QUOTES, 'UTF-8') . '" '
         . 'data-url="' . htmlspecialchars($row['url'] ?: '-', ENT_QUOTES, 'UTF-8') . '" '

@@ -173,6 +173,7 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 						<th class="col-expand" data-filter-type="text">Başlık & Not Detayı</th>
 						<th class="col-shrink" data-filter-type="select">Not Tipi / Kategori</th>
 						<th class="col-shrink" data-filter-type="select">Oluşturan</th>
+						<th class="text-center col-shrink" data-filter-type="date">Başlangıç Tarihi</th>
 						<th class="text-center col-shrink" data-filter-type="date">Bitiş Tarihi</th>
 						<th class="datatable-nosort no-filter text-center col-shrink">İşlem</th>
 					</tr>
@@ -263,6 +264,16 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 							</td>
 
 							<td style="vertical-align: middle; font-size: 13px; color: #475569;">
+								<?php if ($startDateFormatted !== '-') { ?>
+									<span class="badge-date">
+										<i class="fa fa-calendar mr-1"></i> <?php echo $startDateFormatted; ?>
+									</span>
+								<?php } else { ?>
+									<span class="text-muted">-</span>
+								<?php } ?>
+							</td>
+
+							<td style="vertical-align: middle; font-size: 13px; color: #475569;">
 								<?php if ($lastDateFormatted !== '-') { ?>
 									<span class="badge-date">
 										<i class="fa fa-calendar-check-o mr-1"></i> <?php echo $lastDateFormatted; ?>
@@ -301,12 +312,14 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
 									<!-- Sil Butonu -->
 									<?php if (function_exists('permtrue') && permtrue("notedelete")) { ?>
-										<a href="index.php?p=all-notes&mode=delete&code=04md177&reg=true&md=active&nid=<?php echo $row["id"]; ?>" 
-											onclick="return confirm('\'<?php echo addslashes(htmlspecialchars($row["title"] ?? '', ENT_QUOTES, 'UTF-8')); ?>\' başlıklı notu silmek istediğinize emin misiniz?');" 
-											class="btn btn-sm btn-outline-danger note-action-btn" 
-											title="Sil">
+										<button type="button" 
+											class="btn btn-sm btn-outline-danger note-action-btn btn-delete-note" 
+											title="Sil"
+											data-id="<?php echo $row['id']; ?>"
+											data-title="<?php echo htmlspecialchars($row['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+											data-url="index.php?p=all-notes&mode=delete&code=04md177&reg=true&md=active&nid=<?php echo $row['id']; ?>">
 											<i class="fa fa-trash"></i>
-										</a>
+										</button>
 									<?php } ?>
 								</div>
 							</td>
@@ -808,15 +821,79 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 	background: #ffffff;
 	border: 1px solid #e2e8f0;
 	border-radius: 10px;
-	padding: 16px;
+	padding: 18px 20px;
 	font-size: 14px;
 	color: #334155;
-	line-height: 1.6;
+	line-height: 1.65;
 	min-height: 120px;
-	max-height: 380px;
+	max-height: 420px;
 	overflow-y: auto;
-	white-space: pre-wrap;
 	word-break: break-word;
+	overflow-wrap: break-word;
+}
+
+.note-desc-box p {
+	margin-bottom: 0.75rem;
+}
+
+.note-desc-box p:last-child,
+.note-desc-box ul:last-child,
+.note-desc-box ol:last-child {
+	margin-bottom: 0;
+}
+
+.note-desc-box ul,
+.note-desc-box ol {
+	padding-left: 24px;
+	margin-top: 4px;
+	margin-bottom: 12px;
+}
+
+.note-desc-box ul {
+	list-style-type: disc;
+}
+
+.note-desc-box ol {
+	list-style-type: decimal;
+}
+
+.note-desc-box li {
+	margin-bottom: 5px;
+	line-height: 1.55;
+}
+
+.note-desc-box b,
+.note-desc-box strong {
+	font-weight: 600;
+	color: #1e293b;
+}
+
+.note-desc-box a {
+	color: #2563eb;
+	text-decoration: underline;
+}
+
+.note-desc-box blockquote {
+	border-left: 3.5px solid #3b82f6;
+	background: #f8fafc;
+	padding: 10px 16px;
+	margin: 12px 0;
+	border-radius: 0 6px 6px 0;
+	color: #475569;
+	font-style: italic;
+}
+
+.note-desc-box table {
+	width: 100%;
+	margin-bottom: 1rem;
+	border-collapse: collapse;
+}
+
+.note-desc-box table th,
+.note-desc-box table td {
+	border: 1px solid #e2e8f0;
+	padding: 8px 12px;
+	text-align: left;
 }
 
 /* Dark Mode Desteği */
@@ -826,6 +903,22 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 	background: #1e293b !important;
 	border-color: #334155 !important;
 	color: #f1f5f9 !important;
+}
+
+.dark-mode .note-desc-box b,
+.dark-mode .note-desc-box strong {
+	color: #f8fafc !important;
+}
+
+.dark-mode .note-desc-box blockquote {
+	background: #0f172a !important;
+	border-left-color: #60a5fa !important;
+	color: #cbd5e1 !important;
+}
+
+.dark-mode .note-desc-box table th,
+.dark-mode .note-desc-box table td {
+	border-color: #334155 !important;
 }
 .dark-mode .premium-modal-footer,
 .dark-mode .note-meta-grid {
@@ -921,19 +1014,66 @@ $(document).ready(function () {
 		$("#viewModalCategory").text(category || "-");
 		$("#viewModalCreator").text(creator || "-");
 		$("#viewModalDates").text(sdate + " / " + lastdate);
-		$("#viewModalDesc").text(desc ? desc : "Bu nota ait açıklama girilmemiş.");
+
+		if (desc && desc.trim() !== "") {
+			var isHtml = /<[a-z][\s\S]*>/i.test(desc);
+			var renderedContent = isHtml ? desc : desc.replace(/\n/g, '<br>');
+			$("#viewModalDesc").html(renderedContent);
+		} else {
+			$("#viewModalDesc").html('<span class="text-muted font-italic">Bu nota ait açıklama girilmemiş.</span>');
+		}
 
 		var editUrl = "index.php?p=edit-note&nid=" + nid;
-		$("#viewModalActions").html(
-			'<a href="' + editUrl + '" class="btn btn-outline-info btn-sm" style="border-radius: 6px;">' +
-			'<i class="fa fa-pencil mr-1"></i> Bu Notu Düzenle</a>'
-		);
+		var deleteUrl = "index.php?p=all-notes&mode=delete&code=04md177&reg=true&md=active&nid=" + nid;
+		var safeTitle = $('<div>').text(title || '').html();
+		var actionsHtml = '<a href="' + editUrl + '" class="btn btn-outline-info btn-sm mr-2" style="border-radius: 6px;"><i class="fa fa-pencil mr-1"></i> Bu Notu Düzenle</a>';
+		<?php if (function_exists('permtrue') && permtrue("notedelete")) { ?>
+		actionsHtml += '<button type="button" class="btn btn-outline-danger btn-sm btn-delete-note" style="border-radius: 6px;" data-id="' + nid + '" data-title="' + safeTitle + '" data-url="' + deleteUrl + '"><i class="fa fa-trash mr-1"></i> Bu Notu Sil</button>';
+		<?php } ?>
+		$("#viewModalActions").html(actionsHtml);
 
 		if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
 			var viewModal = new bootstrap.Modal(document.getElementById('viewNoteModal'));
 			viewModal.show();
 		} else {
 			$('#viewNoteModal').modal('show');
+		}
+	});
+
+	// Not Silme İşlemi (SweetAlert2 Onay Modalı)
+	$(document).on("click", ".btn-delete-note", function (e) {
+		e.preventDefault();
+		var btn = $(this);
+		var noteTitle = btn.attr("data-title") || "Seçilen";
+		var deleteUrl = btn.attr("data-url");
+
+		if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+			Swal.fire({
+				title: 'Notu Silmek İstiyor Musunuz?',
+				html: '<b>"' + $('<div>').text(noteTitle).html() + '"</b> başlıklı not kalıcı olarak silinecektir.<br><small class="text-muted" style="font-size: 13px; display: inline-block; margin-top: 6px;">Bu işlem geri alınamaz.</small>',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#ef4444',
+				cancelButtonColor: '#64748b',
+				confirmButtonText: '<i class="fa fa-trash mr-1"></i> Evet, Sil',
+				cancelButtonText: '<i class="fa fa-times mr-1"></i> Vazgeç',
+				reverseButtons: false,
+				focusCancel: true,
+				customClass: {
+					confirmButton: 'btn btn-danger font-weight-600',
+					cancelButton: 'btn btn-secondary font-weight-600',
+					actions: 'd-flex justify-content-center align-items-center gap-2'
+				},
+				buttonsStyling: false
+			}).then(function (result) {
+				if (result.isConfirmed) {
+					window.location.href = deleteUrl;
+				}
+			});
+		} else {
+			if (confirm('"' + noteTitle + '" başlıklı notu silmek istediğinize emin misiniz?')) {
+				window.location.href = deleteUrl;
+			}
 		}
 	});
 });
