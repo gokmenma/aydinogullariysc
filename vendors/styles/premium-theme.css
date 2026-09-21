@@ -5050,10 +5050,25 @@ table.dataTable thead th,
     line-height: 1.2;
 }
 
+.tf-badge-zero {
+    opacity: 0.6;
+    font-size: 10px;
+    background: transparent;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+}
+
 .tf-checkbox-row.is-checked .tf-checkbox-badge {
     background: #dbeafe;
     color: #1e40af;
     border-color: #bfdbfe;
+}
+
+.tf-checkbox-row.is-checked .tf-badge-zero {
+    background: rgba(37, 99, 235, 0.1);
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+    opacity: 0.9;
 }
 
 .tf-no-items {
@@ -5163,6 +5178,20 @@ table.dataTable thead th,
     background: #0f172a;
     color: #94a3b8;
     border-color: #334155;
+}
+
+.dark-mode .tf-badge-zero {
+    background: transparent !important;
+    color: #64748b !important;
+    border-color: #334155 !important;
+    opacity: 0.6;
+}
+
+.dark-mode .tf-checkbox-row.is-checked .tf-badge-zero {
+    background: rgba(56, 189, 248, 0.1) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    opacity: 0.9;
 }
 
 .dark-mode .tf-checkbox-row.is-checked .tf-checkbox-badge {

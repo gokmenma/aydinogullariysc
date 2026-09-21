@@ -7,7 +7,46 @@ window.App = window.App || {};
 
 App.TableFilter = {
     activeFilters: {}, // tableId -> { colIndex -> { type: 'text'|'number'|'date'|'select', rules: [...], values: [...] } }
+    columnOptionPool: {}, // tableId -> { colIndex -> { [val]: count } }
     hooksBound: false,
+    xhrBound: false,
+
+    KNOWN_COLUMN_OPTIONS: {
+        'durum': [
+            'Bekliyor', 'Çalışıyor', 'Tamamlandı', 'İptal Edildi', 'İptal',
+            'FATURA KESİLDİ', 'BEDELSİZ', 'PRF', 'KEŞİF / ZİYARET', 'MUHASEBEYE TESLİM EDİLDİ.',
+            'Onaylandı', 'Reddedildi', 'Revize', 'Hazırlanıyor', 'Gönderildi', 'Beklemede',
+            'Aktif', 'Pasif', 'Randevu Verildi', 'Yedek Parça Bekleniyor', 'Atölyede', 'Test Aşamasında'
+        ],
+        'status': [
+            'Bekliyor', 'Çalışıyor', 'Tamamlandı', 'İptal Edildi', 'İptal',
+            'Onaylandı', 'Reddedildi', 'Revize', 'Aktif', 'Pasif'
+        ],
+        'sözleşme': [
+            'Sözleşmeli', 'Sözleşme Bekliyor', 'Bekliyor', 'Sözleşme Yapıldı', 'S.Kapsamında Değildir', 'Sözleşme Yapılmadı', 'Yapılmadı'
+        ],
+        'muhasebe': [
+            'Teslim Bekliyor', 'Teslim Alındı', 'İade Alındı'
+        ],
+        'işlem türü': [
+            'Oluşturma', 'Güncelleme', 'Silme', 'Giriş', 'Çıkış', 'Dışa Aktarma', 'Sayfa Ziyareti', 'Görüntüleme', 'Durum Değişikliği', 'Hata', 'Kritik'
+        ],
+        'olay': [
+            'Oluşturma', 'Güncelleme', 'Silme', 'Giriş', 'Çıkış', 'Dışa Aktarma', 'Sayfa Ziyareti', 'Görüntüleme', 'Durum Değişikliği', 'Hata'
+        ],
+        'modül': [
+            'Genel', 'Auth', 'Offers', 'Services', 'Customers', 'Products', 'Purchases', 'Reports', 'Settings', 'Users', 'Version_notes', 'Backup_gdrive', 'Send-mail-accounts', 'Permissions', 'Logs'
+        ],
+        'para birimi': [
+            'TRY', 'USD', 'EUR', 'GBP', 'TL', '₺', '$', '€'
+        ],
+        'ödeme vadesi': [
+            'Peşin', '15 Gün', '30 Gün', '45 Gün', '60 Gün', '90 Gün', '120 Gün', 'Aylık', 'Yıllık', 'Kredi Kartı', 'Havale / EFT'
+        ],
+        'seviye': [
+            'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'DEBUG', 'NOTICE', 'ALERT', 'EMERGENCY'
+        ]
+    },
 
     SVG_FILTER_ICON: '<svg class="tf-funnel-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; pointer-events:none;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>',
     SVG_PLUS_ICON: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
@@ -57,6 +96,77 @@ App.TableFilter = {
         }
     },
 
+    harvestRowsFromData: function (table, rows) {
+        if (!table || !rows || !Array.isArray(rows)) return;
+        const tableId = table.id;
+        if (!tableId) return;
+
+        App.TableFilter.columnOptionPool[tableId] = App.TableFilter.columnOptionPool[tableId] || {};
+
+        rows.forEach(row => {
+            if (Array.isArray(row)) {
+                row.forEach((cellData, colIdx) => {
+                    const txt = App.TableFilter.extractCellTextFromRaw(cellData);
+                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
+                        App.TableFilter.columnOptionPool[tableId][colIdx] = App.TableFilter.columnOptionPool[tableId][colIdx] || {};
+                        App.TableFilter.columnOptionPool[tableId][colIdx][txt] = (App.TableFilter.columnOptionPool[tableId][colIdx][txt] || 0) + 1;
+                    }
+                });
+            } else if (typeof row === 'object' && row !== null) {
+                const keys = Object.keys(row);
+                keys.forEach((key, colIdx) => {
+                    const txt = App.TableFilter.extractCellTextFromRaw(row[key]);
+                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
+                        App.TableFilter.columnOptionPool[tableId][colIdx] = App.TableFilter.columnOptionPool[tableId][colIdx] || {};
+                        App.TableFilter.columnOptionPool[tableId][colIdx][txt] = (App.TableFilter.columnOptionPool[tableId][colIdx][txt] || 0) + 1;
+                    }
+                });
+            }
+        });
+    },
+
+    findPageSelectOptions: function (th, cleanTitle) {
+        const titleLower = App.TableFilter.toTrLower(cleanTitle);
+        const options = [];
+
+        let selectors = [];
+        if (titleLower.indexOf('durum') !== -1 || titleLower.indexOf('statu') !== -1) {
+            selectors = ['#filter_status', '#filter_statu', '#filter_pstatu', 'select[name*="status"]', 'select[name*="statu"]', 'select[name*="durum"]'];
+        } else if (titleLower.indexOf('oluşturan') !== -1 || titleLower.indexOf('kullanıcı') !== -1 || titleLower.indexOf('user') !== -1 || titleLower.indexOf('yetkili') !== -1) {
+            selectors = ['#filter_user', '#filter_creator', '#filter_author', 'select[name*="user"]', 'select[name*="creator"]', 'select[name*="author"]'];
+        } else if (titleLower.indexOf('firma') !== -1 || titleLower.indexOf('müşteri') !== -1 || titleLower.indexOf('customer') !== -1 || titleLower.indexOf('company') !== -1) {
+            selectors = ['#filter_company', '#filter_customer', '#filter_cid', 'select[name*="company"]', 'select[name*="customer"]', 'select[name*="cid"]'];
+        } else if (titleLower.indexOf('modül') !== -1 || titleLower.indexOf('module') !== -1) {
+            selectors = ['#filter_module', 'select[name*="module"]'];
+        } else if (titleLower.indexOf('bölge') !== -1 || titleLower.indexOf('region') !== -1) {
+            selectors = ['#filter_region', '#filter_bolge', 'select[name*="region"]', 'select[name*="bolge"]'];
+        } else if (titleLower.indexOf('sözleşme') !== -1 || titleLower.indexOf('contract') !== -1) {
+            selectors = ['#filter_contract', '#filter_contract_status', '#filter_sozlesme', 'select[name*="contract"]', 'select[name*="sozlesme"]'];
+        } else if (titleLower.indexOf('para') !== -1 || titleLower.indexOf('currency') !== -1) {
+            selectors = ['#filter_currency', 'select[name*="currency"]', 'select[name*="para"]'];
+        } else if (titleLower.indexOf('vade') !== -1 || titleLower.indexOf('ödeme') !== -1 || titleLower.indexOf('payment') !== -1) {
+            selectors = ['#filter_payment_period', 'select[name*="payment"]', 'select[name*="vade"]'];
+        } else if (titleLower.indexOf('seviye') !== -1 || titleLower.indexOf('level') !== -1) {
+            selectors = ['#filter_level', 'select[name*="level"]'];
+        }
+
+        selectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(selectEl => {
+                selectEl.querySelectorAll('option').forEach(opt => {
+                    const text = opt.textContent.trim();
+                    const val = opt.value;
+                    if (text && text !== '-' && text !== 'Seçiniz' && text !== 'Seçiniz...' && text !== 'Tümü' && text !== 'Tümünü Seç' && text !== 'Filtrele' && val !== '') {
+                        if (!options.includes(text)) {
+                            options.push(text);
+                        }
+                    }
+                });
+            });
+        });
+
+        return options;
+    },
+
     bindDataTableHooks: function () {
         if (!window.jQuery || !$.fn || !$.fn.dataTable || App.TableFilter.hooksBound) return;
         App.TableFilter.hooksBound = true;
@@ -102,6 +212,16 @@ App.TableFilter = {
             });
         }
 
+        // Global XHR interceptor for all DataTables
+        if (!App.TableFilter.xhrBound) {
+            App.TableFilter.xhrBound = true;
+            $(document).on('xhr.dt', function (e, settings, json, xhr) {
+                if (json && json.data && Array.isArray(json.data) && settings.nTable) {
+                    App.TableFilter.harvestRowsFromData(settings.nTable, json.data);
+                }
+            });
+        }
+
         // Auto-hook into DataTable defaults
         $.extend(true, $.fn.dataTable.defaults, {
             initComplete: function () {
@@ -110,6 +230,12 @@ App.TableFilter = {
                 if (tableNode) {
                     App.TableFilter.attachToTable(tableNode);
                     App.TableFilter.relocateSearchInput(tableNode);
+                    try {
+                        const rows = api.rows({ page: 'current' }).data().toArray();
+                        if (rows && rows.length) {
+                            App.TableFilter.harvestRowsFromData(tableNode, rows);
+                        }
+                    } catch (e) {}
                 }
             },
             drawCallback: function () {
@@ -118,6 +244,12 @@ App.TableFilter = {
                 if (tableNode) {
                     App.TableFilter.attachToTable(tableNode);
                     App.TableFilter.relocateSearchInput(tableNode);
+                    try {
+                        const rows = api.rows({ page: 'current' }).data().toArray();
+                        if (rows && rows.length) {
+                            App.TableFilter.harvestRowsFromData(tableNode, rows);
+                        }
+                    } catch (e) {}
                 }
             }
         });
@@ -524,8 +656,9 @@ App.TableFilter = {
 
     getDistinctColumnValues: function (table, colIndex) {
         const counts = {}; // value -> count
+        const tableId = table.id;
 
-        // 1. DataTables API'sinden çekmeyi dene
+        // 1. DataTables API'sinden çek (tüm hafızadaki veriler veya mevcut sayfa)
         if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
             try {
                 const dt = $(table).DataTable();
@@ -539,15 +672,72 @@ App.TableFilter = {
         }
 
         // 2. DOM hücrelerinden de kontrol et ve say
-        if (Object.keys(counts).length === 0) {
-            table.querySelectorAll('tbody tr').forEach(row => {
-                if (row.classList.contains('search-input-row') || row.classList.contains('dataTables_empty') || row.classList.contains('tf-no-records-row')) return;
-                const cell = row.cells[colIndex];
-                if (cell) {
-                    const txt = App.TableFilter.extractCellTextFromNode(cell);
-                    if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
+        table.querySelectorAll('tbody tr').forEach(row => {
+            if (row.classList.contains('search-input-row') || row.classList.contains('dataTables_empty') || row.classList.contains('tf-no-records-row')) return;
+            const cell = row.cells[colIndex];
+            if (cell) {
+                const txt = App.TableFilter.extractCellTextFromNode(cell);
+                if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
+                    if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
+                        if (!counts[txt]) counts[txt] = 1;
+                    } else {
                         counts[txt] = (counts[txt] || 0) + 1;
                     }
+                }
+            }
+        });
+
+        // 3. Havuzda birikmiş geçmiş AJAX veya sayfa verileri varsa ekle (sayfa değişse de seçenek kaybolmasın)
+        if (tableId && App.TableFilter.columnOptionPool[tableId] && App.TableFilter.columnOptionPool[tableId][colIndex]) {
+            const pool = App.TableFilter.columnOptionPool[tableId][colIndex];
+            Object.keys(pool).forEach(val => {
+                if (counts[val] === undefined) {
+                    counts[val] = 0;
+                }
+            });
+        }
+
+        // 4. Sütun başlığından bilinen sistem seçeneklerini ve sayfa formlarındaki select seçeneklerini ekle
+        const th = table.querySelectorAll('thead th')[colIndex];
+        if (th) {
+            const rawTitle = th.childNodes.length > 0 ? (th.childNodes[0].textContent || th.textContent).trim() : th.textContent.trim();
+            const cleanTitle = rawTitle.replace(/\s+/g, ' ');
+            const titleLower = App.TableFilter.toTrLower(cleanTitle);
+
+            // 4a. th dataset custom options
+            if (th.dataset.filterOptions) {
+                try {
+                    const customOpts = JSON.parse(th.dataset.filterOptions);
+                    if (Array.isArray(customOpts)) {
+                        customOpts.forEach(o => {
+                            const trimmed = String(o).trim();
+                            if (trimmed && counts[trimmed] === undefined) counts[trimmed] = 0;
+                        });
+                    }
+                } catch (e) {
+                    th.dataset.filterOptions.split(',').forEach(o => {
+                        const trimmed = o.trim();
+                        if (trimmed && counts[trimmed] === undefined) counts[trimmed] = 0;
+                    });
+                }
+            }
+
+            // 4b. Sayfadaki ilgili filtre select kutularından tüm seçenekleri çek
+            const pageSelectOpts = App.TableFilter.findPageSelectOptions(th, cleanTitle);
+            pageSelectOpts.forEach(optVal => {
+                if (counts[optVal] === undefined) {
+                    counts[optVal] = 0;
+                }
+            });
+
+            // 4c. Sistem genelindeki bilinen domain seçeneklerini ekle
+            Object.keys(App.TableFilter.KNOWN_COLUMN_OPTIONS).forEach(knownKey => {
+                if (titleLower.indexOf(knownKey) !== -1) {
+                    App.TableFilter.KNOWN_COLUMN_OPTIONS[knownKey].forEach(knownVal => {
+                        if (counts[knownVal] === undefined) {
+                            counts[knownVal] = 0;
+                        }
+                    });
                 }
             });
         }
@@ -588,13 +778,16 @@ App.TableFilter = {
                 values.forEach((val, idx) => {
                     const chkId = `tf-chk-${table.id}-${colIndex}-${idx}`;
                     const isChecked = preselectedVals.indexOf(val) !== -1 ? 'checked' : '';
-                    const cnt = counts[val] || 1;
+                    const cnt = counts[val] || 0;
                     const escapedVal = val.replace(/"/g, '&quot;');
+                    const badgeHtml = cnt > 0
+                        ? `<span class="tf-checkbox-badge">${cnt}</span>`
+                        : `<span class="tf-checkbox-badge tf-badge-zero" title="Şu anki sayfada yok">-</span>`;
                     html += `
                         <label class="tf-checkbox-row ${isChecked ? 'is-checked' : ''}" for="${chkId}">
                             <input class="tf-checkbox-control" type="checkbox" value="${escapedVal}" id="${chkId}" ${isChecked}>
                             <span class="tf-checkbox-text" title="${escapedVal}">${val}</span>
-                            <span class="tf-checkbox-badge">${cnt}</span>
+                            ${badgeHtml}
                         </label>
                     `;
                 });

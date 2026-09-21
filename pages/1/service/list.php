@@ -948,17 +948,17 @@ if ($cid || $sid) {
                     <thead>
                         <tr>
                             <th style="width: 36px; min-width: 36px; max-width: 36px; text-align: center;" class="no-sort" data-filter="false">SIRA</th>
-                            <th style="width: 82px; text-align: center;">Servis No</th>
-                            <th style="width: 145px;">Firma Adı</th>
-                            <th style="width: 78px;">Bölge</th>
-                            <th style="width: 105px;">Servis Konusu</th>
-                            <th style="width: 80px; text-align: center;">İş Emri Tarihi</th>
-                            <th style="width: 72px; text-align: center;">Planlama</th>
-                            <th style="width: 80px; text-align: center;">Sözleşme</th>
-                            <th style="width: 72px; text-align: center;">Durum</th>
-                            <th style="width: 75px;">Oluşturan</th>
-                            <th style="width: 75px;">Son İşlem</th>
-                            <th style="width: 75px; text-align: center;">Muhasebe</th>
+                            <th style="width: 82px; text-align: center;" data-filter-type="text">Servis No</th>
+                            <th style="width: 145px;" data-filter-type="text">Firma Adı</th>
+                            <th style="width: 78px;" data-filter-type="select">Bölge</th>
+                            <th style="width: 105px;" data-filter-type="text">Servis Konusu</th>
+                            <th style="width: 80px; text-align: center;" data-filter-type="date">İş Emri Tarihi</th>
+                            <th style="width: 72px; text-align: center;" data-filter-type="date">Planlama</th>
+                            <th style="width: 80px; text-align: center;" data-filter-type="select" data-filter-options='["Sözleşmeli", "Bekliyor", "S.Kapsamında Değildir", "Yapılmadı"]'>Sözleşme</th>
+                            <th style="width: 72px; text-align: center;" data-filter-type="select" data-filter-options='["Bekliyor", "Çalışıyor", "Tamamlandı", "İptal Edildi", "FATURA KESİLDİ", "BEDELSİZ", "PRF", "KEŞİF / ZİYARET", "MUHASEBEYE TESLİM EDİLDİ."]'>Durum</th>
+                            <th style="width: 75px;" data-filter-type="select">Oluşturan</th>
+                            <th style="width: 75px;" data-filter-type="select">Son İşlem</th>
+                            <th style="width: 75px; text-align: center;" data-filter-type="select" data-filter-options='["Teslim Bekliyor", "Teslim Alındı"]'>Muhasebe</th>
                             <th style="width: 75px; text-align: center;" class="no-sort" data-filter="false">İşlem</th>
                         </tr>
                     </thead>
