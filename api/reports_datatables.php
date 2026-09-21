@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 // Include bootstrap and functions to ensure consistent setup
 require_once dirname(__DIR__) . '/bootstrap.php';
 require_once __DIR__ . '/../configs/functions.php';
+global $ac;
 
 // Permission check
 if (!permtrue("reportview")) {
@@ -69,28 +70,35 @@ if ($search_value !== '') {
     $params[':search'] = "%{$search_value}%";
 }
 
-// Column-specific search
-$filter_columns = [
-    0 => 'r.id',
-    1 => 'r.report_number',
-    2 => 'c.company',
-    3 => 'rt.reportName',
-    4 => 'r.isemrino',
-    5 => 'r.control_date',
-    6 => 'r.validity_date',
+use App\Helper\DataTableFilter;
+
+// Column configs for DataTableFilter
+$column_configs = [
+    0 => ['expr' => 'r.id', 'type' => 'number'],
+    1 => ['expr' => 'r.report_number', 'type' => 'text'],
+    2 => ['expr' => 'c.company', 'type' => 'text'],
+    3 => ['expr' => 'rt.reportName', 'type' => 'text'],
+    4 => ['expr' => 'r.isemrino', 'type' => 'text'],
+    5 => ['expr' => 'r.control_date', 'type' => 'date'],
+    6 => ['expr' => 'r.validity_date', 'type' => 'date'],
 ];
 
 if (!empty($requested_columns) && is_array($requested_columns)) {
     foreach ($requested_columns as $idx => $col) {
-        $value = $col['search']['value'] ?? '';
+        $rawSearch = $col['search']['value'] ?? '';
         $idx = intval($idx);
-        if ($value === '') {
+        $filter = DataTableFilter::parse($rawSearch);
+        if (!$filter) {
             continue;
         }
-        if (isset($filter_columns[$idx])) {
-            $paramKey = ":col_{$idx}";
-            $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
-            $params[$paramKey] = "%{$value}%";
+
+        if (isset($column_configs[$idx])) {
+            $cfg = $column_configs[$idx];
+            $prefix = "col_{$idx}_";
+            $cond = DataTableFilter::buildCondition($cfg['expr'], $filter, $params, $prefix, $cfg['type'] ?? 'text');
+            if (!empty($cond)) {
+                $where_conditions[] = $cond;
+            }
         }
     }
 }

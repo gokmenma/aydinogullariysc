@@ -1295,10 +1295,12 @@ App.TableFilter = {
                         this.search('');
                     }
                 });
+                dt.draw();
+                return;
             }
             dt.draw();
         }
-        // Also perform DOM row filtering to guarantee instant UI update across all table types
+        // Also perform DOM row filtering to guarantee instant UI update across client-side tables
         App.TableFilter.filterDOMTable(tableId);
     },
 

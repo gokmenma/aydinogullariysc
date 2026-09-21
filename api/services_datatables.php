@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 // Include bootstrap to ensure consistent setup
 require_once dirname(__DIR__) . '/bootstrap.php';
 require_once __DIR__ . '/../configs/functions.php';
+global $ac;
 
 // Permission check: return JSON instead of redirect
 if (!permtrue("serviceView")) {
@@ -19,6 +20,7 @@ if (!permtrue("serviceView")) {
     exit;
 }
 
+use App\Helper\DataTableFilter;
 use App\Helper\Helper;
 use App\Helper\Security;
 
@@ -223,43 +225,105 @@ if ($search_value !== '') {
     )";
     $params[':search'] = "%{$search_value}%";
 }
+// Column configs for DataTableFilter
+$column_configs = [
+    1 => ['expr' => 'p.service_number', 'type' => 'text'],
+    2 => ['expr' => 'c.company', 'type' => 'text'],
+    3 => ['expr' => 'r.title', 'type' => 'text'],
+    4 => ['expr' => 's.title', 'type' => 'text'],
+    5 => ['expr' => 'p.pregdate', 'type' => 'datetime'],
+    6 => ['expr' => 'p.pstart_date', 'type' => 'text'],
+    7 => [
+        'expr' => 'p.contract_statu',
+        'type' => 'select',
+        'builder' => function($filter, &$params, $prefix) {
+            $values = $filter['values'] ?? [];
+            if (!empty($filter['rules'])) {
+                foreach ($filter['rules'] as $r) {
+                    if (!empty($r['value'])) $values[] = $r['value'];
+                }
+            }
+            if (empty($values)) return '';
+
+            $matchedIds = [];
+            foreach ($values as $v) {
+                $vLower = mb_strtolower(trim($v), 'UTF-8');
+                if (strpos($vLower, 'bekli') !== false) $matchedIds[] = 1;
+                if (strpos($vLower, 'yapıldı') !== false || strpos($vLower, 'sözleşmeli') !== false) $matchedIds[] = 2;
+                if (strpos($vLower, 'yapılma') !== false) $matchedIds[] = 3;
+                if (strpos($vLower, 'kapsamında değil') !== false || strpos($vLower, 'değildir') !== false) $matchedIds[] = 4;
+            }
+            $matchedIds = array_unique($matchedIds);
+            if (count($matchedIds)) {
+                $inKeys = [];
+                foreach ($matchedIds as $i => $mid) {
+                    $pKey = ":{$prefix}cs_{$i}";
+                    $params[$pKey] = $mid;
+                    $inKeys[] = $pKey;
+                }
+                return "p.contract_statu IN (" . implode(', ', $inKeys) . ")";
+            }
+            return "p.contract_statu = -1";
+        }
+    ],
+    8 => ['expr' => 'st.title', 'type' => 'text'],
+    9 => ['expr' => 'u.username', 'type' => 'text'],
+    10 => ['expr' => 'COALESCE(uu.username, u.username)', 'type' => 'text'],
+    11 => [
+        'expr' => 'ar.action',
+        'type' => 'select',
+        'builder' => function($filter, &$params, $prefix) {
+            $values = $filter['values'] ?? [];
+            if (!empty($filter['rules'])) {
+                foreach ($filter['rules'] as $r) {
+                    if (!empty($r['value'])) $values[] = $r['value'];
+                }
+            }
+            if (empty($values)) return '';
+
+            $hasReceived = false;
+            $hasPending = false;
+            foreach ($values as $v) {
+                $vLower = mb_strtolower(trim($v), 'UTF-8');
+                if (strpos($vLower, 'alındı') !== false) $hasReceived = true;
+                if (strpos($vLower, 'bekliyor') !== false || strpos($vLower, 'bekle') !== false) $hasPending = true;
+            }
+
+            if ($hasReceived && $hasPending) {
+                return '';
+            }
+            if ($hasReceived) {
+                return "ar.action = 'received'";
+            }
+            if ($hasPending) {
+                return "(ar.action != 'received' OR ar.action IS NULL)";
+            }
+            return '';
+        }
+    ]
+];
+
 // Column-specific search
 if (!empty($requested_columns) && is_array($requested_columns)) {
     foreach ($requested_columns as $idx => $col) {
-        $value = $col['search']['value'] ?? '';
+        $rawSearch = $col['search']['value'] ?? '';
         $idx = intval($idx);
-        if ($value === '')
+        $filter = DataTableFilter::parse($rawSearch);
+        if (!$filter) {
             continue;
-        if ($idx === 7) {
-            if (defined('SOZLESMEDURUMU')) {
-                $matchIds = [];
-                foreach (SOZLESMEDURUMU as $k => $v) {
-                    if ($k === '')
-                        continue;
-                    if (stripos($v, $value) !== false) {
-                        $matchIds[] = $k;
-                    }
-                }
-                if (count($matchIds)) {
-                    $inKeys = [];
-                    foreach ($matchIds as $i => $mid) {
-                        $pkey = ":cs_{$i}";
-                        $inKeys[] = $pkey;
-                        $params[$pkey] = $mid;
-                    }
-                    $where_conditions[] = "p.contract_statu IN (" . implode(',', $inKeys) . ")";
-                } else {
-                    $where_conditions[] = "p.contract_statu = -1";
-                }
+        }
+
+        if (isset($column_configs[$idx])) {
+            $cfg = $column_configs[$idx];
+            $prefix = "col_{$idx}_";
+            if (isset($cfg['builder']) && is_callable($cfg['builder'])) {
+                $cond = $cfg['builder']($filter, $params, $prefix);
+            } else {
+                $cond = DataTableFilter::buildCondition($cfg['expr'], $filter, $params, $prefix, $cfg['type'] ?? 'text');
             }
-        } else if ($idx === 11) {
-            $paramKey = ":col_{$idx}";
-            $where_conditions[] = "(CASE WHEN ar.action = 'received' THEN 'Teslim Alındı' ELSE 'Teslim Bekliyor' END) LIKE " . $paramKey;
-            $params[$paramKey] = "%{$value}%";
-        } else if (isset($filter_columns[$idx])) {
-            $paramKey = ":col_{$idx}";
-            $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
-            $params[$paramKey] = "%{$value}%";
+            if (!empty($cond)) {
+                $where_conditions[] = $cond;
+            }
         }
     }
 }

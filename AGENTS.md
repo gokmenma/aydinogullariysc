@@ -56,7 +56,10 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
   - `description`: Yapılan değişiklikleri, eklenen/güncellenen özellikleri ve düzeltmeleri listeleyen maddeli açıklama (`- ` maddeleri şeklinde).
   - `author`: "Antigravity AI" veya işlem yapan kullanıcı/ajan bilgisi.
   - `created_at`: Anlık tarih-saat bilgisi (`Y-m-d H:i:s`).
-- Kayıt doğrudan `App\Model\VersionNoteModel` veya güvenli PDO sorgusu kullanılarak veritabanına eklenmeli ve kullanıcıya yapılan teslimat açıklamasında sürüm notunun kaydedildiği belirtilmelidir.
+- **SQL Migration Dosyası Zorunluluğu**:
+  - Eklenen her sürüm notu için mutlaka `database/migrations/` altında tarihli ve idempotent bir `.sql` dosyası oluşturulmalıdır (Örn: `database/migrations/YYYYMMDD_HHMMSS_version_note_vX_X_X.sql` veya `YYYYMMDD_add_version_note_vX_X_X.sql`).
+  - SQL dosyası `INSERT INTO version_notes (...) SELECT ... WHERE NOT EXISTS (...)` formatında olmalı ve tekrar çalıştırıldığında mükerrer kayıt oluşturmamalıdır.
+- Kayıt hem `database/migrations/` altındaki SQL dosyasında bulunmalı hem de doğrudan veritabanına (`App\Model\VersionNoteModel` veya güvenli PDO sorgusu ile) eklenmeli ve teslimat açıklamasında sürüm notunun ve SQL dosyasının oluşturulduğu belirtilmelidir.
 
 ## Doğrulama
 

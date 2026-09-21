@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 // Include bootstrap to ensure consistent setup
 require_once dirname(__DIR__) . '/bootstrap.php';
 require_once __DIR__ . '/../configs/functions.php';
+global $ac;
 
 // Permission check: return JSON instead of redirect
 if (!permtrue("customeredit") && !permtrue("customeradd") && !permtrue("customerdelete")) {
@@ -69,33 +70,34 @@ if ($search_value !== '') {
     $params[':search'] = "%{$search_value}%";
 }
 
-// Column-specific search
-// index mappings:
-// 1 => c.company, 2 => cg.title, 3 => c.represant, 5 => c.email, 6 => c.gsm, 7 => c.regdate
-$filter_columns = [
-    1 => 'c.company',
-    2 => 'cg.title',
-    3 => 'c.represant',
-    5 => 'c.email',
-    6 => 'c.gsm',
-    7 => 'c.regdate',
+use App\Helper\DataTableFilter;
+
+// Column configs for DataTableFilter
+$column_configs = [
+    1 => ['expr' => 'c.company', 'type' => 'text'],
+    2 => ['expr' => 'cg.title', 'type' => 'text'],
+    3 => ['expr' => 'c.represant', 'type' => 'text'],
+    5 => ['expr' => 'c.email', 'type' => 'text'],
+    6 => ['expr' => 'c.gsm', 'type' => 'text'],
+    7 => ['expr' => 'c.regdate', 'type' => 'date'],
 ];
 
 if (!empty($requested_columns) && is_array($requested_columns)) {
     foreach ($requested_columns as $idx => $col) {
-        $value = $col['search']['value'] ?? '';
+        $rawSearch = $col['search']['value'] ?? '';
         $idx = intval($idx);
-        if ($value === '') {
+        $filter = DataTableFilter::parse($rawSearch);
+        if (!$filter) {
             continue;
         }
-        if (isset($filter_columns[$idx])) {
-            $paramKey = ":col_{$idx}";
-            if ($idx === 7) {
-                $where_conditions[] = "(DATE_FORMAT(c.regdate, '%d.%m.%Y') LIKE {$paramKey} OR c.regdate LIKE {$paramKey})";
-            } else {
-                $where_conditions[] = $filter_columns[$idx] . " LIKE " . $paramKey;
+
+        if (isset($column_configs[$idx])) {
+            $cfg = $column_configs[$idx];
+            $prefix = "col_{$idx}_";
+            $cond = DataTableFilter::buildCondition($cfg['expr'], $filter, $params, $prefix, $cfg['type'] ?? 'text');
+            if (!empty($cond)) {
+                $where_conditions[] = $cond;
             }
-            $params[$paramKey] = "%{$value}%";
         }
     }
 }
