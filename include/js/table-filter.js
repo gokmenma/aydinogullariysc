@@ -514,7 +514,11 @@ App.TableFilter = {
                     }
                 });
 
-                App.TableFilter.bindSelectSearch(popover);
+                if (filterType === 'select') {
+                    App.TableFilter.initSelect2(popover);
+                } else {
+                    App.TableFilter.initOperatorSelect2(popover);
+                }
             }
 
             // Prevent DataTables sorting on trigger click / mousedown
@@ -541,7 +545,9 @@ App.TableFilter = {
                 if (filterType === 'select') {
                     const body = popover.querySelector('.tf-body');
                     body.innerHTML = App.TableFilter.renderFilterBody('select', table, index);
-                    App.TableFilter.bindSelectSearch(popover);
+                    App.TableFilter.initSelect2(popover);
+                } else {
+                    App.TableFilter.initOperatorSelect2(popover);
                 }
 
                 // Position popover
@@ -561,97 +567,91 @@ App.TableFilter = {
                     App.TableFilter.initDateInputs(popover);
                 }
 
-                // Focus first input
+                // Focus first input or Select2
                 setTimeout(function () {
-                    const firstInput = popover.querySelector('.tf-select-search') || popover.querySelector('.tf-input');
-                    if (firstInput) firstInput.focus();
-                }, 50);
+                    if (filterType === 'select') {
+                        const $s = $(popover).find('.tf-select2-control');
+                        if ($s.length) $s.select2('open');
+                    } else {
+                        const firstInput = popover.querySelector('.tf-input');
+                        if (firstInput) firstInput.focus();
+                    }
+                }, 60);
             });
         });
     },
 
-    bindSelectSearch: function (popover) {
-        if (!popover) return;
-        const searchInput = popover.querySelector('.tf-select-search');
-        const countLabel = popover.querySelector('.tf-selected-count');
-        const rows = popover.querySelectorAll('.tf-checkbox-row');
-
-        function updateSelectedCount() {
-            if (!countLabel) return;
-            const total = rows.length;
-            const checked = popover.querySelectorAll('.tf-checkbox-control:checked').length;
-            if (checked > 0) {
-                countLabel.textContent = `${checked} / ${total} seçili`;
-                countLabel.classList.add('text-primary');
-                countLabel.classList.remove('text-muted');
-            } else {
-                countLabel.textContent = `${total} öğe`;
-                countLabel.classList.remove('text-primary');
-                countLabel.classList.add('text-muted');
+    initOperatorSelect2: function (container) {
+        if (!container || !window.jQuery || !$.fn.select2) return;
+        const popover = (container.classList && container.classList.contains('tf-popover')) ? container : (container.closest ? container.closest('.tf-popover') : container);
+        $(container).find('.tf-operator-select').each(function () {
+            const $this = $(this);
+            if ($this.hasClass('select2-hidden-accessible')) {
+                $this.select2('destroy');
             }
-        }
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                const query = App.TableFilter.toTrLower(this.value);
-                rows.forEach(row => {
-                    const text = App.TableFilter.toTrLower(row.querySelector('.tf-checkbox-text').textContent);
-                    if (text.indexOf(query) !== -1) {
-                        row.style.display = 'flex';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+            $this.select2({
+                dropdownParent: $(popover),
+                width: '100%',
+                minimumResultsForSearch: Infinity
             });
-        }
-
-        // Live visual toggle for row checkbox
-        popover.querySelectorAll('.tf-checkbox-control').forEach(cb => {
-            cb.addEventListener('change', function () {
-                const row = this.closest('.tf-checkbox-row');
-                if (row) {
-                    if (this.checked) row.classList.add('is-checked');
-                    else row.classList.remove('is-checked');
-                }
-                updateSelectedCount();
+            $this.off('change.tf_op').on('change.tf_op', function () {
+                App.TableFilter.onOperatorChange(this);
             });
         });
+    },
 
-        // "Tümünü Seç"
-        const selectAllBtn = popover.querySelector('.tf-select-all');
-        if (selectAllBtn) {
-            selectAllBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                popover.querySelectorAll('.tf-checkbox-row').forEach(row => {
-                    if (row.style.display !== 'none') {
-                        const cb = row.querySelector('.tf-checkbox-control');
-                        if (cb) {
-                            cb.checked = true;
-                            row.classList.add('is-checked');
-                        }
+    initSelect2: function (popover) {
+        if (!popover || !window.jQuery || !$.fn.select2) return;
+        const $select = $(popover).find('.tf-select2-control');
+        if ($select.length) {
+            if ($select.hasClass('select2-hidden-accessible')) {
+                $select.select2('destroy');
+            }
+            $select.select2({
+                dropdownParent: $(popover),
+                width: '100%',
+                placeholder: 'Değer seçin veya arayın...',
+                allowClear: true,
+                language: {
+                    noResults: function () {
+                        return "Kayıt bulunamadı";
                     }
-                });
-                updateSelectedCount();
+                }
             });
-        }
 
-        // "Temizle / Seçimi Kaldır"
-        const deselectAllBtn = popover.querySelector('.tf-deselect-all');
-        if (deselectAllBtn) {
-            deselectAllBtn.addEventListener('click', function (e) {
+            const updateCount = function () {
+                const countLabel = popover.querySelector('.tf-selected-count');
+                if (!countLabel) return;
+                const total = $select.find('option').length;
+                const selected = ($select.val() || []).length;
+                if (selected > 0) {
+                    countLabel.textContent = `${selected} / ${total} seçili`;
+                    countLabel.classList.add('text-primary');
+                    countLabel.classList.remove('text-muted');
+                } else {
+                    countLabel.textContent = `${total} öğe`;
+                    countLabel.classList.remove('text-primary');
+                    countLabel.classList.add('text-muted');
+                }
+            };
+
+            $select.off('change.tf').on('change.tf', updateCount);
+
+            // Quick action: Tümünü Seç
+            $(popover).find('.tf-select-all').off('click').on('click', function (e) {
                 e.preventDefault();
-                popover.querySelectorAll('.tf-checkbox-row').forEach(row => {
-                    const cb = row.querySelector('.tf-checkbox-control');
-                    if (cb) {
-                        cb.checked = false;
-                        row.classList.remove('is-checked');
-                    }
-                });
-                updateSelectedCount();
+                $select.find('option').prop('selected', true);
+                $select.trigger('change');
             });
-        }
 
-        updateSelectedCount();
+            // Quick action: Temizle
+            $(popover).find('.tf-deselect-all').off('click').on('click', function (e) {
+                e.preventDefault();
+                $select.val(null).trigger('change');
+            });
+
+            updateCount();
+        }
     },
 
     getDistinctColumnValues: function (table, colIndex) {
@@ -755,45 +755,29 @@ App.TableFilter = {
             const existingFilter = (App.TableFilter.activeFilters[tableId] && App.TableFilter.activeFilters[tableId][colIndex]) || null;
             const preselectedVals = (existingFilter && existingFilter.values) || [];
 
+            let optionsHtml = '';
+            values.forEach(val => {
+                const isSelected = preselectedVals.indexOf(val) !== -1 ? ' selected' : '';
+                const cnt = counts[val] || 0;
+                const escapedVal = val.replace(/"/g, '&quot;');
+                const label = cnt > 0 ? `${val} (${cnt})` : val;
+                optionsHtml += `<option value="${escapedVal}"${isSelected}>${label}</option>`;
+            });
+
             let html = `
                 <div class="tf-select-filter-wrap">
-                    <div class="tf-search-box">
-                        <span class="tf-search-icon">${App.TableFilter.SVG_SEARCH_ICON}</span>
-                        <input type="text" class="tf-select-search" placeholder="Listede ara..." autocomplete="off">
+                    <div class="form-group mb-2">
+                        <select class="form-control tf-select2-control" multiple="multiple" style="width: 100%;" data-placeholder="Değer seçin veya arayın...">
+                            ${optionsHtml}
+                        </select>
                     </div>
-                    <div class="tf-select-actions">
+                    <div class="tf-select-actions d-flex justify-content-between align-items-center mt-2 pt-1 border-top">
                         <div class="tf-select-quick-links">
                             <button type="button" class="tf-link-btn tf-select-all">Tümünü Seç</button>
                             <span class="tf-link-divider">•</span>
                             <button type="button" class="tf-link-btn tf-deselect-all">Temizle</button>
                         </div>
                         <span class="tf-selected-count text-muted font-11">${preselectedVals.length > 0 ? preselectedVals.length + ' / ' + values.length + ' seçili' : values.length + ' öğe'}</span>
-                    </div>
-                    <div class="tf-checkbox-list">
-            `;
-
-            if (values.length === 0) {
-                html += '<div class="tf-no-items">Filtrelenecek kayıt bulunamadı</div>';
-            } else {
-                values.forEach((val, idx) => {
-                    const chkId = `tf-chk-${table.id}-${colIndex}-${idx}`;
-                    const isChecked = preselectedVals.indexOf(val) !== -1 ? 'checked' : '';
-                    const cnt = counts[val] || 0;
-                    const escapedVal = val.replace(/"/g, '&quot;');
-                    const badgeHtml = cnt > 0
-                        ? `<span class="tf-checkbox-badge">${cnt}</span>`
-                        : `<span class="tf-checkbox-badge tf-badge-zero" title="Şu anki sayfada yok">-</span>`;
-                    html += `
-                        <label class="tf-checkbox-row ${isChecked ? 'is-checked' : ''}" for="${chkId}">
-                            <input class="tf-checkbox-control" type="checkbox" value="${escapedVal}" id="${chkId}" ${isChecked}>
-                            <span class="tf-checkbox-text" title="${escapedVal}">${val}</span>
-                            ${badgeHtml}
-                        </label>
-                    `;
-                });
-            }
-
-            html += `
                     </div>
                 </div>
             `;
@@ -858,8 +842,7 @@ App.TableFilter = {
         const selOp = ruleData ? ruleData.operator : operators[0].val;
         const val = ruleData ? (ruleData.value || '') : '';
 
-        // Native temiz select - global select2 eklentilerinden etkilenmez
-        let selectHtml = `<select class="form-select form-select-sm tf-operator-select" data-select2-ignore="true" onchange="App.TableFilter.onOperatorChange(this)">`;
+        let selectHtml = `<select class="form-control form-control-sm tf-operator-select">`;
         operators.forEach(op => {
             const isSel = op.val === selOp ? ' selected' : '';
             selectHtml += `<option value="${op.val}"${isSel}>${op.text}</option>`;
@@ -916,6 +899,8 @@ App.TableFilter = {
         const newRow = temp.firstElementChild;
         container.appendChild(newRow);
 
+        App.TableFilter.initOperatorSelect2(newRow);
+
         if (type === 'date') {
             App.TableFilter.initDateInputs(newRow);
         }
@@ -950,12 +935,18 @@ App.TableFilter = {
         const filterData = { type: filterType, colIndex: colIndex, rules: [] };
 
         if (filterType === 'select') {
-            const checked = Array.from(popover.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-            if (checked.length === 0) {
+            const $select = $(popover).find('.tf-select2-control');
+            let selectedVals = [];
+            if ($select.length) {
+                selectedVals = $select.val() || [];
+            } else {
+                selectedVals = Array.from(popover.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+            }
+            if (!selectedVals || selectedVals.length === 0) {
                 App.TableFilter.clear(tableId, colIndex, popover);
                 return;
             }
-            filterData.values = checked;
+            filterData.values = selectedVals;
         } else {
             const logicInput = popover.querySelector('.tf-logic-radio:checked');
             const logic = logicInput ? logicInput.value : (filterType === 'text' ? 'or' : 'and');
@@ -1011,17 +1002,14 @@ App.TableFilter = {
 
         // Reset inputs in popover
         popover.querySelectorAll('.tf-input').forEach(i => i.value = '');
-        popover.querySelectorAll('.tf-checkbox-control:checked').forEach(c => c.checked = false);
-        popover.querySelectorAll('.tf-checkbox-row').forEach(r => {
-            r.classList.remove('is-checked');
-            r.style.display = 'flex';
-        });
-        const searchInp = popover.querySelector('.tf-select-search');
-        if (searchInp) searchInp.value = '';
+        const $select = $(popover).find('.tf-select2-control');
+        if ($select.length) {
+            $select.val(null).trigger('change');
+        }
 
         const countLabel = popover.querySelector('.tf-selected-count');
         if (countLabel) {
-            const total = popover.querySelectorAll('.tf-checkbox-row').length;
+            const total = $select.length ? $select.find('option').length : 0;
             countLabel.textContent = `${total} öğe`;
             countLabel.classList.remove('text-primary');
             countLabel.classList.add('text-muted');
@@ -1052,17 +1040,14 @@ App.TableFilter = {
 
         document.querySelectorAll(`.tf-popover[data-table-id="${tableId}"]`).forEach(pop => {
             pop.querySelectorAll('.tf-input').forEach(i => i.value = '');
-            pop.querySelectorAll('.tf-checkbox-control:checked').forEach(c => c.checked = false);
-            pop.querySelectorAll('.tf-checkbox-row').forEach(r => {
-                r.classList.remove('is-checked');
-                r.style.display = 'flex';
-            });
-            const searchInp = pop.querySelector('.tf-select-search');
-            if (searchInp) searchInp.value = '';
+            const $s = $(pop).find('.tf-select2-control');
+            if ($s.length) {
+                $s.val(null).trigger('change');
+            }
 
             const countLabel = pop.querySelector('.tf-selected-count');
             if (countLabel) {
-                const total = pop.querySelectorAll('.tf-checkbox-row').length;
+                const total = $s.length ? $s.find('option').length : 0;
                 countLabel.textContent = `${total} öğe`;
                 countLabel.classList.remove('text-primary');
                 countLabel.classList.add('text-muted');
