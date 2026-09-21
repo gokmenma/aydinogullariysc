@@ -330,10 +330,53 @@ try {
     $all_users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
     $modules_stmt = $ac->query("SELECT DISTINCT module FROM logs WHERE module IS NOT NULL AND module <> '' ORDER BY module");
     $all_modules = $modules_stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Sütun filtre seçenek sayıları (Tüm veritabanı toplamları)
+    $logFilterCounts = [
+        'user' => [],
+        'event' => [],
+        'module' => []
+    ];
+    try {
+        $stLogUsers = $ac->query("
+            SELECT COALESCE(u.username, CONCAT('Kullanıcı #', l.author)) as uname, COUNT(*) as cnt 
+            FROM logs l 
+            LEFT JOIN users u ON u.id = COALESCE(NULLIF(l.user_id, 0), l.author)
+            WHERE u.username IS NOT NULL AND u.username != ''
+            GROUP BY uname ORDER BY cnt DESC
+        ");
+        if ($stLogUsers) {
+            $logFilterCounts['user'] = $stLogUsers->fetchAll(PDO::FETCH_KEY_PAIR);
+        }
+
+        $stLogEvents = $ac->query("
+            SELECT COALESCE(NULLIF(event_type, ''), 'view') as ev, COUNT(*) as cnt 
+            FROM logs 
+            GROUP BY ev ORDER BY cnt DESC
+        ");
+        if ($stLogEvents) {
+            $evRaw = $stLogEvents->fetchAll(PDO::FETCH_KEY_PAIR);
+            foreach ($evRaw as $ev => $cnt) {
+                $lbl = $event_labels[$ev] ?? $ev;
+                $logFilterCounts['event'][$lbl] = ($logFilterCounts['event'][$lbl] ?? 0) + $cnt;
+            }
+        }
+
+        $stLogModules = $ac->query("
+            SELECT module, COUNT(*) as cnt 
+            FROM logs 
+            WHERE module IS NOT NULL AND module != '' 
+            GROUP BY module ORDER BY cnt DESC
+        ");
+        if ($stLogModules) {
+            $logFilterCounts['module'] = $stLogModules->fetchAll(PDO::FETCH_KEY_PAIR);
+        }
+    } catch (Exception $e) {}
 } catch (PDOException $e) {
     $logs = [];
     $all_users = [];
     $all_modules = [];
+    $logFilterCounts = ['user' => [], 'event' => [], 'module' => []];
     $total_rows = 0;
     $total_pages = 0;
     $error_msg = $e->getMessage();
@@ -836,9 +879,9 @@ if (!function_exists('formatRelativeTime')) {
                         <thead>
                             <tr>
                                 <th style="width: 14%; min-width: 125px;" data-filter-type="date">Tarih / Saat</th>
-                                <th style="width: 15%; min-width: 130px;" data-filter-type="select">Kullanıcı</th>
-                                <th style="width: 14%; min-width: 115px;" data-filter-type="select">İşlem Türü</th>
-                                <th style="width: 12%; min-width: 100px;" class="log-col-module" data-filter-type="select">Modül</th>
+                                <th style="width: 15%; min-width: 130px;" data-filter-type="select" data-filter-counts='<?php echo htmlspecialchars(json_encode($logFilterCounts['user'] ?? []), ENT_QUOTES, 'UTF-8'); ?>'>Kullanıcı</th>
+                                <th style="width: 14%; min-width: 115px;" data-filter-type="select" data-filter-counts='<?php echo htmlspecialchars(json_encode($logFilterCounts['event'] ?? []), ENT_QUOTES, 'UTF-8'); ?>'>İşlem Türü</th>
+                                <th style="width: 12%; min-width: 100px;" class="log-col-module" data-filter-type="select" data-filter-counts='<?php echo htmlspecialchars(json_encode($logFilterCounts['module'] ?? []), ENT_QUOTES, 'UTF-8'); ?>'>Modül</th>
                                 <th style="width: 33%; min-width: 240px;" data-filter-type="text">Yapılan İşlem / Detay</th>
                                 <th style="width: 12%; min-width: 110px;" class="log-col-entity" data-filter-type="text">İlgili Kayıt</th>
                             </tr>

@@ -602,8 +602,24 @@ App.TableFilter = {
         const counts = {}; // value -> count
         const tableId = table.id;
 
+        // 0. Sütun başlığında (th) tanımlı dataset filterCounts var mı? (Server-side paginated PHP sayfaları için)
+        const th = table.querySelectorAll('thead th')[colIndex];
+        if (th && th.dataset.filterCounts) {
+            try {
+                const parsed = JSON.parse(th.dataset.filterCounts);
+                if (typeof parsed === 'object' && parsed !== null) {
+                    Object.keys(parsed).forEach(val => {
+                        const cnt = parseInt(parsed[val], 10);
+                        if (cnt > 0) {
+                            counts[val] = cnt;
+                        }
+                    });
+                }
+            } catch (e) {}
+        }
+
         // 1. Önce sunucudan gelen veya havuzdaki gerçek veritabanı toplam sayıları var mı kontrol et (serverSide tablolar için)
-        if (tableId && App.TableFilter.columnOptionPool[tableId] && App.TableFilter.columnOptionPool[tableId][colIndex]) {
+        if (Object.keys(counts).length === 0 && tableId && App.TableFilter.columnOptionPool[tableId] && App.TableFilter.columnOptionPool[tableId][colIndex]) {
             const pool = App.TableFilter.columnOptionPool[tableId][colIndex];
             Object.keys(pool).forEach(val => {
                 const poolCnt = parseInt(pool[val], 10);
