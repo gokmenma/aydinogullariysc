@@ -873,203 +873,23 @@ if (!function_exists('formatRelativeTime')) {
                     <div class="alert alert-danger m-3"><?php echo htmlspecialchars($error_msg); ?></div>
                 <?php endif; ?>
 
-                <!-- Tablo Alanı (Teklifler Sayfasıyla Birebir data-table table-hover table-bordered) -->
+                <!-- Tablo Alanı (DataTables Server-Side AJAX) -->
                 <div class="responsive p-2">
                     <table id="logsTable" class="data-table table-hover table-bordered" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th style="width: 14%; min-width: 125px;" data-filter-type="date">Tarih / Saat</th>
-                                <th style="width: 15%; min-width: 130px;" data-filter-type="select" data-filter-counts='<?php echo htmlspecialchars(json_encode($logFilterCounts['user'] ?? []), ENT_QUOTES, 'UTF-8'); ?>'>Kullanıcı</th>
-                                <th style="width: 14%; min-width: 115px;" data-filter-type="select" data-filter-counts='<?php echo htmlspecialchars(json_encode($logFilterCounts['event'] ?? []), ENT_QUOTES, 'UTF-8'); ?>'>İşlem Türü</th>
-                                <th style="width: 12%; min-width: 100px;" class="log-col-module" data-filter-type="select" data-filter-counts='<?php echo htmlspecialchars(json_encode($logFilterCounts['module'] ?? []), ENT_QUOTES, 'UTF-8'); ?>'>Modül</th>
+                                <th style="width: 15%; min-width: 130px;" data-filter-type="select">Kullanıcı</th>
+                                <th style="width: 14%; min-width: 115px;" data-filter-type="select">İşlem Türü</th>
+                                <th style="width: 12%; min-width: 100px;" class="log-col-module" data-filter-type="select">Modül</th>
                                 <th style="width: 33%; min-width: 240px;" data-filter-type="text">Yapılan İşlem / Detay</th>
                                 <th style="width: 12%; min-width: 110px;" class="log-col-entity" data-filter-type="text">İlgili Kayıt</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($logs)): ?>
-                                <tr class="odd data-row text-center">
-                                    <td colspan="6" class="text-muted p-4">Kayıt bulunamadı.</td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($logs as $row): 
-                                    // Tarih biçimlendirme
-                                    $log_date = '';
-                                    $raw_date_for_rel = '';
-                                    if (!empty($row['created_at'])) {
-                                        $log_date = date('d.m.Y H:i:s', strtotime($row['created_at']));
-                                        $raw_date_for_rel = $row['created_at'];
-                                    } else {
-                                        $log_date = $row['dates'] . ' ' . $row['clock'];
-                                        $raw_date_for_rel = $row['dates'] . ' ' . $row['clock'];
-                                    }
-                                    $rel_time = formatRelativeTime($raw_date_for_rel);
-
-                                    // Kullanıcı adı bulma
-                                    $uid = $row['user_id'] ?: $row['author'];
-                                    $u_name = getUsername($uid);
-                                    $initial = 'S';
-                                    if (empty($u_name)) {
-                                        $u_name = ($uid == 0) ? 'Sistem' : 'Kullanıcı #' . $uid;
-                                        $initial = 'S';
-                                    } else {
-                                        $initial = mb_strtoupper(mb_substr($u_name, 0, 1, 'UTF-8'), 'UTF-8');
-                                        $u_name = htmlspecialchars($u_name);
-                                    }
-
-                                    // Mesaj ve detayları çözümleme
-                                    $details_arr = json_decode($row['details'] ?? '', true);
-                                    $display_message = '';
-                                    if (!empty($row['summary'])) {
-                                        $display_message = $row['summary'];
-                                    } elseif ($details_arr && isset($details_arr['message'])) {
-                                        $display_message = $details_arr['message'];
-                                    } else {
-                                        $display_message = $row['message'] ?: $row['action'];
-                                    }
-                                    $display_message = preg_replace(
-                                        '/^\[[^\]]+\]\s+[^\s]+:\s*/u',
-                                        '',
-                                        trim((string) $display_message)
-                                    );
-                                    $display_message = preg_replace(
-                                        '/\s+\{.*\}\s+\[\]\s*$/su',
-                                        '',
-                                        (string) $display_message
-                                    );
-
-                                    $lvl = $row['level'] ?: 'INFO';
-                                    $event_type = $row['event_type'] ?? '';
-                                    if ($event_type === '' && stripos($display_message, 'Sayfa Ziyareti') !== false) {
-                                        $event_type = 'view';
-                                    }
-                                    $event_label = $event_labels[$event_type] ?? ($lvl === 'INFO' ? 'Eski Kayıt' : $lvl);
-                                    $event_badge = $event_badges[$event_type] ?? 'badge-log-view';
-                                    $event_icon = $event_icons[$event_type] ?? 'fa fa-circle';
-                                    $module_name = $row['module'] ?: ($details_arr['channel'] ?? 'Genel');
-                                    $mod_icon = $module_icons[$module_name] ?? 'fa fa-folder-o';
-                                    
-                                    $entity_label = '-';
-                                    if (!empty($row['entity_type']) || !empty($row['entity_id'])) {
-                                        $entity_type = $row['entity_type'] ?? '';
-                                        $entity_name = $entity_labels[$entity_type] ?? $entity_type;
-                                        $entity_label = trim($entity_name . ' #' . ($row['entity_id'] ?? ''), ' #');
-                                    }
-                                ?>
-                                    <tr class="data-row">
-                                        <td>
-                                            <div class="d-flex flex-column">
-                                                <span class="weight-600 font-12 text-dark"><?php echo $log_date; ?></span>
-                                                <span class="font-11 text-muted"><?php echo $rel_time; ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="user-chip-cell d-flex align-items-center">
-                                                <div class="user-mini-avatar mr-2">
-                                                    <?php echo $initial; ?>
-                                                </div>
-                                                <span class="font-12 weight-600 text-dark"><?php echo $u_name; ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge <?php echo $event_badge; ?> font-11">
-                                                <i class="<?php echo $event_icon; ?> mr-1"></i><?php echo htmlspecialchars($event_label, ENT_QUOTES, 'UTF-8'); ?>
-                                            </span>
-                                        </td>
-                                        <td class="log-col-module">
-                                            <span class="module-tag font-11">
-                                                <i class="<?php echo $mod_icon; ?> mr-1 text-muted"></i><?php echo htmlspecialchars(ucfirst($module_name), ENT_QUOTES, 'UTF-8'); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="log-action-cell d-flex align-items-center" style="gap: 8px;">
-                                                <button type="button" class="btn btn-xs btn-outline-primary btn-detail-toggle font-11" title="Detay görüntüle" 
-                                                    data-json='<?php echo htmlspecialchars($row['details'] ?? '', ENT_QUOTES, 'UTF-8'); ?>' 
-                                                    data-ip="<?php echo htmlspecialchars($row['ip_address'] ?: '0.0.0.0', ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-url="<?php echo htmlspecialchars($row['url'] ?: '-', ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-method="<?php echo htmlspecialchars($row['method'] ?: '-', ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-level="<?php echo htmlspecialchars($lvl, ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-event="<?php echo htmlspecialchars($event_label, ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-module="<?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-entity="<?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-summary="<?php echo htmlspecialchars($display_message, ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-date="<?php echo htmlspecialchars($log_date, ENT_QUOTES, 'UTF-8'); ?>" 
-                                                    data-user="<?php echo htmlspecialchars(strip_tags($u_name), ENT_QUOTES, 'UTF-8'); ?>">
-                                                    <i class="fa fa-eye mr-1"></i>Detay
-                                                </button>
-                                                <span class="log-message font-12 text-truncate" style="max-width: 380px;" data-toggle="tooltip" title="<?php echo htmlspecialchars($display_message); ?>">
-                                                    <?php echo htmlspecialchars($display_message); ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="log-col-entity">
-                                            <?php if ($entity_label !== '-'): ?>
-                                                <span class="entity-pill font-11"><?php echo htmlspecialchars($entity_label, ENT_QUOTES, 'UTF-8'); ?></span>
-                                            <?php else: ?>
-                                                <span class="font-12 text-muted">-</span>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Teklifler Tarzı DataTables Pagination & Info (Yatay Hizalama Garantili) -->
-                <?php if ($total_pages > 1): ?>
-                    <div class="row mx-0 p-3 align-items-center border-top logs-pagination-row">
-                        <div class="col-sm-12 col-md-5">
-                            <div class="dataTables_info font-12 text-muted" role="status" aria-live="polite">
-                                Toplam <strong><?php echo number_format($total_rows, 0, ',', '.'); ?></strong> kayıttan <strong><?php echo number_format($offset + 1, 0, ',', '.') . ' - ' . number_format(min($total_rows, $offset + $limit), 0, ',', '.'); ?></strong> arası gösteriliyor.
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-7">
-                            <div class="dataTables_paginate paging_simple_numbers d-flex justify-content-md-end justify-content-start mt-2 mt-md-0">
-                                <ul class="pagination pagination-sm mb-0 d-flex flex-row flex-nowrap" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; list-style: none !important; padding-left: 0 !important; margin: 0 !important;">
-                                    <?php 
-                                        $query_params = $_GET;
-                                        $query_params['tab'] = 'logs';
-                                        
-                                        // Önceki Sayfa
-                                        $prev_page = max(1, $page - 1);
-                                        $query_params['page'] = $prev_page;
-                                        $prev_link = "index.php?" . http_build_query($query_params);
-                                        $disabled = ($page == 1) ? 'disabled' : '';
-                                        echo '<li class="page-item ' . $disabled . '"><a class="page-link" href="' . $prev_link . '">Önceki</a></li>';
-
-                                        // Sayfa Numaraları (Akıllı Aralık)
-                                        $start = max(1, $page - 2);
-                                        $end = min($total_pages, $page + 2);
-                                        if ($start > 1) {
-                                            $query_params['page'] = 1;
-                                            echo '<li class="page-item"><a class="page-link" href="index.php?' . http_build_query($query_params) . '">1</a></li>';
-                                            if ($start > 2) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                                        }
-                                        for ($i = $start; $i <= $end; $i++) {
-                                            $query_params['page'] = $i;
-                                            $link = "index.php?" . http_build_query($query_params);
-                                            $active = ($page == $i) ? 'active' : '';
-                                            echo '<li class="page-item ' . $active . '"><a class="page-link" href="' . $link . '">' . $i . '</a></li>';
-                                        }
-                                        if ($end < $total_pages) {
-                                            if ($end < $total_pages - 1) echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                                            $query_params['page'] = $total_pages;
-                                            echo '<li class="page-item"><a class="page-link" href="index.php?' . http_build_query($query_params) . '">' . $total_pages . '</a></li>';
-                                        }
-
-                                        // Sonraki Sayfa
-                                        $next_page = min($total_pages, $page + 1);
-                                        $query_params['page'] = $next_page;
-                                        $next_link = "index.php?" . http_build_query($query_params);
-                                        $disabled = ($page == $total_pages) ? 'disabled' : '';
-                                        echo '<li class="page-item ' . $disabled . '"><a class="page-link" href="' . $next_link . '">Sonraki</a></li>';
-                                    ?>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
             </div>
 
         </div>
@@ -2060,6 +1880,66 @@ $(document).ready(function() {
     // Tooltipleri aktif et
     if ($.fn.tooltip) {
         $('[data-toggle="tooltip"]').tooltip();
+    }
+
+    // ─── LOGS SERVER-SIDE DATATABLE ───
+    if ($('#logsTable').length) {
+        var logsTable = $('#logsTable').DataTable({
+            retrieve: true,
+            processing: false,
+            serverSide: true,
+            pageLength: 50,
+            lengthMenu: [[25, 50, 100, 250], [25, 50, 100, 250]],
+            ajax: {
+                url: 'App/api/get-logs.php',
+                type: 'POST',
+                data: function(d) {
+                    d.filters = {
+                        filter_user: $('select[name="filter_user"]').val(),
+                        filter_event: $('select[name="filter_event"]').val(),
+                        filter_module: $('select[name="filter_module"]').val(),
+                        filter_level: $('select[name="filter_level"]').val(),
+                        filter_start_date: $('input[name="filter_start_date"]').val(),
+                        filter_end_date: $('input[name="filter_end_date"]').val(),
+                        filter_search: $('input[name="filter_search"]').val()
+                    };
+                },
+                error: function(xhr, error, thrown) {
+                    console.error("DataTables Logs AJAX Error:", xhr, error, thrown);
+                }
+            },
+            order: [[0, 'desc']],
+            columns: [
+                { data: 0, orderable: true },
+                { data: 1, orderable: true },
+                { data: 2, orderable: true },
+                { data: 3, orderable: true },
+                { data: 4, orderable: false },
+                { data: 5, orderable: false }
+            ],
+            language: {
+                emptyTable: "Kayıt bulunamadı.",
+                info: "Toplam <strong>_TOTAL_</strong> kayıttan <strong>_START_ - _END_</strong> arası gösteriliyor.",
+                infoEmpty: "Kayıt yok",
+                infoFiltered: "(_MAX_ kayıt içerisinden filtrelendi)",
+                lengthMenu: "Sayfada _MENU_ kayıt göster",
+                loadingRecords: "Veriler Yükleniyor...",
+                processing: "İşleniyor...",
+                search: "Listede ara:",
+                zeroRecords: "Eşleşen kayıt bulunamadı",
+                paginate: {
+                    first: "İlk",
+                    last: "Son",
+                    next: "Sonraki",
+                    previous: "Önceki"
+                }
+            }
+        });
+
+        $('#activityFilterForm').on('submit', function(e) {
+            e.preventDefault();
+            logsTable.ajax.reload();
+        });
     }
 
     <?php if ($active_tab === 'dashboard'): ?>

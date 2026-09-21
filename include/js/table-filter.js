@@ -96,6 +96,17 @@ App.TableFilter = {
 
         if ($.fn.dataTable.ext && $.fn.dataTable.ext.search) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {
+                // If the DataTable is server-side driven, server already did the filtering
+                const isServer = Boolean(
+                    settings.bServerSide || 
+                    (settings.oFeatures && settings.oFeatures.bServerSide) || 
+                    (settings.oInit && (settings.oInit.serverSide || settings.oInit.bServerSide)) ||
+                    (settings.nTable && window.jQuery && $.fn.dataTable.isDataTable(settings.nTable) && $(settings.nTable).DataTable().init().serverSide)
+                );
+                if (isServer) {
+                    return true;
+                }
+
                 const tableId = settings.sTableId || (settings.nTable ? (settings.nTable.id || $(settings.nTable).attr('id')) : null);
                 if (!tableId || !App.TableFilter.activeFilters[tableId]) return true;
 
@@ -1198,6 +1209,14 @@ App.TableFilter = {
     filterDOMTable: function (tableId) {
         const table = document.getElementById(tableId);
         if (!table) return;
+
+        // Skip DOM row hiding for serverSide DataTables
+        if (window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable('#' + tableId)) {
+            try {
+                const dt = $('#' + tableId).DataTable();
+                if (dt.init().serverSide) return;
+            } catch (e) {}
+        }
 
         const tableFilters = App.TableFilter.activeFilters[tableId];
         const allRows = Array.from(table.querySelectorAll('tbody tr')).filter(r => !r.classList.contains('search-input-row') && !r.classList.contains('tf-no-records-row'));
