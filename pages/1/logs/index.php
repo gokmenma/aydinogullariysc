@@ -832,7 +832,7 @@ if (!function_exists('formatRelativeTime')) {
 
                 <!-- Tablo Alanı (Teklifler Sayfasıyla Birebir data-table table-hover table-bordered) -->
                 <div class="responsive p-2">
-                    <table class="data-table table-hover table-bordered" style="width: 100%;">
+                    <table id="logsTable" class="data-table table-hover table-bordered" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th style="width: 14%; min-width: 125px;" data-filter-type="date">Tarih / Saat</th>

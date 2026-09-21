@@ -8,6 +8,8 @@ window.App = window.App || {};
 App.TableFilter = {
     activeFilters: {}, // tableId -> { colIndex -> { type: 'text'|'number'|'date'|'select', rules: [...], values: [...] } }
     columnOptionPool: {}, // tableId -> { colIndex -> { [val]: count } }
+    originalPaginationState: {}, // tableId -> { infoEl, paginateEl, originalInfoHtml, originalPaginateHtml, originalTotal, pageSize }
+    domPagingState: {}, // tableId -> { currentPage, pageSize, matchingRows, allRows, totalCount, filteredCount, totalPages, infoEl, paginateEl }
     hooksBound: false,
     xhrBound: false,
 
@@ -515,7 +517,7 @@ App.TableFilter = {
                 });
 
                 if (filterType === 'select') {
-                    App.TableFilter.initSelect2(popover);
+                    App.TableFilter.bindSelectSearch(popover);
                 } else {
                     App.TableFilter.initOperatorSelect2(popover);
                 }
@@ -545,7 +547,7 @@ App.TableFilter = {
                 if (filterType === 'select') {
                     const body = popover.querySelector('.tf-body');
                     body.innerHTML = App.TableFilter.renderFilterBody('select', table, index);
-                    App.TableFilter.initSelect2(popover);
+                    App.TableFilter.bindSelectSearch(popover);
                 } else {
                     App.TableFilter.initOperatorSelect2(popover);
                 }
@@ -567,91 +569,97 @@ App.TableFilter = {
                     App.TableFilter.initDateInputs(popover);
                 }
 
-                // Focus first input or Select2
+                // Focus first input
                 setTimeout(function () {
-                    if (filterType === 'select') {
-                        const $s = $(popover).find('.tf-select2-control');
-                        if ($s.length) $s.select2('open');
-                    } else {
-                        const firstInput = popover.querySelector('.tf-input');
-                        if (firstInput) firstInput.focus();
-                    }
-                }, 60);
+                    const firstInput = popover.querySelector('.tf-select-search') || popover.querySelector('.tf-input');
+                    if (firstInput) firstInput.focus();
+                }, 50);
             });
         });
     },
 
-    initOperatorSelect2: function (container) {
-        if (!container || !window.jQuery || !$.fn.select2) return;
-        const popover = (container.classList && container.classList.contains('tf-popover')) ? container : (container.closest ? container.closest('.tf-popover') : container);
-        $(container).find('.tf-operator-select').each(function () {
-            const $this = $(this);
-            if ($this.hasClass('select2-hidden-accessible')) {
-                $this.select2('destroy');
+    bindSelectSearch: function (popover) {
+        if (!popover) return;
+        const searchInput = popover.querySelector('.tf-select-search');
+        const countLabel = popover.querySelector('.tf-selected-count');
+        const rows = popover.querySelectorAll('.tf-checkbox-row');
+
+        function updateSelectedCount() {
+            if (!countLabel) return;
+            const total = rows.length;
+            const checked = popover.querySelectorAll('.tf-checkbox-control:checked').length;
+            if (checked > 0) {
+                countLabel.textContent = `${checked} / ${total} seçili`;
+                countLabel.classList.add('text-primary');
+                countLabel.classList.remove('text-muted');
+            } else {
+                countLabel.textContent = `${total} öğe`;
+                countLabel.classList.remove('text-primary');
+                countLabel.classList.add('text-muted');
             }
-            $this.select2({
-                dropdownParent: $(popover),
-                width: '100%',
-                minimumResultsForSearch: Infinity
-            });
-            $this.off('change.tf_op').on('change.tf_op', function () {
-                App.TableFilter.onOperatorChange(this);
-            });
-        });
-    },
-
-    initSelect2: function (popover) {
-        if (!popover || !window.jQuery || !$.fn.select2) return;
-        const $select = $(popover).find('.tf-select2-control');
-        if ($select.length) {
-            if ($select.hasClass('select2-hidden-accessible')) {
-                $select.select2('destroy');
-            }
-            $select.select2({
-                dropdownParent: $(popover),
-                width: '100%',
-                placeholder: 'Değer seçin veya arayın...',
-                allowClear: true,
-                language: {
-                    noResults: function () {
-                        return "Kayıt bulunamadı";
-                    }
-                }
-            });
-
-            const updateCount = function () {
-                const countLabel = popover.querySelector('.tf-selected-count');
-                if (!countLabel) return;
-                const total = $select.find('option').length;
-                const selected = ($select.val() || []).length;
-                if (selected > 0) {
-                    countLabel.textContent = `${selected} / ${total} seçili`;
-                    countLabel.classList.add('text-primary');
-                    countLabel.classList.remove('text-muted');
-                } else {
-                    countLabel.textContent = `${total} öğe`;
-                    countLabel.classList.remove('text-primary');
-                    countLabel.classList.add('text-muted');
-                }
-            };
-
-            $select.off('change.tf').on('change.tf', updateCount);
-
-            // Quick action: Tümünü Seç
-            $(popover).find('.tf-select-all').off('click').on('click', function (e) {
-                e.preventDefault();
-                $select.find('option').prop('selected', true);
-                $select.trigger('change');
-            });
-
-            // Quick action: Temizle
-            $(popover).find('.tf-deselect-all').off('click').on('click', function (e) {
-                e.preventDefault();
-                $select.val(null).trigger('change');
-            });
-
-            updateCount();
         }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const query = App.TableFilter.toTrLower(this.value);
+                rows.forEach(row => {
+                    const text = App.TableFilter.toTrLower(row.querySelector('.tf-checkbox-text').textContent);
+                    if (text.indexOf(query) !== -1) {
+                        row.style.display = 'flex';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Live visual toggle for row checkbox
+        popover.querySelectorAll('.tf-checkbox-control').forEach(cb => {
+            cb.addEventListener('change', function () {
+                const row = this.closest('.tf-checkbox-row');
+                if (row) {
+                    if (this.checked) row.classList.add('is-checked');
+                    else row.classList.remove('is-checked');
+                }
+                updateSelectedCount();
+            });
+        });
+
+        // "Tümünü Seç"
+        const selectAllBtn = popover.querySelector('.tf-select-all');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                popover.querySelectorAll('.tf-checkbox-row').forEach(row => {
+                    if (row.style.display !== 'none') {
+                        const cb = row.querySelector('.tf-checkbox-control');
+                        if (cb) {
+                            cb.checked = true;
+                            row.classList.add('is-checked');
+                        }
+                    }
+                });
+                updateSelectedCount();
+            });
+        }
+
+        // "Temizle / Seçimi Kaldır"
+        const deselectAllBtn = popover.querySelector('.tf-deselect-all');
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                popover.querySelectorAll('.tf-checkbox-row').forEach(row => {
+                    const cb = row.querySelector('.tf-checkbox-control');
+                    if (cb) {
+                        cb.checked = false;
+                        row.classList.remove('is-checked');
+                    }
+                });
+                updateSelectedCount();
+            });
+        }
+
+        updateSelectedCount();
     },
 
     getDistinctColumnValues: function (table, colIndex) {
@@ -745,6 +753,22 @@ App.TableFilter = {
         return counts;
     },
 
+    initOperatorSelect2: function (container) {
+        if (!window.jQuery || !$.fn.select2 || !container) return;
+        $(container).find('select.tf-operator-select').each(function () {
+            const $el = $(this);
+            if (!$el.hasClass('select2-hidden-accessible')) {
+                $el.select2({
+                    minimumResultsForSearch: Infinity,
+                    dropdownParent: $el.closest('.tf-popover'),
+                    width: '110px'
+                }).on('change', function () {
+                    App.TableFilter.onOperatorChange(this);
+                });
+            }
+        });
+    },
+
     renderFilterBody: function (type, table, colIndex) {
         if (type === 'select') {
             const counts = App.TableFilter.getDistinctColumnValues(table, colIndex);
@@ -755,21 +779,33 @@ App.TableFilter = {
             const existingFilter = (App.TableFilter.activeFilters[tableId] && App.TableFilter.activeFilters[tableId][colIndex]) || null;
             const preselectedVals = (existingFilter && existingFilter.values) || [];
 
-            let optionsHtml = '';
+            let rowsHtml = '';
             values.forEach(val => {
-                const isSelected = preselectedVals.indexOf(val) !== -1 ? ' selected' : '';
+                const isSelected = preselectedVals.indexOf(val) !== -1;
                 const cnt = counts[val] || 0;
                 const escapedVal = val.replace(/"/g, '&quot;');
-                const label = cnt > 0 ? `${val} (${cnt})` : val;
-                optionsHtml += `<option value="${escapedVal}"${isSelected}>${label}</option>`;
+                const badgeClass = cnt > 0 ? 'tf-checkbox-badge' : 'tf-checkbox-badge tf-badge-zero';
+                rowsHtml += `
+                    <label class="tf-checkbox-row ${isSelected ? 'is-checked' : ''}">
+                        <input type="checkbox" class="tf-checkbox-control" value="${escapedVal}" ${isSelected ? 'checked' : ''}>
+                        <span class="tf-checkbox-text">${escapedVal}</span>
+                        <span class="${badgeClass}">${cnt}</span>
+                    </label>
+                `;
             });
+
+            if (values.length === 0) {
+                rowsHtml = '<div class="text-muted text-center p-3 font-12">Seçenek bulunamadı.</div>';
+            }
 
             let html = `
                 <div class="tf-select-filter-wrap">
-                    <div class="form-group mb-2">
-                        <select class="form-control tf-select2-control" multiple="multiple" style="width: 100%;" data-placeholder="Değer seçin veya arayın...">
-                            ${optionsHtml}
-                        </select>
+                    <div class="tf-search-wrap">
+                        <span class="tf-search-icon">${App.TableFilter.SVG_SEARCH_ICON}</span>
+                        <input type="text" class="form-control form-control-sm tf-select-search" placeholder="Listede ara..." autocomplete="off">
+                    </div>
+                    <div class="tf-checkbox-list">
+                        ${rowsHtml}
                     </div>
                     <div class="tf-select-actions d-flex justify-content-between align-items-center mt-2 pt-1 border-top">
                         <div class="tf-select-quick-links">
@@ -935,13 +971,8 @@ App.TableFilter = {
         const filterData = { type: filterType, colIndex: colIndex, rules: [] };
 
         if (filterType === 'select') {
-            const $select = $(popover).find('.tf-select2-control');
-            let selectedVals = [];
-            if ($select.length) {
-                selectedVals = $select.val() || [];
-            } else {
-                selectedVals = Array.from(popover.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-            }
+            const checkedBoxes = popover.querySelectorAll('.tf-checkbox-control:checked');
+            const selectedVals = Array.from(checkedBoxes).map(cb => cb.value);
             if (!selectedVals || selectedVals.length === 0) {
                 App.TableFilter.clear(tableId, colIndex, popover);
                 return;
@@ -1002,14 +1033,21 @@ App.TableFilter = {
 
         // Reset inputs in popover
         popover.querySelectorAll('.tf-input').forEach(i => i.value = '');
-        const $select = $(popover).find('.tf-select2-control');
-        if ($select.length) {
-            $select.val(null).trigger('change');
-        }
+        popover.querySelectorAll('.tf-checkbox-control').forEach(cb => {
+            cb.checked = false;
+            const row = cb.closest('.tf-checkbox-row');
+            if (row) {
+                row.classList.remove('is-checked');
+                row.style.display = 'flex';
+            }
+        });
+
+        const searchInput = popover.querySelector('.tf-select-search');
+        if (searchInput) searchInput.value = '';
 
         const countLabel = popover.querySelector('.tf-selected-count');
         if (countLabel) {
-            const total = $select.length ? $select.find('option').length : 0;
+            const total = popover.querySelectorAll('.tf-checkbox-row').length;
             countLabel.textContent = `${total} öğe`;
             countLabel.classList.remove('text-primary');
             countLabel.classList.add('text-muted');
@@ -1040,14 +1078,21 @@ App.TableFilter = {
 
         document.querySelectorAll(`.tf-popover[data-table-id="${tableId}"]`).forEach(pop => {
             pop.querySelectorAll('.tf-input').forEach(i => i.value = '');
-            const $s = $(pop).find('.tf-select2-control');
-            if ($s.length) {
-                $s.val(null).trigger('change');
-            }
+            pop.querySelectorAll('.tf-checkbox-control').forEach(cb => {
+                cb.checked = false;
+                const row = cb.closest('.tf-checkbox-row');
+                if (row) {
+                    row.classList.remove('is-checked');
+                    row.style.display = 'flex';
+                }
+            });
+
+            const searchInput = pop.querySelector('.tf-select-search');
+            if (searchInput) searchInput.value = '';
 
             const countLabel = pop.querySelector('.tf-selected-count');
             if (countLabel) {
-                const total = $s.length ? $s.find('option').length : 0;
+                const total = pop.querySelectorAll('.tf-checkbox-row').length;
                 countLabel.textContent = `${total} öğe`;
                 countLabel.classList.remove('text-primary');
                 countLabel.classList.add('text-muted');
@@ -1178,35 +1223,128 @@ App.TableFilter = {
         summaryEl.innerHTML = summaryHtml;
     },
 
+    formatNumber: function (num) {
+        if (num === null || num === undefined || isNaN(num)) return '0';
+        return Number(num).toLocaleString('tr-TR');
+    },
+
+    findTableInfoEl: function (table) {
+        if (!table) return null;
+        const tableId = table.id;
+        // 1. Check by DataTable ID convention
+        if (tableId) {
+            const el = document.getElementById(tableId + '_info');
+            if (el) return el;
+        }
+        // 2. Check closest card / container
+        const container = table.closest('.form-card, .card, .content, .responsive, .pd-20, .container-fluid, body');
+        if (container) {
+            const el = container.querySelector('.logs-pagination-row .dataTables_info, .dataTables_info, .pagination-info');
+            if (el) return el;
+        }
+        // 3. Check next siblings
+        let next = table.nextElementSibling;
+        while (next) {
+            const el = next.querySelector('.dataTables_info, .pagination-info') || (next.classList.contains('dataTables_info') ? next : null);
+            if (el) return el;
+            next = next.nextElementSibling;
+        }
+        return null;
+    },
+
+    findTablePaginateEl: function (table) {
+        if (!table) return null;
+        const tableId = table.id;
+        // 1. Check by DataTable ID convention
+        if (tableId) {
+            const el = document.getElementById(tableId + '_paginate');
+            if (el) return el;
+        }
+        // 2. Check closest card / container
+        const container = table.closest('.form-card, .card, .content, .responsive, .pd-20, .container-fluid, body');
+        if (container) {
+            const el = container.querySelector('.logs-pagination-row .dataTables_paginate, .dataTables_paginate, .pagination-wrap, .pagination-btns');
+            if (el) return el;
+        }
+        // 3. Check next siblings
+        let next = table.nextElementSibling;
+        while (next) {
+            const el = next.querySelector('.dataTables_paginate, .pagination-wrap') || (next.classList.contains('dataTables_paginate') ? next : null);
+            if (el) return el;
+            next = next.nextElementSibling;
+        }
+        return null;
+    },
+
     filterDOMTable: function (tableId) {
         const table = document.getElementById(tableId);
         if (!table) return;
 
         const tableFilters = App.TableFilter.activeFilters[tableId];
-        const rows = table.querySelectorAll('tbody tr');
-        if (!rows.length) return;
+        const allRows = Array.from(table.querySelectorAll('tbody tr')).filter(r => !r.classList.contains('search-input-row') && !r.classList.contains('tf-no-records-row'));
+        if (!allRows.length && !App.TableFilter.originalPaginationState[tableId]) return;
 
-        // Remove existing no-records row if present
+        // Capture initial pagination/info state if not already saved
+        if (!App.TableFilter.originalPaginationState[tableId]) {
+            const infoEl = App.TableFilter.findTableInfoEl(table);
+            const paginateEl = App.TableFilter.findTablePaginateEl(table);
+            let origTotal = null;
+            let pageSize = 50;
+
+            if (infoEl) {
+                const infoText = infoEl.textContent || '';
+                const matchTotal = infoText.match(/Toplam\s*([\d\.,]+)/i);
+                if (matchTotal) {
+                    origTotal = parseInt(matchTotal[1].replace(/\./g, ''), 10);
+                }
+                const matchRange = infoText.match(/([\d\.,]+)\s*[-–]\s*([\d\.,]+)/);
+                if (matchRange) {
+                    const rStart = parseInt(matchRange[1].replace(/\./g, ''), 10);
+                    const rEnd = parseInt(matchRange[2].replace(/\./g, ''), 10);
+                    if (!isNaN(rStart) && !isNaN(rEnd) && rEnd >= rStart) {
+                        pageSize = (rEnd - rStart) + 1;
+                    }
+                }
+            }
+
+            if (!origTotal || isNaN(origTotal)) {
+                origTotal = allRows.length;
+            }
+
+            App.TableFilter.originalPaginationState[tableId] = {
+                infoEl: infoEl,
+                paginateEl: paginateEl,
+                originalInfoHtml: infoEl ? infoEl.innerHTML : '',
+                originalPaginateHtml: paginateEl ? paginateEl.innerHTML : '',
+                originalTotal: origTotal,
+                pageSize: pageSize || 50
+            };
+        }
+
+        const origState = App.TableFilter.originalPaginationState[tableId];
+
+        // Remove existing no-records row
         const existingNoRec = table.querySelector('.tf-no-records-row');
         if (existingNoRec) existingNoRec.remove();
 
+        // If no filters are active, restore everything
         if (!tableFilters || Object.keys(tableFilters).length === 0) {
-            rows.forEach(row => {
-                if (!row.classList.contains('search-input-row') && !row.classList.contains('tf-no-records-row')) {
-                    row.style.display = '';
-                }
+            allRows.forEach(row => {
+                row.style.display = '';
             });
+            if (origState) {
+                if (origState.infoEl) origState.infoEl.innerHTML = origState.originalInfoHtml;
+                if (origState.paginateEl) origState.paginateEl.innerHTML = origState.originalPaginateHtml;
+                delete App.TableFilter.originalPaginationState[tableId];
+                delete App.TableFilter.domPagingState[tableId];
+            }
             return;
         }
 
         const colIndexes = Object.keys(tableFilters);
-        let visibleCount = 0;
-        let totalCountableRows = 0;
+        const matchingRows = [];
 
-        rows.forEach(row => {
-            if (row.classList.contains('search-input-row') || row.classList.contains('tf-no-records-row')) return;
-            totalCountableRows++;
-
+        allRows.forEach(row => {
             let matchRow = true;
 
             for (let i = 0; i < colIndexes.length; i++) {
@@ -1247,14 +1385,49 @@ App.TableFilter = {
             }
 
             if (matchRow) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
+                matchingRows.push(row);
             }
         });
 
-        if (visibleCount === 0 && totalCountableRows > 0) {
+        const totalCount = origState && origState.originalTotal ? origState.originalTotal : allRows.length;
+        const pageSize = origState && origState.pageSize ? origState.pageSize : 50;
+        const filteredCount = matchingRows.length;
+        const totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
+
+        App.TableFilter.domPagingState[tableId] = {
+            currentPage: 1,
+            pageSize: pageSize,
+            matchingRows: matchingRows,
+            allRows: allRows,
+            totalCount: totalCount,
+            filteredCount: filteredCount,
+            totalPages: totalPages,
+            infoEl: origState ? origState.infoEl : null,
+            paginateEl: origState ? origState.paginateEl : null
+        };
+
+        App.TableFilter.renderDOMPage(tableId, 1);
+    },
+
+    renderDOMPage: function (tableId, pageNumber) {
+        const state = App.TableFilter.domPagingState[tableId];
+        const table = document.getElementById(tableId);
+        if (!state || !table) return;
+
+        pageNumber = Math.max(1, Math.min(state.totalPages, pageNumber));
+        state.currentPage = pageNumber;
+
+        // Hide all rows first
+        state.allRows.forEach(row => {
+            row.style.display = 'none';
+        });
+
+        // Remove existing no-records row
+        const existingNoRec = table.querySelector('.tf-no-records-row');
+        if (existingNoRec) existingNoRec.remove();
+
+        // 0 matching records case
+        if (state.filteredCount === 0) {
             const colCount = table.querySelectorAll('thead th').length || 6;
             const tbody = table.querySelector('tbody');
             if (tbody) {
@@ -1263,7 +1436,85 @@ App.TableFilter = {
                 noRecTr.innerHTML = `<td colspan="${colCount}" class="text-muted p-4"><i class="fa fa-filter mr-1 text-primary"></i> Seçilen filtre kriterlerine uygun kayıt bulunamadı.</td>`;
                 tbody.appendChild(noRecTr);
             }
+
+            if (state.infoEl) {
+                state.infoEl.innerHTML = `Toplam <strong>${App.TableFilter.formatNumber(state.totalCount)}</strong> kayıttan seçilen filtrelere uygun kayıt bulunamadı.`;
+            }
+            if (state.paginateEl) {
+                state.paginateEl.innerHTML = '';
+            }
+            return;
         }
+
+        // Show slice of matching rows for current page
+        const startIndex = (state.currentPage - 1) * state.pageSize;
+        const endIndex = Math.min(state.filteredCount, state.currentPage * state.pageSize);
+
+        for (let i = startIndex; i < endIndex; i++) {
+            if (state.matchingRows[i]) {
+                state.matchingRows[i].style.display = '';
+            }
+        }
+
+        // Update Info Element
+        if (state.infoEl) {
+            if (state.totalPages === 1) {
+                state.infoEl.innerHTML = `Toplam <strong>${App.TableFilter.formatNumber(state.totalCount)}</strong> kayıttan filtrelenen <strong>${App.TableFilter.formatNumber(state.filteredCount)}</strong> kayıt gösteriliyor.`;
+            } else {
+                state.infoEl.innerHTML = `Toplam <strong>${App.TableFilter.formatNumber(state.totalCount)}</strong> kayıttan filtrelenen <strong>${App.TableFilter.formatNumber(state.filteredCount)}</strong> kaydın <strong>${App.TableFilter.formatNumber(startIndex + 1)} - ${App.TableFilter.formatNumber(endIndex)}</strong> arası gösteriliyor.`;
+            }
+        }
+
+        // Update Paginate Element
+        if (state.paginateEl) {
+            if (state.totalPages <= 1) {
+                state.paginateEl.innerHTML = `
+                    <ul class="pagination pagination-sm mb-0 d-flex flex-row flex-nowrap" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; list-style: none !important; padding-left: 0 !important; margin: 0 !important;">
+                        <li class="page-item disabled"><a class="page-link" href="javascript:void(0);">Önceki</a></li>
+                        <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="javascript:void(0);">Sonraki</a></li>
+                    </ul>
+                `;
+            } else {
+                const prevDisabled = state.currentPage === 1 ? 'disabled' : '';
+                let itemsHtml = `<li class="page-item ${prevDisabled}"><a class="page-link" href="javascript:void(0);" onclick="App.TableFilter.goToDOMPage('${tableId}', ${state.currentPage - 1})">Önceki</a></li>`;
+
+                const startP = Math.max(1, state.currentPage - 2);
+                const endP = Math.min(state.totalPages, state.currentPage + 2);
+
+                if (startP > 1) {
+                    itemsHtml += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="App.TableFilter.goToDOMPage('${tableId}', 1)">1</a></li>`;
+                    if (startP > 2) {
+                        itemsHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                    }
+                }
+
+                for (let p = startP; p <= endP; p++) {
+                    const activeCls = p === state.currentPage ? 'active' : '';
+                    itemsHtml += `<li class="page-item ${activeCls}"><a class="page-link" href="javascript:void(0);" onclick="App.TableFilter.goToDOMPage('${tableId}', ${p})">${p}</a></li>`;
+                }
+
+                if (endP < state.totalPages) {
+                    if (endP < state.totalPages - 1) {
+                        itemsHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                    }
+                    itemsHtml += `<li class="page-item"><a class="page-link" href="javascript:void(0);" onclick="App.TableFilter.goToDOMPage('${tableId}', ${state.totalPages})">${state.totalPages}</a></li>`;
+                }
+
+                const nextDisabled = state.currentPage === state.totalPages ? 'disabled' : '';
+                itemsHtml += `<li class="page-item ${nextDisabled}"><a class="page-link" href="javascript:void(0);" onclick="App.TableFilter.goToDOMPage('${tableId}', ${state.currentPage + 1})">Sonraki</a></li>`;
+
+                state.paginateEl.innerHTML = `
+                    <ul class="pagination pagination-sm mb-0 d-flex flex-row flex-nowrap" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; list-style: none !important; padding-left: 0 !important; margin: 0 !important;">
+                        ${itemsHtml}
+                    </ul>
+                `;
+            }
+        }
+    },
+
+    goToDOMPage: function (tableId, pageNumber) {
+        App.TableFilter.renderDOMPage(tableId, pageNumber);
     },
 
     redrawTable: function (tableId) {
@@ -1284,6 +1535,7 @@ App.TableFilter = {
                 return;
             }
             dt.draw();
+            return;
         }
         // Also perform DOM row filtering to guarantee instant UI update across client-side tables
         App.TableFilter.filterDOMTable(tableId);
