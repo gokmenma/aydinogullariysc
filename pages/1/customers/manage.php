@@ -153,11 +153,11 @@ if (@$_POST["status"] == "success") {
     }
 
     .customer-header-card {
-        background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 50%, #3b7dd8 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
         border-radius: 16px;
         padding: 24px 30px;
         margin-bottom: 25px;
-        box-shadow: 0 8px 32px rgba(30, 58, 95, 0.2);
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2);
         position: relative;
         overflow: hidden;
     }

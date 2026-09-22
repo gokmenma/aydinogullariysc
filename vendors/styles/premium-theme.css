@@ -7593,6 +7593,8 @@ html:not(.dark-mode) [data-theme-preset="kode"] .user-toggle-btn .user-avatar-ba
     color: #2563eb !important;
 }
 [data-theme-preset="kode"] .crm-hero-banner,
+[data-theme-preset="kode"] [class*="-header-card"],
+[data-theme-preset="kode"] .customer-header-card,
 [data-theme-preset="kode"] .service-header-card,
 [data-theme-preset="kode"] .premium-header-card,
 [data-theme-preset="kode"] .purchase-header-card,
@@ -7626,6 +7628,8 @@ html:not(.dark-mode) [data-theme-preset="ersan-gold"] .left-side-bar .brand-logo
     opacity: 1 !important;
 }
 [data-theme-preset="ersan-gold"] .crm-hero-banner,
+[data-theme-preset="ersan-gold"] [class*="-header-card"],
+[data-theme-preset="ersan-gold"] .customer-header-card,
 [data-theme-preset="ersan-gold"] .service-header-card,
 [data-theme-preset="ersan-gold"] .premium-header-card,
 [data-theme-preset="ersan-gold"] .purchase-header-card,
@@ -7687,6 +7691,8 @@ html:not(.dark-mode) [data-theme-preset="zumrut"] .user-toggle-btn .user-avatar-
     color: #059669 !important;
 }
 [data-theme-preset="zumrut"] .crm-hero-banner,
+[data-theme-preset="zumrut"] [class*="-header-card"],
+[data-theme-preset="zumrut"] .customer-header-card,
 [data-theme-preset="zumrut"] .service-header-card,
 [data-theme-preset="zumrut"] .premium-header-card,
 [data-theme-preset="zumrut"] .purchase-header-card,
@@ -7747,14 +7753,17 @@ html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .user-toggle-btn .user-
     color: #6366f1 !important;
 }
 [data-theme-preset="kraliyet-moru"] .crm-hero-banner,
+[data-theme-preset="kraliyet-moru"] [class*="-header-card"],
+[data-theme-preset="kraliyet-moru"] .customer-header-card,
 [data-theme-preset="kraliyet-moru"] .service-header-card,
 [data-theme-preset="kraliyet-moru"] .premium-header-card,
 [data-theme-preset="kraliyet-moru"] .purchase-header-card,
 [data-theme-preset="kraliyet-moru"] .backup-header-card,
 [data-theme-preset="kraliyet-moru"] .page-header-card,
-[data-theme-preset="kraliyet-moru"] .offer-header-card {
-    background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #5b21b6 100%) !important;
-    box-shadow: 0 8px 32px rgba(91, 33, 182, 0.25) !important;
+[data-theme-preset="kraliyet-moru"] .offer-header-card,
+[data-theme-preset="kraliyet-moru"] .customer-manage-wrapper .customer-header-card {
+    background: linear-gradient(135deg, #4a148c 0%, #6f42c1 50%, #7c3aed 100%) !important;
+    box-shadow: 0 8px 32px rgba(111, 66, 193, 0.3) !important;
 }
 [data-theme-preset="kraliyet-moru"] .btn-primary,
 [data-theme-preset="kraliyet-moru"] .crm-quick-btn.btn-primary-action {
@@ -7807,6 +7816,8 @@ html:not(.dark-mode) [data-theme-preset="rose"] .user-toggle-btn .user-avatar-ba
     color: #e11d48 !important;
 }
 [data-theme-preset="rose"] .crm-hero-banner,
+[data-theme-preset="rose"] [class*="-header-card"],
+[data-theme-preset="rose"] .customer-header-card,
 [data-theme-preset="rose"] .service-header-card,
 [data-theme-preset="rose"] .premium-header-card,
 [data-theme-preset="rose"] .purchase-header-card,
@@ -7915,6 +7926,8 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
     box-shadow: none !important;
 }
 [data-theme-preset="sade-beyaz"] .crm-hero-banner,
+[data-theme-preset="sade-beyaz"] [class*="-header-card"],
+[data-theme-preset="sade-beyaz"] .customer-header-card,
 [data-theme-preset="sade-beyaz"] .service-header-card,
 [data-theme-preset="sade-beyaz"] .premium-header-card,
 [data-theme-preset="sade-beyaz"] .purchase-header-card,
@@ -7939,6 +7952,8 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
     opacity: 1 !important;
 }
 [data-theme-preset="koyu-gece"] .crm-hero-banner,
+[data-theme-preset="koyu-gece"] [class*="-header-card"],
+[data-theme-preset="koyu-gece"] .customer-header-card,
 [data-theme-preset="koyu-gece"] .service-header-card,
 [data-theme-preset="koyu-gece"] .premium-header-card,
 [data-theme-preset="koyu-gece"] .purchase-header-card,
@@ -8002,6 +8017,8 @@ html.dark-mode .left-side-bar .brand-logo a img,
 }
 
 .dark-mode .crm-hero-banner,
+.dark-mode [class*="-header-card"],
+.dark-mode .customer-header-card,
 .dark-mode .service-header-card,
 .dark-mode .premium-header-card,
 .dark-mode .purchase-header-card,
@@ -8009,6 +8026,8 @@ html.dark-mode .left-side-bar .brand-logo a img,
 .dark-mode .page-header-card,
 .dark-mode .offer-header-card,
 [data-theme="dark"] .crm-hero-banner,
+[data-theme="dark"] [class*="-header-card"],
+[data-theme="dark"] .customer-header-card,
 [data-theme="dark"] .service-header-card,
 [data-theme="dark"] .premium-header-card,
 [data-theme="dark"] .purchase-header-card,
