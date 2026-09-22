@@ -7,29 +7,30 @@ if ($_POST) {
 
 	if (!$up || !$pp) {
 		header('Location: login.php?error=102');
-		exit;  // Yönlendirmeden sonra scriptin çalışmasını durdurun
+		exit;
 	} else {
 		$ucont = $ac->prepare('SELECT * FROM users WHERE email = ? AND password = ? AND statu = ?');
 		$ucont->execute(array($up, $pp, 1));
 		$conts = $ucont->fetch();
 
 		if ($conts) {
+			session_regenerate_id(true);
 			$_SESSION['login'] = true;
 			$_SESSION['perm'] = $conts['permission'];
 			$_SESSION['lid'] = $conts['id'];
-            $_SESSION['username'] = $conts['username'];
+			$_SESSION['username'] = $conts['username'];
 
-            // Log successful login
-            audit_log("login", "auth", "Sisteme giriş yaptı", "user", $conts['id']);
+			// Log successful login
+			audit_log("login", "auth", "Sisteme giriş yaptı", "user", $conts['id']);
 
 			// returnUrl parametresini kontrol edin ve varsayılan değeri ayarlayın
 			$redirectUri = isset($_GET['returnUrl']) && !empty($_GET['returnUrl']) ? $_GET['returnUrl'] : 'index.php?p=home';
-	
+
 			header('Location: ' . $redirectUri);
-			exit;  // Yönlendirmeden sonra scriptin çalışmasını durdurun
+			exit;
 		} else {
 			header('Location: login.php?error=103&HATA');
-			exit;  // Yönlendirmeden sonra scriptin çalışmasını durdurun
+			exit;
 		}
 	}
 }
@@ -42,19 +43,73 @@ if ($_POST) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giriş | AYDINOĞULLARI</title>
 
-    <!-- Google Fonts: Geist font -->
+    <!-- Google Fonts (Geist, Inter, Plus Jakarta Sans, Poppins, Outfit, Roboto, Montserrat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <!-- Font Awesome İkonları -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tema Yükleyici (Flicker Önleme) -->
+    <script>
+        (function () {
+            try {
+                var savedPreset = localStorage.getItem('app_theme_preset') || 'kode';
+                document.documentElement.setAttribute('data-theme-preset', savedPreset);
+
+                var themePresetFonts = {
+                    'kode': 'inter',
+                    'ersan-gold': 'poppins',
+                    'zumrut': 'plus-jakarta',
+                    'kraliyet-moru': 'outfit',
+                    'rose': 'poppins',
+                    'sade-beyaz': 'inter',
+                    'koyu-gece': 'geist'
+                };
+                var savedFont = localStorage.getItem('app_theme_font') || themePresetFonts[savedPreset] || 'inter';
+                document.documentElement.setAttribute('data-theme-font', savedFont);
+
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || savedPreset === 'koyu-gece') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    if (document.body) {
+                        document.body.setAttribute('data-theme-preset', savedPreset);
+                        document.body.setAttribute('data-theme-font', savedFont);
+                        if (theme === 'dark' || savedPreset === 'koyu-gece') {
+                            document.body.classList.add('dark-mode');
+                        } else {
+                            document.body.classList.remove('dark-mode');
+                        }
+                    }
+                });
+            } catch (e) {}
+        })();
+    </script>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="vendors/styles/login.css?v=<?php echo filemtime("vendors/styles/login.css")?>">
+    <link rel="stylesheet" href="vendors/styles/login.css?v=<?php echo filemtime("vendors/styles/login.css"); ?>">
 </head>
 
 <body>
+
+    <!-- Hızlı Tema & Mod Seçici Bar -->
+    <div class="login-theme-bar" role="toolbar" aria-label="Tema Seçimi">
+        <button type="button" class="theme-pill-btn" data-preset="kode" style="background: #2563eb;" title="Kode (Mavi)"></button>
+        <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #d97706;" title="Ersan Gold"></button>
+        <button type="button" class="theme-pill-btn" data-preset="zumrut" style="background: #059669;" title="Zümrüt Yeşili"></button>
+        <button type="button" class="theme-pill-btn" data-preset="kraliyet-moru" style="background: #6f42c1;" title="Kraliyet Moru"></button>
+        <button type="button" class="theme-pill-btn" data-preset="rose" style="background: #e11d48;" title="Rose"></button>
+        <button type="button" class="theme-pill-btn" data-preset="sade-beyaz" style="background: #334155;" title="Sade Beyaz"></button>
+        <button type="button" class="theme-mode-toggle" id="loginThemeToggle" title="Karanlık / Aydınlık Mod">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+    </div>
 
     <div class="auth-shell">
         <div class="auth-card">
@@ -118,7 +173,9 @@ if ($_POST) {
             </div>
         </div>
     </div>
+
 <script>
+// Parola Göster/Gizle
 document.querySelectorAll('.toggle-password').forEach(function(btn){
   btn.addEventListener('click', function(){
     var input = document.getElementById(btn.getAttribute('data-target'));
@@ -138,6 +195,7 @@ document.querySelectorAll('.toggle-password').forEach(function(btn){
   });
 });
 
+// Floating Input Handlers
 var flInputs = document.querySelectorAll('.floating-group .input-element');
 flInputs.forEach(function(input){
   function update(){
@@ -156,15 +214,101 @@ flInputs.forEach(function(input){
   }, 400);
 });
 
-// Button ripple/shine trigger fallback for keyboard navigation
-document.querySelectorAll('.btn-login').forEach(function(btn){
-  btn.addEventListener('focus', function(){
-    btn.classList.add('focused');
-  });
-  btn.addEventListener('blur', function(){
-    btn.classList.remove('focused');
-  });
-});
+// Tema Seçici & Eşitleme
+(function () {
+    var themePresetFonts = {
+        'kode': 'inter',
+        'ersan-gold': 'poppins',
+        'zumrut': 'plus-jakarta',
+        'kraliyet-moru': 'outfit',
+        'rose': 'poppins',
+        'sade-beyaz': 'inter',
+        'koyu-gece': 'geist'
+    };
+
+    function applyPreset(presetName) {
+        if (!presetName) return;
+        try { localStorage.setItem('app_theme_preset', presetName); } catch(e){}
+        
+        document.documentElement.setAttribute('data-theme-preset', presetName);
+        if (document.body) document.body.setAttribute('data-theme-preset', presetName);
+
+        var font = themePresetFonts[presetName] || 'inter';
+        try { localStorage.setItem('app_theme_font', font); } catch(e){}
+        document.documentElement.setAttribute('data-theme-font', font);
+        if (document.body) document.body.setAttribute('data-theme-font', font);
+
+        if (presetName === 'koyu-gece') {
+            setDarkMode(true);
+        }
+
+        syncPills();
+    }
+
+    function setDarkMode(isDark) {
+        var html = document.documentElement;
+        var body = document.body;
+        var icon = document.querySelector('#loginThemeToggle i');
+
+        if (isDark) {
+            html.classList.add('dark-mode');
+            if (body) body.classList.add('dark-mode');
+            try { localStorage.setItem('theme', 'dark'); } catch(e){}
+            if (icon) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        } else {
+            html.classList.remove('dark-mode');
+            if (body) body.classList.remove('dark-mode');
+            try { localStorage.setItem('theme', 'light'); } catch(e){}
+            if (icon) {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+    }
+
+    function syncPills() {
+        var activePreset = localStorage.getItem('app_theme_preset') || document.documentElement.getAttribute('data-theme-preset') || 'kode';
+        document.querySelectorAll('.theme-pill-btn').forEach(function(pill) {
+            if (pill.getAttribute('data-preset') === activePreset) {
+                pill.classList.add('active');
+            } else {
+                pill.classList.remove('active');
+            }
+        });
+
+        var isDark = document.documentElement.classList.contains('dark-mode') || localStorage.getItem('theme') === 'dark';
+        var icon = document.querySelector('#loginThemeToggle i');
+        if (icon) {
+            if (isDark) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+    }
+
+    document.querySelectorAll('.theme-pill-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var preset = btn.getAttribute('data-preset');
+            applyPreset(preset);
+        });
+    });
+
+    var modeToggle = document.getElementById('loginThemeToggle');
+    if (modeToggle) {
+        modeToggle.addEventListener('click', function() {
+            var isDark = document.documentElement.classList.contains('dark-mode');
+            setDarkMode(!isDark);
+        });
+    }
+
+    syncPills();
+})();
 </script>
 </body>
 </html>
