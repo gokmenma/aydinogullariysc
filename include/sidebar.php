@@ -8,6 +8,7 @@ $userPerm = function_exists('sesset') ? sesset("permission") : ($_SESSION['permi
 $menuDefinitions = [
     'home' => [
         'title' => 'Ana Sayfa',
+        'section' => 'Ana Sayfa',
         'icon' => 'fa fa-home',
         'link' => 'index.php?p=home',
         'visible' => true,
@@ -15,7 +16,8 @@ $menuDefinitions = [
     ],
     'offers' => [
         'title' => 'Teklifler',
-        'icon' => 'fa fa-file-o',
+        'section' => 'Operasyon & Süreç',
+        'icon' => 'fa fa-file-text-o',
         'visible' => permtrue("offerview"),
         'items' => [
             'offers/dashboard' => [
@@ -47,7 +49,8 @@ $menuDefinitions = [
     ],
     'service' => [
         'title' => 'Servis Yönetimi',
-        'icon' => 'fa fa-table',
+        'section' => 'Operasyon & Süreç',
+        'icon' => 'fa fa-wrench',
         'visible' => true,
         'items' => [
             'service/dashboard' => [
@@ -69,7 +72,8 @@ $menuDefinitions = [
     ],
     'kesif' => [
         'title' => 'Keşifler',
-        'icon' => 'fa fa-street-view',
+        'section' => 'Operasyon & Süreç',
+        'icon' => 'fa fa-map-marker',
         'visible' => true,
         'items' => [
             'kesif/dashboard' => [
@@ -86,6 +90,7 @@ $menuDefinitions = [
     ],
     'purchases' => [
         'title' => 'Satın Alma',
+        'section' => 'Operasyon & Süreç',
         'icon' => 'fa fa-shopping-cart',
         'visible' => true,
         'items' => [
@@ -118,7 +123,8 @@ $menuDefinitions = [
     ],
     'customers' => [
         'title' => 'Firma Yönetimi',
-        'icon' => 'fa fa-user-plus',
+        'section' => 'Operasyon & Süreç',
+        'icon' => 'fa fa-building-o',
         'visible' => true,
         'items' => [
             'customers/dashboard' => [
@@ -140,7 +146,8 @@ $menuDefinitions = [
     ],
     'products' => [
         'title' => 'Ürün/Hizmetler',
-        'icon' => 'fa fa-paint-brush',
+        'section' => 'Operasyon & Süreç',
+        'icon' => 'fa fa-cubes',
         'visible' => true,
         'items' => [
             'products/dashboard' => [
@@ -162,7 +169,8 @@ $menuDefinitions = [
     ],
     'stock-activity' => [
         'title' => 'Stok Yönetimi',
-        'icon' => 'fa fa-list-ol',
+        'section' => 'Operasyon & Süreç',
+        'icon' => 'fa fa-archive',
         'visible' => permtrue("stock-activity"),
         'items' => [
             'stock-activity/manage' => [
@@ -184,7 +192,8 @@ $menuDefinitions = [
     ],
     'reports' => [
         'title' => 'Raporlar',
-        'icon' => 'fa fa-bar-chart',
+        'section' => 'Raporlar & Analiz',
+        'icon' => 'fa fa-pie-chart',
         'visible' => true,
         'items' => [
             'reports/dashboard' => [
@@ -211,7 +220,8 @@ $menuDefinitions = [
     ],
     'indocument' => [
         'title' => 'Evrak Takip',
-        'icon' => 'fa fa-folder-open',
+        'section' => 'Evrak & İş Takip',
+        'icon' => 'fa fa-folder-open-o',
         'visible' => true,
         'items' => [
             'new-indocument' => [
@@ -238,7 +248,8 @@ $menuDefinitions = [
     ],
     'files' => [
         'title' => 'Dosya Yönetimi',
-        'icon' => 'fa fa-file-zip-o',
+        'section' => 'Evrak & İş Takip',
+        'icon' => 'fa fa-file-archive-o',
         'visible' => (permtrue("fileadd") || permtrue("fileview") || permtrue("filedelete")),
         'items' => [
             'all-files' => [
@@ -255,7 +266,8 @@ $menuDefinitions = [
     ],
     'missions' => [
         'title' => 'Görev Yönetimi',
-        'icon' => 'fa fa-bookmark-o',
+        'section' => 'Evrak & İş Takip',
+        'icon' => 'fa fa-check-square-o',
         'visible' => (permtrue("missionadd") || permtrue("missiontake") || permtrue("allmisview")),
         'items' => [
             'new-mission' => [
@@ -282,7 +294,8 @@ $menuDefinitions = [
     ],
     'tasks' => [
         'title' => 'Yapılacaklar',
-        'icon' => 'fa fa-calendar',
+        'section' => 'Evrak & İş Takip',
+        'icon' => 'fa fa-calendar-check-o',
         'visible' => (permtrue("todoadd") || permtrue("todoedit") || permtrue("tododelete")),
         'items' => [
             'task-new' => [
@@ -299,7 +312,8 @@ $menuDefinitions = [
     ],
     'mail-sms' => [
         'title' => 'Mail & SMS',
-        'icon' => 'fa fa-envelope',
+        'section' => 'Evrak & İş Takip',
+        'icon' => 'fa fa-paper-plane-o',
         'visible' => (permtrue("mailandsmssend") || permtrue("mail-logs-view") || $userId == 1 || $userPerm == 1),
         'items' => [
             'send-mail' => [
@@ -326,6 +340,7 @@ $menuDefinitions = [
     ],
     'notes' => [
         'title' => 'Notlar',
+        'section' => 'Evrak & İş Takip',
         'icon' => 'fa fa-sticky-note-o',
         'visible' => (permtrue("noteadd") || permtrue("noteedit")),
         'items' => [
@@ -348,7 +363,8 @@ $menuDefinitions = [
     ],
     'support' => [
         'title' => 'Destek Sistemi',
-        'icon' => 'fa fa-support',
+        'section' => 'Sistem & Yönetim',
+        'icon' => 'fa fa-life-ring',
         'visible' => (permtrue("support-request-view") || permtrue("support-request-add")),
         'items' => [
             'support-new' => [
@@ -365,7 +381,8 @@ $menuDefinitions = [
     ],
     'team' => [
         'title' => 'Ekip',
-        'icon' => 'fa fa-user',
+        'section' => 'Sistem & Yönetim',
+        'icon' => 'fa fa-users',
         'visible' => true,
         'items' => [
             'user-new' => [
@@ -387,7 +404,8 @@ $menuDefinitions = [
     ],
     'definitions' => [
         'title' => 'Tanımlamalar',
-        'icon' => 'fa fa-gears',
+        'section' => 'Sistem & Yönetim',
+        'icon' => 'fa fa-sliders',
         'visible' => true,
         'items' => [
             'service-type' => [
@@ -424,13 +442,15 @@ $menuDefinitions = [
     ],
     'panel-settings' => [
         'title' => 'Panel Ayarları',
-        'icon' => 'fa fa-sitemap',
+        'section' => 'Sistem & Yönetim',
+        'icon' => 'fa fa-cog',
         'link' => 'index.php?p=settings',
         'visible' => permtrue("panelsettings"),
         'items' => []
     ],
     'logs' => [
         'title' => 'Sistem Aktiviteleri',
+        'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-history',
         'link' => 'index.php?p=logs/index',
         'visible' => in_array($userId, [1, 12]),
@@ -438,6 +458,7 @@ $menuDefinitions = [
     ],
     'backups' => [
         'title' => 'Yedekleme & Kurtarma',
+        'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-database',
         'link' => 'index.php?p=backups',
         'visible' => (permtrue("backupmanage") || $userId == 1),
@@ -445,7 +466,8 @@ $menuDefinitions = [
     ],
     'version-notes' => [
         'title' => 'Sürüm Notları',
-        'icon' => 'fa fa-file-text',
+        'section' => 'Sistem & Yönetim',
+        'icon' => 'fa fa-code-fork',
         'link' => 'index.php?p=version-notes',
         'visible' => true,
         'items' => []
@@ -527,7 +549,7 @@ $isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
 <div class="left-side-bar">
     <div class="brand-logo">
         <a href="index.php">
-            <img style="margin: 0px" width="250" src="<?php echo set("logo"); ?>"
+            <img src="<?php echo set("logo"); ?>"
                 alt="<?php echo set("site_title"); ?> Logo">
         </a>
     </div>
@@ -554,7 +576,8 @@ $isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
     <div class="menu-block customscroll">
         <div class="sidebar-menu">
             <ul id="accordion-menu">
-                <?php foreach ($sortedMenu as $menuKey => $menu): 
+                <?php 
+                foreach ($sortedMenu as $menuKey => $menu): 
                     if (!$menu['visible']) continue;
                     
                     // Alt menü varsa en az bir alt öğenin görünür olduğunu kontrol et
