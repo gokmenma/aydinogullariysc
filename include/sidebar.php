@@ -2,7 +2,8 @@
 use App\Model\MenuOrderModel;
 
 $userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
-$userPerm = function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0);
+$userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0));
+$isAdmin = in_array($userId, [1, 12]) || in_array($userPerm, [1, 13]);
 
 // Menü tanımları
 $menuDefinitions = [
@@ -314,27 +315,27 @@ $menuDefinitions = [
         'title' => 'Mail & SMS',
         'section' => 'Evrak & İş Takip',
         'icon' => 'fa fa-paper-plane-o',
-        'visible' => (permtrue("mailandsmssend") || permtrue("mail-logs-view") || $userId == 1 || $userPerm == 1),
+        'visible' => (permtrue("mailandsmssend") || permtrue("mail-logs-view") || $isAdmin),
         'items' => [
             'send-mail' => [
                 'title' => 'Mail Gönder',
                 'link' => 'index.php?p=send-mail',
-                'visible' => (permtrue("mailandsmssend") || $userId == 1 || $userPerm == 1)
+                'visible' => (permtrue("mailandsmssend") || $isAdmin)
             ],
             'send-sms' => [
                 'title' => 'SMS Gönder',
                 'link' => 'index.php?p=send-sms',
-                'visible' => (permtrue("mailandsmssend") || $userId == 1 || $userPerm == 1)
+                'visible' => (permtrue("mailandsmssend") || $isAdmin)
             ],
             'mail-logs' => [
                 'title' => 'Mail Kayıtları',
                 'link' => 'index.php?p=mail-logs',
-                'visible' => (permtrue("mail-logs-view") || permtrue("mailandsmssend") || $userId == 1 || $userPerm == 1)
+                'visible' => (permtrue("mail-logs-view") || permtrue("mailandsmssend") || $isAdmin)
             ],
             'send-mail-accounts' => [
                 'title' => 'Mail Hesapları',
                 'link' => 'index.php?p=send-mail-accounts',
-                'visible' => (permtrue("mail-accounts-manage") || $userId == 12 || $userId == 1 || $userPerm == 1)
+                'visible' => (permtrue("mail-accounts-manage") || $isAdmin || in_array($userId, [1, 12]))
             ]
         ]
     ],
@@ -357,7 +358,7 @@ $menuDefinitions = [
             'note-categories' => [
                 'title' => 'Not Kategorileri',
                 'link' => 'index.php?p=note-categories',
-                'visible' => ($userPerm == 1 || permtrue("noteedit"))
+                'visible' => ($isAdmin || permtrue("noteedit"))
             ]
         ]
     ],
@@ -398,7 +399,7 @@ $menuDefinitions = [
             'permission-settings' => [
                 'title' => 'Pozisyon Ayarları',
                 'link' => 'index.php?p=permission-settings',
-                'visible' => permtrue("authdefine")
+                'visible' => (permtrue("authdefine") || $isAdmin)
             ]
         ]
     ],
@@ -411,32 +412,32 @@ $menuDefinitions = [
             'service-type' => [
                 'title' => 'Servis Konusu Tanımlama',
                 'link' => 'index.php?p=service-type',
-                'visible' => ($userPerm == 1)
+                'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("serviceAdd") || permtrue("serviceView"))
             ],
             'service-status' => [
                 'title' => 'Servis Durumu Tanımlama',
                 'link' => 'index.php?p=service-status',
-                'visible' => ($userPerm == 1)
+                'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("serviceAdd") || permtrue("serviceView"))
             ],
             'service-region' => [
                 'title' => 'Servis Bölgesi Tanımlama',
                 'link' => 'index.php?p=service-region',
-                'visible' => ($userPerm == 1)
+                'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("serviceAdd") || permtrue("serviceView"))
             ],
             'paytype' => [
                 'title' => 'Tahsilat Türü Tanımlama',
                 'link' => 'index.php?p=paytype',
-                'visible' => ($userPerm == 1)
+                'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("offerview") || permtrue("serviceView"))
             ],
             'offer-templates' => [
                 'title' => 'Teklif Üst/Alt Bilgi Tanımlama',
                 'link' => 'index.php?p=offer-templates',
-                'visible' => ($userPerm == 1)
+                'visible' => ($isAdmin || permtrue("offertemplateview") || permtrue("offertemplateadd") || permtrue("panelsettings") || permtrue("authdefine"))
             ],
             'define-units' => [
                 'title' => 'Birim Tanımlama',
                 'link' => 'index.php?p=define-units',
-                'visible' => ($userPerm == 1)
+                'visible' => ($isAdmin || permtrue("productcategory") || permtrue("productadd") || permtrue("panelsettings") || permtrue("authdefine"))
             ]
         ]
     ],
@@ -445,7 +446,7 @@ $menuDefinitions = [
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-cog',
         'link' => 'index.php?p=settings',
-        'visible' => permtrue("panelsettings"),
+        'visible' => (permtrue("panelsettings") || $isAdmin),
         'items' => []
     ],
     'logs' => [
@@ -453,7 +454,7 @@ $menuDefinitions = [
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-history',
         'link' => 'index.php?p=logs/index',
-        'visible' => in_array($userId, [1, 12]),
+        'visible' => ($isAdmin || in_array($userId, [1, 12])),
         'items' => []
     ],
     'backups' => [
@@ -461,7 +462,7 @@ $menuDefinitions = [
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-database',
         'link' => 'index.php?p=backups',
-        'visible' => (permtrue("backupmanage") || $userId == 1),
+        'visible' => (permtrue("backupmanage") || $isAdmin),
         'items' => []
     ],
     'version-notes' => [

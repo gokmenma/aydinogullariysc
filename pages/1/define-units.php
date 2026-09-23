@@ -13,6 +13,10 @@ $statuCode = 1; // Birim Tanımları
 $pageSlug = "define-units";
 $pageTitle = "Birim Tanımlama";
 
+$userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+$userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0));
+$isAdmin = in_array($userId, [1, 12]) || in_array($userPerm, [1, 13]);
+
 // POST İşlemleri (Ekleme / Güncelleme)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = isset($_POST["id"]) ? (int)$_POST["id"] : 0;
@@ -218,7 +222,7 @@ try {
                                 </td>
                                 <td class="text-center" style="vertical-align: middle; white-space: nowrap;">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <?php if (permtrue("customeredit") || $userPerm == 1) { ?>
+                                        <?php if ($isAdmin || permtrue("customeredit") || $userPerm == 1) { ?>
                                             <button type="button" class="btn btn-outline-primary btn-edit-unit" 
                                                 data-id="<?php echo $as["id"]; ?>" 
                                                 data-title="<?php echo htmlspecialchars($as["title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>"

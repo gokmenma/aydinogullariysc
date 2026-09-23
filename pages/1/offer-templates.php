@@ -4,6 +4,15 @@
  * Premium Tema Entegrasyonu
  */
 
+if (!isset($_SESSION['login'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+$userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0));
+$isAdmin = in_array($userId, [1, 12]) || in_array($userPerm, [1, 13]);
+
 // POST İşlemleri (Ekleme / Güncelleme)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = isset($_POST["id"]) ? (int)$_POST["id"] : 0;
