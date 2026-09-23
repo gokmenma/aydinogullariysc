@@ -3914,6 +3914,8 @@ tr.context-menu-active {
    ============================================================== */
 .header {
     height: 70px !important;
+    min-height: 70px !important;
+    max-height: 70px !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -3923,6 +3925,7 @@ tr.context-menu-active {
     border-bottom: 1px solid #e2e8f0 !important;
     padding: 0 !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    box-sizing: border-box !important;
 }
 
 .dark-mode .header {
@@ -3949,12 +3952,16 @@ tr.context-menu-active {
 .left-side-bar .brand-logo {
     width: 100% !important;
     height: 70px !important;
+    min-height: 70px !important;
+    max-height: 70px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 16px !important;
+    padding: 0 18px !important;
     border-bottom: 1px solid #e2e8f0 !important;
     border-right: none !important;
+    border-left: none !important;
+    border-top: none !important;
     background: #ffffff !important;
     box-sizing: border-box !important;
     margin: 0 !important;
@@ -3973,11 +3980,12 @@ tr.context-menu-active {
     width: 100% !important;
     height: 100% !important;
     padding: 0 !important;
+    text-decoration: none !important;
 }
 
 .left-side-bar .brand-logo a img {
-    max-width: 100% !important;
-    max-height: 52px !important;
+    max-width: 220px !important;
+    max-height: 44px !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain !important;
@@ -6625,6 +6633,7 @@ table.dataTable td,
     width: 100% !important;
     height: 70px !important;
     min-height: 70px !important;
+    max-height: 70px !important;
     background: #ffffff !important;
     border-bottom: 1px solid #e2e8f0 !important;
     border-right: none !important;
@@ -6634,10 +6643,11 @@ table.dataTable td,
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 16px !important;
+    padding: 0 18px !important;
     position: relative !important;
     z-index: 1005 !important;
     box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 .left-side-bar .brand-logo a {
@@ -6651,8 +6661,8 @@ table.dataTable td,
 
 .left-side-bar .brand-logo img,
 .left-side-bar .brand-logo a img {
-    max-height: 52px !important;
-    max-width: 230px !important;
+    max-height: 44px !important;
+    max-width: 220px !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain !important;
