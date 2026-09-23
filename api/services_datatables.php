@@ -461,7 +461,7 @@ foreach ($projects as $project) {
     // 8: Servis Durumu (Kompakt Rozet)
     $status_color = (!empty($project['status_color'])) ? $project['status_color'] : '#64748b';
     $status_title = htmlspecialchars($project['status_title'] ?? '-');
-    $row[] = "<span class='badge' style='background-color:{$status_color}; color:#fff; font-weight:600; padding:3px 7px; font-size:11px; border-radius:4px; display:inline-block;'>{$status_title}</span>";
+    $row[] = "<span class='badge badge-status' style='background-color:{$status_color}; color:#fff; font-weight:600; padding:3px 6px; font-size:10.5px; border-radius:4px; display:inline-block; white-space:normal; line-height:1.2; word-break:break-word; max-width:100%;'>{$status_title}</span>";
 
     // 9: İş Emrini Oluşturan
     $creator = htmlspecialchars($project['creator_username'] ?? '-');

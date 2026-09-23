@@ -770,31 +770,42 @@ try {
 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95%;">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-            <div class="modal-header bg-white border-bottom py-3 px-4">
-                <h5 class="modal-title font-weight-bold text-dark" style="font-size: 1.1rem;">
-                    <i class="fa fa-file-text-o mr-2 text-primary"></i> Fiyat Talebi Detayı
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" onclick="$('#detailModal').modal('hide')" aria-label="Close">
+            <div class="modal-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: #f3e8ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                    <h5 class="modal-title font-weight-bold text-dark mb-0" style="font-size: 1.15rem; letter-spacing: -0.3px;">
+                        Fiyat Talebi Detayı
+                    </h5>
+                </div>
+                <button type="button" class="close text-muted" data-dismiss="modal" onclick="$('#detailModal').modal('hide')" aria-label="Close" style="font-size: 24px; line-height: 1; opacity: 0.7;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0" id="detailBody" style="background: #fff; min-height: 400px; overflow-x: hidden;">
+            <div class="modal-body p-0" id="detailBody" style="background: #f8fafc; min-height: 380px; max-height: calc(85vh - 120px); overflow-y: auto; overflow-x: hidden;">
                 <div class="text-center p-5">
                     <div class="spinner-border text-primary" role="status">
                         <span class="sr-only">Yükleniyor...</span>
                     </div>
-                    <p class="mt-2 text-muted">Veriler hazırlanıyor...</p>
+                    <p class="mt-2 text-muted font-13">Fiyat talebi verileri yükleniyor...</p>
                 </div>
             </div>
-            <div class="modal-footer bg-light border-top py-3 px-4">
-                <div class="ml-auto d-flex gap-2">
-                    <button type="button" class="btn btn-outline-info px-4 font-weight-bold" id="btnPrintModal">
+            <div class="modal-footer bg-white border-top py-3 px-4 d-flex justify-content-between align-items-center">
+                <div class="text-muted font-12 d-none d-sm-block">
+                    <i class="fa fa-info-circle mr-1"></i> Fiyat talebi ve ürün kalemleri detayı
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="#" class="btn btn-outline-primary px-3 font-weight-bold" id="btnEditModal" style="border-radius: 8px;">
+                        <i class="fa fa-pencil mr-1"></i> Düzenle
+                    </a>
+                    <button type="button" class="btn btn-outline-info px-3 font-weight-bold" id="btnPrintModal" style="border-radius: 8px;">
                         <i class="fa fa-print mr-1"></i> Yazdır
                     </button>
-                    <button type="button" class="btn btn-danger px-4 font-weight-bold shadow-sm" id="btnPdfModal">
+                    <button type="button" class="btn btn-danger px-3 font-weight-bold shadow-sm" id="btnPdfModal" style="border-radius: 8px;">
                         <i class="fa fa-file-pdf-o mr-1"></i> PDF Olarak İndir
                     </button>
-                    <button type="button" class="btn btn-light px-4 font-weight-bold border ml-2" data-dismiss="modal" onclick="$('#detailModal').modal('hide')">Kapat</button>
+                    <button type="button" class="btn btn-light px-3 font-weight-bold border ml-1" data-dismiss="modal" onclick="$('#detailModal').modal('hide')" style="border-radius: 8px;">Kapat</button>
                 </div>
             </div>
         </div>
@@ -910,8 +921,9 @@ $(document).ready(function() {
     $(document).on('click', '.view-detail', function() {
         var id = $(this).data('id');
         activeDetailId = id;
+        $('#btnEditModal').attr('href', 'index.php?p=purchases/price-request-manage&id=' + id);
         $('#detailModal').modal('show');
-        $('#detailBody').html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Yükleniyor...</p></div>');
+        $('#detailBody').html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted font-13">Fiyat talebi verileri yükleniyor...</p></div>');
         
         $.ajax({
             url: 'pages/1/purchases/price-request-detail-modal.php',
@@ -921,18 +933,15 @@ $(document).ready(function() {
                 $('#detailBody').html(response);
             },
             error: function() {
-                $('#detailBody').html('<div class="alert alert-danger m-3">Veriler yüklenirken bir hata oluştu!</div>');
+                $('#detailBody').html('<div class="alert alert-danger m-3 d-flex align-items-center"><i class="fa fa-exclamation-circle mr-2 fa-lg"></i> Veriler yüklenirken bir hata oluştu!</div>');
             }
         });
     });
 
     $('#btnPrintModal').on('click', function() {
-        var printContents = document.getElementById('detailBody').innerHTML;
-        var originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-        location.reload();
+        if (activeDetailId) {
+            window.open('pages/1/purchases/price-request-print.php?id=' + activeDetailId, '_blank');
+        }
     });
 
     $('#btnPdfModal').on('click', function() {

@@ -75,7 +75,7 @@
     <div class="auth-shell">
         <div class="auth-card" style="text-align: center;">
             <a href="login.php" class="brand">
-                <img src="src/images/logo.png" alt="AYDINOĞULLARI Logo" class="main-logo">
+                <img src="<?php echo set('logo') ?: 'src/images/logo.svg'; ?>" alt="AYDINOĞULLARI Logo" class="main-logo">
             </a>
             
             <div class="success-icon">

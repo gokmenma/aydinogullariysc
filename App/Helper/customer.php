@@ -30,15 +30,14 @@ class customer
     }
 
     //getCustomerGroups
-    public static function getCustomerGroups($name="grp",$id = null)
+    public static function getCustomerGroups($name="grp", $id = null, $className = 'form-control select2')
     {
         global $ac;
         $sql = $ac->prepare("SELECT * FROM cgroups WHERE statu = 1"); 
         $sql->execute();
         $groups = $sql->fetchAll(PDO::FETCH_OBJ);
         
-        $select = "<select name='$name' id='$id' class='form-control selectpicker' data-style='border bg-white' data-size='8'
-                            data-live-search='true' data-container='body'>";
+        $select = "<select name='$name' id='$name' class='$className' data-placeholder='Grup Seçiniz' data-style='border bg-white'>";
         $select .= "<option value=''>Grup Seçiniz</option>";
         foreach ($groups as $group) {
             //gelen id ile veritabanındaki id eşleşirse selected yap

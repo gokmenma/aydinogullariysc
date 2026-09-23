@@ -132,7 +132,7 @@ if ($_POST) {
     <div class="auth-shell">
         <div class="auth-card">
             <a href="index.php" class="brand">
-                <img src="src/images/logo.png" alt="AYDINOĞULLARI Logo" class="main-logo">
+                <img src="<?php echo set('logo') ?: 'src/images/logo.svg'; ?>" alt="AYDINOĞULLARI Logo" class="main-logo">
             </a>
             <h2 class="auth-title">Giriş Yap</h2>
             <p class="subtitle">E-posta ve parolanızla devam edin.</p>

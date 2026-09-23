@@ -8,6 +8,58 @@
     --border-color: #f1f5f9;
 }
 
+/* ==============================================================
+   GLOBAL SCROLLBAR STYLING
+   ============================================================== */
+html, body {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+html.dark-mode, html.dark-mode body, [data-theme-preset="koyu-gece"] {
+    scrollbar-color: #475569 transparent;
+}
+
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+}
+
+.left-side-bar .menu-block.customscroll:not(.mCustomScrollbar),
+.customscroll:not(.mCustomScrollbar) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    overflow-y: hidden !important;
+}
+
+.left-side-bar .menu-block.customscroll:not(.mCustomScrollbar)::-webkit-scrollbar,
+.customscroll:not(.mCustomScrollbar)::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
 html, body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .popover, .tooltip, .select2-container {
     font-family: var(--font-sans) !important;
     -webkit-font-smoothing: antialiased;
@@ -1847,6 +1899,25 @@ tr.context-menu-active {
     margin-bottom: 20px !important;
 }
 
+.customer-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px !important;
+}
+
+@media (max-width: 1200px) {
+    .customer-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .customer-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Adjust collapsed form card padding and header margin when collapse element is display: none */
 .form-card:has([id*="Collapse"][style*="display: none"]),
 .form-card:has([id*="Collapse"][style*="display:none"]),
@@ -2508,6 +2579,75 @@ tr.context-menu-active {
     gap: 8px;
 }
 
+.crm-quick-actions-square-list {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.crm-quick-square-btn {
+    width: 82px;
+    height: 82px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-decoration: none !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.crm-quick-square-btn .crm-quick-square-icon {
+    font-size: 20px;
+    color: #475569;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(226, 232, 240, 0.6);
+}
+
+.crm-quick-square-btn .crm-quick-square-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+    line-height: 1.2;
+    transition: color 0.25s ease;
+}
+
+.crm-quick-square-btn:hover {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 8px 18px -4px rgba(37, 99, 235, 0.18), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+    transform: translateY(-3px);
+}
+
+.crm-quick-square-btn:hover .crm-quick-square-icon {
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+    transform: scale(1.08);
+}
+
+.crm-quick-square-btn:hover .crm-quick-square-label {
+    color: #0f172a;
+}
+
+.crm-quick-square-btn:active {
+    transform: translateY(-1px);
+}
+
 .crm-quick-btn {
     background: #f8fafc;
     border: 1.5px solid #e2e8f0;
@@ -2596,6 +2736,56 @@ tr.context-menu-active {
     color: #ffffff !important;
 }
 
+.dark-mode .crm-quick-square-btn,
+[data-theme="dark"] .crm-quick-square-btn {
+    background: #27272a;
+    border-color: #3f3f46;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .crm-quick-square-btn .crm-quick-square-icon,
+[data-theme="dark"] .crm-quick-square-btn .crm-quick-square-icon {
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .crm-quick-square-btn .crm-quick-square-label,
+[data-theme="dark"] .crm-quick-square-btn .crm-quick-square-label {
+    color: #e4e4e7;
+}
+
+.dark-mode .crm-quick-square-btn:hover,
+[data-theme="dark"] .crm-quick-square-btn:hover {
+    background: #323238;
+    border-color: #3b82f6;
+    box-shadow: 0 8px 20px -4px rgba(59, 130, 246, 0.25);
+}
+
+.dark-mode .crm-quick-square-btn:hover .crm-quick-square-icon,
+[data-theme="dark"] .crm-quick-square-btn:hover .crm-quick-square-icon {
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.18);
+}
+
+.dark-mode .crm-quick-square-btn:hover .crm-quick-square-label,
+[data-theme="dark"] .crm-quick-square-btn:hover .crm-quick-square-label {
+    color: #ffffff;
+}
+
+@media (max-width: 991px) {
+    .crm-quick-actions-square-list {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+        padding-top: 14px;
+        border-top: 1px solid #f1f5f9;
+    }
+    .dark-mode .crm-quick-actions-square-list,
+    [data-theme="dark"] .crm-quick-actions-square-list {
+        border-top-color: #27272a;
+    }
+}
+
 @media (max-width: 576px) {
     .crm-hero-banner {
         padding: 20px 18px;
@@ -2614,6 +2804,28 @@ tr.context-menu-active {
     .crm-quick-btn {
         justify-content: center;
         flex: 1 1 calc(50% - 4px);
+    }
+
+    .crm-quick-actions-square-list {
+        gap: 8px;
+    }
+
+    .crm-quick-square-btn {
+        width: calc(25% - 6px);
+        min-width: 68px;
+        height: 74px;
+        padding: 4px;
+    }
+
+    .crm-quick-square-btn .crm-quick-square-icon {
+        font-size: 17px;
+        width: 28px;
+        height: 28px;
+        margin-bottom: 2px;
+    }
+
+    .crm-quick-square-btn .crm-quick-square-label {
+        font-size: 10px;
     }
 }
 
@@ -3962,17 +4174,17 @@ tr.context-menu-active {
     border-right: none !important;
     border-left: none !important;
     border-top: none !important;
-    background: #ffffff !important;
-    box-shadow: inset 0 -1px 0 #e2e8f0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
     margin: 0 !important;
 }
 
 .dark-mode .left-side-bar .brand-logo {
-    background: #282828 !important;
+    background: transparent !important;
     border-bottom: none !important;
     border-right: none !important;
-    box-shadow: inset 0 -1px 0 #383838 !important;
+    box-shadow: none !important;
 }
 
 .left-side-bar .brand-logo a {
@@ -6636,12 +6848,12 @@ table.dataTable td,
     height: 64px !important;
     min-height: 64px !important;
     max-height: 64px !important;
-    background: #ffffff !important;
+    background: transparent !important;
     border-bottom: none !important;
     border-right: none !important;
     border-left: none !important;
     border-top: none !important;
-    box-shadow: inset 0 -1px 0 #e2e8f0 !important;
+    box-shadow: none !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -6676,7 +6888,7 @@ table.dataTable td,
 }
 
 .sidebar-search-wrap {
-    padding: 14px 14px 8px 14px !important;
+    padding: 4px 14px 8px 14px !important;
     background: transparent !important;
     border-bottom: none !important;
     border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -10166,5 +10378,35 @@ html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn:hover {
     color: #ffffff !important;
 }
 
+/* ==============================================================
+   SIDEBAR BRAND-LOGO UNIFIED BACKGROUND (Sidebar ile Aynı Renk)
+   ============================================================== */
+.left-side-bar .brand-logo,
+html:not(.dark-mode) [data-theme-preset] .left-side-bar .brand-logo,
+[data-theme-preset] .left-side-bar .brand-logo,
+.dark-mode .left-side-bar .brand-logo {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
 
+.left-side-bar .brand-logo a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
 
+.left-side-bar .brand-logo img,
+.left-side-bar .brand-logo a img {
+    max-height: 40px !important;
+    max-width: 210px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+}

@@ -16,6 +16,49 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Critical Early Scrollbar CSS (Native Scrollbar Flash / FOUC Önleme) -->
+<style id="critical-scrollbar-style">
+	html, body {
+		scrollbar-width: thin;
+		scrollbar-color: #cbd5e1 transparent;
+	}
+	html.dark-mode, html.dark-mode body, [data-theme-preset="koyu-gece"] {
+		scrollbar-color: #475569 transparent;
+	}
+	::-webkit-scrollbar {
+		width: 7px;
+		height: 7px;
+	}
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background: #cbd5e1;
+		border-radius: 8px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: #94a3b8;
+	}
+	.dark-mode ::-webkit-scrollbar-thumb {
+		background: #3f3f46;
+	}
+	.dark-mode ::-webkit-scrollbar-thumb:hover {
+		background: #52525b;
+	}
+	.left-side-bar .menu-block.customscroll:not(.mCustomScrollbar),
+	.customscroll:not(.mCustomScrollbar) {
+		scrollbar-width: none !important;
+		-ms-overflow-style: none !important;
+		overflow-y: hidden !important;
+	}
+	.left-side-bar .menu-block.customscroll:not(.mCustomScrollbar)::-webkit-scrollbar,
+	.customscroll:not(.mCustomScrollbar)::-webkit-scrollbar {
+		display: none !important;
+		width: 0 !important;
+		height: 0 !important;
+	}
+</style>
+
 <!-- CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="src/plugins/datatables/media/css/jquery.dataTables.css">
@@ -23,6 +66,9 @@
 <link rel="stylesheet" type="text/css" href="src/plugins/datatables/media/css/responsive.dataTables.css">
 <link rel="stylesheet" type="text/css" href="src/fonts/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Leaflet Harita Kütüphanesi (Yerel) -->
+<link rel="stylesheet" href="src/plugins/leaflet/leaflet.css" />
+<script src="src/plugins/leaflet/leaflet.js"></script>
 
 <!-- <script src="//code.jquery.com/jquery-3.6.0.min.js"></script> -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>

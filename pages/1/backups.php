@@ -40,6 +40,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'live_status') {
             'duration_sec' => (float)$l['duration_sec'],
             'status' => $l['status'],
             'remote_status' => $l['remote_status'],
+            'remote_file_id' => $l['remote_file_id'] ?? '',
             'mail_status' => $l['mail_status'],
             'sha256_hash' => $l['sha256_hash'] ?? '',
             'created_at' => date('d.m.Y H:i:s', strtotime($l['created_at'])),
@@ -551,19 +552,24 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                     <h6 class="dropdown-header font-12 text-uppercase text-muted">Yedekleme Türü Seçin</h6>
                                     <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startAsyncBackup('full')">
                                         <i class="fa fa-archive mr-2 text-primary font-14"></i> <strong>Tam Sistem Yedeği (Arka Plan)</strong>
-                                        <small class="d-block text-muted font-11">Veritabanı + Fiziksel Evraklar</small>
+                                        <small class="d-block text-muted font-11">Veritabanı + Fiziksel Evraklar + Bulut</small>
                                     </a>
                                     <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startSyncBackup('full')">
                                         <i class="fa fa-bolt mr-2 text-warning font-14"></i> <strong>Tam Sistem (Canlı Ekranda Al)</strong>
-                                        <small class="d-block text-muted font-11">Hosting kısıtlaması varsa ekranda bekleyerek</small>
+                                        <small class="d-block text-muted font-11">Ekranda bekleyerek DB + Evraklar + Bulut</small>
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startSyncBackup('db')">
-                                        <i class="fa fa-database mr-2 text-success font-14"></i> <strong>Sadece Veritabanı (Hızlı - 2 Sn)</strong>
-                                        <small class="d-block text-muted font-11">SQL Tabloları & Veriler</small>
+                                        <i class="fa fa-database mr-2 text-success font-14"></i> <strong>Sadece Veritabanı (Canlı Al)</strong>
+                                        <small class="d-block text-muted font-11">SQL Tabloları + Google Drive Bulut Aktarımı</small>
                                     </a>
+                                    <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startAsyncBackup('db')">
+                                        <i class="fa fa-database mr-2 text-info font-14"></i> <strong>Sadece Veritabanı (Arka Planda Al)</strong>
+                                        <small class="d-block text-muted font-11">Arka planda SQL + Google Drive Aktarımı</small>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item py-2" href="javascript:void(0);" onclick="startAsyncBackup('files')">
-                                        <i class="fa fa-folder-open mr-2 text-info font-14"></i> <strong>Sadece Dosyalar</strong>
+                                        <i class="fa fa-folder-open mr-2 text-secondary font-14"></i> <strong>Sadece Dosyalar (Arka Plan)</strong>
                                         <small class="d-block text-muted font-11">Uploads & Files Klasörleri</small>
                                     </a>
                                 </div>
@@ -701,7 +707,11 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                                         <span class="badge badge-info px-2 py-1 font-11"><i class="fa fa-spinner fa-spin mr-1"></i> İşleniyor</span>
                                                     <?php endif; ?>
                                                     <?php if ($row['remote_status'] === 'uploaded'): ?>
-                                                        <span class="badge badge-soft-success px-1" title="Google Drive / Harici sunucuda mevcut"><i class="fa fa-cloud-upload"></i> Drive'da Var</span>
+                                                        <?php if (!empty($row['remote_file_id'])): ?>
+                                                            <a href="https://drive.google.com/file/d/<?php echo htmlspecialchars($row['remote_file_id'], ENT_QUOTES, 'UTF-8'); ?>/view" target="_blank" class="badge badge-soft-success px-2 py-1 text-decoration-none" title="Google Drive üzerinde aç"><i class="fa fa-google mr-1"></i> Drive'da Var <i class="fa fa-external-link ml-1 font-10"></i></a>
+                                                        <?php else: ?>
+                                                            <span class="badge badge-soft-success px-1" title="Google Drive / Harici sunucuda mevcut"><i class="fa fa-cloud-upload"></i> Drive'da Var</span>
+                                                        <?php endif; ?>
                                                     <?php elseif ($row['remote_status'] === 'deleted_from_drive'): ?>
                                                         <span class="badge badge-soft-warning px-1 text-warning" title="Google Drive'dan silinmiş"><i class="fa fa-exclamation-triangle"></i> Drive'dan Silindi</span>
                                                     <?php endif; ?>
@@ -1373,10 +1383,14 @@ function startSyncBackup(type) {
             if (response.success) {
                 if (s) {
                     let msg = (response.messages && response.messages.length > 0) ? response.messages.join('<br>') : 'Yedekleme başarıyla tamamlandı.';
+                    let driveLinkHtml = '';
+                    if (response.remote_status === 'uploaded') {
+                        msg += '<br><span class="text-success"><i class="fa fa-check mr-1"></i> Google Drive bulut aktarımı başarıyla tamamlandı.</span>';
+                    }
                     s.fire({
                         icon: 'success',
                         title: 'Tebrikler, Yedek Alındı!',
-                        html: '<div class="text-left font-13 p-2 bg-light rounded mt-2"><strong>Boyut:</strong> ' + response.file_size_formatted + '<br><strong>Süre:</strong> ' + response.duration_sec + ' sn<br><br>' + msg + '</div>',
+                        html: '<div class="text-left font-13 p-2 bg-light rounded mt-2"><strong>Dosya:</strong> ' + escapeBackupHtml(response.file_name) + '<br><strong>Boyut:</strong> ' + escapeBackupHtml(response.file_size_formatted) + '<br><strong>Süre:</strong> ' + escapeBackupHtml(response.duration_sec) + ' sn<br><br>' + msg + '</div>',
                         confirmButtonText: 'Harika',
                         confirmButtonColor: '#1e4d79'
                     });
@@ -1618,7 +1632,11 @@ function renderBackupTable(logs) {
 
         let remoteBadge = '';
         if (row.remote_status === 'uploaded') {
-            remoteBadge = '<span class="badge badge-soft-success px-1" title="Google Drive / Harici sunucuda mevcut"><i class="fa fa-cloud-upload"></i> Drive\'da Var</span>';
+            if (row.remote_file_id) {
+                remoteBadge = '<a href="https://drive.google.com/file/d/' + encodeURIComponent(row.remote_file_id) + '/view" target="_blank" class="badge badge-soft-success px-2 py-1 text-decoration-none" title="Google Drive üzerinde aç"><i class="fa fa-google mr-1"></i> Drive\'da Var <i class="fa fa-external-link ml-1 font-10"></i></a>';
+            } else {
+                remoteBadge = '<span class="badge badge-soft-success px-1" title="Google Drive / Harici sunucuda mevcut"><i class="fa fa-cloud-upload"></i> Drive\'da Var</span>';
+            }
         } else if (row.remote_status === 'deleted_from_drive') {
             remoteBadge = '<span class="badge badge-soft-warning px-1 text-warning" title="Google Drive\'dan silinmiş"><i class="fa fa-exclamation-triangle"></i> Drive\'dan Silindi</span>';
         }

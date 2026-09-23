@@ -548,6 +548,17 @@ if ($cid || $sid) {
         font-size: 11px;
         font-weight: 500;
     }
+    #service-table .badge-status,
+    #service-table .badge {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.2 !important;
+        display: inline-block !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+    }
 
     .service-company-cell {
         font-size: 12.5px;
@@ -948,18 +959,18 @@ if ($cid || $sid) {
                     <thead>
                         <tr>
                             <th style="width: 36px; min-width: 36px; max-width: 36px; text-align: center;" class="no-sort" data-filter="false">SIRA</th>
-                            <th style="width: 82px; text-align: center;" data-filter-type="text">Servis No</th>
-                            <th style="width: 145px;" data-filter-type="text">Firma Adı</th>
-                            <th style="width: 78px;" data-filter-type="select">Bölge</th>
-                            <th style="width: 105px;" data-filter-type="text">Servis Konusu</th>
-                            <th style="width: 80px; text-align: center;" data-filter-type="date">İş Emri Tarihi</th>
-                            <th style="width: 72px; text-align: center;" data-filter-type="date">Planlama</th>
+                            <th style="width: 80px; text-align: center;" data-filter-type="text">Servis No</th>
+                            <th style="width: 135px;" data-filter-type="text">Firma Adı</th>
+                            <th style="width: 75px;" data-filter-type="select">Bölge</th>
+                            <th style="width: 100px;" data-filter-type="text">Servis Konusu</th>
+                            <th style="width: 78px; text-align: center;" data-filter-type="date">İş Emri Tarihi</th>
+                            <th style="width: 70px; text-align: center;" data-filter-type="date">Planlama</th>
                             <th style="width: 80px; text-align: center;" data-filter-type="select" data-filter-options='["Sözleşmeli", "Bekliyor", "S.Kapsamında Değildir", "Yapılmadı"]'>Sözleşme</th>
-                            <th style="width: 72px; text-align: center;" data-filter-type="select" data-filter-options='["Bekliyor", "Çalışıyor", "Tamamlandı", "İptal Edildi", "FATURA KESİLDİ", "BEDELSİZ", "PRF", "KEŞİF / ZİYARET", "MUHASEBEYE TESLİM EDİLDİ."]'>Durum</th>
-                            <th style="width: 75px;" data-filter-type="select">Oluşturan</th>
-                            <th style="width: 75px;" data-filter-type="select">Son İşlem</th>
+                            <th style="width: 88px; text-align: center;" data-filter-type="select" data-filter-options='["Bekliyor", "Çalışıyor", "Tamamlandı", "İptal Edildi", "FATURA KESİLDİ", "BEDELSİZ", "PRF", "KEŞİF / ZİYARET", "MUHASEBEYE TESLİM EDİLDİ."]'>Durum</th>
+                            <th style="width: 72px;" data-filter-type="select">Oluşturan</th>
+                            <th style="width: 72px;" data-filter-type="select">Son İşlem</th>
                             <th style="width: 75px; text-align: center;" data-filter-type="select" data-filter-options='["Teslim Bekliyor", "Teslim Alındı"]'>Muhasebe</th>
-                            <th style="width: 75px; text-align: center;" class="no-sort" data-filter="false">İşlem</th>
+                            <th style="width: 70px; text-align: center;" class="no-sort" data-filter="false">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1029,7 +1040,7 @@ if ($cid || $sid) {
                                         <?php 
                                         $color = (!empty($purc['status_color'])) ? $purc['status_color'] : '#64748b';
                                         $title = htmlspecialchars($purc['status_title'] ?? '-');
-                                        echo "<span class='badge' style='background-color:{$color}; color:#fff; font-weight:600; padding:3px 6px; font-size:10.5px; border-radius:4px; display:inline-block;'>{$title}</span>"; 
+                                        echo "<span class='badge badge-status' style='background-color:{$color}; color:#fff; font-weight:600; padding:3px 6px; font-size:10.5px; border-radius:4px; display:inline-block; white-space:normal; line-height:1.2;'>{$title}</span>"; 
                                         ?>
                                     </td>
                                     <td><div class="font-11 text-dark" style="line-height:1.2;" data-toggle="tooltip" title="<?php echo htmlspecialchars($purc['creator_username']); ?>"><?php echo htmlspecialchars($purc['creator_username']); ?></div></td>

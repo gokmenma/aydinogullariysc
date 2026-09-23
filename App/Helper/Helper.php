@@ -86,13 +86,13 @@ class Helper
     }
 
     /** src\scripts\il-bolge.json sayfasında illeri select olarak oluşturur */
-    public static function selectCity($name, $selected = null)
+    public static function selectCity($name, $selected = null, $className = 'form-control select2')
     {
         // il-bolge.json dosyasını oku
         $json = file_get_contents(__DIR__ . '/../../src/scripts/il-bolge.json');
         $cities = json_decode($json, true);
 
-        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-live-search="true" data-size="5" data-style="border bg-white" data-container="body">';
+        $select = '<select name="' . $name . '" id="' . $name . '" class="' . $className . '" data-placeholder="İl Seçiniz" data-style="border bg-white" data-container="body">';
         $select .= '<option value="">İl Seçiniz</option>';
         foreach ($cities as $city) {
             $isSelected = ($selected == $city['il']) ? 'selected' : '';

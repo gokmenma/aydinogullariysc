@@ -145,11 +145,47 @@ if (@$_POST["status"] == "success") {
 ?>
 
 
+<!-- Erken LocalStorage Kontrolü (Flicker Önleme) -->
+<script>
+    (function() {
+        try {
+            if (localStorage.getItem('aydinogullari_customer_manage_stats_collapsed') === 'true') {
+                document.documentElement.classList.add('customer-stats-collapsed-early');
+            }
+        } catch(e) {}
+    })();
+</script>
+
 <style>
+    /* Early collapse CSS to prevent flicker */
+    .customer-stats-collapsed-early #customerStatsGrid {
+        display: none !important;
+    }
+
     /* Premium customer form styles */
     .customer-manage-wrapper {
         max-width: 1400px;
         margin: 0 auto;
+    }
+
+    /* Stats Grid: header ve form card ile birebir aynı hizada */
+    .customer-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 1200px) {
+        .customer-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .customer-stats-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     /* Inline row within form field (e.g. city/district) */
@@ -193,92 +229,84 @@ if (@$_POST["status"] == "success") {
 
     <!-- Özet Bilgiler (Sadece Düzenleme Modunda Gösterilir) -->
     <?php if ($id > 0): ?>
-    <div class="row mb-4">
+    <div id="customerStatsGrid" class="customer-stats-grid animate-fade-in">
         <!-- Toplam Servis Sayısı -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-            <div class="dashboard-card card-blue">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Toplam Servis Sayısı</span>
-                        <span class="no text-blue weight-700 font-30">
-                            <?php echo $pjs; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-blue text-white box-shadow">
-                        <i class="fa fa-gears"></i>
-                    </div>
+        <div class="dashboard-card card-blue">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="d-block text-muted font-14 weight-500 mb-1">Toplam Servis Sayısı</span>
+                    <span class="no text-blue weight-700 font-30">
+                        <?php echo $pjs; ?>
+                    </span>
                 </div>
-                <div class="mt-2">
-                    <a target="_blank" class="small weight-600 font-14 text-blue" href="index.php?p=service/list&cid=<?php echo $id ?>">Tümünü Görüntüle <i class="fa fa-arrow-right ml-1"></i></a>
+                <div class="icon bg-blue text-white box-shadow">
+                    <i class="fa fa-gears"></i>
                 </div>
+            </div>
+            <div class="mt-2">
+                <a target="_blank" class="small weight-600 font-14 text-blue" href="index.php?p=service/list&cid=<?php echo $id ?>">Tümünü Görüntüle <i class="fa fa-arrow-right ml-1"></i></a>
             </div>
         </div>
 
         <!-- Toplam Teklif Sayısı -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-            <div class="dashboard-card card-green">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Toplam Teklif Sayısı</span>
-                        <span class="no text-success weight-700 font-30">
-                            <?php echo $ojs; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-success text-white box-shadow">
-                        <i class="fa fa-handshake-o"></i>
-                    </div>
+        <div class="dashboard-card card-green">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="d-block text-muted font-14 weight-500 mb-1">Toplam Teklif Sayısı</span>
+                    <span class="no text-success weight-700 font-30">
+                        <?php echo $ojs; ?>
+                    </span>
                 </div>
-                <div class="mt-2">
-                    <a target="_blank" class="small weight-600 font-14 text-success" href="index.php?p=offers&cid=<?php echo $id ?>">Tümünü Görüntüle <i class="fa fa-arrow-right ml-1"></i></a>
+                <div class="icon bg-success text-white box-shadow">
+                    <i class="fa fa-handshake-o"></i>
                 </div>
+            </div>
+            <div class="mt-2">
+                <a target="_blank" class="small weight-600 font-14 text-success" href="index.php?p=offers&cid=<?php echo $id ?>">Tümünü Görüntüle <i class="fa fa-arrow-right ml-1"></i></a>
             </div>
         </div>
 
         <!-- Son Oluşturulan Teklif -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-            <div class="dashboard-card card-orange">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Son Oluşturulan Teklif</span>
-                        <span class="no text-warning weight-700 font-22">
-                            <?php echo $sonteklif["offerNumber"] ?? '-'; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-warning text-white box-shadow">
-                        <i class="fa fa-file"></i>
-                    </div>
+        <div class="dashboard-card card-orange">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="d-block text-muted font-14 weight-500 mb-1">Son Oluşturulan Teklif</span>
+                    <span class="no text-warning weight-700 font-22">
+                        <?php echo $sonteklif["offerNumber"] ?? '-'; ?>
+                    </span>
                 </div>
-                <div class="mt-2">
-                    <?php if (!empty($sonteklif["id"])): ?>
-                        <a target="_blank" class="small weight-600 font-14 text-warning" href="index.php?p=offers/offer-manage&id=<?php echo $sonteklif["id"]; ?>">Teklife Git <i class="fa fa-arrow-right ml-1"></i></a>
-                    <?php else: ?>
-                        <span class="text-muted small">Teklif bulunamadı</span>
-                    <?php endif; ?>
+                <div class="icon bg-warning text-white box-shadow">
+                    <i class="fa fa-file"></i>
                 </div>
+            </div>
+            <div class="mt-2">
+                <?php if (!empty($sonteklif["id"])): ?>
+                    <a target="_blank" class="small weight-600 font-14 text-warning" href="index.php?p=offers/offer-manage&id=<?php echo $sonteklif["id"]; ?>">Teklife Git <i class="fa fa-arrow-right ml-1"></i></a>
+                <?php else: ?>
+                    <span class="text-muted small">Teklif bulunamadı</span>
+                <?php endif; ?>
             </div>
         </div>
 
         <!-- Son Oluşturulan Servis -->
-        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-            <div class="dashboard-card card-purple">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <span class="d-block text-muted font-14 weight-500 mb-1">Son Oluşturulan Servis</span>
-                        <span class="no text-purple weight-700 font-22">
-                            <?php echo $servicestype["title"] ?? '-'; ?>
-                        </span>
-                    </div>
-                    <div class="icon bg-purple text-white box-shadow">
-                        <i class="fa fa-gear"></i>
-                    </div>
+        <div class="dashboard-card card-purple">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="d-block text-muted font-14 weight-500 mb-1">Son Oluşturulan Servis</span>
+                    <span class="no text-purple weight-700 font-22">
+                        <?php echo $servicestype["title"] ?? '-'; ?>
+                    </span>
                 </div>
-                <div class="mt-2">
-                    <?php if (!empty($ojsp["id"])): ?>
-                        <a target="_blank" class="small weight-600 font-14 text-purple" href="index.php?p=service/manage&id=<?php echo $ojsp["id"]; ?>">Servise Git <i class="fa fa-arrow-right ml-1"></i></a>
-                    <?php else: ?>
-                        <span class="text-muted small">Servis bulunamadı</span>
-                    <?php endif; ?>
+                <div class="icon bg-purple text-white box-shadow">
+                    <i class="fa fa-gear"></i>
                 </div>
+            </div>
+            <div class="mt-2">
+                <?php if (!empty($ojsp["id"])): ?>
+                    <a target="_blank" class="small weight-600 font-14 text-purple" href="index.php?p=service/manage&id=<?php echo $ojsp["id"]; ?>">Servise Git <i class="fa fa-arrow-right ml-1"></i></a>
+                <?php else: ?>
+                    <span class="text-muted small">Servis bulunamadı</span>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -286,14 +314,23 @@ if (@$_POST["status"] == "success") {
 
     <!-- Form Card -->
     <div class="form-card animate-fade-in">
-        <div class="form-card-header">
-            <div class="card-icon">
-                <i class="fa fa-user-plus"></i>
+        <div class="form-card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center" style="gap: 12px;">
+                <div class="card-icon">
+                    <i class="fa fa-user-plus"></i>
+                </div>
+                <div>
+                    <h5>Firma Bilgileri</h5>
+                    <p>Lütfen firma detaylarını ve iletişim bilgilerini eksiksiz doldurunuz.</p>
+                </div>
             </div>
+            <?php if ($id > 0): ?>
             <div>
-                <h5>Firma Bilgileri</h5>
-                <p>Lütfen firma detaylarını ve iletişim bilgilerini eksiksiz doldurunuz.</p>
+                <button type="button" id="toggleCustomerStats" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle" style="border-radius: 8px; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;">
+                    <i class="fa fa-chevron-up"></i>
+                </button>
             </div>
+            <?php endif; ?>
         </div>
 
         <form enctype="multipart/form-data" action="" id="customerForm" method="POST">
@@ -316,7 +353,7 @@ if (@$_POST["status"] == "success") {
                 <!-- Grup -->
                 <div class="form-field">
                     <label for="categoryName"><font color="red">(*)</font> Grup</label>
-                    <?php echo customer::getCustomerGroups("categoryName", $customer->grp ?? ''); ?>
+                    <?php echo customer::getCustomerGroups("categoryName", $customer->grp ?? '', 'form-control select2'); ?>
                 </div>
 
                 <!-- Yetkili Ad-Soyad -->
@@ -330,10 +367,10 @@ if (@$_POST["status"] == "success") {
                     <label><font color="red">(*)</font> İl / İlçe</label>
                     <div class="row-inline">
                         <div>
-                            <?php echo Helper::selectCity("il", $customer->city ?? 0); ?>
+                            <?php echo Helper::selectCity("il", $customer->city ?? '', 'form-control select2'); ?>
                         </div>
                         <div>
-                            <select name="ilce" id="ilce" class="form-control selectpicker" data-live-search="true" data-size="5" data-none-selected-text="Seçim Yapılmadı" data-style="border bg-white" data-container="body">
+                            <select name="ilce" id="ilce" class="form-control select2" data-placeholder="İlçe Seçiniz">
                                 <option value="<?php echo $customer->ilce ?? ''; ?>">
                                     <?php echo $customer->ilce ?? ''; ?>
                                 </option>
@@ -351,7 +388,7 @@ if (@$_POST["status"] == "success") {
                 <!-- Bölge -->
                 <div class="form-field">
                     <label for="region"><font color="red">(*)</font> Bölge</label>
-                    <?php echo Helper::selectRegion("region", $customer->region ?? ''); ?>
+                    <?php echo Helper::selectRegion("region", $customer->region ?? '', 'form-control select2'); ?>
                 </div>
 
                 <!-- Telefon -->
@@ -368,7 +405,12 @@ if (@$_POST["status"] == "success") {
 
                 <!-- Adres -->
                 <div class="form-field full-width">
-                    <label for="customer_address"><font color="red">(*)</font> Adres</label>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="customer_address" class="mb-0"><font color="red">(*)</font> Adres</label>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnOpenCustomerMap" style="border-radius: 8px; font-weight: 600; font-size: 12px; padding: 3px 10px; display: inline-flex; align-items: center; gap: 5px; border-color: #3b82f6; color: #1d4ed8; background: #eff6ff;">
+                            <i class="fa fa-map-marker" style="color: #ef4444; font-size: 13px;"></i> Haritadan Seç
+                        </button>
+                    </div>
                     <textarea required name="customer_address" id="customer_address" placeholder="Firma adresi" class="form-control" rows="3"><?php echo $customer->address ?? '' ?></textarea>
                 </div>
 
@@ -383,5 +425,123 @@ if (@$_POST["status"] == "success") {
     </div>
 </div>
 
-<script src="pages/1/customers/customer.js"></script>
+<!-- Haritadan Adres Seçim Modalı -->
+<div class="modal fade" id="customerMapModal" tabindex="-1" role="dialog" aria-labelledby="customerMapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 850px;">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.25); overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1e293b, #334155); color: #fff; padding: 16px 20px;">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 18px;">
+                        <i class="fa fa-map-marker"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title text-white font-16 weight-600 mb-0" id="customerMapModalLabel">Haritadan Konum & Adres Seçimi</h5>
+                        <p class="text-white-50 font-12 mb-0">Haritada tıklayarak veya arama yaparak adresi otomatik belirleyin.</p>
+                    </div>
+                </div>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="opacity: 0.8; outline: none;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-3" style="background: #f8fafc;">
+                <!-- Arama ve Konum Barı -->
+                <div class="row g-2 mb-2">
+                    <div class="col-md-8 mb-2 mb-md-0">
+                        <div class="input-group">
+                            <input type="text" id="mapSearchInput" class="form-control" placeholder="Örn: Nilüfer Bursa, Çalı Eflatun Cad. veya firma adı..." style="border-radius: 8px 0 0 8px; border: 1px solid #cbd5e1;">
+                            <div class="input-group-append">
+                                <button type="button" id="btnMapSearch" class="btn btn-primary" style="border-radius: 0 8px 8px 0; font-weight: 500;">
+                                    <i class="fa fa-search"></i> Ara
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" id="btnMapLocateMe" class="btn btn-outline-secondary btn-block" style="border-radius: 8px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px; height: 38px;">
+                            <i class="fa fa-crosshairs text-primary"></i> Konumumu Bul
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arama Sonuçları Listesi (Varsa) -->
+                <div id="mapSearchResults" class="list-group mb-2 d-none" style="max-height: 150px; overflow-y: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"></div>
+
+                <!-- Harita Konteyneri -->
+                <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                    <div id="customerAddressMap" style="height: 380px; width: 100%; background: #e2e8f0;"></div>
+                    <div id="mapLoadingSpinner" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.7); z-index: 1000; align-items: center; justify-content: center; font-weight: 600; color: #1e293b; gap: 10px;">
+                        <i class="fa fa-circle-o-notch fa-spin fa-2x text-primary"></i> <span>Adres çözümleniyor...</span>
+                    </div>
+                </div>
+
+                <!-- Seçilen Adres Önizleme Kartı -->
+                <div class="mt-3 p-3 rounded" style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #3b82f6;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="weight-600 font-13 text-dark">
+                            <i class="fa fa-check-circle text-success mr-1"></i> Tespit Edilen Adres:
+                        </span>
+                        <span id="mapSelectedCoords" class="badge badge-light text-muted font-11">Koordinat: -</span>
+                    </div>
+                    <div id="mapSelectedAddressText" class="text-dark font-13" style="line-height: 1.4; min-height: 36px; word-break: break-word;">
+                        Haritadan bir nokta seçiniz veya arama yapınız.
+                    </div>
+                    <div class="d-flex flex-wrap mt-2" id="mapAddressBadges" style="gap: 8px;">
+                        <span class="badge badge-primary py-1 px-2" id="badgeIl" style="display:none; font-weight: 500;">İl: -</span>
+                        <span class="badge badge-info py-1 px-2" id="badgeIlce" style="display:none; font-weight: 500;">İlçe: -</span>
+                        <span class="badge badge-secondary py-1 px-2" id="badgeMahalle" style="display:none; font-weight: 500;">Mahalle: -</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 12px 20px;">
+                <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius: 8px; font-weight: 500;">İptal</button>
+                <button type="button" id="btnApplyMapAddress" class="btn btn-primary" style="border-radius: 8px; font-weight: 600; padding: 8px 20px;" disabled>
+                    <i class="fa fa-check mr-1"></i> Bu Adresi Aktar
+                </button>
+            </div>
+        </div>
+<!-- Leaflet Harita Kütüphanesi -->
+<link rel="stylesheet" href="src/plugins/leaflet/leaflet.css?v=1.9.4" />
+<script src="src/plugins/leaflet/leaflet.js?v=1.9.4"></script>
+<script src="pages/1/customers/customer.js?v=<?php echo file_exists(__DIR__ . '/customer.js') ? filemtime(__DIR__ . '/customer.js') : time(); ?>"></script>
+<script>
+$(document).ready(function () {
+    var STATS_STORAGE_KEY = 'aydinogullari_customer_manage_stats_collapsed';
+    var $statsSection = $('#customerStatsGrid');
+    var $toggleBtn = $('#toggleCustomerStats');
+
+    function updateStatsToggleState(isCollapsed, animate) {
+        document.documentElement.classList.remove('customer-stats-collapsed-early');
+        if (isCollapsed) {
+            if (animate) {
+                $statsSection.stop(true, true).slideUp(200);
+            } else {
+                $statsSection.hide();
+            }
+            $toggleBtn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            $toggleBtn.attr('title', 'Özet Kartlarını Göster');
+        } else {
+            if (animate) {
+                $statsSection.stop(true, true).slideDown(200, function() {
+                    $(this).css('display', 'grid');
+                });
+            } else {
+                $statsSection.css('display', 'grid').show();
+            }
+            $toggleBtn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            $toggleBtn.attr('title', 'Özet Kartlarını Gizle');
+        }
+    }
+
+    var isSavedCollapsed = localStorage.getItem(STATS_STORAGE_KEY) === 'true';
+    updateStatsToggleState(isSavedCollapsed, false);
+
+    $(document).off('click', '#toggleCustomerStats').on('click', '#toggleCustomerStats', function (e) {
+        e.preventDefault();
+        var currentlyCollapsed = $statsSection.is(':hidden');
+        var newState = !currentlyCollapsed;
+        localStorage.setItem(STATS_STORAGE_KEY, newState ? 'true' : 'false');
+        updateStatsToggleState(newState, true);
+    });
+});
+</script>
 

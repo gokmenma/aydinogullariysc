@@ -50,8 +50,29 @@ class BackupService
             'created_by' => $userId
         ]);
 
-        // 2. Arka planda kesintisiz non-blocking HTTP Webhook ile yedekleme motorunu başlat
-        $this->triggerBackupViaHttpAsync($backupType, $userId, $logId);
+        // 2. Arka planda kesintisiz çalıştırma (Önce CLI / Process, fallback HTTP Webhook)
+        $startedViaCli = false;
+        $disabledFunctions = array_map('trim', explode(',', (string)ini_get('disable_functions')));
+        if (function_exists('exec') && !in_array('exec', $disabledFunctions, true)) {
+            $phpBin = $this->detectPhpBinary();
+            $cronScript = $this->rootDir . '/cron_backup.php';
+            if (file_exists($cronScript)) {
+                $cmd = sprintf(
+                    "%s %s %s %s %s > /dev/null 2>&1 &",
+                    escapeshellcmd($phpBin),
+                    escapeshellarg($cronScript),
+                    escapeshellarg($backupType),
+                    escapeshellarg((string)($userId ?? 0)),
+                    escapeshellarg((string)$logId)
+                );
+                @exec($cmd);
+                $startedViaCli = true;
+            }
+        }
+
+        if (!$startedViaCli) {
+            $this->triggerBackupViaHttpAsync($backupType, $userId, $logId);
+        }
 
         return [
             'success' => true,
@@ -237,7 +258,7 @@ class BackupService
                 'created_at' => date('Y-m-d H:i:s'),
                 'backup_type' => $backupType,
                 'php_version' => PHP_VERSION,
-                'db_name' => defined('HOSTDATABASE') ? HOSTDATABASE : 'aydinogu_test',
+                'db_name' => defined('HOSTDATABASE') ? HOSTDATABASE : 'aydinogu_aydinogullari_yeni',
                 'system' => 'Aydınoğulları YSC Yedekleme Modülü'
             ];
             $zip->addFromString('backup_manifest.json', json_encode($metaInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -379,7 +400,7 @@ class BackupService
      */
     public function exportDatabase(string $outputSqlFile): array
     {
-        $dbName = defined('HOSTDATABASE') ? HOSTDATABASE : 'aydinogu_test';
+        $dbName = defined('HOSTDATABASE') ? HOSTDATABASE : 'aydinogu_aydinogullari_yeni';
         $dbUser = defined('HOSTUSERNAME') ? HOSTUSERNAME : 'root';
         $dbPass = defined('HOSTPASSWORD') ? HOSTPASSWORD : '';
         $dbHost = defined('HOSTNAME') ? HOSTNAME : 'localhost';

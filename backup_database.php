@@ -4,41 +4,27 @@
  * Örnek: backup_2025-10-15_09-30-22.sql
  */
 
-// === AYARLAR ===
-$host       = 'localhost';
-$username   = 'root';
-$password   = ''; // MySQL şifrenizi yazın
-$database   = 'aydinogu_aydinogullari'; // Yedeklenecek veritabanı adı
-$backupDir  = __DIR__ . '/backups'; // Yedeklerin kaydedileceği klasör
+require_once __DIR__ . '/bootstrap.php';
 
-// === KLASÖRÜ OLUŞTUR ===
-if (!is_dir($backupDir)) {
-    mkdir($backupDir, 0777, true);
-}
+use App\Service\BackupService;
 
-// === DOSYA ADI ===
-$date = date('Y-m-d_H-i-s');
-$backupFile = "{$backupDir}/backup_{$database}_{$date}.sql";
+$database = defined('HOSTDATABASE') ? HOSTDATABASE : 'aydinogu_aydinogullari_yeni';
+echo "=== Aydınoğulları YSC Veritabanı Yedekleme ({$database}) ===\n";
 
-// === Yedekleme Komutu ===
-$command = sprintf(
-    'mysqldump --user=%s --password=%s --host=%s %s > %s',
-    escapeshellarg($username),
-    escapeshellarg($password),
-    escapeshellarg($host),
-    escapeshellarg($database),
-    escapeshellarg($backupFile)
-);
+$backupService = new BackupService();
+$result = $backupService->runBackup('db');
 
-// === KOMUTU ÇALIŞTIR ===
-$output = null;
-$returnVar = null;
-exec($command, $output, $returnVar);
-
-// === SONUÇ KONTROLÜ ===
-if ($returnVar === 0) {
-    echo "✅ Yedekleme başarıyla oluşturuldu: {$backupFile}";
+if ($result['success']) {
+    echo "✅ Veritabanı yedeği başarıyla alındı ve arşivlendi.\n";
+    echo "📁 Dosya: " . $result['file_name'] . " (" . $result['file_size_formatted'] . ")\n";
+    echo "⏱ Süre: " . $result['duration_sec'] . " sn\n";
+    echo "☁️ Bulut Aktarım Durumu: " . ($result['remote_status'] ?? 'none') . "\n";
+    if (!empty($result['messages'])) {
+        foreach ($result['messages'] as $msg) {
+            echo "   • {$msg}\n";
+        }
+    }
 } else {
-    echo "❌ Yedekleme sırasında bir hata oluştu!";
+    echo "❌ Hata: " . ($result['error'] ?? 'Bilinmeyen hata') . "\n";
 }
 ?>

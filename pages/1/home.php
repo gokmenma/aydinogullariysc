@@ -78,8 +78,8 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 		
 		<!-- 1. CRM HERO / KARŞILAMA VE HIZLI AKSİYON ÇUBUĞU -->
 		<div class="crm-hero-banner">
-			<div class="row align-items-center">
-				<div class="col-12">
+			<div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+				<div class="crm-hero-content">
 					<div class="d-flex align-items-center mb-2">
 						<span class="crm-date-chip">
 							<i class="fa fa-calendar-o"></i> <?php echo $curDateFormatted; ?>
@@ -88,30 +88,30 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 					<h2 class="crm-hero-title">Hoş Geldiniz, <?php echo $loggedUser; ?> 👋</h2>
 					<p class="crm-hero-subtitle m-0">Operasyonel süreçler, servis takibi ve aktif tekliflerinize genel bakış.</p>
 				</div>
-			</div>
-			<div class="crm-quick-actions">
-				
-				<div class="crm-quick-actions-list">
+				<div class="crm-quick-actions-square-list">
 					<?php if (permtrue('offeradd')) : ?>
-							<a href="index.php?p=offers/offer-manage" class="crm-quick-btn btn-primary-action">
-								<i class="fa fa-file-text-o"></i> Yeni Teklif
-							</a>
+						<a href="index.php?p=offers/offer-manage" class="crm-quick-square-btn" title="Yeni Teklif">
+							<div class="crm-quick-square-icon"><i class="fa fa-file-text-o"></i></div>
+							<span class="crm-quick-square-label">Yeni Teklif</span>
+						</a>
 					<?php endif; ?>
 					<?php if (permtrue('serviceAdd')) : ?>
-							<a href="index.php?p=service/manage" class="crm-quick-btn ">
-								<i class="fa fa-plus-circle"></i> Yeni Servis
-							</a>
+						<a href="index.php?p=service/manage" class="crm-quick-square-btn" title="Yeni Servis">
+							<div class="crm-quick-square-icon"><i class="fa fa-plus-circle"></i></div>
+							<span class="crm-quick-square-label">Yeni Servis</span>
+						</a>
 					<?php endif; ?>
-					
 					<?php if (permtrue('customeradd')) : ?>
-							<a href="index.php?p=customers/manage" class="crm-quick-btn">
-								<i class="fa fa-building-o"></i> Yeni Firma
-							</a>
+						<a href="index.php?p=customers/manage" class="crm-quick-square-btn" title="Yeni Firma">
+							<div class="crm-quick-square-icon"><i class="fa fa-building-o"></i></div>
+							<span class="crm-quick-square-label">Yeni Firma</span>
+						</a>
 					<?php endif; ?>
 					<?php if (permtrue('todoadd')) : ?>
-							<a href="index.php?p=task-new" class="crm-quick-btn">
-								<i class="fa fa-check-square-o"></i> Görev Ekle
-							</a>
+						<a href="index.php?p=task-new" class="crm-quick-square-btn" title="Görev Ekle">
+							<div class="crm-quick-square-icon"><i class="fa fa-check-square-o"></i></div>
+							<span class="crm-quick-square-label">Görev Ekle</span>
+						</a>
 					<?php endif; ?>
 				</div>
 			</div>

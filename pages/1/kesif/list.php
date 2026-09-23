@@ -497,12 +497,16 @@ try {
     .action-btn-group {
         display: inline-flex;
         align-items: center;
-        gap: 2px;
+        justify-content: center;
+        gap: 3px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
     }
     .action-btn {
-        width: 26px;
-        height: 26px;
-        padding: 0;
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
+        padding: 0 !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -510,8 +514,19 @@ try {
         font-size: 11px;
         transition: all 0.15s;
     }
+    .action-btn.dropdown-toggle-split::after {
+        display: none !important;
+    }
     .action-btn:hover {
         transform: translateY(-1px);
+    }
+    #kesifTable th:last-child,
+    #kesifTable td:last-child {
+        width: 100px !important;
+        min-width: 100px !important;
+        white-space: nowrap !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
     }
 
     /* Context Menu */
@@ -1094,17 +1109,17 @@ try {
                     <tr>
                         <th style="width: 35px;" class="text-center no-sort">#Sıra</th>
                         <th style="width: 85px;" class="text-center">Keşif Tarihi</th>
-                        <th style="width: 140px;">Firma Adı</th>
-                        <th style="width: 180px;">Yapılacak İş</th>
-                        <th style="width: 115px;" class="text-center">Görevli Kişi</th>
+                        <th style="width: 135px;">Firma Adı</th>
+                        <th style="width: 165px;">Yapılacak İş</th>
+                        <th style="width: 110px;" class="text-center">Görevli Kişi</th>
                         <th style="width: 85px;" class="text-center">Form Kimde?</th>
-                        <th style="width: 110px;" class="text-center">Konum</th>
+                        <th style="width: 105px;" class="text-center">Konum</th>
                         <th style="width: 55px;" class="text-center no-sort">Görseller</th>
-                        <th style="width: 90px;" class="text-center">Durum</th>
-                        <th style="width: 110px;">Keşif Sonu Notu</th>
+                        <th style="width: 85px;" class="text-center">Durum</th>
+                        <th style="width: 105px;">Keşif Sonu Notu</th>
                         <th style="width: 85px;" class="text-center">Kayıt Tarihi</th>
                         <th style="width: 85px;" class="text-center">Kayıt Yapan</th>
-                        <th style="width: 75px;" class="text-center no-sort no-export">İşlem</th>
+                        <th style="width: 100px;" class="text-center no-sort no-export">İşlem</th>
                     </tr>
                 </thead>
                 <tbody>

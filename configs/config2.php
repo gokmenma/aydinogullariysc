@@ -9,7 +9,7 @@ ob_start();
 	define("HOSTNAME", "localhost"); // Veritabanı Sunucu
 	define("HOSTUSERNAME","aydinogu_prod");	// Veritabanı Kullanıcı Adı
 	define("HOSTPASSWORD","t)QiTEWAY{*Uz=fK");	// Veritabanı Kullanıcı Parolası
-	define("HOSTDATABASE","aydinogu_test");	// Veritabanı İsmi
+	define("HOSTDATABASE","aydinogu_aydinogullari_yeni");	// Veritabanı İsmi
 
 try{
 
