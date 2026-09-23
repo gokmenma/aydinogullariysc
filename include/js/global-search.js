@@ -138,6 +138,21 @@
                 e.stopPropagation();
             });
 
+            // Click on result item
+            this.resultsContainer.on('click', '.gs-result-item', function (e) {
+                var itemType = $(this).data('type');
+                var itemId = $(this).data('id');
+                if (itemType === 'kesif' && typeof window.openKesifDetailModal === 'function' && window.location.href.indexOf('p=kesif/list') !== -1) {
+                    e.preventDefault();
+                    self.closeDropdown();
+                    self.input.blur();
+                    window.openKesifDetailModal(itemId);
+                    if (window.history && window.history.pushState) {
+                        window.history.pushState({}, '', $(this).attr('href'));
+                    }
+                }
+            });
+
             // Mouse hover on result items
             this.resultsContainer.on('mouseenter', '.gs-result-item', function () {
                 var index = $(this).data('index');
@@ -267,7 +282,7 @@
                         var isFirst = (itemGlobalIndex === 0);
                         var activeClass = isFirst ? 'active' : '';
 
-                        html += '<a href="' + item.url + '" class="gs-result-item ' + activeClass + '" data-index="' + itemGlobalIndex + '">';
+                        html += '<a href="' + item.url + '" class="gs-result-item ' + activeClass + '" data-index="' + itemGlobalIndex + '" data-type="' + item.type + '" data-id="' + item.id + '">';
                         
                         // Left Avatar / Badge
                         html += '  <div class="gs-item-avatar gs-avatar-' + item.color_theme + '">';
@@ -382,8 +397,23 @@
         activateSelected: function () {
             if (this.selectedIndex >= 0) {
                 var target = this.resultsContainer.find('.gs-result-item[data-index="' + this.selectedIndex + '"]');
-                if (target.length && target.attr('href')) {
-                    window.location.href = target.attr('href');
+                if (target.length) {
+                    var itemType = target.data('type');
+                    var itemId = target.data('id');
+
+                    if (itemType === 'kesif' && typeof window.openKesifDetailModal === 'function' && window.location.href.indexOf('p=kesif/list') !== -1) {
+                        this.closeDropdown();
+                        this.input.blur();
+                        window.openKesifDetailModal(itemId);
+                        if (window.history && window.history.pushState) {
+                            window.history.pushState({}, '', target.attr('href'));
+                        }
+                        return;
+                    }
+
+                    if (target.attr('href')) {
+                        window.location.href = target.attr('href');
+                    }
                 }
             }
         }

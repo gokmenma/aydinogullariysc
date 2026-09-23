@@ -129,6 +129,52 @@
 		if (backdrop) backdrop.classList.remove('open');
 	};
 
+	// Mobil & Masaüstü Sidebar Menü Aç / Kapat
+	window.toggleSidebarMenu = function(e) {
+		if (e) {
+			if (e.preventDefault) e.preventDefault();
+			if (e.stopPropagation) e.stopPropagation();
+			if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+		}
+
+		var isDesktop = window.innerWidth > 1200;
+		if (isDesktop) {
+			var html = document.documentElement;
+			var isCollapsed = html.classList.toggle('sidebar-collapsed');
+			try { localStorage.setItem('sidebar-collapsed', isCollapsed ? 'true' : 'false'); } catch(err){}
+			var icons = document.querySelectorAll('.menu-icon, #sidebar-menu-toggle');
+			icons.forEach(function(icon) {
+				if (isCollapsed) icon.classList.remove('open');
+				else icon.classList.add('open');
+			});
+		} else {
+			var sidebar = document.querySelector('.left-side-bar');
+			var backdrop = document.getElementById('sidebar-backdrop');
+			var icons = document.querySelectorAll('.menu-icon, #sidebar-menu-toggle');
+			
+			if (sidebar) {
+				var isOpen = sidebar.classList.toggle('open');
+				if (backdrop) backdrop.classList.toggle('open', isOpen);
+				icons.forEach(function(icon) {
+					icon.classList.toggle('open', isOpen);
+				});
+			}
+		}
+		return false;
+	};
+
+	window.closeMobileSidebar = function() {
+		var sidebar = document.querySelector('.left-side-bar');
+		var backdrop = document.getElementById('sidebar-backdrop');
+		var icons = document.querySelectorAll('.menu-icon, #sidebar-menu-toggle');
+		
+		if (sidebar) sidebar.classList.remove('open');
+		if (backdrop) backdrop.classList.remove('open');
+		icons.forEach(function(icon) {
+			icon.classList.remove('open');
+		});
+	};
+
 	// Tema - Yazı Tipi Eşleştirme Haritası (Ön Tanımlı)
 	var themePresetFonts = {
 		'kode': 'inter',
@@ -137,7 +183,17 @@
 		'kraliyet-moru': 'outfit',
 		'rose': 'poppins',
 		'sade-beyaz': 'inter',
-		'koyu-gece': 'geist'
+		'koyu-gece': 'geist',
+		'safir-okyanus': 'outfit',
+		'gun-batimi': 'poppins',
+		'gece-altini': 'montserrat',
+		'mistik-bordo': 'montserrat',
+		'nordik-cam': 'plus-jakarta-sans',
+		'soft-lavanta': 'outfit',
+		'soft-adacayi': 'plus-jakarta-sans',
+		'soft-seftali': 'poppins',
+		'soft-buz-mavisi': 'inter',
+		'soft-vizon': 'montserrat'
 	};
 
 	// Yazı Tipi Değiştirme Fonksiyonu
@@ -173,12 +229,12 @@
 		var suggestedFont = themePresetFonts[presetName] || 'inter';
 		window.selectThemeFont(suggestedFont, false);
 
-		// Koyu Gece seçildiyse Dark Mode'u otomatik aktif et; diğerlerinde dark mode kaldır
+		// Koyu temalarda Dark Mode'u otomatik aktif et; açık temalarda dark mode kaldır
 		var html = document.documentElement;
 		var body = document.body;
 		var toggleBtn = document.getElementById('theme-toggle');
 
-		if (presetName === 'koyu-gece') {
+		if (presetName === 'koyu-gece' || presetName === 'gece-altini') {
 			html.classList.add('dark-mode');
 			if (body) body.classList.add('dark-mode');
 			if (toggleBtn) toggleBtn.setAttribute('data-tooltip', 'Aydınlık Mod');

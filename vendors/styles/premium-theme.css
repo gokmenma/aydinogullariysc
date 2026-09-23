@@ -819,8 +819,15 @@ table.dataTable thead th,
 /* ==========================================
    SELECT2 PREMIUM THEME STYLING
    ========================================== */
-.select2-container {
+.select2-container:not(.select2-container--open),
+span.select2.select2-container {
     width: 100% !important;
+}
+
+body > .select2-container.select2-container--open,
+.select2-container.select2-container--open:not(.select2) {
+    width: auto !important;
+    max-width: 100vw;
 }
 
 .select2-container--default .select2-selection--single {
@@ -1148,146 +1155,213 @@ table.dataTable thead th,
 }
 
 /* ==========================================
-   PREMIUM HEADER CARD STYLES
+   PREMIUM / PAGE HEADER CARD STYLES (SOFT MODERN DESIGN)
    ========================================== */
-.premium-header-card {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 50%, #3b7dd8 100%);
-    border-radius: 16px;
-    padding: 24px 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(30, 58, 95, 0.2);
-    position: relative;
-    overflow: hidden;
+.premium-header-card,
+.purchase-header-card,
+.customer-header-card,
+.service-header-card,
+.backup-header-card,
+.page-header-card,
+.offer-header-card,
+.crm-hero-banner,
+[class*="-header-card"] {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 22px 28px !important;
+    margin-bottom: 25px !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
-.premium-header-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-    border-radius: 50%;
+.premium-header-card::after,
+.purchase-header-card::after,
+.customer-header-card::after,
+.service-header-card::after,
+.backup-header-card::after,
+[class*="-header-card"]::after {
+    display: none !important;
 }
 
-.premium-header-card .header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    z-index: 1;
-    flex-wrap: wrap;
-    gap: 15px;
+.premium-header-card .header-content,
+.purchase-header-card .header-content,
+.customer-header-card .header-content,
+.service-header-card .header-content,
+[class*="-header-card"] .header-content {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    position: relative !important;
+    z-index: 1 !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
 }
 
-.premium-header-card .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+.premium-header-card .header-left,
+.purchase-header-card .header-left,
+.customer-header-card .header-left,
+.service-header-card .header-left,
+[class*="-header-card"] .header-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
 }
 
-.premium-header-card .header-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: #fff;
-    backdrop-filter: blur(10px);
-}
-
-.premium-header-card .header-title h4 {
-    color: #fff;
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.premium-header-card .header-title .header-number-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 14px;
-    border-radius: 20px;
-    color: #e0ecff;
-    font-size: 13px;
-    margin-top: 6px;
-    backdrop-filter: blur(10px);
-}
-
-.premium-header-card .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.premium-header-card .btn-header {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 500;
-    font-size: 14px;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    color: #fff !important;
-    text-decoration: none;
-}
-
-.btn-header-save {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-}
-
-.btn-header-save:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
-}
-
-.btn-header-list {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    backdrop-filter: blur(10px);
-}
-
-.btn-header-list:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-}
-
-.btn-header-action {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.btn-header-action:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-.premium-header-card .btn-header-secondary,
-.btn-header-secondary {
+.premium-header-card .header-icon,
+.purchase-header-card .header-icon,
+.customer-header-card .header-icon,
+.service-header-card .header-icon,
+.backup-header-card .header-icon,
+[class*="-header-card"] .header-icon {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
     background: #f1f5f9 !important;
-    border: 1px solid #cbd5e1 !important;
-    color: #334155 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+}
+
+.premium-header-card .header-title h4,
+.purchase-header-card .header-title h4,
+.customer-header-card .header-title h4,
+.service-header-card .header-title h4,
+.backup-header-card .header-title h4,
+[class*="-header-card"] .header-title h4,
+[class*="-header-card"] h4 {
+    color: #0f172a !important;
+    margin: 0 !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.3px !important;
+}
+
+.premium-header-card .header-title p,
+.purchase-header-card .header-title p,
+[class*="-header-card"] .header-title p,
+[class*="-header-card"] p.subtitle {
+    color: #64748b !important;
+}
+
+.premium-header-card .header-title .header-number-badge,
+.purchase-header-card .header-title .purchase-number-badge,
+.customer-header-card .header-title .customer-id-badge,
+.service-header-card .header-title .service-number-badge,
+[class*="-header-card"] .header-title [class*="-badge"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    margin-top: 6px !important;
     backdrop-filter: none !important;
 }
 
+.premium-header-card .header-actions,
+.purchase-header-card .header-actions,
+.customer-header-card .header-actions,
+.service-header-card .header-actions,
+[class*="-header-card"] .header-actions {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.premium-header-card .btn-header,
+.purchase-header-card .btn-header,
+.customer-header-card .btn-header,
+.service-header-card .btn-header,
+[class*="-header-card"] .btn-header {
+    padding: 9px 18px !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+.premium-header-card .btn-header-list,
+.purchase-header-card .btn-header-list,
+.customer-header-card .btn-header-list,
+.service-header-card .btn-header-list,
+.premium-header-card .btn-header-action,
+.purchase-header-card .btn-header-action,
+.premium-header-card .btn-header-print,
+.purchase-header-card .btn-header-print,
+.btn-header-print,
+.premium-header-card .btn-header-secondary,
+.btn-header-secondary,
+[class*="-header-card"] .btn-header-list,
+[class*="-header-card"] .btn-header-action,
+[class*="-header-card"] .btn-header-print,
+[class*="-header-card"] .btn-header-secondary {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    backdrop-filter: none !important;
+}
+
+.premium-header-card .btn-header-list:hover,
+.purchase-header-card .btn-header-list:hover,
+.customer-header-card .btn-header-list:hover,
+.service-header-card .btn-header-list:hover,
+.premium-header-card .btn-header-action:hover,
+.purchase-header-card .btn-header-action:hover,
+.premium-header-card .btn-header-print:hover,
+.purchase-header-card .btn-header-print:hover,
+.btn-header-print:hover,
 .premium-header-card .btn-header-secondary:hover,
-.btn-header-secondary:hover {
-    background: #e2e8f0 !important;
-    border-color: #94a3b8 !important;
+.btn-header-secondary:hover,
+[class*="-header-card"] .btn-header-list:hover,
+[class*="-header-card"] .btn-header-action:hover,
+[class*="-header-card"] .btn-header-print:hover,
+[class*="-header-card"] .btn-header-secondary:hover {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
     color: #0f172a !important;
-    transform: translateY(-2px);
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
+.premium-header-card .btn-header-save,
+.purchase-header-card .btn-header-save,
+.customer-header-card .btn-header-save,
+.service-header-card .btn-header-save,
+[class*="-header-card"] .btn-header-save {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    border: 1px solid #15803d !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25) !important;
+}
+
+.premium-header-card .btn-header-save:hover,
+.purchase-header-card .btn-header-save:hover,
+.customer-header-card .btn-header-save:hover,
+.service-header-card .btn-header-save:hover,
+[class*="-header-card"] .btn-header-save:hover {
+    background: linear-gradient(135deg, #15803d 0%, #166534 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35) !important;
 }
 
 /* Dark Mode Overrides for Premium Header */
@@ -2189,135 +2263,9 @@ tr.context-menu-active {
     border: 1px solid rgba(239, 68, 68, 0.2) !important;
 }
 
-/* ==============================================================
-   PREMIUM PAGE HEADER BANNER STYLE (continuity/consistency)
-   ============================================================== */
 .purchase-manage-wrapper {
     max-width: 1400px;
     margin: 0 auto;
-}
-
-.purchase-header-card {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 50%, #3b7dd8 100%);
-    border-radius: 16px;
-    padding: 24px 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(30, 58, 95, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.purchase-header-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-    border-radius: 50%;
-}
-
-.purchase-header-card .header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    z-index: 1;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.purchase-header-card .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.purchase-header-card .header-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: #fff;
-    backdrop-filter: blur(10px);
-}
-
-.purchase-header-card .header-title h4 {
-    color: #fff;
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.purchase-header-card .header-title .purchase-number-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 14px;
-    border-radius: 20px;
-    color: #e0ecff;
-    font-size: 13px;
-    margin-top: 6px;
-    backdrop-filter: blur(10px);
-}
-
-.purchase-header-card .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.purchase-header-card .btn-header {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 500;
-    font-size: 14px;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    color: #fff !important;
-    text-decoration: none;
-}
-
-.purchase-header-card .btn-header-save {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
-}
-
-.purchase-header-card .btn-header-save:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
-}
-
-.purchase-header-card .btn-header-list {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    backdrop-filter: blur(10px);
-}
-
-.purchase-header-card .btn-header-list:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-}
-
-.purchase-header-card .btn-header-action {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-.purchase-header-card .btn-header-action:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
 }
 
 /* ==============================================================
@@ -2475,13 +2423,14 @@ tr.context-menu-active {
     }
 }
 
-/* CRM Hero / Welcome Bar */
+/* CRM Hero / Welcome Bar (Modern Soft Card & High Readability) */
 .crm-hero-banner {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border-radius: 14px;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
     padding: 24px 28px;
-    color: #ffffff;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+    color: #0f172a;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
     position: relative;
     overflow: hidden;
     margin-bottom: 24px;
@@ -2494,7 +2443,7 @@ tr.context-menu-active {
     right: -10%;
     width: 380px;
     height: 380px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(59, 130, 246, 0.02) 50%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -2502,29 +2451,32 @@ tr.context-menu-active {
 .crm-hero-title {
     font-size: 22px;
     font-weight: 700;
-    color: #ffffff;
+    color: #0f172a !important;
     letter-spacing: -0.02em;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 }
 
 .crm-hero-subtitle {
-    color: #94a3b8;
-    font-size: 13px;
+    color: #64748b !important;
+    font-size: 13.5px;
     font-weight: 400;
 }
 
 .crm-date-chip {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
     border-radius: 20px;
     padding: 5px 14px;
     font-size: 12px;
-    font-weight: 500;
-    color: #e2e8f0;
+    font-weight: 600;
+    color: #475569;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+}
+
+.crm-date-chip i {
+    color: #64748b;
 }
 
 .crm-quick-actions {
@@ -2535,7 +2487,7 @@ tr.context-menu-active {
     gap: 16px;
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid #f1f5f9;
 }
 
 .crm-quick-actions-label {
@@ -2543,7 +2495,7 @@ tr.context-menu-active {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    color: #cbd5e1;
+    color: #64748b;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -2557,10 +2509,10 @@ tr.context-menu-active {
 }
 
 .crm-quick-btn {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff !important;
-    font-weight: 500;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    color: #334155 !important;
+    font-weight: 600;
     font-size: 13px;
     padding: 8px 16px;
     border-radius: 8px;
@@ -2572,19 +2524,75 @@ tr.context-menu-active {
 }
 
 .crm-quick-btn:hover {
-    background: #ffffff;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
     color: #0f172a !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .crm-quick-btn.btn-primary-action {
-    background: #3b82f6;
-    border-color: #2563eb;
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff !important;
 }
 
 .crm-quick-btn.btn-primary-action:hover {
-    background: #2563eb;
+    background: #1d4ed8;
+    color: #ffffff !important;
+}
+
+/* Dark mode overrides for hero banner */
+.dark-mode .crm-hero-banner,
+[data-theme="dark"] .crm-hero-banner {
+    background: #18181b !important;
+    border: 1px solid #27272a !important;
+    color: #f4f4f5;
+}
+
+.dark-mode .crm-hero-title,
+[data-theme="dark"] .crm-hero-title {
+    color: #f8fafc !important;
+}
+
+.dark-mode .crm-hero-subtitle,
+[data-theme="dark"] .crm-hero-subtitle {
+    color: #a1a1aa !important;
+}
+
+.dark-mode .crm-date-chip,
+[data-theme="dark"] .crm-date-chip {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+}
+
+.dark-mode .crm-date-chip i,
+[data-theme="dark"] .crm-date-chip i {
+    color: #a1a1aa;
+}
+
+.dark-mode .crm-quick-actions,
+[data-theme="dark"] .crm-quick-actions {
+    border-top-color: #27272a;
+}
+
+.dark-mode .crm-quick-actions-label,
+[data-theme="dark"] .crm-quick-actions-label {
+    color: #a1a1aa;
+}
+
+.dark-mode .crm-quick-btn,
+[data-theme="dark"] .crm-quick-btn {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #e4e4e7 !important;
+}
+
+.dark-mode .crm-quick-btn:hover,
+[data-theme="dark"] .crm-quick-btn:hover {
+    background: #3f3f46;
+    border-color: #52525b;
     color: #ffffff !important;
 }
 
@@ -7437,6 +7445,51 @@ body.dark-mode iframe.wysihtml5-sandbox,
     color: #c4b5fd;
 }
 
+/* Presets Scroll Container (Kaydırılabilir Hazır Temalar Alanı) */
+.theme-presets-scroll-wrap {
+    max-height: 295px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 5px 6px 3px;
+    margin: -2px -5px 0 -3px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 rgba(0, 0, 0, 0.03);
+}
+
+.theme-presets-scroll-wrap::-webkit-scrollbar {
+    width: 5px;
+}
+
+.theme-presets-scroll-wrap::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+}
+
+.theme-presets-scroll-wrap::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.theme-presets-scroll-wrap::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark-mode .theme-presets-scroll-wrap {
+    scrollbar-color: #475569 rgba(255, 255, 255, 0.03);
+}
+
+.dark-mode .theme-presets-scroll-wrap::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.dark-mode .theme-presets-scroll-wrap::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+.dark-mode .theme-presets-scroll-wrap::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
 /* Presets Grid */
 .theme-presets-grid {
     display: grid;
@@ -7533,7 +7586,7 @@ body.dark-mode iframe.wysihtml5-sandbox,
 }
 
 /* ==============================================================
-   7 ADET HAZIR TEMA - SİSTEM GENELİ KAPSAMLI ENTEGRASYON
+   12 ADET HAZIR TEMA - SİSTEM GENELİ KAPSAMLI ENTEGRASYON
    (Header, Sidebar, Dropdowns, Hero Banner, Butonlar, Tablolar)
    ============================================================== */
 
@@ -7541,14 +7594,22 @@ body.dark-mode iframe.wysihtml5-sandbox,
 html:not(.dark-mode) [data-theme-preset="kode"] .header-left .menu-icon,
 html:not(.dark-mode) [data-theme-preset="zumrut"] .header-left .menu-icon,
 html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-left .menu-icon,
-html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon {
+html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon {
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 html:not(.dark-mode) [data-theme-preset="kode"] .header-left .menu-icon span,
 html:not(.dark-mode) [data-theme-preset="zumrut"] .header-left .menu-icon span,
 html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-left .menu-icon span,
-html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon span {
+html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon span {
     background: #ffffff !important;
 }
 
@@ -7592,17 +7653,10 @@ html:not(.dark-mode) [data-theme-preset="kode"] .user-toggle-btn .user-avatar-ba
     background: #ffffff !important;
     color: #2563eb !important;
 }
-[data-theme-preset="kode"] .crm-hero-banner,
-[data-theme-preset="kode"] [class*="-header-card"],
-[data-theme-preset="kode"] .customer-header-card,
-[data-theme-preset="kode"] .service-header-card,
-[data-theme-preset="kode"] .premium-header-card,
-[data-theme-preset="kode"] .purchase-header-card,
-[data-theme-preset="kode"] .backup-header-card,
-[data-theme-preset="kode"] .page-header-card,
-[data-theme-preset="kode"] .offer-header-card {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%) !important;
-    box-shadow: 0 8px 32px rgba(37, 99, 235, 0.25) !important;
+[data-theme-preset="kode"] [class*="-header-card"] .header-icon {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border-color: #dbeafe !important;
 }
 [data-theme-preset="kode"] .btn-primary,
 [data-theme-preset="kode"] .crm-quick-btn.btn-primary-action {
@@ -7627,18 +7681,10 @@ html:not(.dark-mode) [data-theme-preset="ersan-gold"] .left-side-bar .brand-logo
     filter: none !important;
     opacity: 1 !important;
 }
-[data-theme-preset="ersan-gold"] .crm-hero-banner,
-[data-theme-preset="ersan-gold"] [class*="-header-card"],
-[data-theme-preset="ersan-gold"] .customer-header-card,
-[data-theme-preset="ersan-gold"] .service-header-card,
-[data-theme-preset="ersan-gold"] .premium-header-card,
-[data-theme-preset="ersan-gold"] .purchase-header-card,
-[data-theme-preset="ersan-gold"] .backup-header-card,
-[data-theme-preset="ersan-gold"] .page-header-card,
-[data-theme-preset="ersan-gold"] .offer-header-card {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #78350f 100%) !important;
-    box-shadow: 0 8px 32px rgba(217, 119, 6, 0.2) !important;
-    border: 1px solid #374151 !important;
+[data-theme-preset="ersan-gold"] [class*="-header-card"] .header-icon {
+    background: #fef3c7 !important;
+    color: #d97706 !important;
+    border-color: #fde68a !important;
 }
 [data-theme-preset="ersan-gold"] .btn-primary,
 [data-theme-preset="ersan-gold"] .crm-quick-btn.btn-primary-action {
@@ -7690,17 +7736,10 @@ html:not(.dark-mode) [data-theme-preset="zumrut"] .user-toggle-btn .user-avatar-
     background: #ffffff !important;
     color: #059669 !important;
 }
-[data-theme-preset="zumrut"] .crm-hero-banner,
-[data-theme-preset="zumrut"] [class*="-header-card"],
-[data-theme-preset="zumrut"] .customer-header-card,
-[data-theme-preset="zumrut"] .service-header-card,
-[data-theme-preset="zumrut"] .premium-header-card,
-[data-theme-preset="zumrut"] .purchase-header-card,
-[data-theme-preset="zumrut"] .backup-header-card,
-[data-theme-preset="zumrut"] .page-header-card,
-[data-theme-preset="zumrut"] .offer-header-card {
-    background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%) !important;
-    box-shadow: 0 8px 32px rgba(5, 150, 105, 0.25) !important;
+[data-theme-preset="zumrut"] [class*="-header-card"] .header-icon {
+    background: #d1fae5 !important;
+    color: #059669 !important;
+    border-color: #a7f3d0 !important;
 }
 [data-theme-preset="zumrut"] .btn-primary,
 [data-theme-preset="zumrut"] .crm-quick-btn.btn-primary-action {
@@ -7752,18 +7791,10 @@ html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .user-toggle-btn .user-
     background: #ffffff !important;
     color: #6366f1 !important;
 }
-[data-theme-preset="kraliyet-moru"] .crm-hero-banner,
-[data-theme-preset="kraliyet-moru"] [class*="-header-card"],
-[data-theme-preset="kraliyet-moru"] .customer-header-card,
-[data-theme-preset="kraliyet-moru"] .service-header-card,
-[data-theme-preset="kraliyet-moru"] .premium-header-card,
-[data-theme-preset="kraliyet-moru"] .purchase-header-card,
-[data-theme-preset="kraliyet-moru"] .backup-header-card,
-[data-theme-preset="kraliyet-moru"] .page-header-card,
-[data-theme-preset="kraliyet-moru"] .offer-header-card,
-[data-theme-preset="kraliyet-moru"] .customer-manage-wrapper .customer-header-card {
-    background: linear-gradient(135deg, #4a148c 0%, #6f42c1 50%, #7c3aed 100%) !important;
-    box-shadow: 0 8px 32px rgba(111, 66, 193, 0.3) !important;
+[data-theme-preset="kraliyet-moru"] [class*="-header-card"] .header-icon {
+    background: #f3e8ff !important;
+    color: #7c3aed !important;
+    border-color: #e9d5ff !important;
 }
 [data-theme-preset="kraliyet-moru"] .btn-primary,
 [data-theme-preset="kraliyet-moru"] .crm-quick-btn.btn-primary-action {
@@ -7815,17 +7846,10 @@ html:not(.dark-mode) [data-theme-preset="rose"] .user-toggle-btn .user-avatar-ba
     background: #ffffff !important;
     color: #e11d48 !important;
 }
-[data-theme-preset="rose"] .crm-hero-banner,
-[data-theme-preset="rose"] [class*="-header-card"],
-[data-theme-preset="rose"] .customer-header-card,
-[data-theme-preset="rose"] .service-header-card,
-[data-theme-preset="rose"] .premium-header-card,
-[data-theme-preset="rose"] .purchase-header-card,
-[data-theme-preset="rose"] .backup-header-card,
-[data-theme-preset="rose"] .page-header-card,
-[data-theme-preset="rose"] .offer-header-card {
-    background: linear-gradient(135deg, #881337 0%, #be123c 50%, #e11d48 100%) !important;
-    box-shadow: 0 8px 32px rgba(225, 29, 72, 0.25) !important;
+[data-theme-preset="rose"] [class*="-header-card"] .header-icon {
+    background: #ffe4e6 !important;
+    color: #e11d48 !important;
+    border-color: #fecdd3 !important;
 }
 [data-theme-preset="rose"] .btn-primary,
 [data-theme-preset="rose"] .crm-quick-btn.btn-primary-action {
@@ -7925,17 +7949,10 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
     font-weight: 600 !important;
     box-shadow: none !important;
 }
-[data-theme-preset="sade-beyaz"] .crm-hero-banner,
-[data-theme-preset="sade-beyaz"] [class*="-header-card"],
-[data-theme-preset="sade-beyaz"] .customer-header-card,
-[data-theme-preset="sade-beyaz"] .service-header-card,
-[data-theme-preset="sade-beyaz"] .premium-header-card,
-[data-theme-preset="sade-beyaz"] .purchase-header-card,
-[data-theme-preset="sade-beyaz"] .backup-header-card,
-[data-theme-preset="sade-beyaz"] .page-header-card,
-[data-theme-preset="sade-beyaz"] .offer-header-card {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
-    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.2) !important;
+[data-theme-preset="sade-beyaz"] [class*="-header-card"] .header-icon {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border-color: #e2e8f0 !important;
 }
 
 /* --------------------------------------------------------------
@@ -7951,17 +7968,15 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
     filter: none !important;
     opacity: 1 !important;
 }
-[data-theme-preset="koyu-gece"] .crm-hero-banner,
-[data-theme-preset="koyu-gece"] [class*="-header-card"],
-[data-theme-preset="koyu-gece"] .customer-header-card,
-[data-theme-preset="koyu-gece"] .service-header-card,
-[data-theme-preset="koyu-gece"] .premium-header-card,
-[data-theme-preset="koyu-gece"] .purchase-header-card,
-[data-theme-preset="koyu-gece"] .backup-header-card,
-[data-theme-preset="koyu-gece"] .page-header-card,
-[data-theme-preset="koyu-gece"] .offer-header-card {
-    background: linear-gradient(135deg, #090d16 0%, #1e293b 100%) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+[data-theme-preset="koyu-gece"] [class*="-header-card"] {
+    background: #18181b !important;
+    border: 1px solid #27272a !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+[data-theme-preset="koyu-gece"] [class*="-header-card"] .header-icon {
+    background: #27272a !important;
+    color: #38bdf8 !important;
+    border-color: #3f3f46 !important;
 }
 [data-theme-preset="koyu-gece"] .btn-primary,
 [data-theme-preset="koyu-gece"] .crm-quick-btn.btn-primary-action {
@@ -7971,6 +7986,548 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
 [data-theme-preset="koyu-gece"] .btn-primary:hover,
 [data-theme-preset="koyu-gece"] .crm-quick-btn.btn-primary-action:hover {
     background: #0369a1 !important;
+}
+
+/* --------------------------------------------------------------
+   8. TEMA: SAFİR OKYANUS (Derin Okyanus Mavisi & Antrasit)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .left-side-bar .brand-logo {
+    background: #0284c7 !important;
+    border-bottom-color: #0369a1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #0284c7 !important;
+}
+[data-theme-preset="safir-okyanus"] [class*="-header-card"] .header-icon {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+    border-color: #bae6fd !important;
+}
+[data-theme-preset="safir-okyanus"] .btn-primary,
+[data-theme-preset="safir-okyanus"] .crm-quick-btn.btn-primary-action {
+    background: #0284c7 !important;
+    border-color: #0369a1 !important;
+}
+[data-theme-preset="safir-okyanus"] .btn-primary:hover,
+[data-theme-preset="safir-okyanus"] .crm-quick-btn.btn-primary-action:hover {
+    background: #0369a1 !important;
+}
+
+/* --------------------------------------------------------------
+   9. TEMA: GÜN BATIMI (Sıcak Amber & Canlı Turuncu)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .left-side-bar .brand-logo {
+    background: #ea580c !important;
+    border-bottom-color: #c2410c !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #ea580c !important;
+}
+[data-theme-preset="gun-batimi"] [class*="-header-card"] .header-icon {
+    background: #ffedd5 !important;
+    color: #ea580c !important;
+    border-color: #fed7aa !important;
+}
+[data-theme-preset="gun-batimi"] .btn-primary,
+[data-theme-preset="gun-batimi"] .crm-quick-btn.btn-primary-action {
+    background: #ea580c !important;
+    border-color: #c2410c !important;
+}
+[data-theme-preset="gun-batimi"] .btn-primary:hover,
+[data-theme-preset="gun-batimi"] .crm-quick-btn.btn-primary-action:hover {
+    background: #c2410c !important;
+}
+
+/* --------------------------------------------------------------
+   10. TEMA: GECE ALTINI (Lüks Koyu Oniks & Altın Vurgu)
+   -------------------------------------------------------------- */
+[data-theme-preset="gece-altini"] .header,
+[data-theme-preset="gece-altini"] .left-side-bar .brand-logo {
+    background: #18181b !important;
+    border-bottom-color: #27272a !important;
+}
+[data-theme-preset="gece-altini"] .left-side-bar .brand-logo img,
+[data-theme-preset="gece-altini"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+[data-theme-preset="gece-altini"] [class*="-header-card"] {
+    background: #18181b !important;
+    border: 1px solid #27272a !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+[data-theme-preset="gece-altini"] [class*="-header-card"] .header-icon {
+    background: #27272a !important;
+    color: #eab308 !important;
+    border-color: #3f3f46 !important;
+}
+[data-theme-preset="gece-altini"] .btn-primary,
+[data-theme-preset="gece-altini"] .crm-quick-btn.btn-primary-action {
+    background: #ca8a04 !important;
+    border-color: #a16207 !important;
+}
+[data-theme-preset="gece-altini"] .btn-primary:hover,
+[data-theme-preset="gece-altini"] .crm-quick-btn.btn-primary-action:hover {
+    background: #a16207 !important;
+}
+[data-theme-preset="gece-altini"] .user-toggle-btn .user-avatar-badge {
+    background: #eab308 !important;
+    color: #18181b !important;
+}
+
+/* --------------------------------------------------------------
+   11. TEMA: MİSTİK BORDO (Asil Mistik Bordo & Gül Ağacı)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .left-side-bar .brand-logo {
+    background: #881337 !important;
+    border-bottom-color: #700f2b !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #881337 !important;
+}
+[data-theme-preset="mistik-bordo"] [class*="-header-card"] .header-icon {
+    background: #ffe4e6 !important;
+    color: #881337 !important;
+    border-color: #fecdd3 !important;
+}
+[data-theme-preset="mistik-bordo"] .btn-primary,
+[data-theme-preset="mistik-bordo"] .crm-quick-btn.btn-primary-action {
+    background: #881337 !important;
+    border-color: #700f2b !important;
+}
+[data-theme-preset="mistik-bordo"] .btn-primary:hover,
+[data-theme-preset="mistik-bordo"] .crm-quick-btn.btn-primary-action:hover {
+    background: #700f2b !important;
+}
+
+/* --------------------------------------------------------------
+   12. TEMA: NORDİK ÇAM (İskandinav Orman Yeşili & Çam)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .left-side-bar .brand-logo {
+    background: #14532d !important;
+    border-bottom-color: #0f4022 !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #14532d !important;
+}
+[data-theme-preset="nordik-cam"] [class*="-header-card"] .header-icon {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border-color: #bbf7d0 !important;
+}
+[data-theme-preset="nordik-cam"] .btn-primary,
+[data-theme-preset="nordik-cam"] .crm-quick-btn.btn-primary-action {
+    background: #15803d !important;
+    border-color: #14532d !important;
+}
+[data-theme-preset="nordik-cam"] .btn-primary:hover,
+[data-theme-preset="nordik-cam"] .crm-quick-btn.btn-primary-action:hover {
+    background: #14532d !important;
+}
+
+/* --------------------------------------------------------------
+   13. TEMA: SOFT LAVANTA (Pastel Lavanta & Yumuşak İndigo)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header,
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .left-side-bar .brand-logo {
+    background: #f5f3ff !important;
+    border-bottom-color: #e9d5ff !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #5b21b6 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header .header-breadcrumb .breadcrumb-item a {
+    color: #7c3aed !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header-action-btn {
+    color: #5b21b6 !important;
+    background: rgba(124, 58, 237, 0.08) !important;
+    border: 1px solid rgba(124, 58, 237, 0.15) !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header-action-btn:hover {
+    background: rgba(124, 58, 237, 0.16) !important;
+    color: #4c1d95 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .user-toggle-btn {
+    background: rgba(124, 58, 237, 0.08) !important;
+    border-color: rgba(124, 58, 237, 0.2) !important;
+    color: #5b21b6 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .user-toggle-btn .user-name {
+    color: #5b21b6 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .user-toggle-btn .user-avatar-badge {
+    background: #7c3aed !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="soft-lavanta"] [class*="-header-card"] .header-icon {
+    background: #ede9fe !important;
+    color: #7c3aed !important;
+    border-color: #ddd6fe !important;
+}
+[data-theme-preset="soft-lavanta"] .btn-primary,
+[data-theme-preset="soft-lavanta"] .crm-quick-btn.btn-primary-action {
+    background: #7c3aed !important;
+    border-color: #6d28d9 !important;
+}
+[data-theme-preset="soft-lavanta"] .btn-primary:hover,
+[data-theme-preset="soft-lavanta"] .crm-quick-btn.btn-primary-action:hover {
+    background: #6d28d9 !important;
+}
+
+/* --------------------------------------------------------------
+   14. TEMA: SOFT ADAÇAYI (Yumuşak Adaçayı Yeşili & Pastel Mint)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header,
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .left-side-bar .brand-logo {
+    background: #f0fdfa !important;
+    border-bottom-color: #ccfbf1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #115e59 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header .header-breadcrumb .breadcrumb-item a {
+    color: #0d9488 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header-action-btn {
+    color: #0f766e !important;
+    background: rgba(13, 148, 136, 0.08) !important;
+    border: 1px solid rgba(13, 148, 136, 0.15) !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header-action-btn:hover {
+    background: rgba(13, 148, 136, 0.16) !important;
+    color: #115e59 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .user-toggle-btn {
+    background: rgba(13, 148, 136, 0.08) !important;
+    border-color: rgba(13, 148, 136, 0.2) !important;
+    color: #0f766e !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .user-toggle-btn .user-name {
+    color: #0f766e !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .user-toggle-btn .user-avatar-badge {
+    background: #0d9488 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="soft-adacayi"] [class*="-header-card"] .header-icon {
+    background: #ccfbf1 !important;
+    color: #0d9488 !important;
+    border-color: #99f6e4 !important;
+}
+[data-theme-preset="soft-adacayi"] .btn-primary,
+[data-theme-preset="soft-adacayi"] .crm-quick-btn.btn-primary-action {
+    background: #0d9488 !important;
+    border-color: #0f766e !important;
+}
+[data-theme-preset="soft-adacayi"] .btn-primary:hover,
+[data-theme-preset="soft-adacayi"] .crm-quick-btn.btn-primary-action:hover {
+    background: #0f766e !important;
+}
+
+/* --------------------------------------------------------------
+   15. TEMA: SOFT ŞEFTALİ (Yumuşak Şeftali & Pudra Sıcak)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header,
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .left-side-bar .brand-logo {
+    background: #fff7ed !important;
+    border-bottom-color: #ffedd5 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #9a3412 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header .header-breadcrumb .breadcrumb-item a {
+    color: #ea580c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header-action-btn {
+    color: #c2410c !important;
+    background: rgba(234, 88, 12, 0.08) !important;
+    border: 1px solid rgba(234, 88, 12, 0.15) !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header-action-btn:hover {
+    background: rgba(234, 88, 12, 0.16) !important;
+    color: #9a3412 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .user-toggle-btn {
+    background: rgba(234, 88, 12, 0.08) !important;
+    border-color: rgba(234, 88, 12, 0.2) !important;
+    color: #c2410c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .user-toggle-btn .user-name {
+    color: #c2410c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-seftali"] .user-toggle-btn .user-avatar-badge {
+    background: #ea580c !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="soft-seftali"] [class*="-header-card"] .header-icon {
+    background: #ffedd5 !important;
+    color: #ea580c !important;
+    border-color: #fed7aa !important;
+}
+[data-theme-preset="soft-seftali"] .btn-primary,
+[data-theme-preset="soft-seftali"] .crm-quick-btn.btn-primary-action {
+    background: #f97316 !important;
+    border-color: #ea580c !important;
+}
+[data-theme-preset="soft-seftali"] .btn-primary:hover,
+[data-theme-preset="soft-seftali"] .crm-quick-btn.btn-primary-action:hover {
+    background: #ea580c !important;
+}
+
+/* --------------------------------------------------------------
+   16. TEMA: SOFT BUZ MAVİSİ (Açık Pastel Buz & Gök Mavisi)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header,
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .left-side-bar .brand-logo {
+    background: #f0f9ff !important;
+    border-bottom-color: #e0f2fe !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #075985 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header .header-breadcrumb .breadcrumb-item a {
+    color: #0284c7 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header-action-btn {
+    color: #0284c7 !important;
+    background: rgba(2, 132, 199, 0.08) !important;
+    border: 1px solid rgba(2, 132, 199, 0.15) !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header-action-btn:hover {
+    background: rgba(2, 132, 199, 0.16) !important;
+    color: #0369a1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .user-toggle-btn {
+    background: rgba(2, 132, 199, 0.08) !important;
+    border-color: rgba(2, 132, 199, 0.2) !important;
+    color: #0284c7 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .user-toggle-btn .user-name {
+    color: #0284c7 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .user-toggle-btn .user-avatar-badge {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="soft-buz-mavisi"] [class*="-header-card"] .header-icon {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+    border-color: #bae6fd !important;
+}
+[data-theme-preset="soft-buz-mavisi"] .btn-primary,
+[data-theme-preset="soft-buz-mavisi"] .crm-quick-btn.btn-primary-action {
+    background: #0284c7 !important;
+    border-color: #0369a1 !important;
+}
+[data-theme-preset="soft-buz-mavisi"] .btn-primary:hover,
+[data-theme-preset="soft-buz-mavisi"] .crm-quick-btn.btn-primary-action:hover {
+    background: #0369a1 !important;
+}
+
+/* --------------------------------------------------------------
+   17. TEMA: SOFT VİZON (Yumuşak Vizon / Kaşmir Taşı)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header,
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .left-side-bar .brand-logo {
+    background: #fafaf9 !important;
+    border-bottom-color: #e7e5e4 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .left-side-bar .brand-logo img,
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .left-side-bar .brand-logo a img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #44403c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header .header-breadcrumb .breadcrumb-item a {
+    color: #78716c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header-action-btn {
+    color: #44403c !important;
+    background: rgba(120, 113, 108, 0.08) !important;
+    border: 1px solid rgba(120, 113, 108, 0.15) !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header-action-btn:hover {
+    background: rgba(120, 113, 108, 0.16) !important;
+    color: #292524 !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .user-toggle-btn {
+    background: rgba(120, 113, 108, 0.08) !important;
+    border-color: rgba(120, 113, 108, 0.2) !important;
+    color: #44403c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .user-toggle-btn .user-name {
+    color: #44403c !important;
+}
+html:not(.dark-mode) [data-theme-preset="soft-vizon"] .user-toggle-btn .user-avatar-badge {
+    background: #78716c !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="soft-vizon"] [class*="-header-card"] .header-icon {
+    background: #f5f5f4 !important;
+    color: #78716c !important;
+    border-color: #e7e5e4 !important;
+}
+[data-theme-preset="soft-vizon"] .btn-primary,
+[data-theme-preset="soft-vizon"] .crm-quick-btn.btn-primary-action {
+    background: #78716c !important;
+    border-color: #57534e !important;
+}
+[data-theme-preset="soft-vizon"] .btn-primary:hover,
+[data-theme-preset="soft-vizon"] .crm-quick-btn.btn-primary-action:hover {
+    background: #57534e !important;
 }
 
 /* ==============================================================
@@ -8034,9 +8591,50 @@ html.dark-mode .left-side-bar .brand-logo a img,
 [data-theme="dark"] .backup-header-card,
 [data-theme="dark"] .page-header-card,
 [data-theme="dark"] .offer-header-card {
-    background: linear-gradient(135deg, #18181b 0%, #27272a 100%) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid #3f3f46 !important;
+    background: #18181b !important;
+    border: 1px solid #27272a !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode [class*="-header-card"] .header-title h4,
+[data-theme="dark"] [class*="-header-card"] .header-title h4 {
+    color: #f4f4f5 !important;
+}
+
+.dark-mode [class*="-header-card"] .header-icon,
+[data-theme="dark"] [class*="-header-card"] .header-icon {
+    background: #27272a !important;
+    border-color: #3f3f46 !important;
+    color: #38bdf8 !important;
+}
+
+.dark-mode [class*="-header-card"] .header-title [class*="-badge"],
+[data-theme="dark"] [class*="-header-card"] .header-title [class*="-badge"] {
+    background: #27272a !important;
+    border-color: #3f3f46 !important;
+    color: #e4e4e7 !important;
+}
+
+.dark-mode [class*="-header-card"] .btn-header-list,
+.dark-mode [class*="-header-card"] .btn-header-action,
+.dark-mode [class*="-header-card"] .btn-header-secondary,
+[data-theme="dark"] [class*="-header-card"] .btn-header-list,
+[data-theme="dark"] [class*="-header-card"] .btn-header-action,
+[data-theme="dark"] [class*="-header-card"] .btn-header-secondary {
+    background: #27272a !important;
+    border-color: #3f3f46 !important;
+    color: #e4e4e7 !important;
+}
+
+.dark-mode [class*="-header-card"] .btn-header-list:hover,
+.dark-mode [class*="-header-card"] .btn-header-action:hover,
+.dark-mode [class*="-header-card"] .btn-header-secondary:hover,
+[data-theme="dark"] [class*="-header-card"] .btn-header-list:hover,
+[data-theme="dark"] [class*="-header-card"] .btn-header-action:hover,
+[data-theme="dark"] [class*="-header-card"] .btn-header-secondary:hover {
+    background: #3f3f46 !important;
+    border-color: #52525b !important;
+    color: #ffffff !important;
 }
 
 .dark-mode .left-side-bar .sidebar-search-wrap,
@@ -9292,6 +9890,270 @@ body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .m
 [data-theme="dark"] .gs-empty-title {
     color: #f8fafc;
 }
+
+/* ==============================================================
+   RESPONSIVE MOBIL HEADER, SIDEBAR & TEMA SEÇİCİ DÜZELTMELERİ
+   ============================================================== */
+
+/* Mobil Sidebar Karartma Backdrop */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 1035;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.sidebar-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 1200px ve Altı Mobil/Tablet Ekranlar */
+@media (max-width: 1200px) {
+    /* Mobilde Sidebar Varsayılan Olarak Kesinlikle Gizli */
+    .left-side-bar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: translateX(-100%) !important;
+        width: 275px !important;
+        height: 100vh !important;
+        z-index: 10500 !important;
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        box-shadow: none !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    /* Mobilde Sidebar Açıldığında Çekmece Olarak Gelir */
+    .left-side-bar.open {
+        transform: translateX(0) !important;
+        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .sidebar-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(2px) !important;
+        -webkit-backdrop-filter: blur(2px) !important;
+        z-index: 10490 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition: opacity 0.25s ease, visibility 0.25s ease !important;
+    }
+
+    .sidebar-backdrop.open {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* Header Düzeni ve Hamburger Butonu */
+    .header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 70px !important;
+        z-index: 1020 !important;
+    }
+
+    .header-right {
+        width: 100% !important;
+        float: none !important;
+        padding: 0 12px !important;
+        height: 70px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    .header-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Hamburger Menü Butonu Mobilde Her Zaman Görünür */
+    .header-left .menu-icon,
+    .header-right .menu-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+        margin: 0 !important;
+    }
+
+    .header-left .brand-logo {
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .header-left .brand-logo img,
+    .header-left .brand-logo a img,
+    .header-left .mobile-logo {
+        max-height: 38px !important;
+        max-width: 130px !important;
+        width: auto !important;
+        height: auto !important;
+        object-fit: contain !important;
+        display: block !important;
+    }
+
+    /* Sağ Aksiyon Butonları */
+    .header-right-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .header-action-btn {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Tema Özelleştirici ve Toggle Butonu Mobilde Kesinlikle Görünür */
+    #theme-customizer-btn,
+    #theme-toggle {
+        display: inline-flex !important;
+    }
+
+    .user-toggle-btn {
+        padding: 6px 8px !important;
+        gap: 4px !important;
+    }
+
+    .main-container {
+        padding: 70px 0 0 0 !important;
+    }
+}
+
+/* 576px ve Altı Küçük Mobil Ekranlar */
+@media (max-width: 576px) {
+    .header-right {
+        padding: 0 8px !important;
+        gap: 4px !important;
+    }
+
+    .header-left {
+        gap: 6px !important;
+    }
+
+    .header-left .mobile-logo {
+        max-height: 32px !important;
+        max-width: 110px !important;
+    }
+
+    .header-right-actions {
+        gap: 4px !important;
+    }
+
+    .header-action-btn {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 14px !important;
+    }
+
+    .user-avatar-badge {
+        width: 22px !important;
+        height: 22px !important;
+        font-size: 10px !important;
+    }
+
+    .theme-customizer-drawer {
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+}
+
+/* Renkli Header Temalarında Hamburger Butonu ve Header Aksiyonları Kontrastı */
+html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="kode"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="zumrut"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="kode"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="zumrut"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="kode"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="zumrut"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon span {
+    background: #ffffff !important;
+}
+
+html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="kode"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="zumrut"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="rose"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="kode"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="zumrut"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="rose"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.45) !important;
+    color: #ffffff !important;
+}
+
 
 
 

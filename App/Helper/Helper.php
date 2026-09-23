@@ -16,19 +16,18 @@ class Helper
  
 
     //Bölgeleri seçebilecek select oluşturur
-    public static function selectRegion($name, $selected = null)
+    public static function selectRegion($name, $selected = null, $className = 'form-control select2')
     {
-
         global $ac;
         $sql = $ac->prepare("SELECT * FROM units WHERE statu = 5");
         $sql->execute();
         $result = $sql->fetchAll(PDO::FETCH_OBJ);
 
-        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white" data-container="body" required>';
-        $select .= '<option value="0">Bölge Seçiniz</option>';
+        $select = '<select name="' . $name . '" id="' . $name . '" class="' . $className . '" data-placeholder="Bölge Seçiniz" data-style="border bg-white" data-container="body" required>';
+        $select .= '<option value="">Bölge Seçiniz</option>';
         foreach ($result as $unit) {
             $isSelected = ($selected == $unit->id) ? 'selected' : '';
-            $select .= '<option value="' . $unit->id . '" ' . $isSelected . '>' . $unit->title . '</option>';
+            $select .= '<option value="' . $unit->id . '" ' . $isSelected . '>' . htmlspecialchars($unit->title) . '</option>';
         }
         $select .= '</select>';
         return $select;

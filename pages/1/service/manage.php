@@ -661,19 +661,58 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     }
 
     .form-field .form-control,
-    .form-field .bootstrap-select .btn {
+    .form-field .bootstrap-select .btn,
+    .form-field .select2-container--default .select2-selection--single {
         border-radius: 10px !important;
         border: 1.5px solid #e5e7eb !important;
-        padding: 10px 14px;
-        font-size: 14px;
-        transition: all 0.25s ease;
-        background: #fafafa;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        transition: all 0.25s ease !important;
+        background: #fafafa !important;
+        height: 46px !important;
+        display: flex !important;
+        align-items: center !important;
     }
 
-    .form-field .form-control:focus {
+    .form-field .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b !important;
+        line-height: normal !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        font-size: 14px !important;
+    }
+
+    .form-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 44px !important;
+        right: 12px !important;
+    }
+
+    .form-field .select2-container--default .select2-selection--multiple {
+        border-radius: 10px !important;
+        border: 1.5px solid #e5e7eb !important;
+        padding: 4px 8px !important;
+        font-size: 14px !important;
+        transition: all 0.25s ease !important;
+        background: #fafafa !important;
+        min-height: 46px !important;
+    }
+
+    .form-field .form-control:focus,
+    .form-field .select2-container--default.select2-container--focus .select2-selection--single,
+    .form-field .select2-container--default.select2-container--open .select2-selection--single,
+    .form-field .select2-container--default.select2-container--focus .select2-selection--multiple,
+    .form-field .select2-container--default.select2-container--open .select2-selection--multiple {
         border-color: #3b82f6 !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
-        background: #fff;
+        background: #fff !important;
+    }
+
+    .form-field.field-error .form-control,
+    .form-field.field-error .bootstrap-select .btn,
+    .form-field.field-error .select2-container--default .select2-selection {
+        border-color: #ef4444 !important;
+        background: #fef2f2 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
     }
 
     .form-field .input-group {
@@ -683,9 +722,10 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     }
 
     .form-field .input-group .bootstrap-select,
-    .form-field .input-group .select2-container {
-        flex: 1 !important;
-        width: auto !important;
+    .form-field .input-group span.select2.select2-container {
+        flex: 1 1 auto !important;
+        width: 1% !important;
+        min-width: 0 !important;
     }
 
     .form-field .input-group .bootstrap-select .btn,
@@ -1184,17 +1224,17 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                     <div class="form-field" id="field-ServisKonusu">
                         <label><span class="required-dot"></span> Servis Konusu</label>
                         <div class="input-group">
-                            <select required name="ServisKonusu" data-live-search="true" data-size="12"
-                                id="ServisKonusu" class="selectpicker form-control" data-style="border bg-white"
-                                data-max-options="3" title="Servis Konusu Seçiniz!">
+                            <select required name="ServisKonusu" id="ServisKonusu" class="form-control select2"
+                                data-placeholder="Servis Konusu Seçiniz!">
+                                <option value="">Servis Konusu Seçiniz!</option>
                                 <?php
-                                $sk = $ac->prepare("SELECT * FROM units WHERE statu='2' ");
+                                $sk = $ac->prepare("SELECT * FROM units WHERE statu='2' ORDER BY title ASC");
                                 $sk->execute();
                                 while ($mm1 = $sk->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
                                     <option <?php echo ($isEdit && $mm1['id'] == $cc['servicestype']) ? 'selected' : ''; ?>
                                         value="<?php echo $mm1["id"]; ?>">
-                                        <?php echo $mm1["title"]; ?>
+                                        <?php echo htmlspecialchars($mm1["title"]); ?>
                                     </option>
                                 <?php } ?>
                             </select>
@@ -1213,16 +1253,17 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                     <div class="form-field" id="field-TahsilatTuru">
                         <label><span class="required-dot"></span> Tahsilat Türü</label>
                         <div class="input-group">
-                            <select required name="TahsilatTuru" id="TahsilatTuru" class="selectpicker form-control"
-                                data-container="body" data-style="border bg-white" title="Tahsilat Türü Seçiniz!">
+                            <select required name="TahsilatTuru" id="TahsilatTuru" class="form-control select2"
+                                data-placeholder="Tahsilat Türü Seçiniz!">
+                                <option value="">Tahsilat Türü Seçiniz!</option>
                                 <?php
-                                $tt = $ac->prepare("SELECT * FROM units WHERE statu='3' ");
+                                $tt = $ac->prepare("SELECT * FROM units WHERE statu='3' ORDER BY title ASC");
                                 $tt->execute();
                                 while ($mm2 = $tt->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
                                     <option <?php echo ($isEdit && $mm2['id'] == $cc['collectiontype']) ? 'selected' : ''; ?>
                                         value="<?php echo $mm2["id"]; ?>">
-                                        <?php echo $mm2["title"]; ?>
+                                        <?php echo htmlspecialchars($mm2["title"]); ?>
                                     </option>
                                 <?php } ?>
                             </select>
@@ -1237,7 +1278,7 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                     <!-- Adres Bölge -->
                     <div class="form-field" id="field-region">
                         <label><span class="required-dot"></span> Adres Bölge</label>
-                        <?php echo Helper::selectRegion("region", $isEdit ? ($cc['region'] ?? '') : ($comp_region ?? '')); ?>
+                        <?php echo Helper::selectRegion("region", $isEdit ? ($cc['region'] ?? '') : ($comp_region ?? ''), "form-control select2"); ?>
                         <span class="field-error-msg"><i class="fa fa-exclamation-circle"></i> Adres bölge seçimi zorunludur</span>
                     </div>
 
@@ -1295,40 +1336,35 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                     <div class="form-field">
                         <label>Servis Yetkilileri</label>
                         <?php if ($isEdit) { ?>
-                            <select name="permings[]" class="selectpicker form-control" data-container="body"
-                                data-style="border bg-white" multiple data-max-options="3">
+                            <select name="permings[]" id="permings" class="form-control select2" multiple
+                                data-placeholder="Servis Yetkililerini Seçiniz">
                                 <?php
                                 $selectedValues = explode('|', $cc['pauthors']);
-                                $permx = $ac->prepare('SELECT * FROM users ');
+                                $permx = $ac->prepare('SELECT * FROM users ORDER BY username ASC');
                                 $permx->execute();
                                 while ($px = $permx->fetch(PDO::FETCH_ASSOC)) {
+                                    $isSelected = in_array($px['id'], $selectedValues) ? 'selected' : '';
                                     ?>
-                                    <option <?php
-                                    $caks = explode('|', $cc['pauthors']);
-                                    foreach ($caks as $kiks) {
-                                        if ($kiks == $px['id'])
-                                            echo 'selected ';
-                                    }
-                                    ?> value="<?php echo $px['id']; ?>">
-                                        <?php echo $px['username']; ?>
+                                    <option <?php echo $isSelected; ?> value="<?php echo $px['id']; ?>">
+                                        <?php echo htmlspecialchars($px['username']); ?>
                                     </option>
                                 <?php } ?>
                             </select>
                         <?php } else { ?>
-                            <select name="permings[]" class="selectpicker form-control" data-style="border bg-white"
-                                multiple data-max-options="3">
+                            <select name="permings[]" id="permings" class="form-control select2" multiple
+                                data-placeholder="Servis Yetkililerini Seçiniz">
                                 <?php
-                                $permq = $ac->prepare("SELECT * FROM userroles ");
+                                $permq = $ac->prepare("SELECT * FROM userroles ORDER BY id ASC");
                                 $permq->execute();
                                 while ($pp = $permq->fetch(PDO::FETCH_ASSOC)) {
                                     ?>
-                                    <optgroup label="<?php echo $pp["roleName"]; ?>">
+                                    <optgroup label="<?php echo htmlspecialchars($pp["roleName"]); ?>">
                                         <?php
-                                        $permx = $ac->prepare("SELECT * FROM users WHERE permission = ? ");
+                                        $permx = $ac->prepare("SELECT * FROM users WHERE permission = ? ORDER BY username ASC");
                                         $permx->execute(array($pp["id"]));
                                         while ($px = $permx->fetch(PDO::FETCH_ASSOC)) { ?>
                                             <option value="<?php echo $px["id"]; ?>">
-                                                <?php echo $px["username"]; ?>
+                                                <?php echo htmlspecialchars($px["username"]); ?>
                                             </option>
                                         <?php } ?>
                                     </optgroup>
@@ -1357,22 +1393,22 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                         <label>Teklif Numarası</label>
                         <div class="input-group">
                             <?php if ($isEdit) { ?>
-                                <select id="offerno" name="offerno" class="selectpicker form-control"
-                                    data-style="border bg-white">
+                                <select id="offerno" name="offerno" class="form-control select2"
+                                    data-placeholder="Teklif Seçiniz">
                                     <option selected value="<?php echo $ofinfo['id'] ?? '' ?>">
-                                        <?php echo $ofinfo['offerNumber'] ?? 'Teklif Yok' ?>
+                                        <?php echo htmlspecialchars($ofinfo['offerNumber'] ?? 'Teklif Yok') ?>
                                     </option>
                                 </select>
                             <?php } elseif ($isOffer == "false") { ?>
-                                <select id="offerno" name="offerno" class="selectpicker form-control"
-                                    data-style="border bg-white">
+                                <select id="offerno" name="offerno" class="form-control select2"
+                                    data-placeholder="Teklif Seçiniz">
                                     <option selected value="<?php echo $oid ?>">
-                                        <?php echo $offer["offerNumber"] ?? '' ?>
+                                        <?php echo htmlspecialchars($offer["offerNumber"] ?? '') ?>
                                     </option>
                                 </select>
                             <?php } else { ?>
                                 <input name="offerno" id="offerno_input" class="form-control" type="text" readonly
-                                    value="<?php echo $offer["offerNumber"] ?? '' ?>">
+                                    value="<?php echo htmlspecialchars($offer["offerNumber"] ?? '') ?>">
                                 <input type="hidden" id="offerno" value="<?php echo $offer['id'] ?? '' ?>">
                             <?php } ?>
 
@@ -1439,13 +1475,13 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                     <!-- Servis Durumu -->
                     <div class="form-field">
                         <label>Servis Durumu</label>
-                        <?php servisDurum("pstatu", $isEdit ? $cc['pstatu'] : "") ?>
+                        <?php servisDurum("pstatu", $isEdit ? $cc['pstatu'] : "", "form-control select2") ?>
                     </div>
 
                     <!-- Sözleşme Durumu -->
                     <div class="form-field">
                         <label>Sözleşme Durumu</label>
-                        <?php sozlesmeDurumu("contract_statu", $isEdit ? $cc["contract_statu"] : 4) ?>
+                        <?php sozlesmeDurumu("contract_statu", $isEdit ? $cc["contract_statu"] : 4, "form-control select2") ?>
                     </div>
 
                     <!-- İptal Uyarısı -->
@@ -1624,15 +1660,15 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     function saveFormDraft() {
         try {
             var draft = {
-                ServisKonusu:  $('#ServisKonusu').val(),
-                TahsilatTuru:  $('#TahsilatTuru').val(),
-                pstartdate:    $('input[name="pstartdate"]').val(),
-                pdesc:         $('#pdesc').val(),
-                servicesnote:  $('#servicesnote').val(),
-                price:         $('input[name="price"]').val(),
-                price_desc:    $('textarea[name="price_desc"]').val(),
-                pstatu:        $('#pstatu').val(),
-                contract_statu:$('#contract_statu').val()
+                ServisKonusu:   $('#ServisKonusu').val(),
+                TahsilatTuru:   $('#TahsilatTuru').val(),
+                pstartdate:     $('input[name="pstartdate"]').val(),
+                pdesc:          $('#pdesc').val(),
+                servicesnote:   $('#servicesnote').val(),
+                price:          $('input[name="price"]').val(),
+                price_desc:     $('textarea[name="price_desc"]').val(),
+                pstatu:         $('#pstatu').val(),
+                contract_statu: $('#contract_statu').val()
             };
             localStorage.setItem(SVC_STORAGE_KEY, JSON.stringify(draft));
         } catch(e) {}
@@ -1644,15 +1680,15 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
             if (!raw) return;
             var d = JSON.parse(raw);
 
-            if (d.ServisKonusu)   { $('#ServisKonusu').selectpicker('val', d.ServisKonusu); }
-            if (d.TahsilatTuru)   { $('#TahsilatTuru').selectpicker('val', d.TahsilatTuru); }
+            if (d.ServisKonusu)   { $('#ServisKonusu').val(d.ServisKonusu).trigger('change'); }
+            if (d.TahsilatTuru)   { $('#TahsilatTuru').val(d.TahsilatTuru).trigger('change'); }
             if (d.pstartdate)     { $('input[name="pstartdate"]').val(d.pstartdate); }
             if (d.pdesc)          { $('#pdesc').val(d.pdesc); }
             if (d.servicesnote)   { $('#servicesnote').val(d.servicesnote); }
             if (d.price)          { $('input[name="price"]').val(d.price); }
             if (d.price_desc)     { $('textarea[name="price_desc"]').val(d.price_desc); }
-            if (d.pstatu)         { $('#pstatu').selectpicker('val', d.pstatu); }
-            if (d.contract_statu) { $('#contract_statu').selectpicker('val', d.contract_statu); }
+            if (d.pstatu)         { $('#pstatu').val(d.pstatu).trigger('change'); }
+            if (d.contract_statu) { $('#contract_statu').val(d.contract_statu).trigger('change'); }
 
             showToast('Önceki yarım kalan form verileri geri yüklendi.', 'success');
         } catch(e) {}
@@ -1663,14 +1699,27 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     $(document).on('input', '[name="pstartdate"], #pdesc, #servicesnote, [name="price"], [name="price_desc"]', saveFormDraft);
     <?php } ?>
 
-    // ═══════ SELECTPICKER INIT ═══════
+    // ═══════ SELECT2 / SELECTPICKER INIT ═══════
     $(document).ready(function () {
-        $(".selectpicker").selectpicker({
-            liveSearchPlaceholder: "Ara..",
-            noneResultsText: 'Eşleşen kayıt yok {0}',
-            noneSelectedText: "Seçim Yapılmadı",
-            size: 5,
-        });
+        if ($.fn.select2) {
+            $('.select2').each(function () {
+                var $this = $(this);
+                $this.select2({
+                    placeholder: $this.attr('placeholder') || $this.data('placeholder') || 'Seçim Yapınız',
+                    allowClear: !$this.prop('required') && !$this.prop('multiple'),
+                    width: '100%'
+                });
+            });
+        }
+
+        if ($.fn.selectpicker) {
+            $(".selectpicker").selectpicker({
+                liveSearchPlaceholder: "Ara..",
+                noneResultsText: 'Eşleşen kayıt yok {0}',
+                noneSelectedText: "Seçim Yapılmadı",
+                size: 5,
+            });
+        }
 
         // Teklif seçildiğinde butonu güncelle
         $("#offerno").on("change", function () {
@@ -1699,16 +1748,15 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     }
 
     // ═══════ SERVİS KONUSU DEĞİŞİKLİĞİ ═══════
-    $("#ServisKonusu").change(function () {
+    $("#ServisKonusu").on("change", function () {
         var servisKonusu = $(this).find('option:selected').text().trim();
         if (servisKonusu.toLowerCase().includes('kontrol/raporlama')) {
-            $("#contract_statu").val(1);
+            $("#contract_statu").val(1).trigger('change');
             $("#waitSpan").show();
         } else {
-            $("#contract_statu").val(4);
+            $("#contract_statu").val(4).trigger('change');
             $("#waitSpan").hide();
         }
-        $("#contract_statu").selectpicker('refresh');
     });
 
     // ═══════ DURUM KONTROLÜ (Düzenleme) ═══════

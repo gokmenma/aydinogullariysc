@@ -23,7 +23,9 @@ function TeklifKaydet(autosave = false) {
 
   var form = $("#myForm");
   var formData = new FormData(form[0]);
-  $(".selectpicker").selectpicker("refresh");
+  if ($.fn.selectpicker && $(".selectpicker").length > 0) {
+    $(".selectpicker").selectpicker("refresh");
+  }
   form.validate({
     rules: {
       customers: {
@@ -42,14 +44,18 @@ function TeklifKaydet(autosave = false) {
       }
     },
     errorPlacement: function (error, element) {
-      if (element.hasClass("selectpicker")) {
+      if (element.hasClass("select2-hidden-accessible")) {
+        element.next(".select2-container").addClass("is-invalid");
+      } else if (element.hasClass("selectpicker")) {
         element.next().addClass("is-invalid");
       } else {
         element.addClass("is-invalid");
       }
     },
     success: function (label, element) {
-      if ($(element).hasClass("selectpicker")) {
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        $(element).next(".select2-container").removeClass("is-invalid");
+      } else if ($(element).hasClass("selectpicker")) {
         $(element).next().removeClass("is-invalid");
       } else {
         $(element).removeClass("is-invalid");

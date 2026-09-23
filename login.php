@@ -98,14 +98,32 @@ if ($_POST) {
 
 <body>
 
-    <!-- Hızlı Tema & Mod Seçici Bar -->
-    <div class="login-theme-bar" role="toolbar" aria-label="Tema Seçimi">
-        <button type="button" class="theme-pill-btn" data-preset="kode" style="background: #2563eb;" title="Kode (Mavi)"></button>
-        <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #d97706;" title="Ersan Gold"></button>
-        <button type="button" class="theme-pill-btn" data-preset="zumrut" style="background: #059669;" title="Zümrüt Yeşili"></button>
-        <button type="button" class="theme-pill-btn" data-preset="kraliyet-moru" style="background: #6f42c1;" title="Kraliyet Moru"></button>
-        <button type="button" class="theme-pill-btn" data-preset="rose" style="background: #e11d48;" title="Rose"></button>
-        <button type="button" class="theme-pill-btn" data-preset="sade-beyaz" style="background: #334155;" title="Sade Beyaz"></button>
+    <!-- Hızlı Tema & Mod Seçici Bar (Kompakt Açılır Tasarım) -->
+    <div class="login-theme-bar" id="loginThemeBar" role="toolbar" aria-label="Tema Seçimi">
+        <div class="theme-bar-trigger" id="themeBarTrigger" title="Temaları Göster / Gizle">
+            <span class="theme-bar-arrow">
+                <i class="fa-solid fa-chevron-left"></i>
+            </span>
+            <span class="theme-bar-current-color" id="themeActiveColorIndicator" title="Aktif Tema Rengi"></span>
+        </div>
+        <div class="theme-pills-list">
+            <button type="button" class="theme-pill-btn" data-preset="kode" style="background: #2563eb;" title="Kode (Mavi)"></button>
+            <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #d97706;" title="Ersan Gold"></button>
+            <button type="button" class="theme-pill-btn" data-preset="zumrut" style="background: #059669;" title="Zümrüt Yeşili"></button>
+            <button type="button" class="theme-pill-btn" data-preset="kraliyet-moru" style="background: #6f42c1;" title="Kraliyet Moru"></button>
+            <button type="button" class="theme-pill-btn" data-preset="rose" style="background: #e11d48;" title="Rose"></button>
+            <button type="button" class="theme-pill-btn" data-preset="sade-beyaz" style="background: #334155;" title="Sade Beyaz"></button>
+            <button type="button" class="theme-pill-btn" data-preset="safir-okyanus" style="background: #0284c7;" title="Safir Okyanus"></button>
+            <button type="button" class="theme-pill-btn" data-preset="gun-batimi" style="background: #ea580c;" title="Gün Batımı"></button>
+            <button type="button" class="theme-pill-btn" data-preset="gece-altini" style="background: #eab308;" title="Gece Altını"></button>
+            <button type="button" class="theme-pill-btn" data-preset="mistik-bordo" style="background: #881337;" title="Mistik Bordo"></button>
+            <button type="button" class="theme-pill-btn" data-preset="nordik-cam" style="background: #14532d;" title="Nordik Çam"></button>
+            <button type="button" class="theme-pill-btn" data-preset="soft-lavanta" style="background: #8b5cf6;" title="Soft Lavanta"></button>
+            <button type="button" class="theme-pill-btn" data-preset="soft-adacayi" style="background: #0d9488;" title="Soft Adaçayı"></button>
+            <button type="button" class="theme-pill-btn" data-preset="soft-seftali" style="background: #f97316;" title="Soft Şeftali"></button>
+            <button type="button" class="theme-pill-btn" data-preset="soft-buz-mavisi" style="background: #38bdf8;" title="Soft Buz Mavisi"></button>
+            <button type="button" class="theme-pill-btn" data-preset="soft-vizon" style="background: #78716c;" title="Soft Vizon"></button>
+        </div>
         <button type="button" class="theme-mode-toggle" id="loginThemeToggle" title="Karanlık / Aydınlık Mod">
             <i class="fa-solid fa-moon"></i>
         </button>
@@ -218,12 +236,22 @@ flInputs.forEach(function(input){
 (function () {
     var themePresetFonts = {
         'kode': 'inter',
-        'ersan-gold': 'poppins',
+        'ersan-gold': 'montserrat',
         'zumrut': 'plus-jakarta',
         'kraliyet-moru': 'outfit',
         'rose': 'poppins',
         'sade-beyaz': 'inter',
-        'koyu-gece': 'geist'
+        'koyu-gece': 'geist',
+        'safir-okyanus': 'outfit',
+        'gun-batimi': 'poppins',
+        'gece-altini': 'montserrat',
+        'mistik-bordo': 'montserrat',
+        'nordik-cam': 'plus-jakarta',
+        'soft-lavanta': 'outfit',
+        'soft-adacayi': 'plus-jakarta',
+        'soft-seftali': 'poppins',
+        'soft-buz-mavisi': 'inter',
+        'soft-vizon': 'montserrat'
     };
 
     function applyPreset(presetName) {
@@ -238,8 +266,10 @@ flInputs.forEach(function(input){
         document.documentElement.setAttribute('data-theme-font', font);
         if (document.body) document.body.setAttribute('data-theme-font', font);
 
-        if (presetName === 'koyu-gece') {
+        if (presetName === 'koyu-gece' || presetName === 'gece-altini') {
             setDarkMode(true);
+        } else {
+            setDarkMode(false);
         }
 
         syncPills();
@@ -304,6 +334,21 @@ flInputs.forEach(function(input){
         modeToggle.addEventListener('click', function() {
             var isDark = document.documentElement.classList.contains('dark-mode');
             setDarkMode(!isDark);
+        });
+    }
+
+    var themeBarTrigger = document.getElementById('themeBarTrigger');
+    var loginThemeBar = document.getElementById('loginThemeBar');
+    if (themeBarTrigger && loginThemeBar) {
+        themeBarTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            loginThemeBar.classList.toggle('expanded');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!loginThemeBar.contains(e.target)) {
+                loginThemeBar.classList.remove('expanded');
+            }
         });
     }
 

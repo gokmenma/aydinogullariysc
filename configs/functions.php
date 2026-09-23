@@ -608,10 +608,10 @@ function aciliyet_durumu($name, $val)
 	echo '</select>';
 }
 
-function servisDurum($name, $val)
+function servisDurum($name, $val, $className = 'selectpicker form-control')
 {
-	echo '<select id="' . $name . '" required name="' . $name . '" class="selectpicker form-control" 
-    data-container="body" data-style="border bg-white">';
+	echo '<select id="' . $name . '" required name="' . $name . '" class="' . $className . '" 
+    data-container="body" data-style="border bg-white" data-placeholder="Servis Durumu Seçiniz">';
 
 	global $ac;
 
@@ -619,9 +619,9 @@ function servisDurum($name, $val)
 	$sql->execute(array(4));
 	while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
 		if ($row['id'] == $val) {
-			echo '<option value="' . $row['id'] . '" selected>' . $row['title'] . '</option>';
+			echo '<option value="' . $row['id'] . '" selected>' . htmlspecialchars($row['title']) . '</option>';
 		} else {
-			echo '<option value="' . $row['id'] . '">' . $row['title'] . '</option>';
+			echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['title']) . '</option>';
 		}
 	}
 
@@ -638,32 +638,27 @@ const SOZLESMEDURUMU = [
 	'4' => 'S.Kapsamında Değildir'
 ];
 
-function sozlesmeDurumu($name, $val)
+function sozlesmeDurumu($name, $val, $className = 'selectpicker form-control')
 {
 	echo '<select required 
 	name="' . $name . '" 
 	id="' . $name . '" 
-	class="selectpicker form-control" 
-
-	data-container="body" data-style="border bg-white">';
+	class="' . $className . '" 
+	data-container="body" data-style="border bg-white" data-placeholder="Sözleşme Durumu Seçiniz">';
 	foreach (SOZLESMEDURUMU as $key => $value) {
-		//$style = ($key == 4) ? 'style="background-color:red;"' : '';
 		$style =  '';
 		switch ($key) {
 			case $val:
-				// echo '<option value="' . $key . '" selected>' . $value . '</option>';
-				echo "<option value='{$key}' {$style} selected >{$value}</option>";
+				echo "<option value='{$key}' {$style} selected >" . htmlspecialchars($value) . "</option>";
 				break;
 			default:
-				echo "<option value='{$key}' {$style} >{$value}</option>";
+				echo "<option value='{$key}' {$style} >" . htmlspecialchars($value) . "</option>";
 				break;
 		}
 
 	}
 
 	echo '</select>';
-
-
 }
 
 //Servis Durumu badge olarak gösterilir
@@ -776,10 +771,10 @@ function units($name, $val, $type)
 	echo '</select>';
 }
 
-function offerTemplate($name, $val, $type)
+function offerTemplate($name, $val, $type, $className = 'selectpicker form-control')
 {
-	echo '<select id="' . $name . '" required name="' . $name . '" class="selectpicker form-control" 
-    data-container="body" data-style="bg-white">';
+	echo '<select id="' . $name . '" required name="' . $name . '" class="' . $className . '" 
+    data-container="body" data-style="bg-white" data-placeholder="Şablon Seçiniz">';
 
 	global $ac;
 	$sql = $ac->prepare('SELECT * FROM offertemplate where State = ?');
@@ -787,9 +782,9 @@ function offerTemplate($name, $val, $type)
 	echo "<option value=''>Şablon Seçiniz</option>";
 	while ($row = $sql->fetch(PDO::FETCH_ASSOC)) {
 		if ($row['id'] == $val) {
-			echo '<option value="' . $row['id'] . '" selected>' . $row['Title'] . '</option>';
+			echo '<option value="' . $row['id'] . '" selected>' . htmlspecialchars($row['Title']) . '</option>';
 		} else {
-			echo '<option value="' . $row['id'] . '">' . $row['Title'] . '</option>';
+			echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['Title']) . '</option>';
 		}
 	}
 

@@ -678,13 +678,23 @@ $(document).ready(function() {
         });
     }
 
-    // Sidebar desktop toggle and persistence functionality
+    // Sidebar toggle and persistence functionality (Desktop & Mobile)
     function syncMenuIconState() {
         if ($(window).width() > 1200) {
+            $('#sidebar-backdrop').removeClass('open');
+            $('.left-side-bar').removeClass('open');
             if ($('html').hasClass('sidebar-collapsed')) {
                 $('.menu-icon').removeClass('open');
             } else {
                 $('.menu-icon').addClass('open');
+            }
+        } else {
+            if ($('.left-side-bar').hasClass('open')) {
+                $('.menu-icon').addClass('open');
+                $('#sidebar-backdrop').addClass('open');
+            } else {
+                $('.menu-icon').removeClass('open');
+                $('#sidebar-backdrop').removeClass('open');
             }
         }
     }
@@ -692,18 +702,46 @@ $(document).ready(function() {
     // On page load, sync menu icon state
     syncMenuIconState();
 
-    // On resize, sync menu icon state (override vendor script logic for desktop)
+    // On resize, sync menu icon state
     $(window).on('resize', function() {
         syncMenuIconState();
     });
 
-    // Handle click on desktop menu icon
-    $('.menu-icon').on('click', function(e) {
-        if ($(window).width() > 1200) {
-            e.preventDefault();
-            var isCollapsed = $('html').toggleClass('sidebar-collapsed').hasClass('sidebar-collapsed');
-            localStorage.setItem('sidebar-collapsed', isCollapsed ? 'true' : 'false');
-            syncMenuIconState();
+    // Handle click on menu icon (both mobile & desktop)
+    $(document).on('click', '.menu-icon, #sidebar-menu-toggle', function(e) {
+        if (window.toggleSidebarMenu) {
+            window.toggleSidebarMenu(e);
+        }
+    });
+
+    // Handle click on mobile backdrop to close sidebar
+    $(document).on('click touchstart', '#sidebar-backdrop', function(e) {
+        e.preventDefault();
+        $('.left-side-bar').removeClass('open');
+        $('.menu-icon').removeClass('open');
+        $('#sidebar-backdrop').removeClass('open');
+    });
+
+    // Mobilde sidebar dışına tıklandığında kapatma
+    $(document).on('click touchstart', function(e) {
+        if ($(window).width() <= 1200) {
+            if ($('.left-side-bar').hasClass('open')) {
+                if ($(e.target).closest('.left-side-bar').length === 0 && 
+                    $(e.target).closest('.menu-icon, #sidebar-menu-toggle').length === 0) {
+                    $('.left-side-bar').removeClass('open');
+                    $('.menu-icon').removeClass('open');
+                    $('#sidebar-backdrop').removeClass('open');
+                }
+            }
+        }
+    });
+
+    // Mobilde menü linkine tıklandığında menüyü otomatik kapat
+    $(document).on('click', '.left-side-bar .sidebar-menu a:not(.dropdown-toggle)', function() {
+        if ($(window).width() <= 1200) {
+            $('.left-side-bar').removeClass('open');
+            $('.menu-icon').removeClass('open');
+            $('#sidebar-backdrop').removeClass('open');
         }
     });
 

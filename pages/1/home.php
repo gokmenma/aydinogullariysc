@@ -1,10 +1,20 @@
 <?php
 
 use App\Model\ServiceModel;
+use App\Model\ActivityLogModel;
 use App\Helper\Date;
 
 $services = new ServiceModel();
 $canViewHomeFinancialData = permtrue('home_financial_data_view');
+$canViewSystemLogs = in_array(sesset('id'), [1, 12]);
+
+$latestActivities = [];
+$latestLogins = [];
+if ($canViewSystemLogs) {
+    $activityLogModel = new ActivityLogModel();
+    $latestActivities = $activityLogModel->getLatestActivities(10);
+    $latestLogins = $activityLogModel->getLatestLogins(10);
+}
 
 // 1. KPI Metrikleri - Servisler
 $waitingServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ?');
@@ -776,6 +786,141 @@ $loggedUser = htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı', ENT_QUOTE
 				</div>
 			</div>
 		</div>
+
+		<?php if ($canViewSystemLogs) : ?>
+			<!-- 6. SİSTEM AKTİVİTELERİ & GİRİŞ LOGLARI (YETKİLİ KULLANICILAR İÇİN) -->
+			<div class="crm-card mb-4 mt-4">
+				<div class="crm-card-header flex-wrap" style="gap: 12px;">
+					<div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+						<h3 class="crm-card-title m-0">
+							<i class="fa fa-history text-primary"></i> Sistem Aktiviteleri & Girişler
+						</h3>
+						<span class="crm-badge-soft soft-blue font-12" id="crmLogHeaderBadge">
+							Son 10 Kayıt
+						</span>
+					</div>
+					<div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+						<!-- Toggle Buton Grubu: Aktiviteler / Girişler -->
+						<div class="crm-view-switcher-group" role="group" aria-label="Aktivite Türü">
+							<button type="button" class="btn-view-toggle active" id="btnLogTabActivities" title="Son Sistem Aktiviteleri">
+								<i class="fa fa-bolt"></i> Aktiviteler
+							</button>
+							<button type="button" class="btn-view-toggle" id="btnLogTabLogins" title="Son Giriş Kayıtları">
+								<i class="fa fa-sign-in"></i> Girişler
+							</button>
+						</div>
+
+						<a href="index.php?p=logs/index" class="crm-card-link ml-1">
+							Tüm Aktiviteler <i class="fa fa-arrow-right"></i>
+						</a>
+					</div>
+				</div>
+				<div class="crm-card-body p-3">
+					<!-- TAB 1: AKTİVİTELER -->
+					<div id="crmLogActivitiesWrapper">
+						<?php if (empty($latestActivities)) : ?>
+							<div class="text-center py-4 text-muted font-13">
+								<i class="fa fa-history font-24 d-block mb-2 text-muted" style="opacity: 0.5;"></i>
+								Henüz sistem aktivite kaydı bulunmuyor.
+							</div>
+						<?php else : ?>
+							<div class="crm-feed-list">
+								<?php foreach ($latestActivities as $act) :
+									$evIcon = ActivityLogModel::getEventIcon($act->event_type);
+									$evBadge = ActivityLogModel::getEventBadgeClass($act->event_type);
+									$evLabel = ActivityLogModel::getEventLabel($act->event_type);
+									$moduleLabel = ActivityLogModel::getModuleLabel($act->module);
+									$relTime = ActivityLogModel::formatRelativeTime($act->created_at, $act->dates, $act->clock);
+									$userName = $act->username ?: 'Sistem';
+									$summaryText = $act->summary ?: ($act->action ?: ($act->message ?: 'İşlem gerçekleştirildi'));
+									$borderAccent = 'border-left-accent-blue';
+									if (in_array($act->event_type, ['create', 'download'])) $borderAccent = 'border-left-accent-emerald';
+									elseif (in_array($act->event_type, ['delete', 'error'])) $borderAccent = 'border-left-accent-rose';
+									elseif (in_array($act->event_type, ['status_change', 'copy'])) $borderAccent = 'border-left-accent-purple';
+									elseif (in_array($act->event_type, ['export', 'logout'])) $borderAccent = 'border-left-accent-amber';
+								?>
+									<a href="index.php?p=logs/index&tab=logs" class="crm-feed-item <?php echo $borderAccent; ?>">
+										<div class="d-flex align-items-center" style="gap: 12px; flex: 1; min-width: 0;">
+											<div class="crm-log-item-icon <?php echo $evBadge; ?>">
+												<i class="<?php echo $evIcon; ?>"></i>
+											</div>
+											<div style="flex: 1; min-width: 0; padding-right: 12px;">
+												<div class="crm-feed-title text-truncate">
+													<strong class="text-dark"><?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8'); ?></strong>
+													<span class="text-muted font-weight-normal font-12 ml-1">— <?php echo htmlspecialchars($summaryText, ENT_QUOTES, 'UTF-8'); ?></span>
+												</div>
+												<div class="crm-feed-subtitle flex-wrap" style="gap: 6px 8px;">
+													<span class="crm-badge-soft <?php echo $evBadge; ?>" style="font-size: 10px; padding: 1px 6px;">
+														<?php echo htmlspecialchars($moduleLabel, ENT_QUOTES, 'UTF-8'); ?>
+													</span>
+													<span>•</span>
+													<span><i class="fa fa-clock-o mr-1"></i><?php echo htmlspecialchars($relTime, ENT_QUOTES, 'UTF-8'); ?></span>
+													<?php if (!empty($act->ip_address)) : ?>
+														<span>•</span>
+														<span class="text-muted"><i class="fa fa-globe mr-1"></i><?php echo htmlspecialchars($act->ip_address, ENT_QUOTES, 'UTF-8'); ?></span>
+													<?php endif; ?>
+												</div>
+											</div>
+										</div>
+										<div class="text-right flex-shrink-0 d-none d-sm-block">
+											<span class="crm-badge-soft <?php echo $evBadge; ?>">
+												<?php echo htmlspecialchars($evLabel, ENT_QUOTES, 'UTF-8'); ?>
+											</span>
+										</div>
+									</a>
+								<?php endforeach; ?>
+							</div>
+						<?php endif; ?>
+					</div>
+
+					<!-- TAB 2: GİRİŞLER -->
+					<div id="crmLogLoginsWrapper" class="d-none">
+						<?php if (empty($latestLogins)) : ?>
+							<div class="text-center py-4 text-muted font-13">
+								<i class="fa fa-sign-in font-24 d-block mb-2 text-muted" style="opacity: 0.5;"></i>
+								Henüz giriş kaydı bulunmuyor.
+							</div>
+						<?php else : ?>
+							<div class="crm-feed-list">
+								<?php foreach ($latestLogins as $login) :
+									$relTime = ActivityLogModel::formatRelativeTime($login->created_at, $login->dates, $login->clock);
+									$userName = $login->username ?: 'Sistem';
+									$exactTime = !empty($login->created_at) ? date('d.m.Y H:i:s', strtotime($login->created_at)) : ($login->dates . ' ' . $login->clock);
+								?>
+									<a href="index.php?p=logs/index&tab=logs&filter_event=login" class="crm-feed-item border-left-accent-emerald">
+										<div class="d-flex align-items-center" style="gap: 12px; flex: 1; min-width: 0;">
+											<div class="crm-log-item-icon soft-emerald">
+												<i class="fa fa-sign-in"></i>
+											</div>
+											<div style="flex: 1; min-width: 0; padding-right: 12px;">
+												<div class="crm-feed-title text-truncate">
+													<strong class="text-dark"><?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8'); ?></strong>
+													<span class="text-muted font-weight-normal font-12 ml-1">— Sisteme başarılı giriş yaptı</span>
+												</div>
+												<div class="crm-feed-subtitle flex-wrap" style="gap: 6px 8px;">
+													<span><i class="fa fa-clock-o mr-1"></i><?php echo htmlspecialchars($relTime, ENT_QUOTES, 'UTF-8'); ?></span>
+													<span>•</span>
+													<span class="text-muted font-11" title="Kayıt Tarihi"><i class="fa fa-calendar mr-1"></i><?php echo htmlspecialchars($exactTime, ENT_QUOTES, 'UTF-8'); ?></span>
+													<?php if (!empty($login->ip_address)) : ?>
+														<span>•</span>
+														<span class="text-muted"><i class="fa fa-globe mr-1"></i><?php echo htmlspecialchars($login->ip_address, ENT_QUOTES, 'UTF-8'); ?></span>
+													<?php endif; ?>
+												</div>
+											</div>
+										</div>
+										<div class="text-right flex-shrink-0 d-none d-sm-block">
+											<span class="crm-badge-soft soft-emerald">
+												<i class="fa fa-check-circle mr-1"></i> Başarılı Giriş
+											</span>
+										</div>
+									</a>
+								<?php endforeach; ?>
+							</div>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
 	</div>
 </div>
 
@@ -1058,5 +1203,70 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Kayıtlı görünüm tercihini yükle (Varsayılan: 15 günlük tek satır liste)
 	var savedView = localStorage.getItem('crm_service_board_view') || 'single_row';
 	setView(savedView);
+
+	<?php if ($canViewSystemLogs) : ?>
+	// Sistem Aktiviteleri & Girişler Tab Değişimi
+	var btnLogAct = document.getElementById('btnLogTabActivities');
+	var btnLogLgn = document.getElementById('btnLogTabLogins');
+	var wrapLogAct = document.getElementById('crmLogActivitiesWrapper');
+	var wrapLogLgn = document.getElementById('crmLogLoginsWrapper');
+
+	function setLogTab(tab) {
+		if (!btnLogAct || !btnLogLgn || !wrapLogAct || !wrapLogLgn) return;
+		if (tab === 'logins') {
+			btnLogAct.classList.remove('active');
+			btnLogLgn.classList.add('active');
+			wrapLogAct.classList.add('d-none');
+			wrapLogLgn.classList.remove('d-none');
+			try { localStorage.setItem('crm_home_log_tab', 'logins'); } catch(e) {}
+		} else {
+			btnLogLgn.classList.remove('active');
+			btnLogAct.classList.add('active');
+			wrapLogLgn.classList.add('d-none');
+			wrapLogAct.classList.remove('d-none');
+			try { localStorage.setItem('crm_home_log_tab', 'activities'); } catch(e) {}
+		}
+	}
+
+	if (btnLogAct && btnLogLgn) {
+		btnLogAct.addEventListener('click', function(e) {
+			e.preventDefault();
+			setLogTab('activities');
+		});
+		btnLogLgn.addEventListener('click', function(e) {
+			e.preventDefault();
+			setLogTab('logins');
+		});
+
+		try {
+			var savedLogTab = localStorage.getItem('crm_home_log_tab');
+			if (savedLogTab === 'logins') {
+				setLogTab('logins');
+			}
+		} catch(e) {}
+	}
+	<?php endif; ?>
 });
 </script>
+
+<?php if ($canViewSystemLogs) : ?>
+<style>
+.crm-log-item-icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 9px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	flex-shrink: 0;
+}
+.crm-feed-item.border-left-accent-rose {
+	border-left: 3px solid #f43f5e;
+}
+.crm-feed-item.border-left-accent-cyan {
+	border-left: 3px solid #06b6d4;
+}
+</style>
+<?php endif; ?>
+

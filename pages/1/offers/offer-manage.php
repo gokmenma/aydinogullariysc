@@ -609,19 +609,46 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             }
 
             .form-field .form-control,
-            .form-field .bootstrap-select .btn {
+            .form-field .bootstrap-select .btn,
+            .form-field .select2-container--default .select2-selection--single {
                 border-radius: 10px !important;
                 border: 1.5px solid #e5e7eb !important;
-                padding: 10px 14px;
-                font-size: 14px;
-                transition: all 0.25s ease;
-                background: #fafafa;
+                padding: 10px 14px !important;
+                font-size: 14px !important;
+                transition: all 0.25s ease !important;
+                background: #fafafa !important;
+                height: 46px !important;
+                display: flex !important;
+                align-items: center !important;
             }
 
-            .form-field .form-control:focus {
+            .form-field .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: #1e293b !important;
+                line-height: normal !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                font-size: 14px !important;
+            }
+
+            .form-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 44px !important;
+                right: 12px !important;
+            }
+
+            .form-field .form-control:focus,
+            .form-field .select2-container--default.select2-container--focus .select2-selection--single,
+            .form-field .select2-container--default.select2-container--open .select2-selection--single {
                 border-color: #3b82f6 !important;
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
-                background: #fff;
+                background: #fff !important;
+            }
+
+            .form-field.is-invalid .form-control,
+            .form-field.is-invalid .select2-container--default .select2-selection,
+            .select2-container.is-invalid .select2-selection {
+                border-color: #ef4444 !important;
+                background: #fef2f2 !important;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
             }
 
             .form-field textarea.form-control:not(.textarea_editor) {
@@ -637,13 +664,15 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 width: 100%;
             }
 
-            .form-field .input-group .bootstrap-select {
+            .form-field .input-group .bootstrap-select,
+            .form-field .input-group span.select2.select2-container {
                 flex: 1 1 auto;
                 width: 1% !important;
                 min-width: 0;
             }
 
-            .form-field .input-group .bootstrap-select .btn {
+            .form-field .input-group .bootstrap-select .btn,
+            .form-field .input-group .select2-container .select2-selection {
                 border-top-right-radius: 0 !important;
                 border-bottom-right-radius: 0 !important;
             }
@@ -723,7 +752,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         <div class="form-field customer-select-field">
                             <label for="customers"><font color="red">(*)</font> Firma Adı</label>
                             <div class="input-group">
-                                <select required name="customers" id="customers" title="Seçiniz..." class="selectpicker form-control" data-style="bg-white" data-size="8" data-live-search="true">
+                                <select required name="customers" id="customers" data-placeholder="Firma Seçiniz..." class="form-control select2">
+                                    <option value="">Firma Seçiniz...</option>
                                     <?php
                                     $customer_id = $offer->cid ?? 0;
                                     $qct = $ac->prepare(
@@ -735,7 +765,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                                     while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
                                         ?>
                                         <option <?php echo $customer_id == $cscs['id'] ? ' selected' : '' ?> value="<?php echo $cscs['id']; ?>">
-                                            <?php echo $cscs['company']; ?>
+                                            <?php echo htmlspecialchars($cscs['company']); ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -776,7 +806,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         <!-- Teklif Durumu -->
                         <div class="form-field status-select-field">
                             <label for="offerstatu"><font color="red">(*)</font> Teklif Durumu</label>
-                            <select name="offerstatu" id="offerstatu" data-style="bg-white" class="selectpicker form-control">
+                            <select name="offerstatu" id="offerstatu" data-placeholder="Teklif Durumu Seçiniz..." class="form-control select2">
                                 <option <?php echo $offer_statu == 1 ? ' selected' : '' ?> value="1">Bekleyen</option>
                                 <option <?php echo $offer_statu == 2 ? ' selected' : '' ?> value="2">Tamamlandı</option>
                                 <option <?php echo $offer_statu == 3 ? ' selected' : '' ?> value="3">Kabul Edilmedi</option>
@@ -801,7 +831,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                             ];
                             $current_reject_reason = $offer->reject_reason ?? '';
                             ?>
-                            <select name="reject_reason" id="reject_reason" data-style="bg-white" class="selectpicker form-control mb-2" title="Kabul edilmeme nedeni seçiniz...">
+                            <select name="reject_reason" id="reject_reason" data-placeholder="Kabul edilmeme nedeni seçiniz..." class="form-control select2 mb-2">
                                 <option value="">-- Neden Seçiniz --</option>
                                 <?php foreach ($reject_reasons as $reason): ?>
                                     <option value="<?php echo htmlspecialchars($reason, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $current_reject_reason === $reason ? 'selected' : ''; ?>>
@@ -863,7 +893,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         <div class="form-field">
                             <label for="offerHeader">Üst Bilgi Şablonu Seç</label>
                             <div class="input-group">
-                                <?php offerTemplate('offerHeader', $offer_header_id, 'Header'); ?>
+                                <?php offerTemplate('offerHeader', $offer_header_id, 'Header', 'form-control select2'); ?>
                                 <a href="index.php?p=offer-templates&type=Header" target="_blank" class="btn btn-secondary btn-sm d-flex align-items-center" type="button" data-tooltip="Yeni Şablon Eklemek için tıklayınız!" data-tooltip-location="left"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
@@ -880,7 +910,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         <div class="form-field">
                             <label for="offerFooter">Alt Bilgi Şablonu Seç</label>
                             <div class="input-group">
-                                <?php offerTemplate('offerFooter', $offer_footer_id, 'Footer'); ?>
+                                <?php offerTemplate('offerFooter', $offer_footer_id, 'Footer', 'form-control select2'); ?>
                                 <a href="index.php?p=offer-templates&type=Footer" target="_blank" class="btn btn-secondary btn-sm d-flex align-items-center" type="button" data-tooltip="Yeni Şablon Eklemek için tıklayınız!" data-tooltip-location="left"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
@@ -1426,6 +1456,21 @@ $(document).ready(function() {
             $totalsToggle.trigger('focus');
         }
     });
+
+    if ($.fn.select2) {
+        $('.select2').each(function () {
+            var $this = $(this);
+            $this.select2({
+                placeholder: $this.attr('placeholder') || $this.data('placeholder') || 'Seçim Yapınız',
+                allowClear: !$this.prop('required') && !$this.prop('multiple'),
+                width: '100%'
+            });
+        });
+    }
+
+    if ($.fn.selectpicker) {
+        $('.selectpicker').selectpicker();
+    }
 
     function syncOfferStatusControl(status) {
         var normalizedStatus = String(status || '1');

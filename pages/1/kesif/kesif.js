@@ -119,11 +119,8 @@ $(document).ready(function () {
     $("#selected_files_list").empty();
   });
 
-  // Düzenle butonuna tıklandığında
-  $(document).on("click", ".edit-btn, #cmActionEdit, #detail_edit_btn", function (e) {
-    e.preventDefault();
-    hideContextMenu();
-    var kesif_id = $(this).data("id") || $("#kesifContextMenu").data("id");
+  // Düzenleme modalını açan fonksiyon
+  window.openKesifEditModal = function (kesif_id) {
     if (!kesif_id) return;
 
     if ($("#detaylarModal").is(":visible")) {
@@ -214,15 +211,20 @@ $(document).ready(function () {
         });
       },
     });
-  });
+  };
 
-  // Detayları Görüntüle butonuna tıklandığında
-  $(document).on("click", ".view-btn, #cmActionView", function (e) {
+  // Düzenle butonuna tıklandığında
+  $(document).on("click", ".edit-btn, #cmActionEdit, #detail_edit_btn", function (e) {
     e.preventDefault();
     hideContextMenu();
     var kesif_id = $(this).data("id") || $("#kesifContextMenu").data("id");
-    var enc_id = $(this).closest("tr").data("enc-id") || $("#kesifContextMenu").data("enc-id") || "";
+    window.openKesifEditModal(kesif_id);
+  });
+
+  // Detay görüntüleme modalını açan fonksiyon
+  window.openKesifDetailModal = function (kesif_id, enc_id) {
     if (!kesif_id) return;
+    enc_id = enc_id || "";
 
     // AJAX ile keşif detaylarını getir
     $.ajax({
@@ -353,6 +355,15 @@ $(document).ready(function () {
         });
       },
     });
+  };
+
+  // Detayları Görüntüle butonuna tıklandığında
+  $(document).on("click", ".view-btn, #cmActionView", function (e) {
+    e.preventDefault();
+    hideContextMenu();
+    var kesif_id = $(this).data("id") || $("#kesifContextMenu").data("id");
+    var enc_id = $(this).closest("tr").data("enc-id") || $("#kesifContextMenu").data("enc-id") || "";
+    window.openKesifDetailModal(kesif_id, enc_id);
   });
 
   // Adresi Google Haritalar'da görüntüle
@@ -664,5 +675,21 @@ $(document).ready(function () {
       pad(date.getSeconds())
     );
   }
+
+  // URL parametresine göre otomatik Keşif modalı açma
+  try {
+    var urlParams = new URLSearchParams(window.location.search);
+    var actionParam = urlParams.get("action");
+    var idParam = urlParams.get("id");
+    if (idParam) {
+      setTimeout(function () {
+        if (actionParam === "edit") {
+          window.openKesifEditModal(idParam);
+        } else {
+          window.openKesifDetailModal(idParam);
+        }
+      }, 150);
+    }
+  } catch (err) {}
 });
 

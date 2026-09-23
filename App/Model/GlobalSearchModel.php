@@ -4,6 +4,7 @@ namespace App\Model;
 
 use PDO;
 use App\Model\BaseModel;
+use App\Helper\Security;
 
 class GlobalSearchModel extends BaseModel
 {
@@ -179,8 +180,11 @@ class GlobalSearchModel extends BaseModel
                     $details[] = 'Raf: ' . $row['RafKodu'];
                 }
 
+                $encId = Security::encrypt($row['id']);
+
                 $results['products'][] = [
                     'id'          => (int)$row['id'],
+                    'enc_id'      => $encId,
                     'type'        => 'product',
                     'type_label'  => 'Ürün',
                     'title'       => $row['Adi'] ?: 'İsimsiz Ürün #' . $row['id'],
@@ -189,8 +193,8 @@ class GlobalSearchModel extends BaseModel
                     'badge_class' => $statusClass,
                     'extra_info'  => $priceStr,
                     'date'        => '',
-                    'url'         => 'index.php?p=products/manage&id=' . (int)$row['id'],
-                    'edit_url'    => 'index.php?p=products/manage&id=' . (int)$row['id'],
+                    'url'         => 'index.php?p=products/manage&id=' . $encId,
+                    'edit_url'    => 'index.php?p=products/manage&id=' . $encId,
                     'icon'        => 'fa-cube',
                     'initial'     => 'ÜR',
                     'color_theme' => 'amber'
@@ -416,8 +420,8 @@ class GlobalSearchModel extends BaseModel
                     'badge_class' => $statusClass,
                     'extra_info'  => !empty($row['gidecek_kisi']) ? $row['gidecek_kisi'] : '',
                     'date'        => !empty($row['kesif_tarihi']) ? date('d.m.Y', strtotime($row['kesif_tarihi'])) : '',
-                    'url'         => 'index.php?p=kesif/manage&id=' . (int)$row['id'],
-                    'edit_url'    => 'index.php?p=kesif/manage&id=' . (int)$row['id'],
+                    'url'         => 'index.php?p=kesif/list&action=view&id=' . (int)$row['id'],
+                    'edit_url'    => 'index.php?p=kesif/list&action=edit&id=' . (int)$row['id'],
                     'icon'        => 'fa-search-plus',
                     'initial'     => 'KE',
                     'color_theme' => 'cyan'
