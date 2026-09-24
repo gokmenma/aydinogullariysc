@@ -47,12 +47,12 @@ $person = $sql->fetch(PDO::FETCH_ASSOC);
                     <img class="float-left" src="files/46_logo.png" alt="">
                 </div>
                 <div>
-                    <p class="font-weight-bold">AYDINOĞULLARI YANGIN SÖNDÜRME SAN. VE TIC. LTD. ŞTİ</p>
+                    <p class="font-weight-bold"><?= htmlspecialchars(mb_strtoupper(set('company_name')), ENT_QUOTES, 'UTF-8') ?></p>
 
                     <ul class="list-unstyled m-0">
-                        <li>Alaaddin Mah. 648. Sokak No:1A/5 Alişan Plaza Nilüfer/BURSA</li>
-                        <li>Tel: 0224 443 60 21 / 0224 443 60 22</li>
-                        <li>info@aydinogulları.com / www.aydinogullari.com</li>
+                        <li><?= htmlspecialchars(set('company_address'), ENT_QUOTES, 'UTF-8') ?></li>
+                        <li>Tel: <?= htmlspecialchars(set('company_phone1') . ' / ' . set('company_phone2'), ENT_QUOTES, 'UTF-8') ?></li>
+                        <li><?= htmlspecialchars(set('admin_mail') . ' / ' . set('panel_url'), ENT_QUOTES, 'UTF-8') ?></li>
                     </ul>
                 </div>
 

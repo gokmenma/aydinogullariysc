@@ -341,10 +341,10 @@ $html .= '
       </div>
     </main>
     <footer >
-    <h2 class="name">AYDINOĞULLARI YANGIN SÖNDÜRME SAN. VE TIC. LTD. ŞTİ</h2>
-    <div>Alaaddin Mah. 648. Sokak No:1A/5 Alişan Plaza Nilüfer/BURSA</div>
-      <div>Tel: 0224 443 60 21 / 0224 443 60 22</div>
-      <div><a href="https://www.aydinogullari.com">www.aydinogullari.com  /</a><a href="mailto:info@aydinogulları.com"> info@aydinogulları.com</a></div>
+    <h2 class="name">' . mb_strtoupper(set('company_name')) . '</h2>
+    <div>' . set('company_address') . '</div>
+      <div>Tel: ' . set('company_phone1') . ' / ' . set('company_phone2') . '</div>
+      <div><a href="' . set('panel_url') . '">' . set('panel_url') . '  /</a><a href="mailto:' . set('admin_mail') . '"> ' . set('admin_mail') . '</a></div>
       
     </footer>
   </body>

@@ -14,6 +14,52 @@ function set($vars)
 	return $data['val'];
 }
 
+function format_company_header_title($companyName)
+{
+	$name = trim((string)$companyName);
+	if ($name === '') {
+		return '';
+	}
+
+	if (strpos($name, '<br>') !== false || strpos($name, '<br/>') !== false) {
+		return $name;
+	}
+	if (strpos($name, "\n") !== false) {
+		return nl2br($name);
+	}
+
+	$name = mb_strtoupper($name, 'UTF-8');
+
+	if (mb_strlen($name, 'UTF-8') <= 40) {
+		return $name;
+	}
+
+	$words = preg_split('/\s+/u', $name);
+	if (count($words) <= 2) {
+		return $name;
+	}
+
+	$totalLen = mb_strlen($name, 'UTF-8');
+	$halfLen = $totalLen / 2;
+	$currentLen = 0;
+	$bestIndex = 1;
+	$bestDiff = PHP_INT_MAX;
+
+	for ($i = 0; $i < count($words) - 1; $i++) {
+		$currentLen += mb_strlen($words[$i], 'UTF-8') + ($i > 0 ? 1 : 0);
+		$diff = abs($currentLen - $halfLen);
+		if ($diff < $bestDiff) {
+			$bestDiff = $diff;
+			$bestIndex = $i + 1;
+		}
+	}
+
+	$part1 = implode(' ', array_slice($words, 0, $bestIndex));
+	$part2 = implode(' ', array_slice($words, $bestIndex));
+
+	return $part1 . '<br>' . $part2;
+}
+
 function sesset($vars)
 {
 	$sid = $_SESSION['lid'];

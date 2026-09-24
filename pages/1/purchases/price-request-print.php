@@ -65,7 +65,7 @@ $html = '
             <tr>
                 <td><img src="' . toBase64('src/images/logo.png') . '" class="logo"></td>
                 <td class="company-info">
-                    <strong>' . mb_strtoupper(set('company_name')) . '</strong><br>
+                    <strong>' . format_company_header_title(set('company_name')) . '</strong><br>
                     ' . set('company_address') . '<br>
                     Tel: ' . set('company_phone1') . '<br>
                     ' . set('admin_mail') . '

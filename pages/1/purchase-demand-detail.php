@@ -150,10 +150,10 @@ $html = '<!DOCTYPE html>
                 <td colspan="24">
                 <img src="' . toBase64('src/images/logo.png') . '" width="180px" id="logo" alt="company logo" style="padding:10px">
                 </td>
-                <td colspan="24" class="brand" style="max-width:100px">
+                <td colspan="24" class="brand">
                    
                     <div style="text-align:right;padding:4px">
-                        <strong >' . set("company_name") . '</strong>
+                        <strong >' . format_company_header_title(set("company_name")) . '</strong>
                         <p style="margin:0">' . set("company_address") . '</p>
                         <p style="margin:0">' . set("company_phone1") . ' / ' . set("company_phone2") . '</p>
                         <p style="margin:0">' . set("panel_url") . ' / ' . set("admin_mail") . '</p>

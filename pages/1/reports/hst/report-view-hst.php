@@ -132,6 +132,12 @@ $html='<!DOCTYPE html>
 
     }
 
+    .brand strong {
+        display: block;
+        line-height: 1.25;
+        margin-bottom: 4px;
+    }
+
     .header strong {
         /* border-bottom: 2px solid #808080;
         border-top: 2px solid #808080; */
@@ -159,11 +165,11 @@ $html='<!DOCTYPE html>
                 <td colspan="24">
                     <img src="' . toBase64('src/images/logo.png') . '" width="180px" id="logo" alt="company logo">
                 </td>
-                <td colspan="24" class="brand" style="max-width:0px">
-                    <strong>AYDINOĞULLARI YANGIN SÖNDÜRME SAN.VE TİC.LTD.ŞTİ</strong>
-                    <p>Alaaddin Mah 648. Sokak No: 1A / 5 Ali Aşan Plaza Nilüfer / Bursa</p>
-                    <p>Tel: 0224 443 60 21 / 0224 443 60 22</p>
-                    <p>info@aydinogullari.com / www.aydinogullari.com</p>
+                <td colspan="24" class="brand">
+                    <strong>' . format_company_header_title(set('company_name')) . '</strong>
+                    <p>' . set('company_address') . '</p>
+                    <p>Tel: ' . set('company_phone1') . ' / ' . set('company_phone2') . '</p>
+                    <p>' . set('admin_mail') . ' / ' . set('panel_url') . '</p>
                 </td>
             </tr>
 

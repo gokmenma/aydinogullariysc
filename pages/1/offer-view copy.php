@@ -219,7 +219,7 @@ $html = '<!DOCTYPE html>
                     <img src="' . toBase64('src/images/logo.png') . '" width="180px" id="logo" alt="company logo">
                 </td>
                 <td colspan="24" class="brand">
-                    <strong>' . mb_strtoupper(set('company_name')) . '</strong>
+                    <strong>' . format_company_header_title(set('company_name')) . '</strong>
                     <p>' . set('company_address') . '</p>
                     <p>Tel: ' . set('company_phone1') . ' / ' . set('company_phone2') . '</p>
                     <p>' . set('admin_mail') . ' / ' . set('panel_url') . '</p>
