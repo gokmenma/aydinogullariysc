@@ -9,13 +9,65 @@ final class MaintenanceMode
 {
     public static function isEnabled(PDO $db): bool
     {
+        $status = self::getStatus($db);
+        return $status['active'];
+    }
+
+    /**
+     * Bakımın manuel ve planlı durumunu tek noktadan üretir.
+     * Tarihler veritabanında uygulamanın Europe/Istanbul saat diliminde tutulur.
+     */
+    public static function getStatus(PDO $db): array
+    {
+        $defaults = [
+            'active' => false,
+            'manual' => false,
+            'scheduled' => false,
+            'announcement' => false,
+            'message' => '',
+            'starts_at' => null,
+            'ends_at' => null,
+            'server_time' => date('Y-m-d H:i:s'),
+        ];
+
         try {
-            $stmt = $db->prepare("SELECT val FROM settings WHERE var = ? LIMIT 1");
-            $stmt->execute(['maintenance_mode']);
-            return $stmt->fetchColumn() === '1';
+            $keys = [
+                'maintenance_mode',
+                'maintenance_announcement',
+                'maintenance_start_at',
+                'maintenance_end_at',
+            ];
+            $placeholders = implode(',', array_fill(0, count($keys), '?'));
+            $stmt = $db->prepare("SELECT var, val FROM settings WHERE var IN ($placeholders)");
+            $stmt->execute($keys);
+            $settings = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $settings[$row['var']] = (string) $row['val'];
+            }
+
+            $manual = ($settings['maintenance_mode'] ?? '0') === '1';
+            $startValue = trim($settings['maintenance_start_at'] ?? '');
+            $endValue = trim($settings['maintenance_end_at'] ?? '');
+            $start = $startValue !== '' ? strtotime($startValue) : false;
+            $end = $endValue !== '' ? strtotime($endValue) : false;
+            $now = time();
+            $hasValidSchedule = $start !== false && $end !== false && $end > $start;
+            $scheduled = $hasValidSchedule && $now >= $start && $now < $end;
+            $announcement = $hasValidSchedule && $now < $start;
+
+            return [
+                'active' => $manual || $scheduled,
+                'manual' => $manual,
+                'scheduled' => $scheduled,
+                'announcement' => $announcement,
+                'message' => trim($settings['maintenance_announcement'] ?? ''),
+                'starts_at' => $hasValidSchedule ? date('Y-m-d H:i:s', $start) : null,
+                'ends_at' => $hasValidSchedule ? date('Y-m-d H:i:s', $end) : null,
+                'server_time' => date('Y-m-d H:i:s', $now),
+            ];
         } catch (Throwable $e) {
-            error_log('MaintenanceMode::isEnabled error: ' . $e->getMessage());
-            return false;
+            error_log('MaintenanceMode::getStatus error: ' . $e->getMessage());
+            return $defaults;
         }
     }
 

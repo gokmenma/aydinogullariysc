@@ -1,3 +1,22 @@
+<?php
+$maintenanceHeaderStatus = \App\Helper\MaintenanceMode::getStatus($ac);
+$maintenanceHeaderStatus['has_access'] = \App\Helper\MaintenanceMode::hasAccessPermission($ac);
+$maintenanceHeaderJson = htmlspecialchars(
+	json_encode($maintenanceHeaderStatus, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+	ENT_QUOTES,
+	'UTF-8'
+);
+?>
+<div id="maintenanceNotice" class="maintenance-notice" data-status="<?php echo $maintenanceHeaderJson; ?>" hidden role="status" aria-live="polite">
+	<div class="maintenance-notice-inner">
+		<i class="fa fa-clock-o" aria-hidden="true"></i>
+		<div class="maintenance-notice-copy">
+			<strong>Planlı bakım bildirimi</strong>
+			<span id="maintenanceNoticeMessage"></span>
+		</div>
+		<span id="maintenanceNoticeTime" class="maintenance-notice-time"></span>
+	</div>
+</div>
 <div class="header clearfix">
 	<div class="header-right">
 		<!-- Sol: Menü İkonu (Hamburger) + Mobil Logo + Breadcrumb -->

@@ -48,7 +48,12 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
 
 ## Sürüm Notları Kaydı (Changelog Standardı)
 
-- Sistemde tamamlanan **her konuşma / geliştirme görevi sonunda** `version_notes` tablosuna yapılan işin bilgisi kaydedilmelidir.
+- Sürüm notu, her mesaj veya ara adım için değil; kullanıcıya teslim edilebilir durumdaki **tamamlanmış geliştirme paketi** için bir kez oluşturulmalıdır.
+- Aynı konuşma içinde aynı amaca hizmet eden ek geliştirmeler, düzeltmeler ve doğrulamalar tek sürüm notunda birleştirilmelidir. Görev devam ederken yeni sürüm notu veya yeni bir sürüm notu migration dosyası açılmamalıdır.
+- Görev kapsamında daha önce sürüm notu migration dosyası oluşturulduysa, teslimata kadar yapılacak ilişkili değişiklikler mümkünse aynı dosya ve aynı kayıt açıklaması güncellenerek tutulmalıdır.
+- Birbirinden bağımsız ve ayrı teslim edilebilen geliştirmeler aynı konuşmada yapılsa bile ayrı sürüm notları olabilir; yalnızca mesaj sayısı veya çalışma süresinin uzaması yeni sürüm gerekçesi değildir.
+- Yalnızca analiz, inceleme, soru-cevap, test, dokümantasyon veya proje çalışma kurallarındaki değişiklikler; uygulamanın kodunu, veritabanını ya da kullanıcıya sunulan davranışı değiştirmiyorsa sürüm notu gerektirmez.
+- Sürüm notu ve buna ait SQL migration, işin kapsamı netleşip uygulama ve doğrulama tamamlandıktan sonra, nihai teslimattan hemen önce hazırlanmalıdır.
 - Sürüm notu kaydında şu standartlara uyulmalıdır:
   - `title`: Yapılan geliştirmeyi veya çözümü net özetleyen başlık (Örn: "Sürüm Notları Sayfası Modernizasyonu").
   - `version_tag`: Güncel sürüm etiketi veya alt sürüm numarası (Örn: `v2.4.0` veya `v2026.09.20`).
@@ -57,9 +62,9 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
   - `author`: "Antigravity AI" veya işlem yapan kullanıcı/ajan bilgisi.
   - `created_at`: Anlık tarih-saat bilgisi (`Y-m-d H:i:s`).
 - **SQL Migration Dosyası Zorunluluğu**:
-  - Eklenen her sürüm notu için mutlaka `database/migrations/` altında tarihli ve idempotent bir `.sql` dosyası oluşturulmalıdır (Örn: `database/migrations/YYYYMMDD_HHMMSS_version_note_vX_X_X.sql` veya `YYYYMMDD_add_version_note_vX_X_X.sql`).
+  - Teslimatta eklenen her sürüm notu için mutlaka `database/migrations/` altında tarihli ve idempotent tek bir `.sql` dosyası oluşturulmalıdır (Örn: `database/migrations/YYYYMMDD_HHMMSS_version_note_vX_X_X.sql` veya `YYYYMMDD_add_version_note_vX_X_X.sql`).
   - SQL dosyası `INSERT INTO version_notes (...) SELECT ... WHERE NOT EXISTS (...)` formatında olmalı ve tekrar çalıştırıldığında mükerrer kayıt oluşturmamalıdır.
-- Kayıt hem `database/migrations/` altındaki SQL dosyasında bulunmalı hem de doğrudan veritabanına (`App\Model\VersionNoteModel` veya güvenli PDO sorgusu ile) eklenmeli ve teslimat açıklamasında sürüm notunun ve SQL dosyasının oluşturulduğu belirtilmelidir.
+- Kayıt, nihai teslimat aşamasında hem `database/migrations/` altındaki SQL dosyasında bulunmalı hem de doğrudan veritabanına (`App\Model\VersionNoteModel` veya güvenli PDO sorgusu ile) eklenmelidir. Teslimat açıklamasında sürüm notunun ve SQL dosyasının oluşturulduğu belirtilmelidir.
 
 ## Doğrulama
 
@@ -67,4 +72,3 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
 - SQL migration mümkünse boş veya geçici bir test şemasında uygulanmalı; en azından hedef MariaDB/MySQL sürümüyle sözdizimi doğrulanmalıdır.
 - Veritabanı davranışı değiştiğinde ilgili kayıt ilişkisi test edilmelidir.
 - Test için eklenen veriler yalnızca açıkça belirlenmiş kimliklerle temizlenmeli; geniş veya belirsiz silme sorguları kullanılmamalıdır.
-

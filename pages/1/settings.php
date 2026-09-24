@@ -26,6 +26,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sms_pass      = $_POST["sms_pass"] ?? '';
     $sms_title     = trim($_POST["sms_title"] ?? '');
     $maintenanceMode = (isset($_POST['maintenance_mode']) && $_POST['maintenance_mode'] === '1') ? '1' : '0';
+    $maintenanceAnnouncement = trim($_POST['maintenance_announcement'] ?? '');
+    $maintenanceStartInput = trim($_POST['maintenance_start_at'] ?? '');
+    $maintenanceEndInput = trim($_POST['maintenance_end_at'] ?? '');
+    $maintenanceStartAt = '';
+    $maintenanceEndAt = '';
+
+    if ($canManageMaintenance && ($maintenanceStartInput !== '' || $maintenanceEndInput !== '')) {
+        $startDate = DateTime::createFromFormat('Y-m-d\TH:i', $maintenanceStartInput);
+        $endDate = DateTime::createFromFormat('Y-m-d\TH:i', $maintenanceEndInput);
+        $validStart = $startDate && $startDate->format('Y-m-d\TH:i') === $maintenanceStartInput;
+        $validEnd = $endDate && $endDate->format('Y-m-d\TH:i') === $maintenanceEndInput;
+
+        if (!$validStart || !$validEnd || $endDate <= $startDate) {
+            header("Location: index.php?p=settings&st=maintenance_date_error");
+            exit;
+        }
+
+        $maintenanceStartAt = $startDate->format('Y-m-d H:i:s');
+        $maintenanceEndAt = $endDate->format('Y-m-d H:i:s');
+    }
+
+    if (mb_strlen($maintenanceAnnouncement, 'UTF-8') > 500) {
+        header("Location: index.php?p=settings&st=maintenance_message_error");
+        exit;
+    }
 
     if (empty($title) || empty($url) || empty($company) || empty($address) || empty($city) || empty($gsm1)) {
         header("Location: index.php?p=settings&st=empties");
@@ -54,6 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Bakım ayarı yalnızca özel yetkiye sahip kullanıcı tarafından değiştirilebilir.
     if ($canManageMaintenance) {
         $updateData['maintenance_mode'] = $maintenanceMode;
+        $updateData['maintenance_announcement'] = $maintenanceAnnouncement;
+        $updateData['maintenance_start_at'] = $maintenanceStartAt;
+        $updateData['maintenance_end_at'] = $maintenanceEndAt;
     }
 
     $saved = $settingsModel->updateSettings($updateData);
@@ -72,7 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             audit_log('update', 'settings', 'Panel ve sistem ayarları güncellendi.', 'settings', 1, [
                 'site_title'   => $title,
                 'company_name' => $company,
-                'panel_url'    => $url
+                'panel_url'    => $url,
+                'maintenance_mode' => $canManageMaintenance ? $maintenanceMode : null,
+                'maintenance_start_at' => $canManageMaintenance ? $maintenanceStartAt : null,
+                'maintenance_end_at' => $canManageMaintenance ? $maintenanceEndAt : null
             ]);
         }
         header("Location: index.php?p=settings&st=newsuccess");
@@ -104,6 +135,13 @@ $smsPass      = $currentSettings['sms_pass'] ?? '';
 $smsTitle     = $currentSettings['sms_title'] ?? '';
 $currentLogo  = $currentSettings['logo'] ?? 'src/images/logo.png';
 $maintenanceModeEnabled = ($currentSettings['maintenance_mode'] ?? '0') === '1';
+$maintenanceAnnouncement = $currentSettings['maintenance_announcement'] ?? '';
+$maintenanceStartAt = !empty($currentSettings['maintenance_start_at'])
+    ? date('Y-m-d\TH:i', strtotime($currentSettings['maintenance_start_at']))
+    : '';
+$maintenanceEndAt = !empty($currentSettings['maintenance_end_at'])
+    ? date('Y-m-d\TH:i', strtotime($currentSettings['maintenance_end_at']))
+    : '';
 
 // Bildirim Mesajları
 if (@$_GET["st"] == "newsuccess") {
@@ -115,6 +153,10 @@ if (@$_GET["st"] == "newsuccess") {
     showAlert("alert", $msg);
 } elseif (@$_GET["st"] == "error") {
     showAlert("alert", "Ayarlar kaydedilirken bir hata oluştu. Lütfen tekrar deneyiniz.");
+} elseif (@$_GET["st"] == "maintenance_date_error") {
+    showAlert("alert", "Planlı bakım başlangıç ve bitiş tarihlerini kontrol edin. Bitiş tarihi başlangıçtan sonra olmalıdır.");
+} elseif (@$_GET["st"] == "maintenance_message_error") {
+    showAlert("alert", "Bakım duyurusu en fazla 500 karakter olabilir.");
 }
 ?>
 
@@ -713,13 +755,28 @@ if (@$_GET["st"] == "newsuccess") {
             </div>
             <div class="switch-box-wrapper">
                 <div class="switch-box-label">
-                    <span class="title"><i class="fa fa-exclamation-triangle text-warning"></i> Sistemi Bakım Moduna Al</span>
-                    <span class="desc">Etkinleştirildiğinde diğer kullanıcıların sayfa ve API işlemleri durdurulur, bakım ekranı gösterilir.</span>
+                    <span class="title"><i class="fa fa-exclamation-triangle text-warning"></i> Sistemi Hemen Bakım Moduna Al</span>
+                    <span class="desc">Etkinleştirildiğinde planlanan saati beklemeden diğer kullanıcıların erişimi durdurulur.</span>
                 </div>
                 <label class="custom-switch-ios">
                     <input type="checkbox" name="maintenance_mode" id="maintenance_mode" value="1" <?php echo $maintenanceModeEnabled ? 'checked' : ''; ?>>
                     <span class="custom-switch-slider"></span>
                 </label>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 mb-3">
+                    <label for="maintenance_start_at" class="font-13 weight-600 text-secondary">Planlanan Başlangıç</label>
+                    <input type="datetime-local" class="form-control" name="maintenance_start_at" id="maintenance_start_at" value="<?php echo htmlspecialchars($maintenanceStartAt, ENT_QUOTES, 'UTF-8'); ?>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="maintenance_end_at" class="font-13 weight-600 text-secondary">Tahmini Bitiş</label>
+                    <input type="datetime-local" class="form-control" name="maintenance_end_at" id="maintenance_end_at" value="<?php echo htmlspecialchars($maintenanceEndAt, ENT_QUOTES, 'UTF-8'); ?>">
+                </div>
+                <div class="col-12">
+                    <label for="maintenance_announcement" class="font-13 weight-600 text-secondary">Kullanıcılara Gösterilecek Duyuru</label>
+                    <textarea class="form-control" name="maintenance_announcement" id="maintenance_announcement" rows="3" maxlength="500" placeholder="Örn: Planlı bakım sırasında sistem geçici olarak kullanılamayacaktır. Lütfen çalışmalarınızı önceden kaydedin."><?php echo htmlspecialchars($maintenanceAnnouncement, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                    <small class="text-muted font-12">Başlangıç ve bitiş birlikte girildiğinde duyuru hemen görünür; başlangıç anında bakım otomatik devreye girer ve bitişte kapanır.</small>
+                </div>
             </div>
             <?php if ($maintenanceModeEnabled): ?>
                 <div class="alert alert-warning mt-3 mb-0 font-13">

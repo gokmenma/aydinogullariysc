@@ -11,6 +11,13 @@ if (!MaintenanceMode::isEnabled($ac) || MaintenanceMode::hasAccessPermission($ac
 
 $logo = (string) set('logo');
 $logo = $logo !== '' ? $logo : 'src/images/logo.svg';
+$maintenanceStatus = MaintenanceMode::getStatus($ac);
+$maintenanceMessage = $maintenanceStatus['message'] !== ''
+    ? $maintenanceStatus['message']
+    : 'Sistemimizi daha güvenli ve güçlü hale getirmek için planlı bir bakım çalışması yürütüyoruz. Çalışma tamamlandığında kaldığınız yerden devam edebilirsiniz.';
+$maintenanceEndText = $maintenanceStatus['ends_at']
+    ? date('d.m.Y H:i', strtotime($maintenanceStatus['ends_at']))
+    : '';
 http_response_code(503);
 header('Retry-After: 300');
 ?>
@@ -132,8 +139,11 @@ header('Retry-After: 300');
                 <div class="copy">
                     <p class="eyebrow">Ekibimiz iş başında</p>
                     <h1>Kontrol bizde, kısa süre sonra buradayız.</h1>
-                    <p class="lead">Sistemimizi daha güvenli ve güçlü hale getirmek için planlı bir bakım çalışması yürütüyoruz. Çalışma tamamlandığında kaldığınız yerden devam edebilirsiniz.</p>
+                    <p class="lead"><?php echo htmlspecialchars($maintenanceMessage, ENT_QUOTES, 'UTF-8'); ?></p>
                     <div class="status"><span class="pulse"></span> Bakım çalışması devam ediyor</div>
+                    <?php if ($maintenanceEndText !== ''): ?>
+                        <p class="lead" style="margin-top:14px;font-size:13px;">Tahmini bitiş: <?php echo htmlspecialchars($maintenanceEndText, ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <div class="meta">
@@ -151,5 +161,28 @@ header('Retry-After: 300');
             </aside>
         </div>
     </main>
+    <script>
+        (function () {
+            function checkMaintenanceEnd() {
+                fetch('api/maintenance-status.php', {
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                }).then(function (response) {
+                    if (!response.ok) return null;
+                    return response.json();
+                }).then(function (status) {
+                    if (status && (!status.active || status.has_access)) {
+                        window.location.replace('index.php?p=home');
+                    }
+                }).catch(function () {});
+            }
+
+            window.setInterval(checkMaintenanceEnd, 30000);
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) checkMaintenanceEnd();
+            });
+        })();
+    </script>
 </body>
 </html>

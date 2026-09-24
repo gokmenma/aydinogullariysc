@@ -30,3 +30,4 @@ if ($page == 'products/manage' || $page == 'products/list' || $page == 'products
 <script src="include/js/app.js?v=<?php echo file_exists('include/js/app.js') ? filemtime('include/js/app.js') : time(); ?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="include/js/menu-order.js?v=<?php echo file_exists('include/js/menu-order.js') ? filemtime('include/js/menu-order.js') : time(); ?>"></script>
+<script src="include/js/maintenance-notice.js?v=<?php echo file_exists('include/js/maintenance-notice.js') ? filemtime('include/js/maintenance-notice.js') : time(); ?>"></script>
