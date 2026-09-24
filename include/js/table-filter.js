@@ -47,6 +47,42 @@ App.TableFilter = {
                         p.classList.remove('show');
                     });
                 }
+
+                // Global clear button click handler
+                const clearBtn = e.target.closest('.dt-search-clear-btn');
+                if (clearBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const filterEl = clearBtn.closest('.dataTables_filter');
+                    if (filterEl) {
+                        const input = filterEl.querySelector('input');
+                        if (input) {
+                            input.value = '';
+                            clearBtn.style.display = 'none';
+                            input.focus();
+                            if (window.jQuery) {
+                                $(input).val('').trigger('input').trigger('keyup').trigger('change');
+                            } else {
+                                input.dispatchEvent(new Event('input', { bubbles: true }));
+                                input.dispatchEvent(new Event('keyup', { bubbles: true }));
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Global search input clear button visibility tracker
+            document.addEventListener('input', function (e) {
+                if (e.target && e.target.matches('.dataTables_filter input')) {
+                    const filterEl = e.target.closest('.dataTables_filter');
+                    if (filterEl) {
+                        App.TableFilter.ensureClearButton(filterEl);
+                        const clearBtn = filterEl.querySelector('.dt-search-clear-btn');
+                        if (clearBtn) {
+                            clearBtn.style.display = e.target.value.trim().length > 0 ? 'inline-flex' : 'none';
+                        }
+                    }
+                }
             });
 
             document.addEventListener('keydown', function (e) {
@@ -204,6 +240,25 @@ App.TableFilter = {
         });
     },
 
+    ensureClearButton: function (filterEl) {
+        if (!filterEl) return;
+        const label = filterEl.querySelector('label');
+        const input = filterEl.querySelector('input');
+        if (!label || !input) return;
+
+        let clearBtn = filterEl.querySelector('.dt-search-clear-btn');
+        if (!clearBtn) {
+            clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'dt-search-clear-btn';
+            clearBtn.title = 'Aramayı Temizle';
+            clearBtn.setAttribute('aria-label', 'Temizle');
+            clearBtn.innerHTML = '&times;';
+            label.appendChild(clearBtn);
+        }
+        clearBtn.style.display = (input.value && input.value.trim().length > 0) ? 'inline-flex' : 'none';
+    },
+
     relocateSearchInput: function (table) {
         if (!table) return;
         const wrapper = table.closest('.dataTables_wrapper');
@@ -224,6 +279,8 @@ App.TableFilter = {
         if (input && !input.getAttribute('placeholder')) {
             input.setAttribute('placeholder', 'Arayın...');
         }
+
+        App.TableFilter.ensureClearButton(filterEl);
 
         if (filterEl.dataset.relocated === 'true') return;
 
