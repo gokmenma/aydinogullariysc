@@ -499,6 +499,30 @@ $(document).ready(function () {
         });
     }
 
+    // Modal Kapatma Fonksiyonu
+    function closeCustomerMapModal() {
+        var $modal = $('#customerMapModal');
+        if (typeof $modal.modal === 'function') {
+            $modal.modal('hide');
+        }
+        if (window.bootstrap && window.bootstrap.Modal) {
+            try {
+                var modalEl = document.getElementById('customerMapModal');
+                var bsModal = window.bootstrap.Modal.getInstance(modalEl);
+                if (bsModal) bsModal.hide();
+            } catch (err) {}
+        }
+        $modal.removeClass('show').css('display', 'none');
+        $('body').removeClass('modal-open').css('padding-right', '');
+        $('.modal-backdrop').remove();
+    }
+
+    // Modal Kapatma Butonları (İptal ve Çarpı)
+    $(document).on('click', '#btnCancelCustomerMapModal, #btnCloseCustomerMapModal, #customerMapModal [data-dismiss="modal"], #customerMapModal [data-bs-dismiss="modal"]', function (e) {
+        e.preventDefault();
+        closeCustomerMapModal();
+    });
+
     // "Haritadan Seç" Butonuna Tıklanınca Modal Aç
     $(document).on('click', '#btnOpenCustomerMap', function (e) {
         e.preventDefault();
@@ -671,7 +695,7 @@ $(document).ready(function () {
         }
 
         // Modalı Kapat ve Bildirim Göster
-        $('#customerMapModal').modal('hide');
+        closeCustomerMapModal();
         showCustomerToast('Haritadan seçilen adres ve konum bilgileri forma aktarıldı.', 'success');
     });
 })();

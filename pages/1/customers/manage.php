@@ -439,7 +439,7 @@ if (@$_POST["status"] == "success") {
                         <p class="text-white-50 font-12 mb-0">Haritada tıklayarak veya arama yaparak adresi otomatik belirleyin.</p>
                     </div>
                 </div>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="opacity: 0.8; outline: none;">
+                <button type="button" class="close text-white" data-dismiss="modal" data-bs-dismiss="modal" id="btnCloseCustomerMapModal" aria-label="Kapat" style="opacity: 0.8; outline: none;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -493,12 +493,14 @@ if (@$_POST["status"] == "success") {
                 </div>
             </div>
             <div class="modal-footer" style="background: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 12px 20px;">
-                <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius: 8px; font-weight: 500;">İptal</button>
+                <button type="button" class="btn btn-light" data-dismiss="modal" data-bs-dismiss="modal" id="btnCancelCustomerMapModal" style="border-radius: 8px; font-weight: 500;">İptal</button>
                 <button type="button" id="btnApplyMapAddress" class="btn btn-primary" style="border-radius: 8px; font-weight: 600; padding: 8px 20px;" disabled>
                     <i class="fa fa-check mr-1"></i> Bu Adresi Aktar
                 </button>
             </div>
         </div>
+    </div>
+</div>
 <!-- Leaflet Harita Kütüphanesi -->
 <link rel="stylesheet" href="src/plugins/leaflet/leaflet.css?v=1.9.4" />
 <script src="src/plugins/leaflet/leaflet.js?v=1.9.4"></script>

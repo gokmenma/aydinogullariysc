@@ -299,6 +299,52 @@ try {
         display: none !important;
     }
 
+    /* Table Tooltip Overlap Fix (Tablo içinde ve kart sınırlarında kesilmeyi önler) */
+    #kesifTable [data-tooltip]::before,
+    #kesifTable [data-tooltip]::after,
+    #kesifTable [data-tooltip]:before,
+    #kesifTable [data-tooltip]:after {
+        display: none !important;
+        content: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* Bootstrap Tooltip Şık Görünüm */
+    .tooltip {
+        z-index: 10600 !important;
+        pointer-events: none;
+    }
+    .tooltip .tooltip-inner {
+        max-width: 380px !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border-radius: 6px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25) !important;
+        text-align: left !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+    }
+    .tooltip.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before,
+    .tooltip.bs-tooltip-top .tooltip-arrow::before {
+        border-top-color: #1e293b !important;
+    }
+    .tooltip.bs-tooltip-auto[data-popper-placement^=bottom] .tooltip-arrow::before,
+    .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+        border-bottom-color: #1e293b !important;
+    }
+    .tooltip.bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow::before,
+    .tooltip.bs-tooltip-left .tooltip-arrow::before {
+        border-left-color: #1e293b !important;
+    }
+    .tooltip.bs-tooltip-auto[data-popper-placement^=right] .tooltip-arrow::before,
+    .tooltip.bs-tooltip-right .tooltip-arrow::before {
+        border-right-color: #1e293b !important;
+    }
+
     /* Cell Elements */
     .row-index-badge {
         display: inline-flex;
@@ -344,6 +390,14 @@ try {
         color: #334155;
         line-height: 1.3;
         word-break: break-word;
+        transition: color 0.15s;
+    }
+    .col-job.clickable-job {
+        cursor: pointer;
+    }
+    .col-job.clickable-job:hover {
+        color: #0284c7;
+        text-decoration: underline;
     }
 
     .col-konum {
@@ -1139,9 +1193,19 @@ try {
                             $kayit_his = $kayit_ts ? date('H:i:s', $kayit_ts) : '';
                             $sort_kayit_date = date('Y-m-d H:i:s', $kayit_ts ?: time());
 
+                            $raw_yapilacak_is = $kesif->yapilacak_is ?? '';
+                            $yapilacak_is_full = htmlspecialchars($raw_yapilacak_is, ENT_QUOTES, 'UTF-8');
+                            $yapilacak_is_short = (mb_strlen($raw_yapilacak_is, 'UTF-8') > 150)
+                                ? htmlspecialchars(mb_substr($raw_yapilacak_is, 0, 150, 'UTF-8'), ENT_QUOTES, 'UTF-8') . '...'
+                                : $yapilacak_is_full;
+
                             $formatted_gidecek_kisi = htmlspecialchars($kesif->gidecek_kisi ?? '', ENT_QUOTES, 'UTF-8');
                             $raw_not = $kesif->kesif_sonu_notu ?? '';
                             $kesif_sonu_notu = htmlspecialchars($raw_not, ENT_QUOTES, 'UTF-8');
+                            $raw_not_short = (mb_strlen($raw_not, 'UTF-8') > 150)
+                                ? htmlspecialchars(mb_substr($raw_not, 0, 150, 'UTF-8'), ENT_QUOTES, 'UTF-8') . '...'
+                                : $kesif_sonu_notu;
+
                             $durum = $kesif->durum ?? 'bekliyor';
                             ?>
                             <tr data-id="<?php echo $kesif->id; ?>" data-enc-id="<?php echo $enc_id; ?>" data-firma="<?php echo htmlspecialchars($kesif->firma, ENT_QUOTES, 'UTF-8'); ?>" data-konum="<?php echo htmlspecialchars($kesif->konum, ENT_QUOTES, 'UTF-8'); ?>">
@@ -1159,10 +1223,16 @@ try {
                                         <i class="fa fa-building-o text-muted mr-1"></i><?php echo htmlspecialchars($kesif->firma, ENT_QUOTES, 'UTF-8'); ?>
                                     </div>
                                 </td>
-                                <td data-tooltip="<?php echo htmlspecialchars($kesif->yapilacak_is, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <div class="col-job">
-                                        <?php echo htmlspecialchars($kesif->yapilacak_is, ENT_QUOTES, 'UTF-8'); ?>
-                                    </div>
+                                <td data-export="<?php echo $yapilacak_is_full; ?>" data-tooltip="<?php echo $yapilacak_is_full; ?>">
+                                    <?php if (permtrue('kesifEdit')) { ?>
+                                        <div class="col-job clickable-job edit-btn" data-id="<?php echo $kesif->id; ?>" role="button" tabindex="0" title="Düzenlemek için tıklayın">
+                                            <?php echo $yapilacak_is_short; ?>
+                                        </div>
+                                    <?php } else { ?>
+                                        <div class="col-job">
+                                            <?php echo $yapilacak_is_short; ?>
+                                        </div>
+                                    <?php } ?>
                                 </td>
                                 <td class="text-center">
                                     <?php if (!empty($kesif->gidecek_kisi) && trim($kesif->gidecek_kisi) !== '.') { ?>
@@ -1196,32 +1266,45 @@ try {
                                     if (!empty($kesif->gorseller)) {
                                         $gorseller = json_decode($kesif->gorseller, true);
                                         if (!empty($gorseller) && is_array($gorseller)) {
-                                            echo '<div class="gorsel-thumb-group">';
-                                            $shownCount = 0;
+                                            $docRoot = dirname(__DIR__, 3);
+                                            $validGorseller = [];
                                             foreach ($gorseller as $img) {
-                                                $imgUrl = '/' . ltrim($img, '/');
-                                                $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
-                                                $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
-                                                
-                                                if ($shownCount < 2) {
-                                                    if ($isImg) {
-                                                        echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">
-                                                                <img src="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" class="gorsel-thumb" onerror="this.onerror=null;this.style.display=\'none\';" alt="Görsel">
-                                                              </a>';
-                                                    } elseif ($ext === 'docx' || $ext === 'doc') {
-                                                        echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener" class="badge badge-light border p-1" title="Word"><i class="fa fa-file-word-o text-primary"></i></a>';
-                                                    } elseif ($ext === 'pdf') {
-                                                        echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener" class="badge badge-light border p-1" title="PDF"><i class="fa fa-file-pdf-o text-danger"></i></a>';
-                                                    } else {
-                                                        echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener" class="badge badge-light border p-1" title="Ek"><i class="fa fa-paperclip text-muted"></i></a>';
-                                                    }
-                                                    $shownCount++;
+                                                $diskPath = $docRoot . '/' . ltrim($img, '/');
+                                                if (file_exists($diskPath)) {
+                                                    $validGorseller[] = $img;
                                                 }
                                             }
-                                            if (count($gorseller) > 2) {
-                                                echo '<span class="gorsel-more-badge">+' . (count($gorseller) - 2) . '</span>';
+
+                                            if (!empty($validGorseller)) {
+                                                echo '<div class="gorsel-thumb-group">';
+                                                $shownCount = 0;
+                                                foreach ($validGorseller as $img) {
+                                                    $imgUrl = '/' . ltrim($img, '/');
+                                                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                                                    $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+                                                    
+                                                    if ($shownCount < 2) {
+                                                        if ($isImg) {
+                                                            echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">
+                                                                    <img src="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" class="gorsel-thumb" onerror="this.onerror=null;this.style.display=\'none\';" alt="Görsel">
+                                                                  </a>';
+                                                        } elseif ($ext === 'docx' || $ext === 'doc') {
+                                                            echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener" class="badge badge-light border p-1" title="Word"><i class="fa fa-file-word-o text-primary"></i></a>';
+                                                        } elseif ($ext === 'pdf') {
+                                                            echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener" class="badge badge-light border p-1" title="PDF"><i class="fa fa-file-pdf-o text-danger"></i></a>';
+                                                        } else {
+                                                            echo '<a href="' . htmlspecialchars($imgUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener" class="badge badge-light border p-1" title="Ek"><i class="fa fa-paperclip text-muted"></i></a>';
+                                                        }
+                                                        $shownCount++;
+                                                    }
+                                                }
+                                                if (count($validGorseller) > 2) {
+                                                    echo '<span class="gorsel-more-badge">+' . (count($validGorseller) - 2) . '</span>';
+                                                }
+                                                echo '</div>';
+                                            } else {
+                                                echo '<span class="text-muted">-</span>';
                                             }
-                                            echo '</div>';
                                         } else {
                                             echo '<span class="text-muted">-</span>';
                                         }
@@ -1250,7 +1333,7 @@ try {
                                 <td data-export="<?php echo htmlspecialchars($raw_not, ENT_QUOTES, 'UTF-8'); ?>" data-tooltip="<?php echo $kesif_sonu_notu; ?>">
                                     <?php if (!empty($raw_not) && trim($raw_not) !== '.') { ?>
                                         <div class="col-note">
-                                            <i class="fa fa-sticky-note-o text-warning mr-1"></i><?php echo htmlspecialchars($raw_not, ENT_QUOTES, 'UTF-8'); ?>
+                                            <i class="fa fa-sticky-note-o text-warning mr-1"></i><?php echo $raw_not_short; ?>
                                         </div>
                                     <?php } else { ?>
                                         <span class="text-muted text-center d-block">-</span>

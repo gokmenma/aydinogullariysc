@@ -1364,10 +1364,10 @@ if (!function_exists('formatRelativeTime')) {
 
 .logs-pagination-row .pagination .page-item.active .page-link,
 .dataTables_paginate ul.pagination .page-item.active .page-link {
-    background-color: #0284c7 !important;
-    border-color: #0284c7 !important;
+    background-color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary, #2563eb) !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+    box-shadow: 0 2px 6px var(--theme-primary-shadow, rgba(37, 99, 235, 0.3)) !important;
 }
 
 .logs-pagination-row .pagination .page-item.disabled .page-link,
@@ -1718,9 +1718,10 @@ if (!function_exists('formatRelativeTime')) {
     color: #cbd5e1 !important;
 }
 .dark-mode .logs-pagination-row .pagination .page-item.active .page-link {
-    background-color: #0284c7 !important;
-    border-color: #0284c7 !important;
+    background-color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary, #2563eb) !important;
     color: #ffffff !important;
+    box-shadow: 0 2px 6px var(--theme-primary-shadow, rgba(37, 99, 235, 0.3)) !important;
 }
 
 @media (max-width: 991px) {

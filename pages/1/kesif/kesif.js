@@ -30,6 +30,23 @@ $(document).ready(function () {
     $("#kesifTable").find("tr.search-input-row").remove();
   });
 
+  // Tooltip Yönetimi (Bootstrap 4 / Body Delegation - Tablo ve kart içi kesilmeleri önler)
+  try {
+    $("body").tooltip({
+      selector: '#kesifTable [data-tooltip]',
+      title: function () {
+        var text = $(this).attr("data-tooltip");
+        return (text && text.trim() !== "-" && text.trim() !== ".") ? text : "";
+      },
+      container: "body",
+      boundary: "window",
+      placement: "auto",
+      trigger: "hover"
+    });
+  } catch (err) {
+    console.warn("Tooltip init error:", err);
+  }
+
   // Tablo Yenileme Butonu
   $(document).on("click", "#btnRefreshKesif", function () {
     var $btn = $(this);

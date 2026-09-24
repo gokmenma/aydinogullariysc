@@ -350,38 +350,46 @@ if ($sablonlari_goster) {
 }
 
 // --- 4. Toplam Kayıt Sayılarını Al ---
-$total_records_query = $ac->query("SELECT COUNT(id) FROM $base_table");
-$recordsTotal = $total_records_query->fetchColumn();
+$recordsTotal = 0;
+$recordsFiltered = 0;
+$results = [];
 
-// Filtrelenmiş kayıt sayısı - VIEW'DEN SAYIYOR
-$filtered_records_query = $ac->prepare("SELECT COUNT(id) FROM $base_table " . $where_clause);
-$filtered_records_query->execute($params);
-$recordsFiltered = $filtered_records_query->fetchColumn();
+try {
+    $total_records_query = $ac->query("SELECT COUNT(id) FROM $base_table");
+    $recordsTotal = $total_records_query ? (int)$total_records_query->fetchColumn() : 0;
 
-// --- 5. Asıl Veriyi Çek ---
-$data_query_sql = "SELECT vo.*,
-                           (SELECT c.deleted_at
-                            FROM customers c
-                            WHERE c.id = vo.customer_id
-                            LIMIT 1) AS customer_deleted_at
-                    FROM $base_table vo "
-                    . $where_clause . " "
-                    . "ORDER BY " . $order_column_name . " " . strtoupper($order_direction) . " "
-                    . "LIMIT ? OFFSET ?";
+    // Filtrelenmiş kayıt sayısı - VIEW'DEN SAYIYOR
+    $filtered_records_query = $ac->prepare("SELECT COUNT(id) FROM $base_table " . $where_clause);
+    $filtered_records_query->execute($params);
+    $recordsFiltered = (int)$filtered_records_query->fetchColumn();
 
-$data_query = $ac->prepare($data_query_sql);
+    // --- 5. Asıl Veriyi Çek ---
+    $data_query_sql = "SELECT vo.*,
+                               (SELECT c.deleted_at
+                                FROM customers c
+                                WHERE c.id = vo.customer_id
+                                LIMIT 1) AS customer_deleted_at
+                        FROM $base_table vo "
+                        . $where_clause . " "
+                        . "ORDER BY " . $order_column_name . " " . strtoupper($order_direction) . " "
+                        . "LIMIT ? OFFSET ?";
 
-$i = 1;
-foreach ($params as $param) {
-    $data_query->bindValue($i, $param, PDO::PARAM_STR);
+    $data_query = $ac->prepare($data_query_sql);
+
+    $i = 1;
+    foreach ($params as $param) {
+        $data_query->bindValue($i, $param, PDO::PARAM_STR);
+        $i++;
+    }
+    $data_query->bindValue($i, (int)$length, PDO::PARAM_INT);
     $i++;
-}
-$data_query->bindValue($i, (int)$length, PDO::PARAM_INT);
-$i++;
-$data_query->bindValue($i, (int)$start, PDO::PARAM_INT);
+    $data_query->bindValue($i, (int)$start, PDO::PARAM_INT);
 
-$data_query->execute();
-$results = $data_query->fetchAll(PDO::FETCH_ASSOC);
+    $data_query->execute();
+    $results = $data_query->fetchAll(PDO::FETCH_ASSOC);
+} catch (\Throwable $e) {
+    error_log("get-offers.php Error: " . $e->getMessage());
+}
 
 // --- 6. Çıktıyı Formatlama ---
 $data = [];
@@ -438,6 +446,11 @@ foreach ($results as $of) {
 
     $islem_butonlari .='</div></div></div>';
     
+    $canEditOffer = ($of["is_template"] == 1 && checkAuth("template_offer_edit")) || ($of["is_template"] == 0 && checkAuth("offeredit"));
+    $teklifNoCell = $canEditOffer
+        ? '<a href="index.php?p=offers/offer-manage&id=' . (int)$of["id"] . '" class="font-weight-bold text-primary" data-tooltip="Düzenle">' . htmlspecialchars($of['offerNumber']) . '</a>'
+        : htmlspecialchars($of['offerNumber']);
+
     $customerName = htmlspecialchars(shorted($of["company_name"], 40));
     $customerCell = !empty($of["customer_deleted_at"])
         ? '<span class="text-muted">' . $customerName . ' <small class="badge badge-secondary">Silinmiş</small></span>'
@@ -446,7 +459,7 @@ foreach ($results as $of) {
     $data[] = [
         "sira_no"       => $sirano,
         "islem_tarihi"  => (!empty($of["created_at"]) ? (new DateTime($of["created_at"]))->format('d.m.Y H:i') : ''),
-        "teklif_no"     => htmlspecialchars($of['offerNumber']),
+        "teklif_no"     => $teklifNoCell,
         "musteri"       => $customerCell,
         "toplam_tutar"  => "₺ " . tlFormat($of["tl_toplam_karsilik"] ?? 0),
         "durum"         => $durum_badge,

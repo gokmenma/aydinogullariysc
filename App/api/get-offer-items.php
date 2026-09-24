@@ -381,10 +381,15 @@ foreach ($results as $r) {
         <a href="index.php?p=offer-view&id='.$r['oid'].'" target="_blank" class="btn btn-sm btn-outline-secondary" data-tooltip="Göster"><i class="fa fa-eye"></i></a>
     ';
 
+    $canEditOffer = checkAuth("offeredit");
+    $teklifNoCell = $canEditOffer
+        ? '<a href="index.php?p=offers/offer-manage&id=' . (int)$r['oid'] . '" class="font-weight-bold text-primary" data-tooltip="Düzenle">' . htmlspecialchars($r['offerNumber']) . '</a>'
+        : htmlspecialchars($r['offerNumber']);
+
     $data[] = [
         "sira_no" => $sirano++,
         "islemler" => $actions,
-        "teklif_no" => htmlspecialchars($r['offerNumber']),
+        "teklif_no" => $teklifNoCell,
         "firma" => '<a href="index.php?p=customers/manage&id='.$r['customer_id'].'">'.htmlspecialchars($r['company_name']).'</a>',
         "tarih" => (!empty($r["created_at"]) ? (new DateTime($r["created_at"]))->format('d.m.Y') : ''),
         "stok_kodu" => htmlspecialchars($r['stokKodu'] ?? '-'),
