@@ -505,7 +505,7 @@ $uniqueControllers = (int)($summary->unique_controllers ?? 0);
                 </div>
             </div>
 
-            <div class="responsive">
+            <div class="table-responsive">
                 <table id="reportTable" class="data-table table-hover table-bordered text-nowrap" style="width: 100%;">
                     <thead>
                         <tr>
@@ -693,22 +693,29 @@ tr.context-menu-active {
                 processing: true,
                 serverSide: true,
                 stateSave: true,
+                stateLoadParams: function (settings, data) {
+                    // Sütun sayısı uyuşmazlığı varsa eski state'i sıfırla
+                    if (data && data.columns && data.columns.length !== settings.aoColumns.length) {
+                        return false;
+                    }
+                },
                 autoWidth: false,
+                responsive: false,
                 ajax: {
                     url: "api/reports_datatables.php",
                     type: "GET"
                 },
                 columns: [
-                    { data: 0, className: "text-center" }, // ID
-                    { data: 1, className: "text-center" }, // Rapor No
+                    { data: 0, className: "text-center", width: "45px" }, // ID
+                    { data: 1, className: "text-center", width: "110px" }, // Rapor No
                     { data: 2 }, // Firma
                     { data: 3 }, // Rapor Türü
-                    { data: 4 }, // İş Emri No
-                    { data: 5, className: "text-center" }, // Kontrol Tarihi
-                    { data: 6, className: "text-center" }, // Geçerlilik Tarihi
-                    { data: 7, className: "text-center" }, // Kayıt Tarihi
-                    { data: 8, className: "text-center" }, // Kayıt Yapan
-                    { data: 9, orderable: false, className: "text-center" } // İşlem
+                    { data: 4, className: "text-center", width: "90px" }, // İş Emri No
+                    { data: 5, className: "text-center", width: "100px" }, // Kontrol Tarihi
+                    { data: 6, className: "text-center", width: "100px" }, // Geçerlilik Tarihi
+                    { data: 7, className: "text-center", width: "105px" }, // Kayıt Tarihi
+                    { data: 8, className: "text-center", width: "120px" }, // Kayıt Yapan
+                    { data: 9, orderable: false, searchable: false, className: "text-center", width: "110px" } // İşlem
                 ],
                 pageLength: 25,
                 lengthMenu: [10, 25, 50, 100],
@@ -716,9 +723,13 @@ tr.context-menu-active {
                     url: "include/js/tr.json",
                     processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Yükleniyor...</span>'
                 },
-                responsive: true,
                 order: [[0, "desc"]],
                 orderCellsTop: true,
+                drawCallback: function () {
+                    $('[data-toggle="tooltip"]').tooltip({
+                        container: 'body'
+                    });
+                },
                 initComplete: function () {
                     var api = this.api();
 
