@@ -13,6 +13,55 @@ $Customer = new CustomerModel();
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Şablon / Tekrarlanan E-Posta Kontrolü
+if (($_REQUEST['action'] ?? '') === 'check_email') {
+    $userId = (int)($_SESSION['lid'] ?? 0);
+    if ($userId <= 0 || (!permtrue('customeradd') && !permtrue('customeredit') && !permtrue('customers'))) {
+        http_response_code(403);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Yetkisiz erişim.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $email = trim((string)($_REQUEST['email'] ?? ''));
+    $excludeId = (int)($_REQUEST['company_id'] ?? ($_REQUEST['customer_id'] ?? ($_REQUEST['id'] ?? 0)));
+
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode([
+            'status' => 'success',
+            'exists' => false,
+            'count' => 0,
+            'warning_message' => '',
+            'companies' => []
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $result = $Customer->checkEmailUsage($email, $excludeId);
+    $warningMsg = '';
+    if ($result['exists']) {
+        $count = (int)$result['count'];
+        $companiesList = array_column($result['companies'], 'company');
+        $previewCompanies = implode(', ', array_slice($companiesList, 0, 3));
+        if ($count > 3) {
+            $previewCompanies .= ' ve diğerleri';
+        }
+
+        $warningMsg = "Bu e-posta adresi daha önce {$count} aktif firma kaydında kullanılmıştır ({$previewCompanies}). Firma ile sağlıklı iletişim ve e-posta iletimi için firmanın gerçek e-posta adresini yazmanız önerilir.";
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'exists' => $result['exists'],
+        'count' => (int)$result['count'],
+        'warning_message' => $warningMsg,
+        'companies' => $result['companies']
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (($_POST['action'] ?? '') == 'create') {
     $id = intval($_POST['company_id'] ?? 0);
     $existingCustomer = null;

@@ -1,10 +1,12 @@
 <?php
 use App\Model\CustomerModel;
+use App\Helper\Security;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
 permcontrol("mailandsmssend");
+$mailTemplateCsrfToken = Security::csrf();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -304,6 +306,42 @@ if ($statusParam === 'true' || $statusParam === 'success') {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
 }
 
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 4px !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline {
+    flex: 1 1 auto !important;
+    min-width: 260px !important;
+    display: inline-flex !important;
+    margin: 2px 0 !important;
+    float: none !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 220px !important;
+    margin: 0 !important;
+    padding: 4px 6px !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    color: #334155 !important;
+    box-sizing: border-box !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+    font-size: 13px !important;
+}
+
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
     background: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
@@ -596,6 +634,59 @@ if ($statusParam === 'true' || $statusParam === 'success') {
     background: #ef4444;
     color: #ffffff;
 }
+
+.mail-template-list {
+    max-height: 430px;
+    overflow-y: auto;
+}
+
+.mail-template-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #fff;
+}
+
+.mail-template-item-info {
+    min-width: 0;
+}
+
+.mail-template-item-name,
+.mail-template-item-subject {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mail-template-item-name {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.mail-template-item-subject {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.mail-template-item-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+body.dark-mode .mail-template-item {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .mail-template-item-name {
+    color: #f8fafc;
+}
 </style>
 
 <div class="send-mail-manage-wrapper">
@@ -689,7 +780,7 @@ if ($statusParam === 'true' || $statusParam === 'success') {
 
                     <div class="mail-select-container">
                         <select required name="customers[]" id="customers" class="form-control select2-recipients" multiple="multiple" style="width: 100%;">
-                            <?php if ($preselectedCustomer && !empty($preselectedCustomer['email'])): 
+                            <?php if ($preselectedCustomer && !empty($preselectedCustomer['email']) && filter_var(trim($preselectedCustomer['email']), FILTER_VALIDATE_EMAIL)):
                                 $pEmail = htmlspecialchars(trim($preselectedCustomer['email']), ENT_QUOTES, 'UTF-8');
                                 $pCompany = htmlspecialchars($preselectedCustomer['company'] ?? '', ENT_QUOTES, 'UTF-8');
                                 $pYetkili = htmlspecialchars($preselectedCustomer['yetkili'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -728,11 +819,11 @@ if ($statusParam === 'true' || $statusParam === 'success') {
                 </div>
                 <!-- Şablon Yönetimi -->
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-tooltip="Şablon Olarak Kaydet"
+                    <button type="button" id="btnSaveMailTemplate" class="btn btn-sm btn-outline-secondary" data-tooltip="Şablon Olarak Kaydet"
                         data-tooltip-location="bottom" style="border-radius: 8px; padding: 6px 12px; font-size: 13px;">
                         <i class="fa fa-save"></i> Şablon Kaydet
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-primary" data-tooltip="Şablondan Aktar"
+                    <button type="button" id="btnLoadMailTemplate" class="btn btn-sm btn-outline-primary" data-tooltip="Şablondan Aktar"
                         data-tooltip-location="bottom" style="border-radius: 8px; padding: 6px 12px; font-size: 13px;">
                         <i class="fa fa-hand-o-right"></i> Şablondan Yükle
                     </button>
@@ -741,7 +832,7 @@ if ($statusParam === 'true' || $statusParam === 'success') {
             
             <!-- Editör -->
             <div class="editor-wrapper">
-                <textarea required class="textarea_editor form-control border-radius-8" name="mailicerik" placeholder="E-posta içeriğinizi yazınız..."></textarea>
+                <textarea required id="mailicerik" class="textarea_editor form-control border-radius-8" name="mailicerik" placeholder="E-posta içeriğinizi yazınız..."></textarea>
             </div>
 
             <!-- Şık Dosya Eki Alanı (İçeriğin Altında) -->
@@ -783,8 +874,45 @@ if ($statusParam === 'true' || $statusParam === 'success') {
     </form>
 </div>
 
+<div class="modal fade" id="saveMailTemplateModal" tabindex="-1" role="dialog" aria-labelledby="saveMailTemplateTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveMailTemplateTitle"><i class="fa fa-save text-primary mr-2"></i>Mail Şablonu Kaydet</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-2">
+                    <label for="mailTemplateName">Şablon Adı</label>
+                    <input type="text" id="mailTemplateName" class="form-control" maxlength="150" autocomplete="off" placeholder="Örn. Periyodik bakım bilgilendirmesi">
+                </div>
+                <small class="text-muted">Aynı addaki kişisel şablonunuz varsa konu, gönderen, firma/alıcılar ve içerik güncellenir.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-primary" id="confirmSaveMailTemplate"><i class="fa fa-save mr-1"></i> Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="loadMailTemplateModal" tabindex="-1" role="dialog" aria-labelledby="loadMailTemplateTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loadMailTemplateTitle"><i class="fa fa-folder-open-o text-primary mr-2"></i>Kayıtlı Mail Şablonları</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="mailTemplateList" class="mail-template-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(document).ready(function() {
+    var mailTemplateCsrfToken = <?php echo json_encode($mailTemplateCsrfToken, JSON_UNESCAPED_UNICODE); ?>;
     // Gönderen mail seçimi için standart Select2
     $('.select2-single').select2({
         minimumResultsForSearch: 6,
@@ -810,8 +938,12 @@ $(document).ready(function() {
             );
         }
 
+        var email = (data.email || data.id || '').toString().trim();
+        if (!email || !emailRegex.test(email)) {
+            return null;
+        }
+
         var company = data.company || '';
-        var email = data.email || data.id;
         var yetkili = data.yetkili || '';
         var city = data.city || '';
 
@@ -849,9 +981,12 @@ $(document).ready(function() {
             return data.text;
         }
 
-        var company = data.company || '';
-        var email = data.email || data.id;
+        var email = (data.email || data.id || '').toString().trim();
+        if (!email || !emailRegex.test(email)) {
+            return null;
+        }
 
+        var company = data.company || '';
         if (!company && data.element) {
             company = $(data.element).data('company') || '';
             email = $(data.element).data('email') || data.id;
@@ -984,6 +1119,189 @@ $(document).ready(function() {
         $recipients.val(null).trigger('change');
     });
 
+    function showMailTemplateMessage(type, message, title) {
+        if (typeof toastr !== 'undefined' && typeof toastr[type] === 'function') {
+            toastr[type](message, title || 'Mail Şablonu');
+            return;
+        }
+        alert(message);
+    }
+
+    function getMailEditorContent() {
+        var $editor = $('#mailicerik');
+        var editorData = $editor.data('wysihtml5');
+        if (editorData && editorData.editor && typeof editorData.editor.getValue === 'function') {
+            return $.trim(editorData.editor.getValue());
+        }
+        var $iframe = $editor.siblings('iframe.wysihtml5-sandbox');
+        if ($iframe.length) {
+            try {
+                return $.trim($iframe[0].contentDocument.body.innerHTML);
+            } catch (error) {}
+        }
+        return $.trim($editor.val());
+    }
+
+    function setMailEditorContent(content) {
+        var $editor = $('#mailicerik');
+        var editorData = $editor.data('wysihtml5');
+        $editor.val(content);
+        if (editorData && editorData.editor && typeof editorData.editor.setValue === 'function') {
+            editorData.editor.setValue(content);
+        } else {
+            var $iframe = $editor.siblings('iframe.wysihtml5-sandbox');
+            if ($iframe.length) {
+                try {
+                    $iframe[0].contentDocument.body.innerHTML = content;
+                } catch (error) {}
+            }
+        }
+        $editor.trigger('change');
+    }
+
+    function collectTemplateRecipients() {
+        return ($recipients.select2('data') || []).map(function(item) {
+            var $option = item.element ? $(item.element) : $();
+            return {
+                email: $.trim(item.id || ''),
+                company: $.trim(item.company || $option.data('company') || ''),
+                yetkili: $.trim(item.yetkili || $option.data('yetkili') || ''),
+                city: $.trim(item.city || $option.data('city') || '')
+            };
+        });
+    }
+
+    $('#btnSaveMailTemplate').on('click', function() {
+        var recipients = collectTemplateRecipients();
+        if (!$('#mail_address').val() || !$.trim($('#mailkonu').val()) || !getMailEditorContent() || recipients.length === 0) {
+            showMailTemplateMessage('warning', 'Şablon kaydetmeden önce gönderen, konu, alıcılar ve mail içeriğini eksiksiz doldurunuz.', 'Eksik Alan');
+            return;
+        }
+        $('#mailTemplateName').val('');
+        $('#saveMailTemplateModal').modal('show');
+        setTimeout(function() { $('#mailTemplateName').focus(); }, 250);
+    });
+
+    $('#confirmSaveMailTemplate').on('click', function() {
+        var name = $.trim($('#mailTemplateName').val());
+        if (!name) {
+            showMailTemplateMessage('warning', 'Lütfen şablon adını giriniz.', 'Eksik Şablon Adı');
+            return;
+        }
+
+        var $button = $(this);
+        var originalHtml = $button.html();
+        $button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Kaydediliyor...');
+        $.ajax({
+            url: 'api/mail_templates.php',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'save',
+                csrf_token: mailTemplateCsrfToken,
+                name: name,
+                sender_email: $('#mail_address').val(),
+                subject: $.trim($('#mailkonu').val()),
+                recipients: JSON.stringify(collectTemplateRecipients()),
+                body_html: getMailEditorContent()
+            }
+        }).done(function(response) {
+            $('#saveMailTemplateModal').modal('hide');
+            showMailTemplateMessage('success', response.message || 'Şablon kaydedildi.');
+        }).fail(function(xhr) {
+            var response = xhr.responseJSON || {};
+            showMailTemplateMessage('error', response.message || 'Şablon kaydedilemedi.', 'Hata');
+        }).always(function() {
+            $button.prop('disabled', false).html(originalHtml);
+        });
+    });
+
+    $('#mailTemplateName').on('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            $('#confirmSaveMailTemplate').trigger('click');
+        }
+    });
+
+    function renderMailTemplateList(templates) {
+        var $list = $('#mailTemplateList').empty();
+        if (!templates.length) {
+            $('<div>', { class: 'text-center text-muted py-4', text: 'Henüz kayıtlı mail şablonunuz bulunmuyor.' }).appendTo($list);
+            return;
+        }
+
+        templates.forEach(function(template) {
+            var $item = $('<div>', { class: 'mail-template-item' });
+            var $info = $('<div>', { class: 'mail-template-item-info' });
+            $('<div>', { class: 'mail-template-item-name', text: template.name }).appendTo($info);
+            $('<div>', { class: 'mail-template-item-subject', text: template.subject + ' · ' + template.sender_email }).appendTo($info);
+            var $actions = $('<div>', { class: 'mail-template-item-actions' });
+            $('<button>', {
+                type: 'button',
+                class: 'btn btn-sm btn-primary btn-apply-mail-template',
+                'data-id': template.id,
+                html: '<i class="fa fa-check mr-1"></i> Yükle'
+            }).appendTo($actions);
+            $item.append($info, $actions).appendTo($list);
+        });
+    }
+
+    $('#btnLoadMailTemplate').on('click', function() {
+        $('#mailTemplateList').html('<div class="text-center text-muted py-4"><i class="fa fa-spinner fa-spin mr-1"></i> Şablonlar yükleniyor...</div>');
+        $('#loadMailTemplateModal').modal('show');
+        $.getJSON('api/mail_templates.php', { action: 'list' })
+            .done(function(response) {
+                renderMailTemplateList(response.templates || []);
+            })
+            .fail(function(xhr) {
+                var response = xhr.responseJSON || {};
+                $('#mailTemplateList').empty();
+                showMailTemplateMessage('error', response.message || 'Şablon listesi alınamadı.', 'Hata');
+            });
+    });
+
+    $('#mailTemplateList').on('click', '.btn-apply-mail-template', function() {
+        var templateId = $(this).data('id');
+        var $button = $(this);
+        $button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+        $.getJSON('api/mail_templates.php', { action: 'get', id: templateId })
+            .done(function(response) {
+                var template = response.template || {};
+                var senderAvailable = $('#mail_address option').filter(function() {
+                    return $(this).val() === (template.sender_email || '');
+                }).length > 0;
+                if (senderAvailable) {
+                    $('#mail_address').val(template.sender_email).trigger('change');
+                } else {
+                    showMailTemplateMessage('warning', 'Şablondaki gönderici hesabı artık kullanılamıyor; mevcut gönderici seçimi korundu.', 'Gönderici Bulunamadı');
+                }
+                $('#mailkonu').val(template.subject || '');
+
+                $recipients.empty();
+                (template.recipients || []).forEach(function(recipient) {
+                    var label = recipient.company ? recipient.company + ' (' + recipient.email + ')' : recipient.email;
+                    var option = new Option(label, recipient.email, true, true);
+                    $(option)
+                        .data('company', recipient.company || '')
+                        .data('email', recipient.email || '')
+                        .data('yetkili', recipient.yetkili || '')
+                        .data('city', recipient.city || '');
+                    $recipients.append(option);
+                });
+                $recipients.trigger('change');
+                setMailEditorContent(template.body_html || '');
+                $('#loadMailTemplateModal').modal('hide');
+                showMailTemplateMessage('success', '“' + (template.name || 'Şablon') + '” tüm mail alanlarıyla yüklendi.');
+            })
+            .fail(function(xhr) {
+                var response = xhr.responseJSON || {};
+                showMailTemplateMessage('error', response.message || 'Şablon yüklenemedi.', 'Hata');
+            })
+            .always(function() {
+                $button.prop('disabled', false).html('<i class="fa fa-check mr-1"></i> Yükle');
+            });
+    });
+
     // Dosya Eki Seçim & Önizleme Yönetimi
     $('#dosya').on('change', function() {
         var file = this.files[0];
@@ -1052,5 +1370,29 @@ $(document).ready(function() {
         $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Mail Gönderiliyor...');
         return true;
     });
+
+    // WYSIHTML5 / Metin Editörü Placeholder ve Padding Hizalama
+    function applyEditorPadding() {
+        $('iframe.wysihtml5-sandbox').each(function () {
+            try {
+                var doc = this.contentDocument || this.contentWindow.document;
+                if (doc && doc.body) {
+                    if (!doc.getElementById('wysi-mail-iframe-style')) {
+                        var style = doc.createElement('style');
+                        style.id = 'wysi-mail-iframe-style';
+                        style.innerHTML = 'html, body { padding: 10px 14px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.5 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 10px 14px !important; margin: 0 !important; }';
+                        doc.head.appendChild(style);
+                    }
+                    doc.body.style.padding = '10px 14px';
+                }
+            } catch (e) {}
+        });
+    }
+
+    applyEditorPadding();
+    setTimeout(applyEditorPadding, 100);
+    setTimeout(applyEditorPadding, 300);
+    setTimeout(applyEditorPadding, 700);
+    setTimeout(applyEditorPadding, 1500);
 });
 </script>

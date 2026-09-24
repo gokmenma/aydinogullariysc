@@ -821,3 +821,139 @@ $(document).ready(function() {
     }
 });
 
+// Global WYSIHTML5 / Rich Text Editor Placeholder ve Padding Hizalama
+function initGlobalWysiPadding() {
+    function applyPadding() {
+        if (typeof $ === 'undefined') return;
+        $('iframe.wysihtml5-sandbox').each(function () {
+            try {
+                var doc = this.contentDocument || this.contentWindow.document;
+                if (doc && doc.body) {
+                    if (!doc.getElementById('wysi-global-padding-style')) {
+                        var style = doc.createElement('style');
+                        style.id = 'wysi-global-padding-style';
+                        style.innerHTML = 'html, body { padding: 10px 14px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.5 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 10px 14px !important; margin: 0 !important; }';
+                        doc.head.appendChild(style);
+                    }
+                    doc.body.style.padding = '10px 14px';
+                }
+            } catch (e) {}
+        });
+    }
+
+    applyPadding();
+    setTimeout(applyPadding, 100);
+    setTimeout(applyPadding, 300);
+    setTimeout(applyPadding, 700);
+    setTimeout(applyPadding, 1500);
+
+    if (window.MutationObserver && document.body) {
+        var observer = new MutationObserver(function (mutations) {
+            var hasIframe = false;
+            for (var i = 0; i < mutations.length; i++) {
+                if (mutations[i].addedNodes && mutations[i].addedNodes.length > 0) {
+                    hasIframe = true;
+                    break;
+                }
+            }
+            if (hasIframe) {
+                applyPadding();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+}
+
+// Müşteri E-Posta Şablon / Tekrarlı Kullanım Uyarısı (Kaydetmeyi engellemez)
+function initCustomerEmailDuplicateCheck() {
+    var emailTimer = null;
+
+    $(document).on('input change blur', 'input[name="cemail"], #cemail', function () {
+        var $input = $(this);
+        clearTimeout(emailTimer);
+
+        emailTimer = setTimeout(function () {
+            var email = $.trim($input.val());
+            var $container = $input.closest('.form-field, .col-md-4, .col-sm-12, .form-group, div');
+            var $existingBox = $container.find('.customer-email-warning-box');
+
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                $existingBox.slideUp(150, function () { $(this).remove(); });
+                return;
+            }
+
+            var customerId = $('input[name="company_id"]').val() || 
+                             $('input[name="id"]').val() || 
+                             $('input[name="cid"]').val() || 
+                             (new URLSearchParams(window.location.search).get('id')) || 
+                             (new URLSearchParams(window.location.search).get('cid')) || 0;
+
+            $.ajax({
+                url: 'App/api/customer.php',
+                type: 'GET',
+                data: {
+                    action: 'check_email',
+                    email: email,
+                    company_id: customerId
+                },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.status === 'success' && res.exists && res.count > 0) {
+                        var companyNames = [];
+                        if (res.companies && res.companies.length > 0) {
+                            for (var i = 0; i < Math.min(res.companies.length, 3); i++) {
+                                if (res.companies[i].company) {
+                                    companyNames.push(res.companies[i].company);
+                                }
+                            }
+                        }
+                        var previewStr = companyNames.join(', ');
+                        if (res.count > 3) {
+                            previewStr += ' ve diğerleri';
+                        }
+                        if (previewStr) {
+                            previewStr = ' (Örn: ' + previewStr + ')';
+                        }
+
+                        var warningHtml = '<div class="customer-email-warning-box animate-fade-in">' +
+                            '<i class="fa fa-exclamation-triangle"></i>' +
+                            '<div>' +
+                                '<strong style="display:block;margin-bottom:2px;">Şablon / Tekrarlanan E-Posta Uyarısı:</strong>' +
+                                '<span>Bu e-posta adresi daha önce <b>' + res.count + '</b> aktif firmada' + previewStr + ' kullanılmıştır. Firma ile sağlıklı iletişim ve doğru e-posta iletimi için firmanın gerçek e-posta adresini yazmanız önerilir.</span>' +
+                            '</div>' +
+                        '</div>';
+
+                        if ($existingBox.length > 0) {
+                            $existingBox.replaceWith(warningHtml);
+                        } else {
+                            $input.after(warningHtml);
+                        }
+                    } else {
+                        $existingBox.slideUp(150, function () { $(this).remove(); });
+                    }
+                },
+                error: function () {}
+            });
+        }, 350);
+    });
+}
+
+if (typeof $ !== 'undefined') {
+    $(document).ready(function() {
+        initGlobalWysiPadding();
+        initCustomerEmailDuplicateCheck();
+    });
+    $(window).on('load', function() {
+        initGlobalWysiPadding();
+    });
+} else {
+    document.addEventListener('DOMContentLoaded', function() {
+        initGlobalWysiPadding();
+        initCustomerEmailDuplicateCheck();
+    });
+    window.addEventListener('load', initGlobalWysiPadding);
+}
+
+
+
+

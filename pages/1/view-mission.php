@@ -99,6 +99,12 @@ if ($urgency === 'Yüksek') {
 					<i class="fa fa-arrow-left"></i> Geri Dön
 				</a>
 
+				<?php if ($isCreator || permtrue("allmisview")) { ?>
+					<a href="index.php?p=edit-mission&mid=<?php echo $as['id']; ?>" class="btn-header btn-header-list" style="border-color: #3b82f6; color: #2563eb;">
+						<i class="fa fa-pencil"></i> Düzenle
+					</a>
+				<?php } ?>
+
 				<?php if ((int)$as["statu"] === 0 && ($isAuthor || $isCreator || permtrue("allmisview"))) { ?>
 					<button type="button" 
 							onclick="confirmCompleteInView(<?php echo $as['id']; ?>, '<?php echo htmlspecialchars(addslashes($as['title'])); ?>')" 

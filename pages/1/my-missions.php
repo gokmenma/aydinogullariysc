@@ -292,7 +292,8 @@ $today = date('Y-m-d');
                                 ],
                                 'authors' => $authorsData,
                                 'desc' => $row['mdesc'] ?? '',
-                                'canComplete' => !$isDone
+                                'canComplete' => !$isDone,
+                                'canEdit' => ((int)$row['creativer'] === (int)$currentUserId || permtrue('allmisview'))
                             ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
                         ?>
                             <tr class="<?php echo $isDone ? 'mission-row-done' : ($isOverdue ? 'mission-row-overdue' : ''); ?>">
@@ -476,9 +477,14 @@ $today = date('Y-m-d');
                 </div>
             </div>
             <div class="modal-footer premium-modal-footer d-flex justify-content-between">
-                <a href="#" id="previewModalFullLink" class="btn btn-outline-primary btn-sm">
-                    <i class="fa fa-external-link mr-1"></i> Tam Sayfada Görüntüle
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="#" id="previewModalFullLink" class="btn btn-outline-primary btn-sm">
+                        <i class="fa fa-external-link mr-1"></i> Tam Sayfada Görüntüle
+                    </a>
+                    <a href="#" id="previewModalEditLink" class="btn btn-outline-warning btn-sm" style="display: none;">
+                        <i class="fa fa-pencil mr-1"></i> Düzenle
+                    </a>
+                </div>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" id="previewModalCompleteBtn" class="btn btn-success btn-sm" style="display: none;">
                         <i class="fa fa-check mr-1"></i> Görevi Tamamla
@@ -1266,6 +1272,13 @@ $(document).ready(function () {
 
         // Tam Sayfa Linki
         $('#previewModalFullLink').attr('href', 'index.php?p=view-mission&mid=' + data.id);
+
+        // Düzenle Butonu
+        if (data.canEdit) {
+            $('#previewModalEditLink').attr('href', 'index.php?p=edit-mission&mid=' + data.id).show();
+        } else {
+            $('#previewModalEditLink').hide();
+        }
 
         // Görevi Tamamla Butonu
         if (data.canComplete) {

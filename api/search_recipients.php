@@ -69,8 +69,8 @@ $customers = $customerModel->searchActiveCustomersWithEmail($term, $limit);
 $results = [];
 
 foreach ($customers as $c) {
-    $email = trim($c['email']);
-    if (!empty($email)) {
+    $email = trim($c['email'] ?? '');
+    if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $results[] = [
             'id'       => $email,
             'text'     => $c['company'] . ' (' . $email . ')',

@@ -699,3 +699,308 @@ $(document).ready(function () {
         showCustomerToast('Haritadan seçilen adres ve konum bilgileri forma aktarıldı.', 'success');
     });
 })();
+
+// ─── Akıllı Firma Bilgisi Ayrıştırma & Otomatik Doldurma Modülü (Google Kartı & Harita) ───
+(function () {
+    var TURKISH_CITIES = [
+        "ADANA", "ADIYAMAN", "AFYONKARAHİSAR", "AĞRI", "AKSARAY", "AMASYA", "ANKARA", "ANTALYA", "ARDAHAN", "ARTVİN",
+        "AYDIN", "BALIKESİR", "BARTIN", "BATMAN", "BAYBURT", "BİLECİK", "BİNGÖL", "BİTLİS", "BOLU", "BURDUR",
+        "BURSA", "ÇANAKKALE", "ÇANKIRI", "ÇORUM", "DENİZLİ", "DİYARBAKIR", "DÜZCE", "EDİRNE", "ELAZIĞ", "ERZİNCAN",
+        "ERZURUM", "ESKİŞEHİR", "GAZİANTEP", "GİRESUN", "GÜMÜŞHANE", "HAKKARİ", "HATAY", "IĞDIR", "ISPARTA", "İSTANBUL",
+        "İZMİR", "KAHRAMANMARAŞ", "KARABÜK", "KARAMAN", "KARS", "KASTAMONU", "KAYSERİ", "KIRIKKALE", "KIRKLARELİ", "KIRŞEHİR",
+        "KİLİS", "KOCAELİ", "KONYA", "KÜTAHYA", "MALATYA", "MANİSA", "MARDİN", "MERSİN", "MUĞLA", "MUŞ",
+        "NEVŞEHİR", "NİĞDE", "ORDU", "OSMANİYE", "RİZE", "SAKARYA", "SAMSUN", "SİİRT", "SİNOP", "SİVAS",
+        "ŞANLIURFA", "ŞIRNAK", "TEKİRDAĞ", "TOKAT", "TRABZON", "TUNCELİ", "UŞAK", "VAN", "YALOVA", "YOZGAT", "ZONGULDAK"
+    ];
+
+    function toTurkishUpper(str) {
+        if (!str) return '';
+        return str.replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase().trim();
+    }
+
+    // Metin Ayrıştırma Fonksiyonu
+    function parseCompanyInfo(text) {
+        if (!text) return null;
+        var lines = text.split(/\r?\n/).map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
+        if (lines.length === 0) return null;
+
+        var result = {
+            company: '',
+            phone: '',
+            email: '',
+            website: '',
+            city: '',
+            district: '',
+            address: ''
+        };
+
+        var fullText = lines.join('\n');
+
+        // 1. E-Posta Bul
+        var emailMatch = fullText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        if (emailMatch) {
+            result.email = emailMatch[1].trim();
+        }
+
+        // 2. Telefon / GSM Bul
+        var phoneMatch = fullText.match(/(?:(?:Telefon|Tel|Gsm|T|Faks|Fax|İletişim)[\s:]*)?((?:\+?90\s*|\(0\)|0)?[\s\(\-]?[1-9][0-9]{2}[\s\)\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2})/i);
+        if (phoneMatch) {
+            var rawDigits = phoneMatch[1].replace(/\D/g, '');
+            if (rawDigits.startsWith('90') && rawDigits.length === 12) {
+                rawDigits = '0' + rawDigits.substring(2);
+            } else if (!rawDigits.startsWith('0') && rawDigits.length === 10) {
+                rawDigits = '0' + rawDigits;
+            }
+            if (rawDigits.length === 11) {
+                result.phone = rawDigits;
+            }
+        }
+
+        // 3. Web Sitesi Bul
+        var webMatch = fullText.match(/(?:https?:\/\/|www\.)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?/i);
+        if (webMatch) {
+            result.website = webMatch[0].trim();
+        }
+
+        // 4. İl Bul
+        var upperFullText = toTurkishUpper(fullText);
+        for (var i = 0; i < TURKISH_CITIES.length; i++) {
+            var cName = TURKISH_CITIES[i];
+            var cityRegex = new RegExp('(?:\\b|\\/|\\s|,|\\.)' + cName + '(?:\\b|\\/|\\s|,|\\.)', 'i');
+            if (cityRegex.test(upperFullText) || upperFullText.indexOf(cName) !== -1) {
+                result.city = cName;
+                break;
+            }
+        }
+
+        // 5. Adres Satırını Bul
+        var addressLines = [];
+        lines.forEach(function(line) {
+            if (/^(?:Adres|Address|Merkez|Fabrika|Şube)[\s:]+/i.test(line)) {
+                var cleanAddr = line.replace(/^(?:Adres|Address|Merkez|Fabrika|Şube)[\s:]+/i, '').trim();
+                if (cleanAddr) addressLines.push(cleanAddr);
+            } else if (/(?:Mah\.|Mahallesi|Cad\.|Caddesi|Sok\.|Sokak|Bulvar|Sanayi|Organize|Bölgesi|Sitesi|No:|Daire|Kat:)/i.test(line)) {
+                if (!line.startsWith('http') && !line.includes('@') && !/^(?:Telefon|Tel|Gsm):/i.test(line)) {
+                    addressLines.push(line);
+                }
+            }
+        });
+
+        if (addressLines.length > 0) {
+            result.address = addressLines.join(' ');
+        }
+
+        // 6. İlçe Bul (Eğer il bulunduysa json üzerinden veya adres metninden)
+        if (result.city && result.address) {
+            var slashMatch = result.address.match(/([a-zA-ZçÇğĞıİöÖşŞüÜ]+)\s*[\/\,]\s*(?:Bursa|İstanbul|Ankara|[a-zA-ZçÇğĞıİöÖşŞüÜ]+)/i);
+            if (slashMatch && slashMatch[1]) {
+                result.district = toTurkishUpper(slashMatch[1]);
+            }
+        }
+
+        // 7. Firma Adı Bul
+        for (var j = 0; j < lines.length; j++) {
+            var candidate = lines[j];
+            if (/^(?:Adres|Address|Tel|Telefon|Gsm|Faks|Email|E-posta|Web|http|www|Saat|Çalışma|Harita|Yol|Fotoğraf|Yorum|\d+[,\.]\d+|\★)/i.test(candidate)) {
+                continue;
+            }
+            if (candidate.length > 2) {
+                result.company = candidate.replace(/\s*\d+[,\.]\d+\s*\(\d+.*?\)/g, '').trim();
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    // Form Alanlarına Bilgileri Dağıt
+    function fillCustomerForm(data) {
+        if (!data) return;
+        var filledFields = [];
+
+        if (data.company) {
+            $('#company, input[name="ccompany"]').val(data.company).trigger('input');
+            filledFields.push('Firma Adı');
+        }
+        if (data.phone) {
+            $('#cgsm, input[name="cgsm"]').val(data.phone).trigger('input');
+            filledFields.push('Telefon');
+        }
+        if (data.email) {
+            $('#cemail, input[name="cemail"]').val(data.email).trigger('input');
+            filledFields.push('E-Posta');
+        }
+        if (data.address) {
+            $('#customer_address, textarea[name="customer_address"]').val(data.address).trigger('input');
+            filledFields.push('Adres');
+        }
+
+        // İl & İlçe Seçimi
+        if (data.city) {
+            var targetCity = toTurkishUpper(data.city);
+            var $ilSelect = $('#il, select[name="il"]');
+            var matchedCityVal = '';
+
+            $ilSelect.find('option').each(function () {
+                var optVal = $(this).val();
+                if (optVal && toTurkishUpper(optVal) === targetCity) {
+                    matchedCityVal = optVal;
+                    return false;
+                }
+            });
+
+            if (matchedCityVal) {
+                if ($.fn.selectpicker && $ilSelect.hasClass('selectpicker')) {
+                    $ilSelect.selectpicker('val', matchedCityVal);
+                } else {
+                    $ilSelect.val(matchedCityVal);
+                }
+                $ilSelect.trigger('change').trigger('change.select2');
+                filledFields.push('İl (' + matchedCityVal + ')');
+
+                // İlçe seçimi
+                if (data.district) {
+                    var targetDistrict = toTurkishUpper(data.district);
+                    var checkCount = 0;
+                    var interval = setInterval(function () {
+                        checkCount++;
+                        var $ilceSelect = $('#ilce, select[name="ilce"]');
+                        var matchedDistrictVal = '';
+
+                        $ilceSelect.find('option').each(function () {
+                            var optVal = $(this).val();
+                            if (optVal && (toTurkishUpper(optVal) === targetDistrict || toTurkishUpper(optVal).includes(targetDistrict) || targetDistrict.includes(toTurkishUpper(optVal)))) {
+                                matchedDistrictVal = optVal;
+                                return false;
+                            }
+                        });
+
+                        if (matchedDistrictVal) {
+                            if ($.fn.selectpicker && $ilceSelect.hasClass('selectpicker')) {
+                                $ilceSelect.selectpicker('val', matchedDistrictVal);
+                            } else {
+                                $ilceSelect.val(matchedDistrictVal);
+                            }
+                            $ilceSelect.trigger('change').trigger('change.select2');
+                            clearInterval(interval);
+                        } else if (checkCount > 15) {
+                            clearInterval(interval);
+                        }
+                    }, 100);
+                }
+            }
+        }
+
+        if (filledFields.length > 0) {
+            if (typeof showCustomerToast === 'function') {
+                showCustomerToast(filledFields.join(', ') + ' başarıyla forma aktarıldı.', 'success');
+            } else if (typeof toastr !== 'undefined') {
+                toastr.success(filledFields.join(', ') + ' forma aktarıldı.', 'Akıllı Doldurma');
+            }
+        } else {
+            if (typeof showCustomerToast === 'function') {
+                showCustomerToast('Yapıştırılan metinden uygun firma bilgisi ayrıştırılamadı.', 'error');
+            }
+        }
+    }
+
+    // Sekme Değişimi
+    $(document).on('click', '.btn-smart-tab', function () {
+        var target = $(this).data('target');
+        $('.btn-smart-tab').removeClass('active btn-outline-primary').addClass('btn-outline-secondary');
+        $(this).addClass('active btn-outline-primary').removeClass('btn-outline-secondary');
+        $('.smart-content-tab').hide();
+        $(target).slideDown(150);
+    });
+
+    // Metinden Formu Doldur Butonu
+    $(document).on('click', '#btnApplySmartPaste', function () {
+        var text = $('#smartPasteInput').val();
+        if (!$.trim(text)) {
+            if (typeof showCustomerToast === 'function') {
+                showCustomerToast('Lütfen ayrıştırmak istediğiniz metni yapıştırınız.', 'error');
+            }
+            return;
+        }
+        var parsed = parseCompanyInfo(text);
+        fillCustomerForm(parsed);
+    });
+
+    // Temizle Butonu
+    $(document).on('click', '#btnClearSmartPaste', function () {
+        $('#smartPasteInput').val('');
+    });
+
+    // Haritada Arama Yap
+    $(document).on('click', '#btnExecuteSmartSearch', function () {
+        executeSmartSearch();
+    });
+
+    $(document).on('keypress', '#smartSearchInput', function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            executeSmartSearch();
+        }
+    });
+
+    function executeSmartSearch() {
+        var query = $.trim($('#smartSearchInput').val());
+        if (!query) return;
+
+        var $btn = $('#btnExecuteSmartSearch');
+        var origHtml = $btn.html();
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+        $.ajax({
+            url: 'App/api/geocode.php',
+            type: 'GET',
+            data: { action: 'search', q: query },
+            dataType: 'json',
+            success: function (res) {
+                var $container = $('#smartSearchResults');
+                $container.empty();
+
+                if (res && res.status === 'success' && res.data && res.data.length > 0) {
+                    res.data.forEach(function (item) {
+                        var title = item.display_name.split(',')[0] || query;
+                        var $item = $('<div class="smart-result-item">' +
+                            '<div class="smart-result-title"><i class="fa fa-map-marker text-danger mr-1"></i> ' + $('<div>').text(title).html() + '</div>' +
+                            '<div class="smart-result-sub">' + $('<div>').text(item.display_name).html() + '</div>' +
+                        '</div>');
+
+                        $item.on('click', function () {
+                            var addr = item.address || {};
+                            var city = addr.province || addr.state || addr.city || '';
+                            var district = addr.county || addr.town || addr.district || addr.suburb || '';
+                            var road = addr.road || addr.street || '';
+                            var houseNo = addr.house_number ? ' No: ' + addr.house_number : '';
+                            var fullAddr = item.display_name;
+
+                            var dataToFill = {
+                                company: title,
+                                address: (road ? road + houseNo : fullAddr),
+                                city: city,
+                                district: district
+                            };
+                            fillCustomerForm(dataToFill);
+                            $container.slideUp(150);
+                        });
+
+                        $container.append($item);
+                    });
+                    $container.slideDown(150);
+                } else {
+                    $container.html('<div class="p-3 text-muted text-center font-13"><i class="fa fa-info-circle mr-1"></i> Eşleşen sonuç bulunamadı.</div>').slideDown(150);
+                }
+            },
+            error: function () {
+                if (typeof showCustomerToast === 'function') {
+                    showCustomerToast('Arama servisine ulaşılamadı.', 'error');
+                }
+            },
+            complete: function () {
+                $btn.prop('disabled', false).html(origHtml);
+            }
+        });
+    }
+})();

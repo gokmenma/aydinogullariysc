@@ -416,7 +416,7 @@ $today = date('Y-m-d');
                                     <?php endif; ?>
                                 </td>
 
-                                <!-- İşlemler -->
+                                 <!-- İşlemler -->
                                 <td class="text-center">
                                     <div class="mission-action-buttons">
                                         <button type="button" 
@@ -425,6 +425,14 @@ $today = date('Y-m-d');
                                                 data-mission='<?php echo $missionDataJson; ?>'>
                                             <i class="fa fa-eye"></i> <span>Görüntüle</span>
                                         </button>
+
+                                        <?php if (permtrue("allmisview") || (int)$row['creativer'] === (int)$currentUserId): ?>
+                                            <a href="index.php?p=edit-mission&mid=<?php echo $row['id']; ?>" 
+                                               class="btn-table-action btn-table-edit" 
+                                               title="Görevi Düzenle">
+                                                <i class="fa fa-pencil"></i> <span>Düzenle</span>
+                                            </a>
+                                        <?php endif; ?>
 
                                         <?php if (permtrue("allmisview") || permtrue("missionadd")): ?>
                                             <button type="button" 
@@ -516,11 +524,16 @@ $today = date('Y-m-d');
                 </div>
             </div>
             <div class="modal-footer premium-modal-footer d-flex justify-content-between">
-                <a href="#" id="previewModalFullLink" class="btn btn-outline-primary btn-sm">
-                    <i class="fa fa-external-link mr-1"></i> Tam Sayfada Görüntüle
-                </a>
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" data-dismiss="modal">Kapat</button>
+                    <a href="#" id="previewModalFullLink" class="btn btn-outline-primary btn-sm">
+                        <i class="fa fa-external-link mr-1"></i> Tam Sayfada Görüntüle
+                    </a>
+                    <a href="#" id="previewModalEditLink" class="btn btn-outline-warning btn-sm">
+                        <i class="fa fa-pencil mr-1"></i> Düzenle
+                    </a>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" data-dismiss="modal">Kapat</button>
                 </div>
             </div>
         </div>
@@ -1337,8 +1350,9 @@ $(document).ready(function () {
             $('#previewModalDesc').html('<em class="text-muted">Açıklama belirtilmemiş.</em>');
         }
 
-        // Tam Sayfa Linki
+        // Tam Sayfa ve Düzenleme Linkleri
         $('#previewModalFullLink').attr('href', 'index.php?p=view-mission&mid=' + data.id);
+        $('#previewModalEditLink').attr('href', 'index.php?p=edit-mission&mid=' + data.id);
 
         $('#missionPreviewModal').modal('show');
     });

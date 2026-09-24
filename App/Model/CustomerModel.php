@@ -504,15 +504,26 @@ class CustomerModel extends BaseModel
                 WHERE deleted_at IS NULL
                   AND email IS NOT NULL 
                   AND TRIM(email) != ''
+                  AND email LIKE '%@%.%'
                 ORDER BY company ASC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $valid = [];
+        foreach ($rows as $r) {
+            $email = trim($r['email'] ?? '');
+            if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $r['email'] = $email;
+                $valid[] = $r;
+            }
+        }
+        return $valid;
     }
 
     /**
-     * E-posta gönderimi için AJAX ile hızlı arama yapar
+     * E-posta gönderimi için AJAX ile hızlı arama yapar (sadece geçerli e-postalı müşteriler)
      *
      * @param string $term Arama kelimesi
      * @param int $limit Kayıt limiti
@@ -522,6 +533,7 @@ class CustomerModel extends BaseModel
     {
         $term = trim($term);
         $params = [];
+        $fetchLimit = max((int)$limit * 3, 60);
 
         $sql = "SELECT 
                     id,
@@ -534,7 +546,8 @@ class CustomerModel extends BaseModel
                 FROM customers
                 WHERE deleted_at IS NULL
                   AND email IS NOT NULL 
-                  AND TRIM(email) != ''";
+                  AND TRIM(email) != ''
+                  AND email LIKE '%@%.%'";
 
         if (!empty($term)) {
             $sql .= " AND (company LIKE :q1 OR email LIKE :q2 OR yetkili LIKE :q3)";
@@ -543,11 +556,80 @@ class CustomerModel extends BaseModel
             $params[':q3'] = '%' . $term . '%';
         }
 
-        $sql .= " ORDER BY company ASC LIMIT " . (int)$limit;
+        $sql .= " ORDER BY company ASC LIMIT " . (int)$fetchLimit;
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $valid = [];
+        foreach ($rows as $r) {
+            $email = trim($r['email'] ?? '');
+            if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $r['email'] = $email;
+                $valid[] = $r;
+                if (count($valid) >= (int)$limit) {
+                    break;
+                }
+            }
+        }
+        return $valid;
+    }
+
+    /**
+     * E-posta adresinin aktif müşteriler arasındaki kullanımını sorgular (Şablon / Tekrarlı e-posta kontrolü)
+     *
+     * @param string $email Sorgulanacak e-posta adresi
+     * @param int $excludeId Hariç tutulacak müşteri ID (düzenleme durumunda)
+     * @return array
+     */
+    public function checkEmailUsage($email, $excludeId = 0)
+    {
+        $email = trim((string)$email);
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return [
+                'exists' => false,
+                'count' => 0,
+                'companies' => []
+            ];
+        }
+
+        // Örnek 5 firma bilgisini getir
+        $sql = "SELECT id, company, yetkili, city
+                FROM customers
+                WHERE deleted_at IS NULL
+                  AND LOWER(TRIM(email)) = LOWER(TRIM(:email))";
+        $params = [':email' => $email];
+
+        if ((int)$excludeId > 0) {
+            $sql .= " AND id <> :excludeId";
+            $params[':excludeId'] = (int)$excludeId;
+        }
+
+        $sql .= " ORDER BY id DESC LIMIT 5";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $companies = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Toplam kayıt sayısı
+        $countSql = "SELECT COUNT(*)
+                     FROM customers
+                     WHERE deleted_at IS NULL
+                       AND LOWER(TRIM(email)) = LOWER(TRIM(:email))";
+        $countParams = [':email' => $email];
+        if ((int)$excludeId > 0) {
+            $countSql .= " AND id <> :excludeId";
+            $countParams[':excludeId'] = (int)$excludeId;
+        }
+        $countStmt = $this->db->prepare($countSql);
+        $countStmt->execute($countParams);
+        $totalCount = (int)$countStmt->fetchColumn();
+
+        return [
+            'exists' => $totalCount > 0,
+            'count' => $totalCount,
+            'companies' => $companies
+        ];
     }
 }
 

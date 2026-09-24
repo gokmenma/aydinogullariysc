@@ -143,6 +143,61 @@ class MissionModel extends BaseModel
     }
 
     /**
+     * Görev bilgilerini günceller.
+     */
+    public function updateMission($id, array $data, $userId = null)
+    {
+        try {
+            $id = (int)$id;
+            $statu = isset($data['statu']) ? (int)$data['statu'] : 0;
+            $okeyDate = $statu === 1 ? date("Y-m-d H:i:s") : '-';
+
+            $stmt = $this->db->prepare("UPDATE {$this->table} SET 
+                FirmaAdi = ?,
+                categoryName = ?,
+                title = ?,
+                mdesc = ?,
+                startdate = ?,
+                lastdate = ?,
+                authors = ?,
+                urgency = ?,
+                statu = ?,
+                okeydate = ?
+                WHERE id = ?");
+
+            $res = $stmt->execute([
+                $data['FirmaAdi'] ?? '',
+                $data['categoryName'] ?? '',
+                $data['title'] ?? '',
+                $data['mdesc'] ?? '',
+                $data['startdate'] ?? '',
+                $data['lastdate'] ?? '',
+                $data['authors'] ?? '',
+                $data['urgency'] ?? 'Orta',
+                $statu,
+                $okeyDate,
+                $id
+            ]);
+
+            if ($res && function_exists('audit_log')) {
+                audit_log('update', 'missions', "Görev güncellendi: " . ($data['title'] ?? ''), 'mission', $id, [
+                    'title' => $data['title'] ?? '',
+                    'firma' => $data['FirmaAdi'] ?? '',
+                    'authors' => $data['authors'] ?? '',
+                    'urgency' => $data['urgency'] ?? 'Orta',
+                    'statu' => $statu,
+                    'updated_by' => $userId
+                ]);
+            }
+
+            return $res;
+        } catch (PDOException $e) {
+            error_log("MissionModel updateMission Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Görevi yumuşak silme (soft-delete).
      */
     public function softDelete($id, $userId = null, $force = false)

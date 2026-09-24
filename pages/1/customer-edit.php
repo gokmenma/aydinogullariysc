@@ -253,6 +253,8 @@ if ($_GET["st"] == "newsuccess") {
 
     <form enctype="multipart/form-data" action="" id="myForm" method="POST">
 
+
+
         <div class="form-group row">
 
             <label for="company" class="col-sm-12 col-md-2 col-form-label">

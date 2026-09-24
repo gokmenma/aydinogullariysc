@@ -33217,9 +33217,10 @@ jQuery(window).on("load",function() {
 					var iframeDoc = this.composer.iframe.contentDocument || this.composer.iframe.contentWindow.document;
 					if (iframeDoc && iframeDoc.body) {
 						var styleEl = iframeDoc.createElement('style');
-						styleEl.innerHTML = 'html, body { padding: 6px 12px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.45 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 6px 12px !important; margin: 0 !important; }';
+						styleEl.id = 'wysi-custom-iframe-style';
+						styleEl.innerHTML = 'html, body { padding: 10px 14px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.5 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 10px 14px !important; margin: 0 !important; }';
 						iframeDoc.head.appendChild(styleEl);
-						iframeDoc.body.style.padding = '6px 12px';
+						iframeDoc.body.style.padding = '10px 14px';
 					}
 				} catch(e) {}
 			}

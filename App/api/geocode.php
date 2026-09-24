@@ -102,6 +102,13 @@ if ($action === 'search') {
     $searchCandidates = [];
     $searchCandidates[] = $query; // 1. Orijinal sorgu
 
+    // Şirket unvan eklerini temizle (Sanayi, Ticaret, A.Ş., Ltd. Şti. vb.)
+    $cleanedCompany = preg_replace('/\b(SANAYİ|TİCARET|SAN|TİC|A\.Ş\.?|LTD\.?\s*ŞTİ\.?|LİMİTED|ŞİRKETİ|ANONİM|VE)\b/iu', '', $query);
+    $cleanedCompany = trim(preg_replace('/\s+/', ' ', $cleanedCompany));
+    if ($cleanedCompany !== '' && !in_array($cleanedCompany, $searchCandidates)) {
+        $searchCandidates[] = $cleanedCompany;
+    }
+
     // Türkçe kısaltmaları genişlet ve temizle
     $expanded = $query;
     $expanded = preg_replace('/\b(no|no:|numara|apt|kat|daire|d:)\s*[\w\d\/-]+/iu', '', $expanded);
@@ -116,7 +123,7 @@ if ($action === 'search') {
     $expanded = trim(preg_replace('/\s+/', ' ', $expanded));
 
     if ($expanded !== '' && !in_array($expanded, $searchCandidates)) {
-        $searchCandidates[] = $expanded; // 2. Genişletilmiş sorgu
+        $searchCandidates[] = $expanded; // Genişletilmiş sorgu
     }
 
     // Kelimeleri ayrıştırarak önemli kombinasyonları dene (Cadde/Mahalle + İlçe + İl)

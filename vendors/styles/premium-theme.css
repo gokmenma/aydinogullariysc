@@ -1132,10 +1132,74 @@ body > .select2-container.select2-container--open,
     color: #ffffff !important;
 }
 
+/* Select2 Multiple Styles & Full-Width Placeholder Fix */
+.select2-container--default .select2-selection--multiple {
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    min-height: 44px !important;
+    padding: 4px 8px !important;
+    background-color: #ffffff !important;
+    transition: all 0.2s ease;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 4px !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline {
+    flex: 1 1 auto !important;
+    min-width: 260px !important;
+    display: inline-flex !important;
+    margin: 2px 0 !important;
+    float: none !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 220px !important;
+    margin: 0 !important;
+    padding: 3px 6px !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    color: #334155 !important;
+    box-sizing: border-box !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+    font-size: 13px !important;
+}
+
 /* Select2 Dark Mode Styles */
 .dark-mode .select2-container--default .select2-selection--single {
     border-color: #4b5563 !important;
     background-color: #1f1f1f !important;
+}
+
+.dark-mode .select2-container--default .select2-selection--multiple {
+    border-color: #4b5563 !important;
+    background-color: #1f1f1f !important;
+}
+
+.dark-mode .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+    color: #f1f5f9 !important;
+}
+
+.dark-mode .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+    color: #64748b !important;
 }
 
 .dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -7711,21 +7775,21 @@ iframe.wysihtml5-sandbox {
 /* Summernote & Rich Text Editor Placeholder / Content Padding */
 .note-editor .note-placeholder,
 .note-placeholder {
-    padding: 6px 12px !important;
+    padding: 10px 14px !important;
     color: #94a3b8 !important;
     top: 0 !important;
     left: 0 !important;
     font-size: 13.5px !important;
-    line-height: 1.45 !important;
+    line-height: 1.5 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
 }
 
 .note-editor .note-editable,
 .note-editable {
-    padding: 6px 12px !important;
+    padding: 10px 14px !important;
     font-size: 13.5px !important;
-    line-height: 1.45 !important;
+    line-height: 1.5 !important;
     color: #334155 !important;
     box-sizing: border-box !important;
 }
@@ -12346,4 +12410,76 @@ html:not(.dark-mode) [data-theme-preset] .left-side-bar .brand-logo,
 .dark-mode .mission-user-chip .chip-name {
     color: #bfdbfe !important;
 }
+
+/* Global Table Action Edit Button */
+.btn-table-edit {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #bfdbfe !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-table-edit:hover {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border-color: #93c5fd !important;
+}
+.dark-mode .btn-table-edit {
+    background: rgba(37, 99, 235, 0.2) !important;
+    border-color: rgba(37, 99, 235, 0.4) !important;
+    color: #93c5fd !important;
+}
+.dark-mode .btn-table-edit:hover {
+    background: rgba(37, 99, 235, 0.35) !important;
+    color: #bfdbfe !important;
+}
+
+/* Müşteri E-Posta Şablon / Tekrarlı Uyarı Kutusu */
+.customer-email-warning-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 6px;
+    font-size: 12.5px;
+    color: #92400e;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.45;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.customer-email-warning-box i.fa-exclamation-triangle {
+    color: #d97706;
+    font-size: 15px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.customer-email-warning-box strong {
+    color: #b45309;
+}
+
+.dark-mode .customer-email-warning-box {
+    background: rgba(245, 158, 11, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+    color: #fde68a !important;
+}
+
+.dark-mode .customer-email-warning-box strong {
+    color: #fbbf24 !important;
+}
+
+
+
 

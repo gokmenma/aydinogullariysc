@@ -336,6 +336,8 @@ if (@$_POST["status"] == "success") {
         <form enctype="multipart/form-data" action="" id="customerForm" method="POST">
             <input type="hidden" name="company_id" id="company_id" value="<?php echo $id ?>">
             
+
+
             <div class="form-grid">
                 
                 <!-- Firma Adı -->
