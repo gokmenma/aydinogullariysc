@@ -1,6 +1,6 @@
 <?php
 
- 	include("configs/config.php");
+	require_once __DIR__ . '/bootstrap.php';
 
  	$dizin = "projects/offers/";
 

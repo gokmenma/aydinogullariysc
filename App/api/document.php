@@ -1,4 +1,6 @@
 <?php
+require_once dirname(__DIR__, 2) . '/bootstrap.php';
+
 define("ROOT", $_SERVER['DOCUMENT_ROOT']);
 require_once ROOT . '/App/Model/DocumentModel.php';
 $Documents = new DocumentModel();

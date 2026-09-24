@@ -35,8 +35,8 @@ $order_dir = $_GET['order'][0]['dir'] ?? 'desc';
 $requested_columns = $_GET['columns'] ?? [];
 
 // Column names for ordering (DataTables indexes)
-// 0: r.id, 1: r.report_number, 2: c.company, 3: rt.reportName, 4: r.isemrino, 5: r.control_date, 6: r.validity_date
-$columns = ['r.id', 'r.report_number', 'c.company', 'rt.reportName', 'r.isemrino', 'r.control_date', 'r.validity_date'];
+// 0: r.id, 1: r.report_number, 2: c.company, 3: rt.reportName, 4: r.isemrino, 5: r.control_date, 6: r.validity_date, 7: r.create_time, 8: u.username
+$columns = ['r.id', 'r.report_number', 'c.company', 'rt.reportName', 'r.isemrino', 'r.control_date', 'r.validity_date', 'r.create_time', 'u.username'];
 $order_by = $columns[$order_column] ?? 'r.id';
 
 // Base query with JOINs
@@ -44,6 +44,7 @@ $base_query = "
     FROM reports r 
     LEFT JOIN report_types rt on rt.id = r.report_type  
     LEFT JOIN customers c on c.id = r.customer_id
+    LEFT JOIN users u on u.id = r.creator
 ";
 
 // Count total records
@@ -65,7 +66,9 @@ if ($search_value !== '') {
         rt.reportName LIKE :search OR
         r.isemrino LIKE :search OR
         r.control_date LIKE :search OR
-        r.validity_date LIKE :search
+        r.validity_date LIKE :search OR
+        r.create_time LIKE :search OR
+        u.username LIKE :search
     )";
     $params[':search'] = "%{$search_value}%";
 }
@@ -81,6 +84,8 @@ $column_configs = [
     4 => ['expr' => 'r.isemrino', 'type' => 'text'],
     5 => ['expr' => 'r.control_date', 'type' => 'date'],
     6 => ['expr' => 'r.validity_date', 'type' => 'date'],
+    7 => ['expr' => 'r.create_time', 'type' => 'datetime'],
+    8 => ['expr' => 'u.username', 'type' => 'text'],
 ];
 
 if (!empty($requested_columns) && is_array($requested_columns)) {
@@ -121,9 +126,11 @@ $data_query = "
         r.isemrino,
         r.control_date,
         r.validity_date,
+        r.create_time,
         rt.reportName,
         rt.page_link,
-        c.company
+        c.company,
+        u.username as creator_username
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}
     LIMIT :start, :length
@@ -178,7 +185,26 @@ foreach ($reports_list as $row_data) {
     // 6: Geçerlilik Tarihi
     $row[] = htmlspecialchars($row_data['validity_date'] ?? '');
 
-    // 7: İşlem (Actions)
+    // 7: Kayıt Tarihi
+    $createTimeRaw = $row_data['create_time'] ?? '';
+    if ($createTimeRaw) {
+        $timestamp = strtotime($createTimeRaw);
+        $dateFormatted = $timestamp ? date('d.m.Y', $timestamp) : htmlspecialchars($createTimeRaw);
+        $timeFormatted = $timestamp ? date('H:i', $timestamp) : '';
+        $row[] = '<div class="text-center font-12" style="line-height:1.25;"><span class="text-dark font-weight-500">' . $dateFormatted . '</span>' . ($timeFormatted ? '<br><span class="text-muted font-11">' . $timeFormatted . '</span>' : '') . '</div>';
+    } else {
+        $row[] = '<span class="text-muted text-center d-block">-</span>';
+    }
+
+    // 8: Kayıt Yapan
+    $creatorUsername = htmlspecialchars($row_data['creator_username'] ?? '');
+    if ($creatorUsername !== '') {
+        $row[] = '<div class="text-center font-12"><span class="font-weight-500 text-dark"><i class="fa fa-user-circle text-secondary mr-1"></i>' . $creatorUsername . '</span></div>';
+    } else {
+        $row[] = '<span class="text-muted text-center d-block">-</span>';
+    }
+
+    // 9: İşlem (Actions)
     $newpagelink = "index.php?p=reports/" . $row_data["page_link"] . "/report-new-" . $row_data["page_link"];
     $edit_file = ($row_data["page_link"] == "yas") ? "report-new-" : "report-edit-";
     $editpagelink = "index.php?p=reports/" . $row_data["page_link"] . "/" . $edit_file . $row_data["page_link"] . "&id=" . $rid;

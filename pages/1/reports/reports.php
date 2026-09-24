@@ -516,7 +516,9 @@ $uniqueControllers = (int)($summary->unique_controllers ?? 0);
                             <th>İş Emri No</th>
                             <th>Kontrol Tarihi</th>
                             <th>Geçerlilik Tarihi</th>
-                            <th>İşlem</th>
+                            <th>Kayıt Tarihi</th>
+                            <th>Kayıt Yapan</th>
+                            <th class="text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -702,9 +704,11 @@ tr.context-menu-active {
                     { data: 2 }, // Firma
                     { data: 3 }, // Rapor Türü
                     { data: 4 }, // İş Emri No
-                    { data: 5 }, // Kontrol Tarihi
-                    { data: 6 }, // Geçerlilik Tarihi
-                    { data: 7, orderable: false, className: "text-center" } // İşlem
+                    { data: 5, className: "text-center" }, // Kontrol Tarihi
+                    { data: 6, className: "text-center" }, // Geçerlilik Tarihi
+                    { data: 7, className: "text-center" }, // Kayıt Tarihi
+                    { data: 8, className: "text-center" }, // Kayıt Yapan
+                    { data: 9, orderable: false, className: "text-center" } // İşlem
                 ],
                 pageLength: 25,
                 lengthMenu: [10, 25, 50, 100],

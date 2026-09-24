@@ -1,10 +1,12 @@
 <?php
 
 use App\Model\SettingsModel;
+use App\Helper\MaintenanceMode;
 
 permcontrol("panelsettings");
 
 $settingsModel = new SettingsModel();
+$canManageMaintenance = MaintenanceMode::hasAccessPermission($ac);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title         = trim($_POST["title"] ?? '');
@@ -23,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sms_username  = trim($_POST["sms_username"] ?? '');
     $sms_pass      = $_POST["sms_pass"] ?? '';
     $sms_title     = trim($_POST["sms_title"] ?? '');
+    $maintenanceMode = (isset($_POST['maintenance_mode']) && $_POST['maintenance_mode'] === '1') ? '1' : '0';
 
     if (empty($title) || empty($url) || empty($company) || empty($address) || empty($city) || empty($gsm1)) {
         header("Location: index.php?p=settings&st=empties");
@@ -47,6 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'sms_pass'        => $sms_pass,
         'sms_title'       => $sms_title
     ];
+
+    // Bakım ayarı yalnızca özel yetkiye sahip kullanıcı tarafından değiştirilebilir.
+    if ($canManageMaintenance) {
+        $updateData['maintenance_mode'] = $maintenanceMode;
+    }
 
     $saved = $settingsModel->updateSettings($updateData);
 
@@ -95,6 +103,7 @@ $smsUsername  = $currentSettings['sms_username'] ?? '';
 $smsPass      = $currentSettings['sms_pass'] ?? '';
 $smsTitle     = $currentSettings['sms_title'] ?? '';
 $currentLogo  = $currentSettings['logo'] ?? 'src/images/logo.png';
+$maintenanceModeEnabled = ($currentSettings['maintenance_mode'] ?? '0') === '1';
 
 // Bildirim Mesajları
 if (@$_GET["st"] == "newsuccess") {
@@ -690,6 +699,35 @@ if (@$_GET["st"] == "newsuccess") {
                 </div>
             </div>
         </div>
+
+        <?php if ($canManageMaintenance): ?>
+        <div class="form-card animate-fade-in" style="border-left: 4px solid #f59e0b;">
+            <div class="form-card-header">
+                <div class="card-icon card-icon-orange">
+                    <i class="fa fa-wrench"></i>
+                </div>
+                <div>
+                    <h5>Bakım Modu</h5>
+                    <p>Bakım sırasında yalnızca “Bakım Modunda Sisteme Erişim” yetkisine sahip kullanıcılar sisteme girebilir.</p>
+                </div>
+            </div>
+            <div class="switch-box-wrapper">
+                <div class="switch-box-label">
+                    <span class="title"><i class="fa fa-exclamation-triangle text-warning"></i> Sistemi Bakım Moduna Al</span>
+                    <span class="desc">Etkinleştirildiğinde diğer kullanıcıların sayfa ve API işlemleri durdurulur, bakım ekranı gösterilir.</span>
+                </div>
+                <label class="custom-switch-ios">
+                    <input type="checkbox" name="maintenance_mode" id="maintenance_mode" value="1" <?php echo $maintenanceModeEnabled ? 'checked' : ''; ?>>
+                    <span class="custom-switch-slider"></span>
+                </label>
+            </div>
+            <?php if ($maintenanceModeEnabled): ?>
+                <div class="alert alert-warning mt-3 mb-0 font-13">
+                    <i class="fa fa-info-circle mr-1"></i> Bakım modu şu anda açık. Kapatıp değişiklikleri kaydettiğinizde normal erişim geri gelir.
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
 
         <!-- ==========================================
              STICKY KAYDET BAR

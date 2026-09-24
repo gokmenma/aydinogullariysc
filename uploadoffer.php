@@ -1,5 +1,5 @@
 <?php
-include("configs/config.php");
+require_once __DIR__ . '/bootstrap.php';
 $target_dir = "files/projects/offers/";
 
 $request = 1;

@@ -23,6 +23,9 @@ require_once $root . '/configs/functions.php';
 // Composer autoload
 require_once $root . '/vendor/autoload.php';
 
+// Bakım modu tüm web giriş noktalarında merkezi olarak uygulanır.
+\App\Helper\MaintenanceMode::enforce($ac, $root);
+
 // Global $ac (PDO) hazırla - config.php'de tanımlanmış
 global $ac;
 
