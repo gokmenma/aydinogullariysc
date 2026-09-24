@@ -103,6 +103,16 @@ if ($_POST) {
     }
 }
 
+// Rapor Bilgilerini Çek
+$sql = $ac->prepare("SELECT * FROM reports WHERE id = ?");
+$sql->execute([$id]);
+$report = $sql->fetch(PDO::FETCH_ASSOC);
+
+if (!$report) {
+    header("Location: index.php?p=reports/reports");
+    exit;
+}
+
 $st = $_GET["st"] ?? '';
 ?>
 
@@ -165,17 +175,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 <?php endif; ?>
-
-// Rapor Bilgilerini Çek
-$sql = $ac->prepare("SELECT * FROM reports WHERE id = ?");
-$sql->execute([$id]);
-$report = $sql->fetch(PDO::FETCH_ASSOC);
-
-if (!$report) {
-    header("Location: index.php?p=reports/reports");
-    exit;
-}
-?>
 
 <style>
     .hst-report-wrapper {
