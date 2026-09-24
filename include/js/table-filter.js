@@ -286,12 +286,23 @@ App.TableFilter = {
 
         const card = table.closest('.form-card, .card, .content, .pd-20');
         if (card) {
-            const filtersToggle = card.querySelector('#filtersToggle, .filters-toggle-btn');
             const cardHeader = card.querySelector('.form-card-header, .card-header');
+            const searchContainer = card.querySelector('[id$="SearchContainer"], [class*="-search-container"], .dt-search-container');
+            const filtersToggle = card.querySelector('#filtersToggle, .filters-toggle-btn');
+            const kpiToggle = card.querySelector('#toggleKpiSummary, .btn-kpi-toggle');
 
-            if (filtersToggle && filtersToggle.parentNode) {
+            if (searchContainer) {
+                searchContainer.appendChild(filterEl);
+                filterEl.classList.add('dt-header-filter');
+                filterEl.dataset.relocated = 'true';
+            } else if (filtersToggle && filtersToggle.parentNode) {
                 filtersToggle.parentNode.classList.add('d-flex', 'align-items-center', 'gap-2');
                 filtersToggle.parentNode.insertBefore(filterEl, filtersToggle);
+                filterEl.classList.add('dt-header-filter', 'mr-2');
+                filterEl.dataset.relocated = 'true';
+            } else if (kpiToggle && kpiToggle.parentNode) {
+                kpiToggle.parentNode.classList.add('d-flex', 'align-items-center', 'gap-2');
+                kpiToggle.parentNode.insertBefore(filterEl, kpiToggle);
                 filterEl.classList.add('dt-header-filter', 'mr-2');
                 filterEl.dataset.relocated = 'true';
             } else if (cardHeader && !cardHeader.querySelector('.dataTables_filter')) {
@@ -304,7 +315,12 @@ App.TableFilter = {
                     rightBox.className = 'd-flex align-items-center gap-2';
                     cardHeader.appendChild(rightBox);
                 }
-                rightBox.appendChild(filterEl);
+                const toggleInBox = rightBox.querySelector('#toggleKpiSummary, .btn-kpi-toggle, #filtersToggle, .filters-toggle-btn');
+                if (toggleInBox) {
+                    rightBox.insertBefore(filterEl, toggleInBox);
+                } else {
+                    rightBox.appendChild(filterEl);
+                }
                 filterEl.classList.add('dt-header-filter');
                 filterEl.dataset.relocated = 'true';
             }

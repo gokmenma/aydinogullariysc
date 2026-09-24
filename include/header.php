@@ -113,7 +113,7 @@ $maintenanceHeaderJson = htmlspecialchars(
 			</div>
 		</div>
 
-		<!-- Sağ: Hızlı Araçlar (Tema, SMS, Mail) + Kullanıcı Profili -->
+		<!-- Sağ: Hızlı Araçlar (Tema Ayarları & Toggle) + Kullanıcı Profili -->
 		<div class="header-right-actions d-flex align-items-center">
 			<!-- Tema Özelleştirici Ayarlar Butonu (Her zaman görünür) -->
 			<a href="javascript:void(0)" class="header-action-btn theme-customizer-btn" id="theme-customizer-btn" onclick="openThemeCustomizer(event);" data-tooltip="Tema Özelleştirici" data-tooltip-location="bottom" title="Tema Özelleştirici">
@@ -124,14 +124,6 @@ $maintenanceHeaderJson = htmlspecialchars(
 			<a href="javascript:void(0)" class="header-action-btn theme-toggle-btn" id="theme-toggle" onclick="toggleTheme(event);" data-tooltip="Temayı Değiştir" data-tooltip-location="bottom" title="Temayı Değiştir">
 				<i class="fa fa-moon-o theme-icon-moon"></i>
 				<i class="fa fa-sun-o theme-icon-sun"></i>
-			</a>
-
-			<!-- SMS & Mail Butonları (Küçük mobilde gizli, tablette ve masaüstünde görünür) -->
-			<a href="index.php?p=send-sms" class="header-action-btn d-none d-sm-inline-flex" target="_blank" data-tooltip="SMS Gönder" data-tooltip-location="bottom" title="SMS Gönder">
-				<i class="fa fa-paper-plane-o"></i>
-			</a>
-			<a href="index.php?p=send-mail" class="header-action-btn d-none d-sm-inline-flex" target="_blank" data-tooltip="E-Posta Gönder" data-tooltip-location="bottom" title="E-Posta Gönder">
-				<i class="fa fa-envelope-o"></i>
 			</a>
 
 			<!-- Kullanıcı Profili Dropdown -->
@@ -154,12 +146,6 @@ $maintenanceHeaderJson = htmlspecialchars(
 					</a>
 					<a class="dropdown-item" href="index.php?p=settings">
 						<i class="fa fa-cog mr-2" aria-hidden="true"></i> Ayarlar
-					</a>
-					<a class="dropdown-item d-sm-none" href="index.php?p=send-sms" target="_blank">
-						<i class="fa fa-paper-plane-o mr-2" aria-hidden="true"></i> SMS Gönder
-					</a>
-					<a class="dropdown-item d-sm-none" href="index.php?p=send-mail" target="_blank">
-						<i class="fa fa-envelope-o mr-2" aria-hidden="true"></i> E-Posta Gönder
 					</a>
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item text-danger" href="logout.php">
@@ -429,10 +415,246 @@ $maintenanceHeaderJson = htmlspecialchars(
 					</div>
 					<div class="theme-preset-name">Soft Vizon</div>
 				</div>
+
+				<!-- 18. Modern Çelik (Mavi Topbar + Çelik Slate Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="modern-celik" onclick="selectThemePreset('modern-celik');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #2563eb;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #334155;"></div>
+							<div class="theme-preview-content" style="background: #f8fafc;">
+								<div class="theme-preview-pill" style="background: #2563eb;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Modern Çelik</div>
+				</div>
+
+				<!-- 19. Antrasit Zümrüt (Zümrüt Topbar + Antrasit Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="antrasit-zumrut" onclick="selectThemePreset('antrasit-zumrut');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #059669;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #374151;"></div>
+							<div class="theme-preview-content" style="background: #f0fdf4;">
+								<div class="theme-preview-pill" style="background: #10b981;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Antrasit Zümrüt</div>
+				</div>
+
+				<!-- 20. Dumanlı Bordo (Bordo Topbar + Duman Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="dumanli-bordo" onclick="selectThemePreset('dumanli-bordo');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #9f1239;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #3f3f46;"></div>
+							<div class="theme-preview-content" style="background: #fff1f2;">
+								<div class="theme-preview-pill" style="background: #e11d48;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Dumanlı Bordo</div>
+				</div>
+
+				<!-- 21. Grafiti Mor (Mor Topbar + Grafit Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="grafiti-mor" onclick="selectThemePreset('grafiti-mor');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #7c3aed;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #27272a;"></div>
+							<div class="theme-preview-content" style="background: #faf5ff;">
+								<div class="theme-preview-pill" style="background: #8b5cf6;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Grafiti Mor</div>
+				</div>
+
+				<!-- 22. Kül Amber (Amber Topbar + Kül Slate Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="kul-amber" onclick="selectThemePreset('kul-amber');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #d97706;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #334155;"></div>
+							<div class="theme-preview-content" style="background: #fffbeb;">
+								<div class="theme-preview-pill" style="background: #f59e0b;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Kül Amber</div>
+				</div>
+
+				<!-- 23. Petrol Taş (Petrol Topbar + Taş Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="petrol-tas" onclick="selectThemePreset('petrol-tas');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #0f766e;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #374151;"></div>
+							<div class="theme-preview-content" style="background: #f0fdfa;">
+								<div class="theme-preview-pill" style="background: #14b8a6;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Petrol Taş</div>
+				</div>
+
+				<!-- 24. Platin Mavi (Safir Topbar + Açık Platin Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="platin-mavi" onclick="selectThemePreset('platin-mavi');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #0284c7;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #e2e8f0; border-right: 1px solid #cbd5e1;"></div>
+							<div class="theme-preview-content" style="background: #f8fafc;">
+								<div class="theme-preview-pill" style="background: #0284c7;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Platin Mavi</div>
+				</div>
+
+				<!-- 25. Titan Okyanus (Gece Laciverti Topbar + Titan Çelik Gri Sidebar) -->
+				<div class="theme-preset-card" data-preset="titan-okyanus" onclick="selectThemePreset('titan-okyanus');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #1e3a8a;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #475569;"></div>
+							<div class="theme-preview-content" style="background: #f0f9ff;">
+								<div class="theme-preview-pill" style="background: #3b82f6;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Titan Okyanus</div>
+				</div>
 			</div>
 		</div>
 
-		<!-- 2. Bölüm: Yazı Tipi (Font) Seçimi -->
+		<!-- 2. Bölüm: Topbar (Üst Menü) Rengi -->
+		<div class="theme-customizer-section-title-wrap mt-4">
+			<h6 class="theme-customizer-section-title">Topbar (Üst Menü) Rengi</h6>
+			<span class="theme-customizer-badge" style="background: #dbeafe; color: #2563eb;">Üst Bar</span>
+		</div>
+		<div class="theme-color-palette-grid">
+			<button type="button" class="theme-color-swatch-btn" data-topbar="mavi" onclick="selectTopbarTheme('mavi', true);">
+				<span class="theme-color-dot" style="background: #2563eb;"></span>
+				<span class="theme-color-label">Mavi</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="zumrut" onclick="selectTopbarTheme('zumrut', true);">
+				<span class="theme-color-dot" style="background: #059669;"></span>
+				<span class="theme-color-label">Zümrüt</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="mor" onclick="selectTopbarTheme('mor', true);">
+				<span class="theme-color-dot" style="background: #7c3aed;"></span>
+				<span class="theme-color-label">Mor</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="rose" onclick="selectTopbarTheme('rose', true);">
+				<span class="theme-color-dot" style="background: #e11d48;"></span>
+				<span class="theme-color-label">Rose</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="bordo" onclick="selectTopbarTheme('bordo', true);">
+				<span class="theme-color-dot" style="background: #9f1239;"></span>
+				<span class="theme-color-label">Bordo</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="amber" onclick="selectTopbarTheme('amber', true);">
+				<span class="theme-color-dot" style="background: #d97706;"></span>
+				<span class="theme-color-label">Amber</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="safir" onclick="selectTopbarTheme('safir', true);">
+				<span class="theme-color-dot" style="background: #0284c7;"></span>
+				<span class="theme-color-label">Safir</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="nordik" onclick="selectTopbarTheme('nordik', true);">
+				<span class="theme-color-dot" style="background: #15803d;"></span>
+				<span class="theme-color-label">Nordik Çam</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="lacivert" onclick="selectTopbarTheme('lacivert', true);">
+				<span class="theme-color-dot" style="background: #1e3a8a;"></span>
+				<span class="theme-color-label">Lacivert</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="petrol" onclick="selectTopbarTheme('petrol', true);">
+				<span class="theme-color-dot" style="background: #0f766e;"></span>
+				<span class="theme-color-label">Petrol</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="oniks" onclick="selectTopbarTheme('oniks', true);">
+				<span class="theme-color-dot" style="background: #18181b;"></span>
+				<span class="theme-color-label">Koyu Oniks</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="beyaz" onclick="selectTopbarTheme('beyaz', true);">
+				<span class="theme-color-dot" style="background: #ffffff; border: 1px solid #cbd5e1;"></span>
+				<span class="theme-color-label">Beyaz</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="lavanta" onclick="selectTopbarTheme('lavanta', true);">
+				<span class="theme-color-dot" style="background: #ede9fe;"></span>
+				<span class="theme-color-label">Soft Lavanta</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="adacayi" onclick="selectTopbarTheme('adacayi', true);">
+				<span class="theme-color-dot" style="background: #ccfbf1;"></span>
+				<span class="theme-color-label">Soft Adaçayı</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="buz-mavisi" onclick="selectTopbarTheme('buz-mavisi', true);">
+				<span class="theme-color-dot" style="background: #e0f2fe;"></span>
+				<span class="theme-color-label">Soft Buz</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="vizon" onclick="selectTopbarTheme('vizon', true);">
+				<span class="theme-color-dot" style="background: #f5f5f4; border: 1px solid #d6d3d1;"></span>
+				<span class="theme-color-label">Soft Vizon</span>
+			</button>
+		</div>
+
+		<!-- 3. Bölüm: Sidebar (Sol Menü) Rengi -->
+		<div class="theme-customizer-section-title-wrap mt-4">
+			<h6 class="theme-customizer-section-title">Sidebar (Sol Menü) Rengi</h6>
+			<span class="theme-customizer-badge" style="background: #f1f5f9; color: #475569;">Sol Menü</span>
+		</div>
+		<div class="theme-color-palette-grid">
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="klasik-koyu" onclick="selectSidebarTheme('klasik-koyu', true);">
+				<span class="theme-color-dot" style="background: #1e1e2d;"></span>
+				<span class="theme-color-label">Klasik Koyu</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="slate-gri" onclick="selectSidebarTheme('slate-gri', true);">
+				<span class="theme-color-dot" style="background: #334155;"></span>
+				<span class="theme-color-label">Slate Gri</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="antrasit-gri" onclick="selectSidebarTheme('antrasit-gri', true);">
+				<span class="theme-color-dot" style="background: #374151;"></span>
+				<span class="theme-color-label">Antrasit Gri</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="duman-gri" onclick="selectSidebarTheme('duman-gri', true);">
+				<span class="theme-color-dot" style="background: #3f3f46;"></span>
+				<span class="theme-color-label">Duman Gri</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="grafit-gri" onclick="selectSidebarTheme('grafit-gri', true);">
+				<span class="theme-color-dot" style="background: #27272a;"></span>
+				<span class="theme-color-label">Grafit Gri</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="titan-gri" onclick="selectSidebarTheme('titan-gri', true);">
+				<span class="theme-color-dot" style="background: #475569;"></span>
+				<span class="theme-color-label">Titan Gri</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-zumrut" onclick="selectSidebarTheme('koyu-zumrut', true);">
+				<span class="theme-color-dot" style="background: #132a24;"></span>
+				<span class="theme-color-label">Koyu Zümrüt</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-mor" onclick="selectSidebarTheme('koyu-mor', true);">
+				<span class="theme-color-dot" style="background: #1e1b4b;"></span>
+				<span class="theme-color-label">Koyu Mor</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-bordo" onclick="selectSidebarTheme('koyu-bordo', true);">
+				<span class="theme-color-dot" style="background: #1e1117;"></span>
+				<span class="theme-color-label">Koyu Bordo</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="platin-gri" onclick="selectSidebarTheme('platin-gri', true);">
+				<span class="theme-color-dot" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></span>
+				<span class="theme-color-label">Platin Gri</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="sade-beyaz" onclick="selectSidebarTheme('sade-beyaz', true);">
+				<span class="theme-color-dot" style="background: #ffffff; border: 1px solid #cbd5e1;"></span>
+				<span class="theme-color-label">Sade Beyaz</span>
+			</button>
+		</div>
+
+		<!-- 4. Bölüm: Yazı Tipi (Font) Seçimi -->
 		<div class="theme-customizer-section-title-wrap mt-4">
 			<h6 class="theme-customizer-section-title">Yazı Tipi (Font)</h6>
 			<span class="theme-customizer-badge" style="background: #e0f2fe; color: #0284c7;">Tipografi</span>
@@ -461,6 +683,30 @@ $maintenanceHeaderJson = htmlspecialchars(
 			<button type="button" class="theme-font-btn" data-font="geist" onclick="selectThemeFont('geist', true);" style="font-family: 'Geist', sans-serif;">
 				<span class="theme-font-name">Geist</span>
 				<span class="theme-font-sample">Minimal & Tech</span>
+			</button>
+			<button type="button" class="theme-font-btn" data-font="dm-sans" onclick="selectThemeFont('dm-sans', true);" style="font-family: 'DM Sans', sans-serif;">
+				<span class="theme-font-name">DM Sans</span>
+				<span class="theme-font-sample">SaaS & Ultra Temiz</span>
+			</button>
+			<button type="button" class="theme-font-btn" data-font="manrope" onclick="selectThemeFont('manrope', true);" style="font-family: 'Manrope', sans-serif;">
+				<span class="theme-font-name">Manrope</span>
+				<span class="theme-font-sample">Modern & Profesyonel</span>
+			</button>
+			<button type="button" class="theme-font-btn" data-font="space-grotesk" onclick="selectThemeFont('space-grotesk', true);" style="font-family: 'Space Grotesk', sans-serif;">
+				<span class="theme-font-name">Space Grotesk</span>
+				<span class="theme-font-sample">Tekno & Karakteristik</span>
+			</button>
+			<button type="button" class="theme-font-btn" data-font="urbanist" onclick="selectThemeFont('urbanist', true);" style="font-family: 'Urbanist', sans-serif;">
+				<span class="theme-font-name">Urbanist</span>
+				<span class="theme-font-sample">Geometrik & Yalın</span>
+			</button>
+			<button type="button" class="theme-font-btn" data-font="figtree" onclick="selectThemeFont('figtree', true);" style="font-family: 'Figtree', sans-serif;">
+				<span class="theme-font-name">Figtree</span>
+				<span class="theme-font-sample">Dinamik & Net</span>
+			</button>
+			<button type="button" class="theme-font-btn" data-font="sora" onclick="selectThemeFont('sora', true);" style="font-family: 'Sora', sans-serif;">
+				<span class="theme-font-name">Sora</span>
+				<span class="theme-font-sample">Fütüristik & Şık</span>
 			</button>
 			<button type="button" class="theme-font-btn" data-font="roboto" onclick="selectThemeFont('roboto', true);" style="font-family: 'Roboto', sans-serif;">
 				<span class="theme-font-name">Roboto</span>

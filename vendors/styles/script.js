@@ -33210,7 +33210,20 @@ jQuery(window).on("load",function() {
 	jQuery(".pre-loader").fadeToggle("medium");
 	// bootstrap wysihtml5
 	$('.textarea_editor').wysihtml5({
-		html: true
+		html: true,
+		events: {
+			load: function() {
+				try {
+					var iframeDoc = this.composer.iframe.contentDocument || this.composer.iframe.contentWindow.document;
+					if (iframeDoc && iframeDoc.body) {
+						var styleEl = iframeDoc.createElement('style');
+						styleEl.innerHTML = 'html, body { padding: 6px 12px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.45 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 6px 12px !important; margin: 0 !important; }';
+						iframeDoc.head.appendChild(styleEl);
+						iframeDoc.body.style.padding = '6px 12px';
+					}
+				} catch(e) {}
+			}
+		}
 	});
 });
 jQuery(window).on("load resize", function () {

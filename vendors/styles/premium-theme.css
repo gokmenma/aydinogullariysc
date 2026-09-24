@@ -134,6 +134,62 @@
     --theme-primary-light: #f5f5f4;
 }
 
+[data-theme-preset="modern-celik"] {
+    --theme-primary: #2563eb;
+    --theme-primary-hover: #1d4ed8;
+    --theme-primary-shadow: rgba(37, 99, 235, 0.3);
+    --theme-primary-light: #eff6ff;
+}
+
+[data-theme-preset="antrasit-zumrut"] {
+    --theme-primary: #059669;
+    --theme-primary-hover: #047857;
+    --theme-primary-shadow: rgba(5, 150, 105, 0.3);
+    --theme-primary-light: #ecfdf5;
+}
+
+[data-theme-preset="dumanli-bordo"] {
+    --theme-primary: #e11d48;
+    --theme-primary-hover: #be123c;
+    --theme-primary-shadow: rgba(225, 29, 72, 0.3);
+    --theme-primary-light: #fff1f2;
+}
+
+[data-theme-preset="grafiti-mor"] {
+    --theme-primary: #7c3aed;
+    --theme-primary-hover: #6d28d9;
+    --theme-primary-shadow: rgba(124, 58, 237, 0.3);
+    --theme-primary-light: #f5f3ff;
+}
+
+[data-theme-preset="kul-amber"] {
+    --theme-primary: #d97706;
+    --theme-primary-hover: #b45309;
+    --theme-primary-shadow: rgba(217, 119, 6, 0.3);
+    --theme-primary-light: #fef3c7;
+}
+
+[data-theme-preset="petrol-tas"] {
+    --theme-primary: #0f766e;
+    --theme-primary-hover: #115e59;
+    --theme-primary-shadow: rgba(15, 118, 110, 0.3);
+    --theme-primary-light: #f0fdfa;
+}
+
+[data-theme-preset="platin-mavi"] {
+    --theme-primary: #0284c7;
+    --theme-primary-hover: #0369a1;
+    --theme-primary-shadow: rgba(2, 132, 199, 0.3);
+    --theme-primary-light: #e0f2fe;
+}
+
+[data-theme-preset="titan-okyanus"] {
+    --theme-primary: #2563eb;
+    --theme-primary-hover: #1d4ed8;
+    --theme-primary-shadow: rgba(37, 99, 235, 0.3);
+    --theme-primary-light: #eff6ff;
+}
+
 /* ==============================================================
    GLOBAL SCROLLBAR STYLING
    ============================================================== */
@@ -2075,12 +2131,31 @@ tr.context-menu-active {
     border: 1px solid #e2e8f0 !important;
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 5px 15px -3px rgba(0, 0, 0, 0.04) !important;
     border-radius: 14px !important;
-    font-family: 'Geist', 'Inter', sans-serif !important;
+    font-family: var(--font-sans, inherit) !important;
     font-size: 13.5px !important;
     color: #334155 !important;
     padding: 8px !important;
     width: 260px !important;
     transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.datepicker,
+.datepicker *,
+.datepickers-container,
+.datepicker-inline,
+.datepicker--nav,
+.datepicker--nav-title,
+.datepicker--nav-action,
+.datepicker--days-names,
+.datepicker--day-name,
+.datepicker--cells,
+.datepicker--cell,
+.datepicker--buttons,
+.datepicker--button,
+.datepicker--time,
+.datepicker--time-current,
+.datepicker--time-sliders {
+    font-family: var(--font-sans, inherit) !important;
 }
 
 .datepicker--pointer {
@@ -3230,7 +3305,7 @@ tr.context-menu-active {
     font-weight: 700;
     color: #475569;
     background: #ffffff;
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-sans, inherit) !important;
     letter-spacing: 0.03em;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
@@ -3243,7 +3318,7 @@ tr.context-menu-active {
     letter-spacing: 0.22em;
     color: #1e293b;
     text-transform: uppercase;
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-sans, inherit) !important;
     margin: 16px 0;
 }
 
@@ -6263,8 +6338,24 @@ html.kpi-pricereq-collapsed-early #kpiSummarySection,
 /* ==========================================================================
    Centralized Flatpickr Modern Executive CRM Design
    ========================================================================== */
+.flatpickr-calendar,
+.flatpickr-calendar *,
+.flatpickr-month,
+.flatpickr-current-month,
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year,
+.flatpickr-weekdays,
+span.flatpickr-weekday,
+.flatpickr-days,
+.dayContainer,
+.flatpickr-day,
+.flatpickr-time,
+.flatpickr-time input {
+    font-family: var(--font-sans, inherit) !important;
+}
+
 .flatpickr-calendar {
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-family: var(--font-sans, inherit) !important;
     background: #ffffff !important;
     border-radius: 14px !important;
     border: 1px solid #e2e8f0 !important;
@@ -7617,6 +7708,28 @@ iframe.wysihtml5-sandbox {
     margin: 0 !important;
 }
 
+/* Summernote & Rich Text Editor Placeholder / Content Padding */
+.note-editor .note-placeholder,
+.note-placeholder {
+    padding: 6px 12px !important;
+    color: #94a3b8 !important;
+    top: 0 !important;
+    left: 0 !important;
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+    pointer-events: none !important;
+    box-sizing: border-box !important;
+}
+
+.note-editor .note-editable,
+.note-editable {
+    padding: 6px 12px !important;
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+    color: #334155 !important;
+    box-sizing: border-box !important;
+}
+
 /* Dark Mode WYSIHTML5 */
 .dark-mode .wysihtml5-toolbar,
 .dark-mode .html-editor .wysihtml5-toolbar,
@@ -8007,6 +8120,82 @@ body.dark-mode iframe.wysihtml5-sandbox,
 }
 .dark-mode .theme-preset-name {
     color: #e2e8f0;
+}
+
+/* ==============================================================
+   RENK PALETİ SWATCH SEÇİCİ STİLLERİ (TOPBAR & SIDEBAR)
+   ============================================================== */
+.theme-color-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.theme-color-swatch-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 7px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+    user-select: none;
+    outline: none !important;
+    text-align: left;
+}
+
+.dark-mode .theme-color-swatch-btn {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+.theme-color-swatch-btn:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .theme-color-swatch-btn:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+.theme-color-swatch-btn.active {
+    background: #ffffff !important;
+    border: 2px solid #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+}
+
+.dark-mode .theme-color-swatch-btn.active {
+    background: #1e293b !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+}
+
+.theme-color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.theme-color-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.dark-mode .theme-color-label {
+    color: #f8fafc;
 }
 
 /* ==============================================================
@@ -8954,6 +9143,1145 @@ html:not(.dark-mode) [data-theme-preset="soft-vizon"] .user-toggle-btn .user-ava
     background: #57534e !important;
 }
 
+/* --------------------------------------------------------------
+   18. TEMA: MODERN ÇELİK (Canlı Mavi Topbar + Çelik Slate Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header {
+    background: #2563eb !important;
+    border-bottom-color: #1d4ed8 !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #2563eb !important;
+}
+[data-theme-preset="modern-celik"] .left-side-bar,
+[data-theme-preset="modern-celik"] .left-side-bar .menu-block {
+    background: #334155 !important;
+    border-right-color: #475569 !important;
+}
+[data-theme-preset="modern-celik"] .left-side-bar .sidebar-search-wrap {
+    background: #334155 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="modern-celik"] .left-side-bar .sidebar-search-input {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-section-header {
+    color: #94a3b8 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown-toggle {
+    color: #cbd5e1 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #94a3b8 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown-toggle:hover {
+    background: #475569 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="modern-celik"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="modern-celik"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="modern-celik"] .sidebar-menu .dropdown-toggle.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .submenu {
+    border-left-color: #475569 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .submenu li a {
+    color: #cbd5e1 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #475569 !important;
+}
+[data-theme-preset="modern-celik"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #2563eb !important;
+}
+[data-theme-preset="modern-celik"] [class*="-header-card"] .header-icon {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border-color: #bfdbfe !important;
+}
+[data-theme-preset="modern-celik"] .btn-primary,
+[data-theme-preset="modern-celik"] .crm-quick-btn.btn-primary-action {
+    background: #2563eb !important;
+    border-color: #1d4ed8 !important;
+}
+[data-theme-preset="modern-celik"] .btn-primary:hover,
+[data-theme-preset="modern-celik"] .crm-quick-btn.btn-primary-action:hover {
+    background: #1d4ed8 !important;
+}
+
+/* --------------------------------------------------------------
+   19. TEMA: ANTRASİT ZÜMRÜT (Zümrüt Yeşil Topbar + Antrasit Kül Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header {
+    background: #059669 !important;
+    border-bottom-color: #047857 !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #059669 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .left-side-bar,
+[data-theme-preset="antrasit-zumrut"] .left-side-bar .menu-block {
+    background: #374151 !important;
+    border-right-color: #4b5563 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .left-side-bar .sidebar-search-wrap {
+    background: #374151 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="antrasit-zumrut"] .left-side-bar .sidebar-search-input {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-section-header {
+    color: #9ca3af !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown-toggle {
+    color: #e5e7eb !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #9ca3af !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown-toggle:hover {
+    background: #4b5563 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .dropdown-toggle.active {
+    background: #059669 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .submenu {
+    border-left-color: #4b5563 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .submenu li a {
+    color: #d1d5db !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #4b5563 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #059669 !important;
+}
+[data-theme-preset="antrasit-zumrut"] [class*="-header-card"] .header-icon {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+    border-color: #a7f3d0 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .btn-primary,
+[data-theme-preset="antrasit-zumrut"] .crm-quick-btn.btn-primary-action {
+    background: #059669 !important;
+    border-color: #047857 !important;
+}
+[data-theme-preset="antrasit-zumrut"] .btn-primary:hover,
+[data-theme-preset="antrasit-zumrut"] .crm-quick-btn.btn-primary-action:hover {
+    background: #047857 !important;
+}
+
+/* --------------------------------------------------------------
+   20. TEMA: DUMANLI BORDO (Derin Bordo Topbar + Duman Nötr Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header {
+    background: #9f1239 !important;
+    border-bottom-color: #881337 !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #9f1239 !important;
+}
+[data-theme-preset="dumanli-bordo"] .left-side-bar,
+[data-theme-preset="dumanli-bordo"] .left-side-bar .menu-block {
+    background: #3f3f46 !important;
+    border-right-color: #52525b !important;
+}
+[data-theme-preset="dumanli-bordo"] .left-side-bar .sidebar-search-wrap {
+    background: #3f3f46 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="dumanli-bordo"] .left-side-bar .sidebar-search-input {
+    background: #27272a !important;
+    color: #fafafa !important;
+    border-color: #52525b !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-section-header {
+    color: #a1a1aa !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown-toggle {
+    color: #e4e4e7 !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #a1a1aa !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown-toggle:hover {
+    background: #52525b !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="dumanli-bordo"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="dumanli-bordo"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .dropdown-toggle.active {
+    background: #9f1239 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .submenu {
+    border-left-color: #52525b !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .submenu li a {
+    color: #d4d4d8 !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #52525b !important;
+}
+[data-theme-preset="dumanli-bordo"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #9f1239 !important;
+}
+[data-theme-preset="dumanli-bordo"] [class*="-header-card"] .header-icon {
+    background: #fff1f2 !important;
+    color: #9f1239 !important;
+    border-color: #fecdd3 !important;
+}
+[data-theme-preset="dumanli-bordo"] .btn-primary,
+[data-theme-preset="dumanli-bordo"] .crm-quick-btn.btn-primary-action {
+    background: #9f1239 !important;
+    border-color: #881337 !important;
+}
+[data-theme-preset="dumanli-bordo"] .btn-primary:hover,
+[data-theme-preset="dumanli-bordo"] .crm-quick-btn.btn-primary-action:hover {
+    background: #881337 !important;
+}
+
+/* --------------------------------------------------------------
+   21. TEMA: GRAFİTİ MOR (Canlı Mor Topbar + Grafit Koyu Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header {
+    background: #7c3aed !important;
+    border-bottom-color: #6d28d9 !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #7c3aed !important;
+}
+[data-theme-preset="grafiti-mor"] .left-side-bar,
+[data-theme-preset="grafiti-mor"] .left-side-bar .menu-block {
+    background: #27272a !important;
+    border-right-color: #3f3f46 !important;
+}
+[data-theme-preset="grafiti-mor"] .left-side-bar .sidebar-search-wrap {
+    background: #27272a !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="grafiti-mor"] .left-side-bar .sidebar-search-input {
+    background: #18181b !important;
+    color: #fafafa !important;
+    border-color: #3f3f46 !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-section-header {
+    color: #a1a1aa !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown-toggle {
+    color: #e4e4e7 !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #a1a1aa !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown-toggle:hover {
+    background: #3f3f46 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="grafiti-mor"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="grafiti-mor"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="grafiti-mor"] .sidebar-menu .dropdown-toggle.active {
+    background: #7c3aed !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .submenu {
+    border-left-color: #3f3f46 !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .submenu li a {
+    color: #d4d4d8 !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #3f3f46 !important;
+}
+[data-theme-preset="grafiti-mor"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #7c3aed !important;
+}
+[data-theme-preset="grafiti-mor"] [class*="-header-card"] .header-icon {
+    background: #f5f3ff !important;
+    color: #7c3aed !important;
+    border-color: #ddd6fe !important;
+}
+[data-theme-preset="grafiti-mor"] .btn-primary,
+[data-theme-preset="grafiti-mor"] .crm-quick-btn.btn-primary-action {
+    background: #7c3aed !important;
+    border-color: #6d28d9 !important;
+}
+[data-theme-preset="grafiti-mor"] .btn-primary:hover,
+[data-theme-preset="grafiti-mor"] .crm-quick-btn.btn-primary-action:hover {
+    background: #6d28d9 !important;
+}
+
+/* --------------------------------------------------------------
+   22. TEMA: KÜL AMBER (Sıcak Amber Topbar + Kül Slate Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header {
+    background: #d97706 !important;
+    border-bottom-color: #b45309 !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #d97706 !important;
+}
+[data-theme-preset="kul-amber"] .left-side-bar,
+[data-theme-preset="kul-amber"] .left-side-bar .menu-block {
+    background: #334155 !important;
+    border-right-color: #475569 !important;
+}
+[data-theme-preset="kul-amber"] .left-side-bar .sidebar-search-wrap {
+    background: #334155 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="kul-amber"] .left-side-bar .sidebar-search-input {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-section-header {
+    color: #94a3b8 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown-toggle {
+    color: #cbd5e1 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #94a3b8 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown-toggle:hover {
+    background: #475569 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="kul-amber"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="kul-amber"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="kul-amber"] .sidebar-menu .dropdown-toggle.active {
+    background: #d97706 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .submenu {
+    border-left-color: #475569 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .submenu li a {
+    color: #cbd5e1 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #475569 !important;
+}
+[data-theme-preset="kul-amber"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #d97706 !important;
+}
+[data-theme-preset="kul-amber"] [class*="-header-card"] .header-icon {
+    background: #fef3c7 !important;
+    color: #d97706 !important;
+    border-color: #fde68a !important;
+}
+[data-theme-preset="kul-amber"] .btn-primary,
+[data-theme-preset="kul-amber"] .crm-quick-btn.btn-primary-action {
+    background: #d97706 !important;
+    border-color: #b45309 !important;
+}
+[data-theme-preset="kul-amber"] .btn-primary:hover,
+[data-theme-preset="kul-amber"] .crm-quick-btn.btn-primary-action:hover {
+    background: #b45309 !important;
+}
+
+/* --------------------------------------------------------------
+   23. TEMA: PETROL TAŞ (Derin Teal Petrol Topbar + Taş Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header {
+    background: #0f766e !important;
+    border-bottom-color: #115e59 !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #0f766e !important;
+}
+[data-theme-preset="petrol-tas"] .left-side-bar,
+[data-theme-preset="petrol-tas"] .left-side-bar .menu-block {
+    background: #374151 !important;
+    border-right-color: #4b5563 !important;
+}
+[data-theme-preset="petrol-tas"] .left-side-bar .sidebar-search-wrap {
+    background: #374151 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="petrol-tas"] .left-side-bar .sidebar-search-input {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-section-header {
+    color: #9ca3af !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown-toggle {
+    color: #e5e7eb !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #9ca3af !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown-toggle:hover {
+    background: #4b5563 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="petrol-tas"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="petrol-tas"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="petrol-tas"] .sidebar-menu .dropdown-toggle.active {
+    background: #0f766e !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .submenu {
+    border-left-color: #4b5563 !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .submenu li a {
+    color: #d1d5db !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #4b5563 !important;
+}
+[data-theme-preset="petrol-tas"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #0f766e !important;
+}
+[data-theme-preset="petrol-tas"] [class*="-header-card"] .header-icon {
+    background: #f0fdfa !important;
+    color: #0f766e !important;
+    border-color: #99f6e4 !important;
+}
+[data-theme-preset="petrol-tas"] .btn-primary,
+[data-theme-preset="petrol-tas"] .crm-quick-btn.btn-primary-action {
+    background: #0f766e !important;
+    border-color: #115e59 !important;
+}
+[data-theme-preset="petrol-tas"] .btn-primary:hover,
+[data-theme-preset="petrol-tas"] .crm-quick-btn.btn-primary-action:hover {
+    background: #115e59 !important;
+}
+
+/* --------------------------------------------------------------
+   24. TEMA: PLATİN MAVİ (Safir Topbar + Açık Platin Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header {
+    background: #0284c7 !important;
+    border-bottom-color: #0369a1 !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #0284c7 !important;
+}
+[data-theme-preset="platin-mavi"] .left-side-bar,
+[data-theme-preset="platin-mavi"] .left-side-bar .menu-block {
+    background: #e2e8f0 !important;
+    border-right-color: #cbd5e1 !important;
+}
+[data-theme-preset="platin-mavi"] .left-side-bar .sidebar-search-wrap {
+    background: #e2e8f0 !important;
+    border-bottom-color: #cbd5e1 !important;
+}
+[data-theme-preset="platin-mavi"] .left-side-bar .sidebar-search-input {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-section-header {
+    color: #64748b !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown-toggle {
+    color: #334155 !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #64748b !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown-toggle:hover {
+    background: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="platin-mavi"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="platin-mavi"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="platin-mavi"] .sidebar-menu .dropdown-toggle.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .submenu {
+    border-left-color: #cbd5e1 !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .submenu li a {
+    color: #475569 !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .submenu li a:hover {
+    color: #0f172a !important;
+    background: #cbd5e1 !important;
+}
+[data-theme-preset="platin-mavi"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #0284c7 !important;
+}
+[data-theme-preset="platin-mavi"] [class*="-header-card"] .header-icon {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+    border-color: #bae6fd !important;
+}
+[data-theme-preset="platin-mavi"] .btn-primary,
+[data-theme-preset="platin-mavi"] .crm-quick-btn.btn-primary-action {
+    background: #0284c7 !important;
+    border-color: #0369a1 !important;
+}
+[data-theme-preset="platin-mavi"] .btn-primary:hover,
+[data-theme-preset="platin-mavi"] .crm-quick-btn.btn-primary-action:hover {
+    background: #0369a1 !important;
+}
+
+/* --------------------------------------------------------------
+   25. TEMA: TİTAN OKYANUS (Gece Laciverti Topbar + Titan Çelik Gri Sidebar)
+   -------------------------------------------------------------- */
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header {
+    background: #1e3a8a !important;
+    border-bottom-color: #172554 !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .breadcrumb-item,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .breadcrumb-item.active,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-action-btn {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .user-toggle-btn .user-avatar-badge {
+    background: #ffffff !important;
+    color: #1e3a8a !important;
+}
+[data-theme-preset="titan-okyanus"] .left-side-bar,
+[data-theme-preset="titan-okyanus"] .left-side-bar .menu-block {
+    background: #475569 !important;
+    border-right-color: #64748b !important;
+}
+[data-theme-preset="titan-okyanus"] .left-side-bar .sidebar-search-wrap {
+    background: #475569 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme-preset="titan-okyanus"] .left-side-bar .sidebar-search-input {
+    background: #334155 !important;
+    color: #f8fafc !important;
+    border-color: #64748b !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-section-header {
+    color: #cbd5e1 !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown-toggle {
+    color: #f1f5f9 !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown-toggle .fa,
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown-toggle span[class*="fa"] {
+    color: #cbd5e1 !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown-toggle:hover {
+    background: #64748b !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown.active > .dropdown-toggle,
+[data-theme-preset="titan-okyanus"] .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-theme-preset="titan-okyanus"] .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+[data-theme-preset="titan-okyanus"] .sidebar-menu .dropdown-toggle.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .submenu {
+    border-left-color: #64748b !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .submenu li a {
+    color: #e2e8f0 !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .submenu li a:hover {
+    color: #ffffff !important;
+    background: #64748b !important;
+}
+[data-theme-preset="titan-okyanus"] .sidebar-menu .submenu li a.active {
+    color: #ffffff !important;
+    background: #2563eb !important;
+}
+[data-theme-preset="titan-okyanus"] [class*="-header-card"] .header-icon {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border-color: #bfdbfe !important;
+}
+[data-theme-preset="titan-okyanus"] .btn-primary,
+[data-theme-preset="titan-okyanus"] .crm-quick-btn.btn-primary-action {
+    background: #2563eb !important;
+    border-color: #1d4ed8 !important;
+}
+[data-theme-preset="titan-okyanus"] .btn-primary:hover,
+[data-theme-preset="titan-okyanus"] .crm-quick-btn.btn-primary-action:hover {
+    background: #1d4ed8 !important;
+}
+
+/* ==============================================================
+   TOPBAR (ÜST MENÜ) BAĞIMSIZ RENK TEMALARI
+   ============================================================== */
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header { background: #2563eb !important; border-bottom-color: #1d4ed8 !important; }
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header { background: #059669 !important; border-bottom-color: #047857 !important; }
+html:not(.dark-mode)[data-topbar-theme="mor"] .header { background: #7c3aed !important; border-bottom-color: #6d28d9 !important; }
+html:not(.dark-mode)[data-topbar-theme="rose"] .header { background: #e11d48 !important; border-bottom-color: #be123c !important; }
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header { background: #9f1239 !important; border-bottom-color: #881337 !important; }
+html:not(.dark-mode)[data-topbar-theme="amber"] .header { background: #d97706 !important; border-bottom-color: #b45309 !important; }
+html:not(.dark-mode)[data-topbar-theme="safir"] .header { background: #0284c7 !important; border-bottom-color: #0369a1 !important; }
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header { background: #15803d !important; border-bottom-color: #14532d !important; }
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header { background: #1e3a8a !important; border-bottom-color: #172554 !important; }
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header { background: #0f766e !important; border-bottom-color: #115e59 !important; }
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header { background: #18181b !important; border-bottom-color: #27272a !important; }
+html:not(.dark-mode)[data-topbar-theme="beyaz"] .header { background: #ffffff !important; border-bottom-color: #e2e8f0 !important; }
+html:not(.dark-mode)[data-topbar-theme="lavanta"] .header { background: #f5f3ff !important; border-bottom-color: #e9d5ff !important; }
+html:not(.dark-mode)[data-topbar-theme="adacayi"] .header { background: #f0fdfa !important; border-bottom-color: #ccfbf1 !important; }
+html:not(.dark-mode)[data-topbar-theme="buz-mavisi"] .header { background: #f0f9ff !important; border-bottom-color: #e0f2fe !important; }
+html:not(.dark-mode)[data-topbar-theme="vizon"] .header { background: #fafaf9 !important; border-bottom-color: #e7e5e4 !important; }
+
+/* Koyu & Canlı Renk Topbar Eleman Kontrastı */
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-left .menu-icon {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-left .menu-icon span {
+    background: #ffffff !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #ffffff !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header .header-breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-action-btn {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="mor"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="rose"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="amber"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="safir"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-action-btn:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.45) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="mor"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="rose"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="amber"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="safir"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+html:not(.dark-mode)[data-topbar-theme="mavi"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="zumrut"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="mor"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="rose"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="bordo"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="amber"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="safir"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="nordik"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="lacivert"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="petrol"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
+    color: #ffffff !important;
+}
+
+/* ==============================================================
+   SIDEBAR (SOL MENÜ) BAĞIMSIZ RENK TEMALARI
+   ============================================================== */
+/* 1. Klasik Koyu */
+[data-sidebar-theme="klasik-koyu"] .left-side-bar,
+[data-sidebar-theme="klasik-koyu"] .left-side-bar .menu-block {
+    background: #1e1e2d !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 2. Slate Çelik Gri */
+[data-sidebar-theme="slate-gri"] .left-side-bar,
+[data-sidebar-theme="slate-gri"] .left-side-bar .menu-block {
+    background: #334155 !important;
+    border-right-color: #475569 !important;
+}
+[data-sidebar-theme="slate-gri"] .left-side-bar .sidebar-search-wrap {
+    background: #334155 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-sidebar-theme="slate-gri"] .left-side-bar .sidebar-search-input {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+[data-sidebar-theme="slate-gri"] .sidebar-section-header { color: #94a3b8 !important; }
+[data-sidebar-theme="slate-gri"] .sidebar-menu .dropdown-toggle { color: #cbd5e1 !important; }
+[data-sidebar-theme="slate-gri"] .sidebar-menu .dropdown-toggle .fa { color: #94a3b8 !important; }
+[data-sidebar-theme="slate-gri"] .sidebar-menu .dropdown-toggle:hover { background: #475569 !important; color: #ffffff !important; }
+[data-sidebar-theme="slate-gri"] .sidebar-menu .submenu { border-left-color: #475569 !important; }
+[data-sidebar-theme="slate-gri"] .sidebar-menu .submenu li a { color: #cbd5e1 !important; }
+[data-sidebar-theme="slate-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #475569 !important; }
+
+/* 3. Antrasit Kül Gri */
+[data-sidebar-theme="antrasit-gri"] .left-side-bar,
+[data-sidebar-theme="antrasit-gri"] .left-side-bar .menu-block {
+    background: #374151 !important;
+    border-right-color: #4b5563 !important;
+}
+[data-sidebar-theme="antrasit-gri"] .left-side-bar .sidebar-search-wrap {
+    background: #374151 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-sidebar-theme="antrasit-gri"] .left-side-bar .sidebar-search-input {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+[data-sidebar-theme="antrasit-gri"] .sidebar-section-header { color: #9ca3af !important; }
+[data-sidebar-theme="antrasit-gri"] .sidebar-menu .dropdown-toggle { color: #e5e7eb !important; }
+[data-sidebar-theme="antrasit-gri"] .sidebar-menu .dropdown-toggle .fa { color: #9ca3af !important; }
+[data-sidebar-theme="antrasit-gri"] .sidebar-menu .dropdown-toggle:hover { background: #4b5563 !important; color: #ffffff !important; }
+[data-sidebar-theme="antrasit-gri"] .sidebar-menu .submenu { border-left-color: #4b5563 !important; }
+[data-sidebar-theme="antrasit-gri"] .sidebar-menu .submenu li a { color: #d1d5db !important; }
+[data-sidebar-theme="antrasit-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #4b5563 !important; }
+
+/* 4. Duman Nötr Gri */
+[data-sidebar-theme="duman-gri"] .left-side-bar,
+[data-sidebar-theme="duman-gri"] .left-side-bar .menu-block {
+    background: #3f3f46 !important;
+    border-right-color: #52525b !important;
+}
+[data-sidebar-theme="duman-gri"] .left-side-bar .sidebar-search-wrap {
+    background: #3f3f46 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-sidebar-theme="duman-gri"] .left-side-bar .sidebar-search-input {
+    background: #27272a !important;
+    color: #fafafa !important;
+    border-color: #52525b !important;
+}
+[data-sidebar-theme="duman-gri"] .sidebar-section-header { color: #a1a1aa !important; }
+[data-sidebar-theme="duman-gri"] .sidebar-menu .dropdown-toggle { color: #e4e4e7 !important; }
+[data-sidebar-theme="duman-gri"] .sidebar-menu .dropdown-toggle .fa { color: #a1a1aa !important; }
+[data-sidebar-theme="duman-gri"] .sidebar-menu .dropdown-toggle:hover { background: #52525b !important; color: #ffffff !important; }
+[data-sidebar-theme="duman-gri"] .sidebar-menu .submenu { border-left-color: #52525b !important; }
+[data-sidebar-theme="duman-gri"] .sidebar-menu .submenu li a { color: #d4d4d8 !important; }
+[data-sidebar-theme="duman-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #52525b !important; }
+
+/* 5. Grafit Koyu Gri */
+[data-sidebar-theme="grafit-gri"] .left-side-bar,
+[data-sidebar-theme="grafit-gri"] .left-side-bar .menu-block {
+    background: #27272a !important;
+    border-right-color: #3f3f46 !important;
+}
+[data-sidebar-theme="grafit-gri"] .left-side-bar .sidebar-search-wrap {
+    background: #27272a !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-sidebar-theme="grafit-gri"] .left-side-bar .sidebar-search-input {
+    background: #18181b !important;
+    color: #fafafa !important;
+    border-color: #3f3f46 !important;
+}
+[data-sidebar-theme="grafit-gri"] .sidebar-section-header { color: #a1a1aa !important; }
+[data-sidebar-theme="grafit-gri"] .sidebar-menu .dropdown-toggle { color: #e4e4e7 !important; }
+[data-sidebar-theme="grafit-gri"] .sidebar-menu .dropdown-toggle .fa { color: #a1a1aa !important; }
+[data-sidebar-theme="grafit-gri"] .sidebar-menu .dropdown-toggle:hover { background: #3f3f46 !important; color: #ffffff !important; }
+[data-sidebar-theme="grafit-gri"] .sidebar-menu .submenu { border-left-color: #3f3f46 !important; }
+[data-sidebar-theme="grafit-gri"] .sidebar-menu .submenu li a { color: #d4d4d8 !important; }
+[data-sidebar-theme="grafit-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #3f3f46 !important; }
+
+/* 6. Titan Çelik Gri */
+[data-sidebar-theme="titan-gri"] .left-side-bar,
+[data-sidebar-theme="titan-gri"] .left-side-bar .menu-block {
+    background: #475569 !important;
+    border-right-color: #64748b !important;
+}
+[data-sidebar-theme="titan-gri"] .left-side-bar .sidebar-search-wrap {
+    background: #475569 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-sidebar-theme="titan-gri"] .left-side-bar .sidebar-search-input {
+    background: #334155 !important;
+    color: #f8fafc !important;
+    border-color: #64748b !important;
+}
+[data-sidebar-theme="titan-gri"] .sidebar-section-header { color: #cbd5e1 !important; }
+[data-sidebar-theme="titan-gri"] .sidebar-menu .dropdown-toggle { color: #f1f5f9 !important; }
+[data-sidebar-theme="titan-gri"] .sidebar-menu .dropdown-toggle .fa { color: #cbd5e1 !important; }
+[data-sidebar-theme="titan-gri"] .sidebar-menu .dropdown-toggle:hover { background: #64748b !important; color: #ffffff !important; }
+[data-sidebar-theme="titan-gri"] .sidebar-menu .submenu { border-left-color: #64748b !important; }
+[data-sidebar-theme="titan-gri"] .sidebar-menu .submenu li a { color: #e2e8f0 !important; }
+[data-sidebar-theme="titan-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #64748b !important; }
+
+/* 7. Koyu Zümrüt */
+[data-sidebar-theme="koyu-zumrut"] .left-side-bar,
+[data-sidebar-theme="koyu-zumrut"] .left-side-bar .menu-block {
+    background: #132a24 !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 8. Koyu Gece Moru */
+[data-sidebar-theme="koyu-mor"] .left-side-bar,
+[data-sidebar-theme="koyu-mor"] .left-side-bar .menu-block {
+    background: #1e1b4b !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 9. Koyu Gece Bordo */
+[data-sidebar-theme="koyu-bordo"] .left-side-bar,
+[data-sidebar-theme="koyu-bordo"] .left-side-bar .menu-block {
+    background: #1e1117 !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 10. Açık Platin Gri */
+[data-sidebar-theme="platin-gri"] .left-side-bar,
+[data-sidebar-theme="platin-gri"] .left-side-bar .menu-block {
+    background: #e2e8f0 !important;
+    border-right-color: #cbd5e1 !important;
+}
+[data-sidebar-theme="platin-gri"] .left-side-bar .sidebar-search-wrap {
+    background: #e2e8f0 !important;
+    border-bottom-color: #cbd5e1 !important;
+}
+[data-sidebar-theme="platin-gri"] .left-side-bar .sidebar-search-input {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+}
+[data-sidebar-theme="platin-gri"] .sidebar-section-header { color: #64748b !important; }
+[data-sidebar-theme="platin-gri"] .sidebar-menu .dropdown-toggle { color: #334155 !important; }
+[data-sidebar-theme="platin-gri"] .sidebar-menu .dropdown-toggle .fa { color: #64748b !important; }
+[data-sidebar-theme="platin-gri"] .sidebar-menu .dropdown-toggle:hover { background: #cbd5e1 !important; color: #0f172a !important; }
+[data-sidebar-theme="platin-gri"] .sidebar-menu .submenu { border-left-color: #cbd5e1 !important; }
+[data-sidebar-theme="platin-gri"] .sidebar-menu .submenu li a { color: #475569 !important; }
+[data-sidebar-theme="platin-gri"] .sidebar-menu .submenu li a:hover { color: #0f172a !important; background: #cbd5e1 !important; }
+
+/* 11. Sade Beyaz */
+[data-sidebar-theme="sade-beyaz"] .left-side-bar,
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .menu-block {
+    background: #ffffff !important;
+    border-right-color: #e2e8f0 !important;
+}
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-search-wrap {
+    background: #ffffff !important;
+    border-bottom-color: #e2e8f0 !important;
+}
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-search-input {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border-color: #e2e8f0 !important;
+}
+[data-sidebar-theme="sade-beyaz"] .sidebar-section-header { color: #94a3b8 !important; }
+[data-sidebar-theme="sade-beyaz"] .sidebar-menu .dropdown-toggle { color: #64748b !important; }
+[data-sidebar-theme="sade-beyaz"] .sidebar-menu .dropdown-toggle .fa { color: #64748b !important; }
+[data-sidebar-theme="sade-beyaz"] .sidebar-menu .dropdown-toggle:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+[data-sidebar-theme="sade-beyaz"] .sidebar-menu .submenu { border-left-color: #e2e8f0 !important; }
+[data-sidebar-theme="sade-beyaz"] .sidebar-menu .submenu li a { color: #64748b !important; }
+[data-sidebar-theme="sade-beyaz"] .sidebar-menu .submenu li a:hover { color: #0f172a !important; background: #f1f5f9 !important; }
+
 /* ==============================================================
    DARK MODE ÖNCELİKLİ ÜST KURAL
    (Dark mode aktifken tüm temalarda Header & Sidebar Koyu Olur)
@@ -9207,10 +10535,17 @@ html.dark-mode .user-toggle-btn .user-avatar-badge,
 [data-theme-font="poppins"] { --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 [data-theme-font="outfit"] { --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 [data-theme-font="montserrat"] { --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+[data-theme-font="dm-sans"] { --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+[data-theme-font="manrope"] { --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+[data-theme-font="space-grotesk"] { --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+[data-theme-font="urbanist"] { --font-sans: 'Urbanist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+[data-theme-font="figtree"] { --font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+[data-theme-font="sora"] { --font-sans: 'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 [data-theme-font="roboto"] { --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
 /* Tipografi Uygulaması (İkon Fontlarına Dokunmadan) */
-body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .breadcrumb-item, .user-name {
+body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .breadcrumb-item, .user-name,
+.datepicker, .datepicker *, .datepickers-container, .datepicker-inline, .flatpickr-calendar, .flatpickr-calendar *, .daterangepicker, .daterangepicker *, .fc, .fc *, .bootstrap-datetimepicker-widget, .bootstrap-datetimepicker-widget *, .td-wrap, .td-box, .crm-month-cal-year-circle, .crm-month-cal-v-month, .crm-month-cal-side-summary {
     font-family: var(--font-sans) !important;
 }
 
@@ -10524,7 +11859,15 @@ html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon,
 html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon,
 html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon,
 html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon,
-html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon {
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-left .menu-icon,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-left .menu-icon {
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1px solid rgba(255, 255, 255, 0.35) !important;
 }
@@ -10536,7 +11879,15 @@ html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon:hover,
 html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon:hover,
 html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon:hover,
 html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon:hover,
-html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon:hover {
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-left .menu-icon:hover,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-left .menu-icon:hover {
     background: rgba(255, 255, 255, 0.28) !important;
     border-color: rgba(255, 255, 255, 0.5) !important;
 }
@@ -10548,7 +11899,15 @@ html:not(.dark-mode) [data-theme-preset="rose"] .header-left .menu-icon span,
 html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-left .menu-icon span,
 html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-left .menu-icon span,
 html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-left .menu-icon span,
-html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon span {
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-left .menu-icon span,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-left .menu-icon span {
     background: #ffffff !important;
 }
 
@@ -10559,7 +11918,15 @@ html:not(.dark-mode) [data-theme-preset="rose"] .header-action-btn,
 html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-action-btn,
 html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-action-btn,
 html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-action-btn,
-html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn {
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-action-btn,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-action-btn {
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -10572,7 +11939,15 @@ html:not(.dark-mode) [data-theme-preset="rose"] .header-action-btn:hover,
 html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header-action-btn:hover,
 html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header-action-btn:hover,
 html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header-action-btn:hover,
-html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn:hover {
+html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="modern-celik"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="kul-amber"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header-action-btn:hover,
+html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header-action-btn:hover {
     background: rgba(255, 255, 255, 0.28) !important;
     border-color: rgba(255, 255, 255, 0.45) !important;
     color: #ffffff !important;
@@ -10649,3 +12024,326 @@ html:not(.dark-mode) [data-theme-preset] .left-side-bar .brand-logo,
     .maintenance-notice-time { margin-left: 0; white-space: normal; text-align: right; }
     .maintenance-notice-visible .main-container { padding-top: 126px !important; }
 }
+
+/* Quick Preview Modal Styles - Spacious & Modern */
+.premium-modal-content {
+    border-radius: 16px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    overflow: hidden;
+}
+.premium-modal-header {
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 20px 28px !important;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.modal-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    flex-shrink: 0;
+}
+.preview-modal-id-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+.modal-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+.modal-close-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* Pill Badges in Modal */
+.mission-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px !important;
+    border-radius: 50px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+.mission-pill-badge.urgency-high {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+}
+.mission-pill-badge.urgency-medium {
+    background: #fffbeb !important;
+    color: #d97706 !important;
+    border-color: #fde68a !important;
+}
+.mission-pill-badge.urgency-low {
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+    border-color: #bbf7d0 !important;
+}
+.mission-pill-badge.status-done {
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    border-color: #bbf7d0 !important;
+}
+.mission-pill-badge.status-pending {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border-color: #bfdbfe !important;
+}
+.mission-pill-badge.status-overdue {
+    background: #fff1f2 !important;
+    color: #e11d48 !important;
+    border-color: #fecdd3 !important;
+}
+
+.preview-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.preview-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.preview-meta-item:hover {
+    border-color: #cbd5e1;
+}
+.preview-meta-icon {
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    flex-shrink: 0;
+}
+.preview-meta-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.preview-meta-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+    line-height: 1.2;
+}
+.preview-meta-val {
+    font-size: 13.5px;
+    color: #1e293b;
+    font-weight: 600;
+    word-break: break-word;
+    line-height: 1.4;
+}
+.preview-section {
+    margin-bottom: 20px;
+}
+.preview-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.5px;
+}
+.preview-desc-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #334155;
+    min-height: 85px;
+    max-height: 260px;
+    overflow-y: auto;
+    word-break: break-word;
+}
+.premium-modal-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 16px 28px !important;
+}
+
+/* User Chips Styling (Global) */
+.mission-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px 5px 6px;
+    border-radius: 20px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1;
+}
+.mission-user-chip .chip-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.mission-user-chip .chip-name {
+    color: #1e40af;
+    white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+    .premium-modal-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+        padding: 16px 20px !important;
+    }
+    .premium-modal-header .d-flex.align-items-center.gap-2.flex-shrink-0 {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .premium-modal-footer {
+        padding: 16px 20px !important;
+    }
+    .preview-meta-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* Dark Mode Modal */
+.dark-mode .premium-modal-content {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+.dark-mode .premium-modal-header {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+.dark-mode .preview-modal-id-badge {
+    color: #64748b !important;
+}
+.dark-mode .premium-modal-footer {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+.dark-mode .modal-close-btn {
+    background: #334155 !important;
+    color: #cbd5e1 !important;
+}
+.dark-mode .modal-close-btn:hover {
+    background: #475569 !important;
+    color: #f1f5f9 !important;
+}
+.dark-mode .mission-pill-badge.urgency-high {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+.dark-mode .mission-pill-badge.urgency-medium {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #fcd34d !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+.dark-mode .mission-pill-badge.urgency-low {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #86efac !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+}
+.dark-mode .mission-pill-badge.status-done {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #86efac !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+}
+.dark-mode .mission-pill-badge.status-pending {
+    background: rgba(59, 130, 246, 0.15) !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+.dark-mode .mission-pill-badge.status-overdue {
+    background: rgba(244, 63, 94, 0.15) !important;
+    color: #fda4af !important;
+    border-color: rgba(244, 63, 94, 0.3) !important;
+}
+.dark-mode .preview-meta-item,
+.dark-mode .preview-desc-box {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+.dark-mode .preview-meta-icon {
+    background: #1e293b !important;
+    box-shadow: none !important;
+}
+.dark-mode .preview-meta-val {
+    color: #f1f5f9 !important;
+}
+.dark-mode .preview-meta-label,
+.dark-mode .preview-section-title {
+    color: #94a3b8 !important;
+}
+.dark-mode .mission-user-chip {
+    background: #1e3a8a !important;
+    border-color: #1e40af !important;
+    color: #bfdbfe !important;
+}
+.dark-mode .mission-user-chip .chip-name {
+    color: #bfdbfe !important;
+}
+

@@ -46,6 +46,14 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
 - Tablo içindeki işlem butonları küçük ve tek satırda kalmalıdır.
 - Mobil görünüm ve dark mode mevcutsa yapılan stil değişikliği bu durumları bozmamalıdır.
 
+## Özet (KPI) Kartları ve Arama Kutusu Standartları
+
+- Özet (KPI / istatistik) kartları bulunan tüm modül ve liste sayfalarında, özet kartlarını gizleyip gösterebilen (`slideToggle`) bir daraltma/genişletme butonu (`#toggleKpiSummary` veya `.btn-kpi-toggle`) bulunmalıdır.
+- **Buton Konumu ve Hizalama Standardı**: Tablo kart başlığında (`.form-card-header`), bu buton **HER ZAMAN ARAMA KUTUSUNUN SAĞINDA** yer almalıdır (`[ Arama Kutusu ] [ ^ Gizle/Göster Butonu ]`). Arama kutusu ile buton arasında `gap: 8px` boşluk bırakılmalıdır.
+- **İkon Standardı**: Kartlar açıkken yukarı ok (`fa fa-chevron-up`), kapalıyken aşağı ok (`fa fa-chevron-down`) ikonu gösterilmeli; butonun `title` niteliğinde "Özet Kartlarını Gizle / Göster" açıklaması bulunmalıdır.
+- **Kalıcılık (localStorage)**: Kullanıcının özet kartlarını gizleme/gösterme tercihi `localStorage` üzerinde modüle özgü anahtarla (örn. `aydinogullari_kpi_[modul]_collapsed`) saklanmalı ve sayfa yenilendiğinde layout kayması (CLS) yaşanmaması için sayfa yüklenirken bu tercih derhal uygulanmalıdır.
+- **Genişlik ve Hizalama**: Özet KPI kartları (`.mission-kpi-grid`, `.crm-kpi-grid` vb.) `grid-template-columns: repeat(4, 1fr); width: 100%;` gibi CSS Grid yapısıyla üstteki başlık kartı ve alttaki tablo kartıyla birebir aynı hizada ve kenarlardan taşma yapmayacak şekilde `%100` genişlikte yerleştirilmelidir.
+
 ## Sürüm Notları Kaydı (Changelog Standardı)
 
 - Sürüm notu, her mesaj veya ara adım için değil; kullanıcıya teslim edilebilir durumdaki **tamamlanmış geliştirme paketi** için bir kez oluşturulmalıdır.

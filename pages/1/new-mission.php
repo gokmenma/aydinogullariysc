@@ -4,6 +4,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 require 'vendor/autoload.php';
 
 permcontrol('missionadd');
+
 if ($_POST) {
 	$userstring = '';
 
@@ -11,14 +12,15 @@ if ($_POST) {
 	$categoryName = @$_POST['categoryName'];
 	$title = @$_POST['title'];
 	$mdesc = @$_POST['mdesc'];
-	$startdate = $_POST['startdate'] ?? date('d-m-Y H:i:s');
+	$startdate = !empty($_POST['startdate']) ? $_POST['startdate'] : date('d-m-Y H:i:s');
 	$lastdate = @$_POST['lastdate'];
 	$urg = @$_POST['urg'];
 	$statu = @$_POST['statu'];
 
-	foreach ($_POST['permings'] as $autx) {
-		$userstring .= $autx . '|';
-		$send_mail_address = $autx . ',';
+	if (!empty($_POST['permings'])) {
+		foreach ($_POST['permings'] as $autx) {
+			$userstring .= $autx . '|';
+		}
 	}
 
 	$insq = $ac->prepare("INSERT INTO missions SET 
@@ -34,7 +36,7 @@ if ($_POST) {
 			$title,
 			$mdesc,
 			$startdate,
-			date_tr($lastdate),
+			!empty($lastdate) ? (function_exists('date_tr') ? date_tr($lastdate) : $lastdate) : '',
 			$userstring,
 			sesset('id'),
 			$urg,
@@ -44,73 +46,65 @@ if ($_POST) {
 	);
 
 	if ($insq) {
+		$newMissionId = $ac->lastInsertId();
+
+		if (function_exists('audit_log')) {
+			audit_log('create', 'missions', "Yeni görev oluşturuldu: {$title}", 'mission', $newMissionId, [
+				'title' => $title,
+				'firma' => $FirmaAdi,
+				'authors' => $userstring
+			]);
+		}
+
 		if (!empty($_POST['permings'])) {
 			$mailkonu = 'Görev Bildirimi';
 			$site_url = set('panel_url');
 			$mail_from = getUserInfo(sesset('id'), 'email');
-			// $mail_from = 'beyzade83@hotmail.com';
-
-			// include ("include/mailer/class.phpmailer.php");
-			// require 'include/mailler/src/PHPMailer.php';
 
 			$mail = new PHPMailer();
 			$mail->IsSMTP();
-			$mail->SMTPDebug = 2;
+			$mail->SMTPDebug = 0;
 			$mail->SMTPAuth = true;
 
-			$mail->SMTPSecure = 'tls';  // Güvenli bağlantı için tls kullanıyoruz
-			$mail->Host = set('mail_host');  // Mail sunucusunun adresi (IP de olabilir)
+			$mail->SMTPSecure = 'tls';
+			$mail->Host = set('mail_host');
 			$mail->Port = set('mail_port');
 			$mail->IsHTML(true);
 			$mail->Encoding = 'base64';
 			$mail->SetLanguage('tr', 'phpmailer/language');
-			$mail->Username = set('mail_username');  // Gönderici adresiniz (e-posta adresiniz)
-			$mail->Password = set('mail_password');  // Mail adresimizin sifresi
+			$mail->Username = set('mail_username');
+			$mail->Password = set('mail_password');
 			$mail->setFrom($mail_from, set('company_name'));
-			$mail->AddAddress('beyzade83@gmail.com');  // Gönderilen Alıcı
 
+			$users_assigned_tasks = '';
 			foreach ($_POST['permings'] as $user) {
 				$user_mail = getUserInfo($user, 'username');
-				$mail->AddAddress($user_mail);  // Gönderilen Alıcı
-				$mailto .= $user . '|';
-				$users_assigned_tasks .= $user_mail . ',';
+				$mail->AddAddress($user_mail);
+				$users_assigned_tasks .= $user_mail . ', ';
 			}
 
-			// Burada mail içeriği oluşturulacak
 			$mailicerik = 'Merhaba, <br> Tarafınıza bir görev atanmıştır. <br> 
-				Görev Başlığı: ' . $title
-				. '<br> Firma Adı : ' . $FirmaAdi
-				. '<br> Görev Açıklaması: ' . $mdesc
-				. '<br> Görev Başlangıç Tarihi: ' . $sdate
-				. '<br> Görev Bitiş Tarihi: ' . $lastdate
-				. '<br> Görev Aciliyeti: ' . $urg
-				. '<br> Görev Kategorisi: ' . $cat
-				. '<br> Görevi Oluşturan: ' . getUserInfo(sesset('id'), 'username')
-				. '<br> Görev Atananlar: ' . $users_assigned_tasks 
-				. '<br> Görevi Görüntülemek için <a href="' . $site_url . '/index.php?p=view-mission&mid=' . $ac->lastInsertId() . '">tıklayınız</a>';
+				<b>Görev Başlığı:</b> ' . htmlspecialchars($title)
+				. '<br> <b>Firma Adı:</b> ' . htmlspecialchars($FirmaAdi)
+				. '<br> <b>Görev Açıklaması:</b> ' . nl2br(htmlspecialchars($mdesc))
+				. '<br> <b>Görev Başlangıç Tarihi:</b> ' . htmlspecialchars($startdate)
+				. '<br> <b>Görev Bitiş Tarihi:</b> ' . htmlspecialchars($lastdate)
+				. '<br> <b>Görev Aciliyeti:</b> ' . htmlspecialchars($urg)
+				. '<br> <b>Görev Kategorisi:</b> ' . htmlspecialchars($categoryName)
+				. '<br> <b>Görevi Oluşturan:</b> ' . htmlspecialchars(getUserInfo(sesset('id'), 'username'))
+				. '<br> <b>Görev Atananlar:</b> ' . htmlspecialchars(rtrim($users_assigned_tasks, ', '))
+				. '<br><br> Görevi görüntülemek için <a href="' . $site_url . '/index.php?p=view-mission&mid=' . $newMissionId . '">buraya tıklayınız</a>';
 			
-			// $mail->AddAttachment($hedef); // Yüklenen dosyayı ekle
 			$mail->Subject = $mailkonu;
 			$mail->Body = $mailicerik;
 			$mail->CharSet = 'UTF-8';
-			if ($mail->Send()) {
-				// Eğer başarılı ise veritabanına kayıt edilir
-				//   $sql = $ac->prepare('INSERT INTO mail_logs SET tomail = ?, from_mail = ?, mail_file = ? , mail_body = ? ,sender = ?');
-				//   $sql->execute(array($mailto, $mail_from, $mailicerik, sesset('id')));
-				header('Location: index.php?p=all-missions&send-mail=true');
-			} else {
-				header('Location:index.php?p=new-mission&st=unsuccessful');
-			}
-		} else {
-			header('Location:index.php?p=send-mail&st=nocustom');
-			exit();
+			@$mail->Send();
 		}
 
-		// header("Location: index.php?p=new-mission&st=newsuccess");
+		header('Location: index.php?p=all-missions&st=newsuccess');
+		exit;
 	}
-} else {
 }
-// header("Location: index.php?p=new-mission&st=newsuccess");
 
 if (@$_GET['st'] == 'empties') {
 	showAlert('alert', '(*) ile işaretli alanları boş bırakmadan tekrar deneyin.');
@@ -122,17 +116,21 @@ if (@$_GET['st'] == 'unsuccessful') {
 	showAlert('alert', 'E-posta gönderimi başarısız.');
 }
 ?>
+
 <style>
     .urgency-selector-wrapper {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-top: 5px;
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-top: 6px;
     }
     .urgency-option-premium {
         position: relative;
         cursor: pointer;
-        flex: 1;
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
     }
     .urgency-option-premium input {
         position: absolute;
@@ -142,73 +140,297 @@ if (@$_GET['st'] == 'unsuccessful') {
         width: 0;
     }
     .urgency-custom-radio {
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        gap: 8px;
         padding: 10px 16px;
         border-radius: 8px;
         border: 1.5px solid #e2e8f0;
         background-color: #f8fafc;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         font-weight: 600;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         color: #4a5568;
         text-align: center;
     }
     .urgency-custom-radio i {
-        font-size: 0.6rem;
-        transition: transform 0.2s;
+        font-size: 0.75rem;
     }
     
     .urgency-high input:checked ~ .urgency-custom-radio {
         background-color: #fef2f2;
         border-color: #ef4444;
         color: #ef4444;
-        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06);
+        box-shadow: 0 3px 6px rgba(239, 68, 68, 0.12);
     }
-    .urgency-high .urgency-custom-radio i {
-        color: #ef4444;
-    }
+    .urgency-high .urgency-custom-radio i { color: #ef4444; }
     
     .urgency-medium input:checked ~ .urgency-custom-radio {
         background-color: #eff6ff;
         border-color: #3b82f6;
         color: #3b82f6;
-        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+        box-shadow: 0 3px 6px rgba(59, 130, 246, 0.12);
     }
-    .urgency-medium .urgency-custom-radio i {
-        color: #3b82f6;
-    }
+    .urgency-medium .urgency-custom-radio i { color: #3b82f6; }
     
     .urgency-low input:checked ~ .urgency-custom-radio {
         background-color: #f0fdf4;
         border-color: #22c55e;
         color: #22c55e;
-        box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06);
+        box-shadow: 0 3px 6px rgba(34, 197, 94, 0.12);
     }
-    .urgency-low .urgency-custom-radio i {
-        color: #22c55e;
-    }
+    .urgency-low .urgency-custom-radio i { color: #22c55e; }
     
     .urgency-option-premium:hover .urgency-custom-radio {
         border-color: #cbd5e1;
         transform: translateY(-1px);
     }
     .editor-wrapper {
-        border: 1px solid #e5e7eb;
+        position: relative;
+        width: 100%;
+    }
+    .note-editor .note-placeholder,
+    .note-placeholder {
+        padding: 6px 12px !important;
+        color: #94a3b8 !important;
+        top: 0 !important;
+        left: 0 !important;
+        font-size: 13.5px !important;
+        line-height: 1.45 !important;
+        pointer-events: none !important;
+        box-sizing: border-box !important;
+    }
+    .note-editor .note-editable,
+    .note-editable {
+        padding: 6px 12px !important;
+        font-size: 13.5px !important;
+        line-height: 1.45 !important;
+        color: #334155 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Select2 Custom Styles */
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-container--default .select2-selection--single {
+        height: 44px;
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
+        background-color: #f8fafc;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b;
+        font-weight: 500;
+        font-size: 13.5px;
+        line-height: 42px;
+        padding-left: 4px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 42px;
+        right: 10px;
+    }
+    .select2-container--default .select2-selection--multiple {
+        min-height: 44px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background-color: #f8fafc;
+        padding: 5px 8px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple,
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #3b82f6;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    .select2-container--default .select2-selection--multiple .select2-search--inline {
+        flex: 1 1 auto;
+        min-width: 200px;
+        margin: 0;
+        padding: 0;
+    }
+    .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 2px 6px !important;
+        height: 30px !important;
+        line-height: 30px !important;
+        font-size: 13.5px;
+        font-family: inherit;
+        color: #1e293b;
+    }
+    .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+        color: #94a3b8;
+        opacity: 1;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #ef4444;
+        margin-right: 4px;
+        border: none;
+        background: transparent;
+        font-weight: bold;
+    }
+    .select2-dropdown {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         overflow: hidden;
+        z-index: 1060;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .select2-container--default .select2-results__group {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 6px 12px;
+    }
+    .select2-container--default .select2-results__option {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+    }
+    
+    /* Select2 User Option Item Layout */
+    .s2-user-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 2px 0;
+    }
+    .s2-user-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .s2-user-details {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .s2-user-name {
+        font-weight: 600;
+        font-size: 13px;
+        color: #1e293b;
+    }
+    .s2-user-title {
+        font-size: 11px;
+        color: #64748b;
+    }
+    .select2-quick-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-select-all, .btn-clear-all {
+        border: none;
+        background: transparent;
+        color: #2563eb;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 2px 6px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.15s ease;
+    }
+    .btn-clear-all {
+        color: #64748b;
+    }
+    .btn-select-all:hover, .btn-clear-all:hover {
+        background: #f1f5f9;
+    }
+
+    /* Dark Mode Support for Select2 */
+    .dark-mode .select2-container--default .select2-selection--single,
+    .dark-mode .select2-container--default .select2-selection--multiple {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    .dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f1f5f9;
+    }
+    .dark-mode .select2-dropdown {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    .dark-mode .select2-container--default .select2-search--dropdown .select2-search__field {
+        background-color: #0f172a;
+        border-color: #334155;
+        color: #f1f5f9;
+    }
+    .dark-mode .select2-container--default .select2-results__group {
+        background-color: #0f172a;
+        color: #94a3b8;
+    }
+    .dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #334155;
+        color: #93c5fd;
+    }
+    .dark-mode .s2-user-name {
+        color: #f1f5f9;
+    }
+    .dark-mode .s2-user-title {
+        color: #94a3b8;
     }
 </style>
 
 <form action="" method="POST" id="myForm">
     <div class="new-mission-manage-wrapper">
         <!-- Header Card -->
-        <div class="premium-header-card animate-fade-in">
+        <div class="premium-header-card animate-fade-in mb-3">
             <div class="header-content">
                 <div class="header-left">
-                    <div class="header-icon">
+                    <div class="header-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; color: #fff;">
                         <i class="fa fa-tasks"></i>
                     </div>
                     <div class="header-title">
@@ -219,6 +441,9 @@ if (@$_GET['st'] == 'unsuccessful') {
                     </div>
                 </div>
                 <div class="header-actions">
+                    <a href="index.php?p=my-missions" class="btn-header btn-header-list">
+                        <i class="fa fa-arrow-left"></i> Listeye Dön
+                    </a>
                     <button type="button" id="submitButton" onclick="validateForm()" class="btn-header btn-header-save">
                         <i class="fa fa-save"></i> Kaydet
                     </button>
@@ -254,15 +479,16 @@ if (@$_GET['st'] == 'unsuccessful') {
                 <div class="form-field">
                     <label for="categoryName"><font color="red">(*)</font> Kategori</label>
                     <div class="input-group m-0" style="flex-wrap: nowrap;">
-                        <select name="categoryName" id="categoryName" class="selectpicker form-control" data-style="border bg-white" required autocomplete="off" autofocus="false">
+                        <select name="categoryName" id="categoryName" class="form-control select2" required style="width: 100%;">
+                            <option value=""></option>
                             <?php
                                 $sql = $ac->prepare('SELECT * FROM `missioncategory` where NOT categoryName IS NULL');
                                 $sql->execute();
                                 $categories = $sql->fetchAll(PDO::FETCH_ASSOC);
                                 foreach ($categories as $category) {
                             ?>
-                                <option value="<?php echo $category['id']; ?>">
-                                    <?php echo $category['categoryName']; ?>
+                                <option value="<?php echo htmlspecialchars($category['categoryName']); ?>">
+                                    <?php echo htmlspecialchars($category['categoryName']); ?>
                                 </option>
                             <?php } ?>
                         </select>
@@ -281,15 +507,13 @@ if (@$_GET['st'] == 'unsuccessful') {
                 <!-- Görevi Oluşturan -->
                 <div class="form-field">
                     <label for="Olusturan"><font color="red">(*)</font> Görevi Oluşturan</label>
-                    <select disabled name="Olusturan" id="Olusturan" class="selectpicker form-control" required>
-                        <option selected value="1">Admin</option>
-                    </select>
+                    <input disabled class="form-control" style="background-color: #f8fafc; font-weight: 600; color: #1e293b;" value="<?php echo htmlspecialchars(sesset('username') ?? 'Kullanıcı'); ?>">
                 </div>
 
                 <!-- Başlangıç Tarihi -->
                 <div class="form-field">
                     <label for="startdate">Başlangıç Tarihi</label>
-                    <input name="startdate" id="startdate" class="form-control date-picker" autocomplete="off" autofocus="false" value="" placeholder="Tarih Seçin" type="text">
+                    <input name="startdate" id="startdate" class="form-control date-picker" autocomplete="off" autofocus="false" value="<?php echo date('d-m-Y'); ?>" placeholder="Tarih Seçin" type="text">
                 </div>
 
                 <!-- Son Tarih -->
@@ -299,49 +523,57 @@ if (@$_GET['st'] == 'unsuccessful') {
                 </div>
 
                 <!-- Görevin Atanacağı Kullanıcılar -->
-                <div class="form-field">
-                    <label for="permings">Görevin Atanacağı Kullanıcılar</label>
-                    <select required name="permings[]" id="permings" class="selectpicker form-control" data-style="btn-outline-secondary"
-                        multiple data-actions-box="true" data-selected-text-format="count">
+                <div class="form-field full-width">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="permings" class="mb-0"><font color="red">(*)</font> Görevin Atanacağı Kullanıcılar</label>
+                        <div class="select2-quick-actions">
+                            <button type="button" class="btn-select-all" id="btnSelectAllUsers">
+                                <i class="fa fa-check-square-o"></i> Tümünü Seç
+                            </button>
+                            <button type="button" class="btn-clear-all" id="btnClearAllUsers">
+                                <i class="fa fa-square-o"></i> Temizle
+                            </button>
+                        </div>
+                    </div>
+                    <select required name="permings[]" id="permings" class="form-control select2" multiple="multiple" style="width: 100%;">
                         <?php
-                            $permq = $ac->prepare('SELECT * FROM perms ');
+                            $permq = $ac->prepare('SELECT * FROM perms ORDER BY id ASC');
                             $permq->execute();
                             while ($pp = $permq->fetch(PDO::FETCH_ASSOC)) {
-                                if ($pp['mistake'] == 'on') {
+                                $permx = $ac->prepare('SELECT id, username, Unvan FROM users WHERE permission = ? AND (statu = 1 OR statu IS NULL) ORDER BY username ASC');
+                                $permx->execute(array($pp['id']));
+                                $usersInRole = $permx->fetchAll(PDO::FETCH_ASSOC);
+                                
+                                if (!empty($usersInRole)) {
                         ?>
-                                <optgroup label="<?php echo $pp['p_title']; ?>">
-                                    <?php
-                                    $permx = $ac->prepare('SELECT * FROM users WHERE permission = ? ');
-                                    $permx->execute(array($pp['id']));
-                                    while ($px = $permx->fetch(PDO::FETCH_ASSOC)) {
-                                        ?>
-                                        <option value="<?php echo $px['id']; ?>">
-                                            <?php echo $px['username']; ?>
-                                        </option>
-                                    <?php
-                                    }
-                                                            ?>
-                                </optgroup>
-                            <?php }
+                                    <optgroup label="<?php echo htmlspecialchars($pp['p_title']); ?>">
+                                        <?php foreach ($usersInRole as $px): ?>
+                                            <option value="<?php echo $px['id']; ?>" 
+                                                    data-title="<?php echo htmlspecialchars($px['Unvan'] ?? ''); ?>">
+                                                <?php echo htmlspecialchars($px['username']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
+                                <?php }
                             } ?>
                     </select>
                 </div>
 
                 <!-- Aciliyet -->
-                <div class="form-field">
-                    <label>Aciliyet</label>
+                <div class="form-field full-width">
+                    <label>Aciliyet Seviyesi</label>
                     <div class="urgency-selector-wrapper">
                         <label class="urgency-option-premium urgency-high">
                             <input type="radio" id="customRadioInline1" name="urg" value="Yüksek">
-                            <span class="urgency-custom-radio"><i class="fa fa-circle"></i> Yüksek</span>
+                            <span class="urgency-custom-radio"><i class="fa fa-fire"></i> Yüksek</span>
                         </label>
                         <label class="urgency-option-premium urgency-medium">
                             <input type="radio" id="customRadioInline2" checked name="urg" value="Orta">
-                            <span class="urgency-custom-radio"><i class="fa fa-circle"></i> Orta</span>
+                            <span class="urgency-custom-radio"><i class="fa fa-bolt"></i> Orta</span>
                         </label>
                         <label class="urgency-option-premium urgency-low">
                             <input type="radio" id="customRadioInline3" name="urg" value="Düşük">
-                            <span class="urgency-custom-radio"><i class="fa fa-circle"></i> Düşük</span>
+                            <span class="urgency-custom-radio"><i class="fa fa-leaf"></i> Düşük</span>
                         </label>
                     </div>
                 </div>
@@ -360,7 +592,7 @@ if (@$_GET['st'] == 'unsuccessful') {
                 </div>
             </div>
             <div class="editor-wrapper">
-                <textarea name="mdesc" class="textarea_editor form-control border-radius-8" placeholder="Bir şeyler yaz ..."></textarea>
+                <textarea name="mdesc" class="textarea_editor form-control border-radius-8" placeholder="Görev ile ilgili notlar ve açıklamalar..."></textarea>
             </div>
         </div>
 
@@ -373,14 +605,16 @@ if (@$_GET['st'] == 'unsuccessful') {
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <select id="FirmaSec" name="FirmaSec" data-header="Firmalar" class="selectpicker form-control">
+                        <label class="small text-muted mb-2">Listeden arayarak firma seçebilirsiniz:</label>
+                        <select id="FirmaSec" name="FirmaSec" class="form-control select2" style="width: 100%;">
+                            <option value=""></option>
                             <?php
-                                $cek = $ac->prepare('SELECT * FROM customers');
+                                $cek = $ac->prepare('SELECT id, company FROM customers WHERE deleted_at IS NULL ORDER BY company ASC');
                                 $cek->execute();
                                 while ($dat = $cek->fetch(PDO::FETCH_ASSOC)) {
                             ?>
-                                <option value="<?php echo $dat['company']; ?>">
-                                    <?php echo $dat['company']; ?>
+                                <option value="<?php echo htmlspecialchars($dat['company']); ?>">
+                                    <?php echo htmlspecialchars($dat['company']); ?>
                                 </option>
                             <?php
                                 }
@@ -400,7 +634,7 @@ if (@$_GET['st'] == 'unsuccessful') {
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Kategori Adı:</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Kategori Ekle</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -408,7 +642,7 @@ if (@$_GET['st'] == 'unsuccessful') {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Vazgeç</button>
-                        <button type="button" id="ModalSaveButton" onclick="SaveNewKategory()" data-bs-dismiss="modal" class="btn btn-primary">Kaydet</button>
+                        <button type="button" id="ModalSaveCatButton" onclick="SaveNewCategory()" class="btn btn-primary">Kaydet</button>
                     </div>
                 </div>
             </div>
@@ -416,51 +650,129 @@ if (@$_GET['st'] == 'unsuccessful') {
     </div>
 </form>
 
-
 <script>
-	function Sec() {
-		// Seçilen değeri al
-		var selectedValue = document.getElementById('FirmaSec').value;
+function Sec() {
+    var selectedValue = document.getElementById('FirmaSec').value;
+    if (selectedValue) {
+        document.getElementById('FirmaAdi').value = selectedValue;
+    }
+}
 
-		// Firma ID'li input alanına ata
-		document.getElementById('FirmaAdi').value = selectedValue;
+function SaveNewCategory() {
+    var catName = $('#Addcategory').val().trim();
+    if (!catName) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'warning', title: 'Uyarı', text: 'Lütfen kategori adını yazınız.' });
+        } else {
+            alert('Lütfen kategori adını yazınız.');
+        }
+        return;
+    }
 
-	}
+    var newOption = new Option(catName, catName, true, true);
+    $('#categoryName').append(newOption).trigger('change');
+    $('#exampleModal2').modal('hide');
+    $('#Addcategory').val('');
+}
 
-	// function SaveNewKategory() {
-	// 	var Addcategory = document.getElementById('Addcategory').value;
+function validateForm() {
+    var title = $('#title').val().trim();
+    var permings = $('#permings').val();
 
-	// 	fetch('index.php?p=categoryAdd', {
-	// 			method: 'POST',
-	// 			headers: {
-	// 				'Content-Type': 'application/x-www-form-urlencoded',
-	// 			},
-	// 			body: 'Addcategory=' + encodeURIComponent(Addcategory),
-	// 		})
-	// 		.then(response => {
-	// 			var selectElement = document.getElementById('categoryName');
-	// 			var newOption = document.createElement('option');
-	// 			newOption.value = Addcategory;
-	// 			newOption.textContent = Addcategory;
-	// 			selectElement.appendChild(newOption);
-	// 		})
-	// 		.catch(error => {
-	// 			// Hata durumunda burada işlemler yapabilirsiniz
-	// 		});
-	// }
-</script>
+    if (!title) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'warning', title: 'Eksik Alan', text: 'Lütfen görev konusunu (başlık) giriniz.' });
+        } else {
+            alert('Lütfen görev konusunu giriniz.');
+        }
+        $('#title').focus();
+        return false;
+    }
 
-<script>
-	$(document).ready(function () {
-		$(".selectpicker").selectpicker({
-			selectAllText: "Tümünü Seç",
-			deselectAllText: 'Seçimi Temizle',
-			style: "border bg-white",
-			liveSearch: true,
-			liveSearchPlaceholder: "Ara..",
-			noneResultsText: 'Eşleşen kayıt yok {0}',
-			size: 5,
-			noneSelectedText: "Seçim Yapınız!"
-		})
-	})
+    if (!permings || permings.length === 0) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'warning', title: 'Eksik Alan', text: 'Lütfen görevin atanacağı en az bir kullanıcı seçiniz.' });
+        } else {
+            alert('Lütfen görevin atanacağı kullanıcıyı seçiniz.');
+        }
+        return false;
+    }
+
+    $('#myForm').submit();
+}
+
+$(document).ready(function () {
+    function formatUserOption(state) {
+        if (!state.id) return state.text;
+        var title = $(state.element).data('title');
+        var initial = state.text.trim().charAt(0).toUpperCase() || '?';
+        var $state = $(
+            '<div class="s2-user-item">' +
+                '<div class="s2-user-avatar">' + initial + '</div>' +
+                '<div class="s2-user-details">' +
+                    '<span class="s2-user-name">' + state.text + '</span>' +
+                    (title ? '<span class="s2-user-title">' + title + '</span>' : '') +
+                '</div>' +
+            '</div>'
+        );
+        return $state;
+    }
+
+    // Kategori Select2
+    $('#categoryName').select2({
+        placeholder: 'Kategori Seçiniz...',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Kullanıcılar Select2 Multi-Select
+    $('#permings').select2({
+        placeholder: 'Görevin atanacağı kullanıcıları seçiniz...',
+        allowClear: true,
+        width: '100%',
+        templateResult: formatUserOption
+    });
+
+    // Modal Firma Select2
+    $('#FirmaSec').select2({
+        placeholder: 'Firma arayınız veya seçiniz...',
+        allowClear: true,
+        dropdownParent: $('#exampleModal'),
+        width: '100%'
+    });
+
+    // Tümünü Seç / Temizle Butonları
+    $('#btnSelectAllUsers').on('click', function () {
+        $('#permings option').prop('selected', true);
+        $('#permings').trigger('change');
+    });
+
+    $('#btnClearAllUsers').on('click', function () {
+        $('#permings').val(null).trigger('change');
+    });
+
+    // WYSIHTML5 / Summernote Editör Placeholder ve Metin Padding Ayarı
+    function applyEditorPadding() {
+        $('iframe.wysihtml5-sandbox').each(function () {
+            try {
+                var doc = this.contentDocument || this.contentWindow.document;
+                if (doc && doc.body) {
+                    if (!doc.getElementById('wysi-placeholder-padding-style')) {
+                        var style = doc.createElement('style');
+                        style.id = 'wysi-placeholder-padding-style';
+                        style.innerHTML = 'html, body { padding: 6px 12px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.45 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 6px 12px !important; margin: 0 !important; }';
+                        doc.head.appendChild(style);
+                    }
+                    doc.body.style.padding = '6px 12px';
+                }
+            } catch (e) {}
+        });
+    }
+
+    applyEditorPadding();
+    setTimeout(applyEditorPadding, 250);
+    setTimeout(applyEditorPadding, 800);
+    setTimeout(applyEditorPadding, 2000);
+    $(window).on('load', applyEditorPadding);
+});
 </script>
