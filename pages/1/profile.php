@@ -1011,6 +1011,40 @@ if (isset($alerts[$status])) {
     border-color: var(--theme-primary, #2563eb) !important;
 }
 
+.dt-header-filter-box {
+    margin: 0;
+}
+.dt-header-filter-box .dataTables_filter {
+    margin: 0 !important;
+}
+.dt-header-filter-box .dataTables_filter label {
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+.dt-header-filter-box .dataTables_filter input {
+    border-radius: 8px !important;
+    height: 36px !important;
+    width: 220px !important;
+    padding: 6px 12px !important;
+    border: 1px solid #cbd5e1 !important;
+    font-size: 13px !important;
+    background: #fafafa;
+    margin-left: 0 !important;
+}
+.dt-header-filter-box .dataTables_filter input:focus {
+    background: #ffffff;
+    border-color: var(--theme-primary, #0284c7) !important;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+    outline: none;
+}
+.dark-mode .dt-header-filter-box .dataTables_filter input {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
 /* Mobil Uyumluluk */
 @media (max-width: 991px) {
     .profile-kpi-grid {
@@ -1054,11 +1088,15 @@ $(document).ready(function() {
             var api = this.api();
             
             // Arama kutusunu Form Card Header içine taşıma
-            var $filterContainer = $('.form-card-header .dt-header-filter-box');
+            var $filterContainer = $('#paneActivities .form-card-header .dt-header-filter-box');
             var $searchBox = $('#tblProfileActivities_filter');
             if ($filterContainer.length && $searchBox.length) {
+                $filterContainer.empty();
                 $searchBox.detach().appendTo($filterContainer);
-                $searchBox.find('input').addClass('form-control form-control-sm').css({
+                $searchBox.find('label').contents().filter(function() {
+                    return this.nodeType === 3;
+                }).remove();
+                $searchBox.find('input').attr('placeholder', 'Arayın...').addClass('form-control form-control-sm').css({
                     'border-radius': '8px',
                     'height': '36px',
                     'width': '220px',
@@ -1300,36 +1338,37 @@ $(document).ready(function() {
     // 7. KPI Kartları Göster / Gizle Standardı (localStorage)
     var KPI_STORAGE_KEY = 'aydinogullari_kpi_profile_collapsed';
     var $kpiSection = $('#kpiSummarySection');
-    var $toggleBtn = $('#toggleKpiSummary');
 
     function updateKpiToggleState(isCollapsed, animate) {
+        var $btn = $('#toggleKpiSummary');
         if (isCollapsed) {
             if (animate) {
                 $kpiSection.slideUp(200);
             } else {
                 $kpiSection.hide();
             }
-            $toggleBtn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-            $toggleBtn.attr('title', 'Özet Kartlarını Göster');
+            $btn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            $btn.attr('title', 'Özet Kartlarını Göster');
         } else {
             if (animate) {
                 $kpiSection.slideDown(200);
             } else {
                 $kpiSection.show();
             }
-            $toggleBtn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-            $toggleBtn.attr('title', 'Özet Kartlarını Gizle');
+            $btn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            $btn.attr('title', 'Özet Kartlarını Gizle');
         }
     }
 
     var savedState = localStorage.getItem(KPI_STORAGE_KEY) === 'true';
     updateKpiToggleState(savedState, false);
 
-    $toggleBtn.on('click', function() {
-        var currentState = $kpiSection.is(':visible');
-        var newState = !currentState;
-        localStorage.setItem(KPI_STORAGE_KEY, newState ? 'true' : 'false');
-        updateKpiToggleState(newState, true);
+    $(document).on('click', '#toggleKpiSummary', function(e) {
+        e.preventDefault();
+        var isCurrentlyVisible = $kpiSection.is(':visible');
+        var willCollapse = isCurrentlyVisible;
+        localStorage.setItem(KPI_STORAGE_KEY, willCollapse ? 'true' : 'false');
+        updateKpiToggleState(willCollapse, true);
     });
 });
 </script>

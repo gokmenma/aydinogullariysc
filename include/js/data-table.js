@@ -135,11 +135,11 @@ $(document).ready(function () {
   var tableId = $(".data-table").attr("id");
 
   // Skip initialization for tables managed elsewhere
-  if (tableId === "customerlist" || tableId === "service-table" || tableId === "itemsTable" || tableId === "tblProducts" || tableId === "reportTable" || tableId === "fillingTable" || tableId === "controlTable") {
+  if (tableId === "customerlist" || tableId === "service-table" || tableId === "itemsTable" || tableId === "tblProducts" || tableId === "reportTable" || tableId === "fillingTable" || tableId === "controlTable" || tableId === "tblProfileActivities") {
     return;
   }
 
-  var $managedTables = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable, #fillingTable, #controlTable");
+  var $managedTables = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable, #fillingTable, #controlTable, #tblProfileActivities");
 
   table = $managedTables.DataTable({
     autoWidth: false,
