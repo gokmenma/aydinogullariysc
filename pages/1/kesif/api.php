@@ -29,6 +29,58 @@ $user_id = $_SESSION['lid'];
 $root = dirname(__DIR__, 3);
 $log_file = $root . '/logs/kesif_api_debug.log';
 
+/**
+ * Keşif eklerini doğrular ve web sunucusunun erişebileceği klasöre kaydeder.
+ * Herhangi bir dosya başarısız olursa kısmi yüklemeler temizlenir ve kayıt durdurulur.
+ */
+function uploadKesifFiles(array $files, string $uploadDir, string $logFile): array
+{
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        throw new RuntimeException('Keşif dosyaları için yükleme klasörü oluşturulamadı.');
+    }
+
+    if (!is_writable($uploadDir)) {
+        throw new RuntimeException('Keşif dosyaları yükleme klasörüne yazılamıyor. Lütfen sistem yöneticisine bildirin.');
+    }
+
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx'];
+    $uploadedFiles = [];
+    $uploadedDiskPaths = [];
+
+    try {
+        foreach (($files['name'] ?? []) as $index => $originalName) {
+            $error = (int) ($files['error'][$index] ?? UPLOAD_ERR_NO_FILE);
+            if ($error !== UPLOAD_ERR_OK) {
+                throw new RuntimeException('"' . basename((string) $originalName) . '" dosyası yüklenemedi (hata kodu: ' . $error . ').');
+            }
+
+            $extension = strtolower(pathinfo((string) $originalName, PATHINFO_EXTENSION));
+            if (!in_array($extension, $allowedExtensions, true)) {
+                throw new RuntimeException('"' . basename((string) $originalName) . '" dosya türü desteklenmiyor.');
+            }
+
+            $newName = 'kesif_' . bin2hex(random_bytes(12)) . '.' . $extension;
+            $targetPath = $uploadDir . $newName;
+            if (!move_uploaded_file((string) $files['tmp_name'][$index], $targetPath)) {
+                throw new RuntimeException('"' . basename((string) $originalName) . '" dosyası sunucuya kaydedilemedi.');
+            }
+
+            $uploadedDiskPaths[] = $targetPath;
+            $uploadedFiles[] = 'uploads/kesif/' . $newName;
+        }
+    } catch (Throwable $e) {
+        foreach ($uploadedDiskPaths as $uploadedDiskPath) {
+            if (is_file($uploadedDiskPath)) {
+                unlink($uploadedDiskPath);
+            }
+        }
+        file_put_contents($logFile, 'ERROR: Keşif eki yüklenemedi: ' . $e->getMessage() . "\n", FILE_APPEND);
+        throw $e;
+    }
+
+    return $uploadedFiles;
+}
+
 if (!is_dir($root . '/logs/')) {
     mkdir($root . '/logs/', 0777, true);
 }
@@ -81,33 +133,9 @@ try {
 
             // Görsel yükleme
             if (isset($_FILES['gorseller']) && !empty($_FILES['gorseller']['name'][0])) {
-                $files = $_FILES['gorseller'];
                 $upload_dir = $root . '/uploads/kesif/';
-
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0777, true);
-                }
-
-                $uploaded_files = [];
-                for ($i = 0; $i < count($files['name']); $i++) {
-                    if ($files['error'][$i] === 0) {
-                        $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
-                        $new_name = uniqid('kesif_') . '.' . $ext;
-                        $target_path = $upload_dir . $new_name;
-
-                        if (move_uploaded_file($files['tmp_name'][$i], $target_path)) {
-                            $uploaded_files[] = 'uploads/kesif/' . $new_name;
-                        } else {
-                            $err = error_get_last();
-                            file_put_contents($log_file, "ERROR: move_uploaded_file failed for $new_name. Path: $target_path. Error: " . print_r($err, true) . "\n", FILE_APPEND);
-                        }
-                    } else {
-                        file_put_contents($log_file, "ERROR: File error code " . $files['error'][$i] . " for " . $files['name'][$i] . "\n", FILE_APPEND);
-                    }
-                }
-                if (!empty($uploaded_files)) {
-                    $data['gorseller'] = json_encode($uploaded_files);
-                }
+                $uploaded_files = uploadKesifFiles($_FILES['gorseller'], $upload_dir, $log_file);
+                $data['gorseller'] = json_encode($uploaded_files, JSON_UNESCAPED_SLASHES);
             }
 
             if (empty($data['firma']) || empty($data['yapilacak_is'])) {
@@ -156,35 +184,15 @@ try {
 
             // Görsel yükleme
             if (isset($_FILES['gorseller']) && !empty($_FILES['gorseller']['name'][0])) {
-                $files = $_FILES['gorseller'];
                 $upload_dir = $root . '/uploads/kesif/';
-
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0777, true);
-                }
-
-                $uploaded_files = [];
-                for ($i = 0; $i < count($files['name']); $i++) {
-                    if ($files['error'][$i] === 0) {
-                        $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
-                        $new_name = uniqid('kesif_') . '.' . $ext;
-                        $target_path = $upload_dir . $new_name;
-
-                        if (move_uploaded_file($files['tmp_name'][$i], $target_path)) {
-                            $uploaded_files[] = 'uploads/kesif/' . $new_name;
-                        } else {
-                            $err = error_get_last();
-                            file_put_contents($log_file, "ERROR: move_uploaded_file failed during update for $new_name. Error: " . print_r($err, true) . "\n", FILE_APPEND);
-                        }
-                    }
-                }
+                $uploaded_files = uploadKesifFiles($_FILES['gorseller'], $upload_dir, $log_file);
 
                 $existing_gorseller = [];
                 if (!empty($kesif->gorseller)) {
                     $existing_gorseller = json_decode($kesif->gorseller, true) ?: [];
                 }
                 $all_gorseller = array_merge($existing_gorseller, $uploaded_files);
-                $data['gorseller'] = json_encode($all_gorseller);
+                $data['gorseller'] = json_encode($all_gorseller, JSON_UNESCAPED_SLASHES);
             }
 
             $kesifObj->update($data);

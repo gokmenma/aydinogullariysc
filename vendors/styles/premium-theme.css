@@ -7780,11 +7780,17 @@ table.dataTable td,
 
 /* WYSIHTML5 Rich Text Editor Global Styling */
 .form-field textarea.textarea_editor,
+.form-field textarea.editor-wysi,
 .html-editor textarea,
 .html-editor textarea.textarea_editor,
+.html-editor textarea.editor-wysi,
 .html-editor textarea.form-control,
 .editor-wrapper textarea.textarea_editor,
-textarea.textarea_editor {
+.editor-wrapper textarea.editor-wysi,
+textarea.textarea_editor,
+textarea.editor-wysi,
+textarea[style*="display: none"],
+textarea[style*="display:none"] {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
