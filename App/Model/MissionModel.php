@@ -114,6 +114,21 @@ class MissionModel extends BaseModel
     }
 
     /**
+     * Görevin belirtilen kullanıcı tarafından oluşturulup oluşturulmadığını denetler.
+     */
+    public function isMissionCreator($id, $userId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT 1 FROM {$this->table} WHERE id = ? AND creativer = ? AND deleted != 'yes' LIMIT 1");
+            $stmt->execute([(int)$id, (int)$userId]);
+            return (bool)$stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log("MissionModel isMissionCreator Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Görev durumunu günceller (Örn: Tamamlandı / Yapıldı işaretleme).
      */
     public function updateStatus($id, $statu, $userId = null)
@@ -149,6 +164,10 @@ class MissionModel extends BaseModel
     {
         try {
             $id = (int)$id;
+            if (!$this->isMissionCreator($id, $userId)) {
+                return false;
+            }
+
             $statu = isset($data['statu']) ? (int)$data['statu'] : 0;
             $okeyDate = $statu === 1 ? date("Y-m-d H:i:s") : '-';
 
@@ -163,7 +182,7 @@ class MissionModel extends BaseModel
                 urgency = ?,
                 statu = ?,
                 okeydate = ?
-                WHERE id = ?");
+                WHERE id = ? AND creativer = ? AND deleted != 'yes'");
 
             $res = $stmt->execute([
                 $data['FirmaAdi'] ?? '',
@@ -176,7 +195,8 @@ class MissionModel extends BaseModel
                 $data['urgency'] ?? 'Orta',
                 $statu,
                 $okeyDate,
-                $id
+                $id,
+                (int)$userId
             ]);
 
             if ($res && function_exists('audit_log')) {
@@ -200,16 +220,15 @@ class MissionModel extends BaseModel
     /**
      * Görevi yumuşak silme (soft-delete).
      */
-    public function softDelete($id, $userId = null, $force = false)
+    public function softDelete($id, $userId)
     {
         try {
             $id = (int)$id;
-            if ($force || $userId === null) {
-                $stmt = $this->db->prepare("UPDATE {$this->table} SET deleted = 'yes' WHERE id = ?");
-                $res = $stmt->execute([$id]);
-            } else {
-                $stmt = $this->db->prepare("UPDATE {$this->table} SET deleted = 'yes' WHERE id = ? AND creativer = ?");
-                $res = $stmt->execute([$id, (int)$userId]);
+            $stmt = $this->db->prepare("UPDATE {$this->table} SET deleted = 'yes' WHERE id = ? AND creativer = ? AND deleted != 'yes'");
+            $res = $stmt->execute([$id, (int)$userId]);
+
+            if (!$res || $stmt->rowCount() === 0) {
+                return false;
             }
 
             if ($res && function_exists('audit_log')) {

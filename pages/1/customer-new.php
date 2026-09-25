@@ -32,6 +32,7 @@ if ($_POST) {
 
     $cnotes = @$_POST["cnotes"];
     $customer_address = @$_POST["customer_address"];
+    $location = trim((string) ($_POST["location"] ?? ''));
     $region = @$_POST["region"];
 
     $cgsm = @$_POST["cgsm"];
@@ -63,6 +64,7 @@ if ($_POST) {
     email = ?,
     company = ?,
     address = ?,
+    location = ?,
     city = ?,
     ilce = ?,
     cdesc = ?,
@@ -82,6 +84,7 @@ if ($_POST) {
             $cemail,
             $ccompany,
             $customer_address,
+            $location,
             $ccity,
             $cilce,
             $cnotes,
@@ -287,6 +290,13 @@ if ($_GET["st"] == "newsuccess") {
             <div class="col-sm-12 col-md-10">
                 <textarea required name="customer_address" placeholder="Firma adresi" class="form-control" rows="3"
                     style="height:100%;"></textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="location" class="col-sm-12 col-md-2 col-form-label">Keşif / Saha Konumu:</label>
+            <div class="col-sm-12 col-md-10">
+                <input name="location" type="text" class="form-control"
+                    placeholder="Keşiflerde otomatik kullanılacak saha adresi veya konumu">
             </div>
         </div>
         <div class="form-group row">

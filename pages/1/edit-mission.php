@@ -22,10 +22,8 @@ if (!$mission || ($mission['deleted'] ?? '') === 'yes') {
 }
 
 $isCreator = ((int)$mission["creativer"] === (int)$currentUserId);
-$hasAllAccess = permtrue("allmisview");
-
-// Yetki kontrolü: Sadece görevi oluşturan veya tüm görevleri görme/yönetme yetkisine sahip kullanıcı düzenleyebilir
-if (!$isCreator && !$hasAllAccess) {
+// Yetki kontrolü: Görevi yalnızca oluşturan kullanıcı düzenleyebilir.
+if (!$isCreator) {
     header("Location: index.php?p=mygmissions&errorcode=00403");
     exit;
 }

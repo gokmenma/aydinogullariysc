@@ -72,6 +72,7 @@ if ($_POST) {
     $ccompany = @$_POST["company"];
     $cemail = @$_POST["cemail"];
     $address = @$_POST["customer_address"];
+    $location = trim((string) ($_POST["location"] ?? ''));
     $il = @$_POST["il"];
     $ilce = @$_POST["ilce"];
     $cdesc = @$_POST["cdesc"];
@@ -87,6 +88,7 @@ if ($_POST) {
     company = ?,
     email = ?,
     address = ? ,
+    location = ?,
     city = ?,
     ilce = ?,
     cdesc = ?,
@@ -103,6 +105,7 @@ if ($_POST) {
         $ccompany,
         $cemail,
         $address,
+        $location,
         $il,
         $ilce,
         $cdesc,
@@ -416,6 +419,15 @@ if (@$_POST["status"] == "success") {
                     <textarea required name="customer_address" id="customer_address" placeholder="Firma adresi" class="form-control" rows="3"><?php echo $customer->address ?? '' ?></textarea>
                 </div>
 
+                <!-- Keşif / Saha Konumu -->
+                <div class="form-field full-width">
+                    <label for="location">Keşif / Saha Konumu</label>
+                    <input name="location" id="location" type="text" class="form-control"
+                        placeholder="Keşiflerde otomatik kullanılacak saha adresi veya konumu"
+                        value="<?php echo htmlspecialchars($customer->location ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <small class="text-muted">Firma keşif formunda seçildiğinde konum alanına otomatik aktarılır.</small>
+                </div>
+
                 <!-- Açıklama -->
                 <div class="form-field full-width">
                     <label for="cdesc">Açıklama</label>
@@ -548,4 +560,3 @@ $(document).ready(function () {
     });
 });
 </script>
-

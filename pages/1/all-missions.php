@@ -8,10 +8,10 @@ permcontrol("allmisview");
 $currentUserId = function_exists('sesset') ? sesset("id") : ($_SESSION["lid"] ?? ($_SESSION["id"] ?? 0));
 $missionModel = new MissionModel();
 
-// Görev Silme İşlemi (Admin/Yetkili)
-if (isset($_GET["id"]) && @$_GET["mode"] === "delete" && (permtrue("allmisview") || permtrue("missionadd"))) {
+// Görev Silme İşlemi (yalnızca görevi oluşturan kullanıcı)
+if (isset($_GET["id"]) && @$_GET["mode"] === "delete") {
     $delId = (int)$_GET["id"];
-    $deleted = $missionModel->softDelete($delId, $currentUserId, true);
+    $deleted = $missionModel->softDelete($delId, $currentUserId);
     if ($deleted) {
         header("Location: index.php?p=all-missions&deleted=true");
     } else {
@@ -312,6 +312,7 @@ $today = date('Y-m-d');
                                 ],
                                 'authors' => $authorsData,
                                 'desc' => $row['mdesc'] ?? '',
+                                'canEdit' => (int)$row['creativer'] === (int)$currentUserId,
                                 'canComplete' => !$isDone
                             ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
                         ?>
@@ -426,7 +427,7 @@ $today = date('Y-m-d');
                                             <i class="fa fa-eye"></i> <span>Görüntüle</span>
                                         </button>
 
-                                        <?php if (permtrue("allmisview") || (int)$row['creativer'] === (int)$currentUserId): ?>
+                                        <?php if ((int)$row['creativer'] === (int)$currentUserId): ?>
                                             <a href="index.php?p=edit-mission&mid=<?php echo $row['id']; ?>" 
                                                class="btn-table-action btn-table-edit" 
                                                title="Görevi Düzenle">
@@ -434,7 +435,7 @@ $today = date('Y-m-d');
                                             </a>
                                         <?php endif; ?>
 
-                                        <?php if (permtrue("allmisview") || permtrue("missionadd")): ?>
+                                        <?php if ((int)$row['creativer'] === (int)$currentUserId): ?>
                                             <button type="button" 
                                                     class="btn-table-action btn-table-delete" 
                                                     title="Görevi Sil" 
@@ -1352,7 +1353,11 @@ $(document).ready(function () {
 
         // Tam Sayfa ve Düzenleme Linkleri
         $('#previewModalFullLink').attr('href', 'index.php?p=view-mission&mid=' + data.id);
-        $('#previewModalEditLink').attr('href', 'index.php?p=edit-mission&mid=' + data.id);
+        if (data.canEdit) {
+            $('#previewModalEditLink').attr('href', 'index.php?p=edit-mission&mid=' + data.id).show();
+        } else {
+            $('#previewModalEditLink').hide();
+        }
 
         $('#missionPreviewModal').modal('show');
     });

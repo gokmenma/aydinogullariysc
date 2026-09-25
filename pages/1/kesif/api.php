@@ -70,7 +70,7 @@ try {
             $data = [
                 'kesif_tarihi' => $formatted_date,
                 'gidecek_kisi' => $_POST['gidecek_kisi'] ?? '',
-                'firma' => $_POST['firma'] ?? '',
+                'firma' => trim((string) ($_POST['firma'] ?? '')),
                 'yapilacak_is' => $_POST['yapilacak_is'] ?? '',
                 'konum' => $_POST['konum'] ?? '',
                 'durum' => $_POST['durum'] ?? 'bekliyor',
@@ -145,7 +145,7 @@ try {
                 'id' => $id,
                 'kesif_tarihi' => $formatted_date,
                 'gidecek_kisi' => $_POST['gidecek_kisi'] ?? '',
-                'firma' => $_POST['firma'] ?? '',
+                'firma' => trim((string) ($_POST['firma'] ?? '')),
                 'yapilacak_is' => $_POST['yapilacak_is'] ?? '',
                 'konum' => $_POST['konum'] ?? '',
                 'durum' => $_POST['durum'] ?? 'bekliyor',

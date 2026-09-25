@@ -1,6 +1,31 @@
 let apiUrl = "pages/1/kesif/api.php";
 
 $(document).ready(function () {
+  // Aktif firmalar arasında arama/seçim yapılabilir; listede olmayan bir
+  // firma adı da yazılarak mevcut serbest giriş akışı korunur.
+  if ($.fn.select2) {
+    $("#firma").select2({
+      placeholder: "Firma arayın, seçin veya yazın",
+      allowClear: true,
+      tags: true,
+      dropdownParent: $("#kesifModal"),
+      width: "100%",
+      createTag: function (params) {
+        var term = $.trim(params.term || "");
+        return term ? { id: term, text: term, newTag: true } : null;
+      }
+    });
+  }
+
+  $("#firma").on("change", function () {
+    // Programatik değişikliklerde ve elle yazılan etiketlerde konum verisi yoktur.
+    var $selectedOption = $(this).find("option:selected");
+    var location = $.trim($selectedOption.attr("data-location") || "");
+    if (location) {
+      $("#konum").val(location).trigger("input");
+    }
+  });
+
   // KPI Summary Section Toggle & LocalStorage
   $("html").removeClass("kpi-kesif-collapsed-early");
   var isKpiCollapsed = localStorage.getItem("aydinogullari_kpi_kesif_collapsed") === "true";
@@ -123,6 +148,7 @@ $(document).ready(function () {
     if ($("#kesif_id").val() === "") {
       $("#kesifModalLabel").text("Yeni Keşif Ekle");
       $("#kesifForm")[0].reset();
+      $("#firma").val(null).trigger("change");
       $("#current_gorseller").empty();
       $("#selected_files_list").empty();
     }
@@ -132,6 +158,7 @@ $(document).ready(function () {
   $("#kesifModal").on("hidden.bs.modal", function () {
     $("#kesif_id").val("");
     $("#kesifForm")[0].reset();
+    $("#firma").val(null).trigger("change");
     $("#current_gorseller").empty();
     $("#selected_files_list").empty();
   });
@@ -161,7 +188,11 @@ $(document).ready(function () {
           $("#kesif_id").val(kesif.id);
           $("#kesif_tarihi").val(formatDateTime(kesif.kesif_tarihi));
           $("#gidecek_kisi").val(kesif.gidecek_kisi || "");
-          $("#firma").val(kesif.firma);
+          var firma = $.trim(kesif.firma || "");
+          if (firma && $("#firma option").filter(function () { return $(this).val() === firma; }).length === 0) {
+            $("#firma").append(new Option(firma, firma, true, true));
+          }
+          $("#firma").val(firma).trigger("change");
           $("#yapilacak_is").val(kesif.yapilacak_is);
           $("#konum").val(kesif.konum);
           $("#formun_bulundugu_kisi").val(kesif.formun_bulundugu_kisi || "");

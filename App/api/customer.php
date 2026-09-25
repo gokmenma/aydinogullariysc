@@ -96,6 +96,7 @@ if (($_POST['action'] ?? '') == 'create') {
             'company' => $company,
             'email' => $_POST['cemail'] ?? '',
             'address' => $_POST['customer_address'] ?? '',
+            'location' => trim((string) ($_POST['location'] ?? '')),
             'city' => $_POST['il'] ?? '',
             'ilce' => $_POST['ilce'] ?? '',
             'cdesc' => $_POST['cdesc'] ?? '',
@@ -123,7 +124,7 @@ if (($_POST['action'] ?? '') == 'create') {
             ? audit_changes(
                 $existingCustomer,
                 $data,
-                ['company', 'email', 'address', 'city', 'ilce', 'gsm', 'yetkili', 'grp', 'OdemeVade', 'region', 'represant']
+                ['company', 'email', 'address', 'location', 'city', 'ilce', 'gsm', 'yetkili', 'grp', 'OdemeVade', 'region', 'represant']
             )
             : [];
         audit_log(

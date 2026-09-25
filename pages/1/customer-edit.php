@@ -56,6 +56,7 @@ if ($_POST) {
 	$ccompany = @$_POST["company"];
 	$cemail = @$_POST["cemail"];
 	$address = @$_POST["customer_address"];
+	$location = trim((string) ($_POST["location"] ?? ''));
 	$il = @$_POST["il"];
 	$ilce = @$_POST["ilce"];
 	$cdesc = @$_POST["cdesc"];
@@ -71,6 +72,7 @@ if ($_POST) {
     company = ?,
     email = ?,
     address = ? ,
+    location = ?,
     city = ?,
     ilce = ?,
     cdesc = ?,
@@ -83,7 +85,7 @@ if ($_POST) {
     updated_at = ?
     WHERE id = ?");
 
-	$ahce->execute(array($ccompany, $cemail,$address, $il, $ilce, $cdesc, $cgsm, $yetkiliadi, 
+	$ahce->execute(array($ccompany, $cemail, $address, $location, $il, $ilce, $cdesc, $cgsm, $yetkiliadi,
                                     $categoryName, $OdemeVade,$region,$updater,$updated_at, $cid));
 
 	// if ($cpass) {
@@ -401,6 +403,15 @@ if ($_GET["st"] == "newsuccess") {
             <div class="col-sm-12 col-md-10">
                 <textarea required name="customer_address" placeholder="Firma adresi" class="form-control" rows="3"
                     style="height:100%;"><?php echo $cc["address"] ?></textarea>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="location" class="col-sm-12 col-md-2 col-form-label">Keşif / Saha Konumu:</label>
+            <div class="col-sm-12 col-md-10">
+                <input name="location" type="text" class="form-control"
+                    value="<?php echo htmlspecialchars($cc['location'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                    placeholder="Keşiflerde otomatik kullanılacak saha adresi veya konumu">
             </div>
         </div>
 

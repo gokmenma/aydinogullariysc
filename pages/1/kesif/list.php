@@ -8,6 +8,25 @@ $KesifModel = new KesifModel();
 $kesifler = $KesifModel->getAllActive();
 $stats = $KesifModel->getSummaryStats();
 
+// Keşif formunda yalnızca aktif firmalar seçilebilir; serbest metin girişi
+// Select2 "tags" desteğiyle korunur.
+$customersList = [];
+try {
+    $customersStmt = $ac->prepare(
+        "SELECT id, TRIM(company) AS company, TRIM(COALESCE(location, '')) AS location
+         FROM customers
+         WHERE deleted_at IS NULL
+           AND company IS NOT NULL
+           AND TRIM(company) <> ''
+         ORDER BY company ASC"
+    );
+    $customersStmt->execute();
+    $customersList = $customersStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    // Firma listesi yüklenemezse serbest metin girişi kullanılabilir kalır.
+    $customersList = [];
+}
+
 $toplam_kesif = (int) ($stats['total_count'] ?? 0);
 $bekleyen_kesif = (int) ($stats['bekleyen_count'] ?? 0);
 $iptal_kesif = (int) ($stats['iptal_count'] ?? 0);
@@ -790,6 +809,37 @@ try {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }
+    .kesif-input-group.firma-input-group {
+        flex-wrap: nowrap;
+    }
+    #kesifModal .firma-input-group .input-group-prepend {
+        flex: 0 0 auto;
+    }
+    #kesifModal .firma-input-group .select2-container {
+        flex: 1 1 0;
+        width: auto !important;
+        min-width: 0;
+        height: 38px;
+    }
+    #kesifModal .firma-input-group .select2-selection--single {
+        height: 38px !important;
+        min-height: 38px !important;
+        border-color: #cbd5e1;
+        border-radius: 0 8px 8px 0;
+    }
+    #kesifModal .firma-input-group .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 11px;
+        padding-right: 28px;
+        color: #1e293b;
+        font-size: 12.5px;
+    }
+    #kesifModal .firma-input-group .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    #kesifModal .firma-input-group .select2-selection--single .select2-selection__placeholder {
+        color: #94a3b8;
+    }
     .kesif-input-group .form-control:focus {
         border-color: #0284c7;
         box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
@@ -1465,19 +1515,26 @@ try {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group mb-3">
-                                            <label class="field-label" for="firma">
-                                                Firma / Müşteri <span class="req">*</span>
-                                            </label>
-                                            <div class="input-group kesif-input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fa fa-briefcase text-primary"></i></span>
-                                                </div>
-                                                <input type="text" id="firma" name="firma" class="form-control" required
-                                                    placeholder="Firma adını girin veya seçin" list="kesif_firma_listesi">
-                                            </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="field-label" for="firma">
+                                        Firma / Müşteri <span class="req">*</span>
+                                    </label>
+                                    <div class="input-group kesif-input-group firma-input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-briefcase text-primary"></i></span>
                                         </div>
+                                        <select id="firma" name="firma" class="form-control" required style="width: 100%;">
+                                            <option value=""></option>
+                                            <?php foreach ($customersList as $customerItem) { ?>
+                                                <option
+                                                    value="<?php echo htmlspecialchars($customerItem['company'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                    data-location="<?php echo htmlspecialchars($customerItem['location'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <?php echo htmlspecialchars($customerItem['company'], ENT_QUOTES, 'UTF-8'); ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -1612,13 +1669,7 @@ try {
     </div>
 </div>
 
-<!-- Müşteri ve Personel Datalistleri -->
-<datalist id="kesif_firma_listesi">
-    <?php foreach ($customersList as $custName) { ?>
-        <option value="<?php echo htmlspecialchars($custName, ENT_QUOTES, 'UTF-8'); ?>">
-    <?php } ?>
-</datalist>
-
+<!-- Personel Datalisti -->
 <datalist id="kesif_personel_listesi">
     <?php foreach ($personnelList as $pName) { ?>
         <option value="<?php echo htmlspecialchars($pName, ENT_QUOTES, 'UTF-8'); ?>">
