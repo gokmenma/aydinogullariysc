@@ -32,24 +32,62 @@ if (!in_array($category, $allowedCategories, true)) {
     $category = 'all';
 }
 
-try {
-    $searchModel = new GlobalSearchModel();
-    $data = $searchModel->search($query, $category, $limit);
+// Arama sonuçları her tuş vuruşunda istenebilir. Audit kaydı ise istemci
+// tarafından arama etkileşimi tamamlandığında ayrı ve yalnızca bir kez gönderilir.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'log_search') {
+    $query = trim((string) ($_POST['query'] ?? ''));
+    $category = trim((string) ($_POST['category'] ?? 'all'));
+    $completionType = trim((string) ($_POST['completion_type'] ?? 'closed'));
+    $totalFound = max(0, (int) ($_POST['total_found'] ?? 0));
+    $selectedType = trim((string) ($_POST['selected_type'] ?? ''));
+    $selectedId = trim((string) ($_POST['selected_id'] ?? ''));
+
+    if (!in_array($category, $allowedCategories, true)) {
+        $category = 'all';
+    }
+    if (!in_array($completionType, ['completed', 'closed', 'cleared', 'result_selected'], true)) {
+        $completionType = 'closed';
+    }
+    if (!in_array($selectedType, ['offer', 'product', 'customer', 'service', 'kesif', 'report'], true)) {
+        $selectedType = '';
+        $selectedId = '';
+    }
 
     if (mb_strlen($query, 'UTF-8') >= 2) {
+        $context = [
+            'query' => mb_substr($query, 0, 150, 'UTF-8'),
+            'category' => $category,
+            'total_found' => $totalFound,
+            'completion_type' => $completionType,
+        ];
+        if ($selectedType !== '') {
+            $context['selected_type'] = $selectedType;
+            $context['selected_id'] = mb_substr($selectedId, 0, 100, 'UTF-8');
+        }
+
         audit_log(
             'search',
             'global_search',
-            'Küresel arama yapıldı: ' . $query,
+            'Küresel arama tamamlandı: ' . mb_substr($query, 0, 150, 'UTF-8'),
             'global',
             $query,
-            [
-                'query'       => $query,
-                'category'    => $category,
-                'total_found' => $data['counts']['all'] ?? 0
-            ]
+            $context
         );
     }
+
+    if (function_exists('ob_get_level')) {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['status' => 'success'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+try {
+    $searchModel = new GlobalSearchModel();
+    $data = $searchModel->search($query, $category, $limit);
 
     if (function_exists('ob_get_level')) {
         while (ob_get_level() > 0) {

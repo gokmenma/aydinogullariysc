@@ -16,9 +16,12 @@
         totalCountBadge: null,
 
         debounceTimer: null,
+        auditTimer: null,
+        activeRequest: null,
         activeCategory: 'all',
         currentQuery: '',
         lastData: null,
+        pendingAudit: null,
         selectedIndex: -1,
         totalVisibleItems: 0,
         isOpen: false,
@@ -78,6 +81,7 @@
 
             this.input.on('input', function () {
                 var val = $(this).val().trim();
+                clearTimeout(self.auditTimer);
                 if (val.length > 0) {
                     self.clearBtn.show();
                 } else {
@@ -113,6 +117,7 @@
             // Clear Button
             this.clearBtn.on('click', function (e) {
                 e.stopPropagation();
+                self.flushSearchAudit('cleared');
                 self.input.val('').focus();
                 self.clearBtn.hide();
                 self.renderInitialSuggestions();
@@ -133,6 +138,10 @@
                 }
             });
 
+            $(window).on('pagehide', function () {
+                self.flushSearchAudit('closed');
+            });
+
             // Prevent closing when clicking inside dropdown
             this.dropdown.on('click', function (e) {
                 e.stopPropagation();
@@ -142,6 +151,7 @@
             this.resultsContainer.on('click', '.gs-result-item', function (e) {
                 var itemType = $(this).data('type');
                 var itemId = $(this).data('id');
+                self.flushSearchAudit('result_selected', itemType, itemId);
                 if (itemType === 'kesif' && typeof window.openKesifDetailModal === 'function' && window.location.href.indexOf('p=kesif/list') !== -1) {
                     e.preventDefault();
                     self.closeDropdown();
@@ -168,6 +178,11 @@
         },
 
         closeDropdown: function () {
+            this.flushSearchAudit('closed');
+            if (this.activeRequest) {
+                this.activeRequest.abort();
+                this.activeRequest = null;
+            }
             this.dropdown.removeClass('show');
             this.isOpen = false;
             this.selectedIndex = -1;
@@ -175,6 +190,9 @@
 
         setCategory: function (cat) {
             this.activeCategory = cat;
+            if (this.pendingAudit) {
+                this.pendingAudit.category = cat;
+            }
             this.categoriesContainer.find('.gs-cat-pill').removeClass('active');
             this.categoriesContainer.find('.gs-cat-pill[data-cat="' + cat + '"]').addClass('active');
 
@@ -185,11 +203,14 @@
 
         triggerSearch: function (query) {
             var self = this;
+            if (this.activeRequest) {
+                this.activeRequest.abort();
+            }
             this.currentQuery = query;
             this.spinner.show();
             this.clearBtn.hide();
 
-            $.ajax({
+            this.activeRequest = $.ajax({
                 url: 'api/global_search.php',
                 type: 'GET',
                 dataType: 'json',
@@ -199,6 +220,7 @@
                     limit: 8
                 },
                 success: function (res) {
+                    self.activeRequest = null;
                     self.spinner.hide();
                     if (self.input.val().trim().length > 0) {
                         self.clearBtn.show();
@@ -206,17 +228,59 @@
 
                     if (res && res.status === 'success') {
                         self.lastData = res;
+                        self.pendingAudit = {
+                            query: query,
+                            category: self.activeCategory,
+                            totalFound: res.counts ? (res.counts.all || 0) : 0
+                        };
+                        clearTimeout(self.auditTimer);
+                        self.auditTimer = setTimeout(function () {
+                            self.flushSearchAudit('completed');
+                        }, 1500);
                         self.updateCounters(res.counts);
                         self.renderResults(res);
                         self.openDropdown();
                     }
                 },
-                error: function () {
+                error: function (xhr, status) {
+                    self.activeRequest = null;
+                    if (status === 'abort') return;
                     self.spinner.hide();
                     if (self.input.val().trim().length > 0) {
                         self.clearBtn.show();
                     }
                 }
+            });
+        },
+
+        flushSearchAudit: function (completionType, selectedType, selectedId) {
+            clearTimeout(this.auditTimer);
+            this.auditTimer = null;
+            if (!this.pendingAudit || this.pendingAudit.query.length < 2) return;
+
+            var audit = this.pendingAudit;
+            this.pendingAudit = null;
+            var formData = new FormData();
+            formData.append('action', 'log_search');
+            formData.append('query', audit.query);
+            formData.append('category', audit.category);
+            formData.append('total_found', audit.totalFound);
+            formData.append('completion_type', completionType || 'closed');
+            if (selectedType) formData.append('selected_type', selectedType);
+            if (typeof selectedId !== 'undefined') formData.append('selected_id', selectedId);
+
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('api/global_search.php', formData);
+                return;
+            }
+
+            $.ajax({
+                url: 'api/global_search.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                global: false
             });
         },
 
@@ -400,6 +464,7 @@
                 if (target.length) {
                     var itemType = target.data('type');
                     var itemId = target.data('id');
+                    this.flushSearchAudit('result_selected', itemType, itemId);
 
                     if (itemType === 'kesif' && typeof window.openKesifDetailModal === 'function' && window.location.href.indexOf('p=kesif/list') !== -1) {
                         this.closeDropdown();

@@ -15,6 +15,41 @@ $(document).ready(function () {
         return term ? { id: term, text: term, newTag: true } : null;
       }
     });
+
+    $("#gidecek_kisi, #formun_bulundugu_kisi").each(function () {
+      var placeholder = this.id === "gidecek_kisi"
+        ? "Personel seçin veya yazın"
+        : "Formun bulunduğu kişiyi seçin veya yazın";
+
+      $(this).select2({
+        placeholder: placeholder,
+        allowClear: true,
+        tags: true,
+        dropdownParent: $("#kesifModal"),
+        width: "100%",
+        createTag: function (params) {
+          var term = $.trim(params.term || "");
+          return term ? { id: term, text: term, newTag: true } : null;
+        }
+      });
+    });
+
+    $("#durum").select2({
+      minimumResultsForSearch: Infinity,
+      dropdownParent: $("#kesifModal"),
+      width: "100%"
+    });
+  }
+
+  function setTaggedSelectValue(selector, value) {
+    var cleanValue = $.trim(value || "");
+    var $select = $(selector);
+    if (cleanValue && $select.find("option").filter(function () {
+      return $(this).val() === cleanValue;
+    }).length === 0) {
+      $select.append(new Option(cleanValue, cleanValue, true, true));
+    }
+    $select.val(cleanValue || null).trigger("change");
   }
 
   $("#firma").on("change", function () {
@@ -149,6 +184,8 @@ $(document).ready(function () {
       $("#kesifModalLabel").text("Yeni Keşif Ekle");
       $("#kesifForm")[0].reset();
       $("#firma").val(null).trigger("change");
+      $("#gidecek_kisi, #formun_bulundugu_kisi").val(null).trigger("change");
+      $("#durum").val("bekliyor").trigger("change");
       $("#current_gorseller").empty();
       $("#selected_files_list").empty();
     }
@@ -159,6 +196,8 @@ $(document).ready(function () {
     $("#kesif_id").val("");
     $("#kesifForm")[0].reset();
     $("#firma").val(null).trigger("change");
+    $("#gidecek_kisi, #formun_bulundugu_kisi").val(null).trigger("change");
+    $("#durum").val("bekliyor").trigger("change");
     $("#current_gorseller").empty();
     $("#selected_files_list").empty();
   });
@@ -187,7 +226,7 @@ $(document).ready(function () {
           var kesif = data.data;
           $("#kesif_id").val(kesif.id);
           $("#kesif_tarihi").val(formatDateTime(kesif.kesif_tarihi));
-          $("#gidecek_kisi").val(kesif.gidecek_kisi || "");
+          setTaggedSelectValue("#gidecek_kisi", kesif.gidecek_kisi);
           var firma = $.trim(kesif.firma || "");
           if (firma && $("#firma option").filter(function () { return $(this).val() === firma; }).length === 0) {
             $("#firma").append(new Option(firma, firma, true, true));
@@ -195,8 +234,8 @@ $(document).ready(function () {
           $("#firma").val(firma).trigger("change");
           $("#yapilacak_is").val(kesif.yapilacak_is);
           $("#konum").val(kesif.konum);
-          $("#formun_bulundugu_kisi").val(kesif.formun_bulundugu_kisi || "");
-          $("#durum").val(kesif.durum || "bekliyor");
+          setTaggedSelectValue("#formun_bulundugu_kisi", kesif.formun_bulundugu_kisi);
+          $("#durum").val(kesif.durum || "bekliyor").trigger("change");
           $("#kesif_sonu_notu").val(kesif.kesif_sonu_notu || "");
 
           // Seçilen yeni dosyaları sıfırla

@@ -69,12 +69,12 @@ try {
 
             $data = [
                 'kesif_tarihi' => $formatted_date,
-                'gidecek_kisi' => $_POST['gidecek_kisi'] ?? '',
+                'gidecek_kisi' => trim((string) ($_POST['gidecek_kisi'] ?? '')),
                 'firma' => trim((string) ($_POST['firma'] ?? '')),
                 'yapilacak_is' => $_POST['yapilacak_is'] ?? '',
                 'konum' => $_POST['konum'] ?? '',
                 'durum' => $_POST['durum'] ?? 'bekliyor',
-                'formun_bulundugu_kisi' => $_POST['formun_bulundugu_kisi'] ?? '',
+                'formun_bulundugu_kisi' => trim((string) ($_POST['formun_bulundugu_kisi'] ?? '')),
                 'kesif_sonu_notu' => $_POST['kesif_sonu_notu'] ?? '',
                 'kayit_yapan' => $user_id
             ];
@@ -144,12 +144,12 @@ try {
             $data = [
                 'id' => $id,
                 'kesif_tarihi' => $formatted_date,
-                'gidecek_kisi' => $_POST['gidecek_kisi'] ?? '',
+                'gidecek_kisi' => trim((string) ($_POST['gidecek_kisi'] ?? '')),
                 'firma' => trim((string) ($_POST['firma'] ?? '')),
                 'yapilacak_is' => $_POST['yapilacak_is'] ?? '',
                 'konum' => $_POST['konum'] ?? '',
                 'durum' => $_POST['durum'] ?? 'bekliyor',
-                'formun_bulundugu_kisi' => $_POST['formun_bulundugu_kisi'] ?? '',
+                'formun_bulundugu_kisi' => trim((string) ($_POST['formun_bulundugu_kisi'] ?? '')),
                 'kesif_sonu_notu' => $_POST['kesif_sonu_notu'] ?? '',
                 'guncelleyen_kullanici' => $user_id
             ];

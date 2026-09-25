@@ -13,7 +13,9 @@ $stats = $KesifModel->getSummaryStats();
 $customersList = [];
 try {
     $customersStmt = $ac->prepare(
-        "SELECT id, TRIM(company) AS company, TRIM(COALESCE(location, '')) AS location
+        "SELECT id,
+                TRIM(company) AS company,
+                COALESCE(NULLIF(TRIM(address), ''), TRIM(location), '') AS location
          FROM customers
          WHERE deleted_at IS NULL
            AND company IS NOT NULL
@@ -25,6 +27,22 @@ try {
 } catch (Throwable $e) {
     // Firma listesi yüklenemezse serbest metin girişi kullanılabilir kalır.
     $customersList = [];
+}
+
+$personnelList = [];
+try {
+    $personnelStmt = $ac->prepare(
+        "SELECT DISTINCT TRIM(username) AS username
+         FROM users
+         WHERE (statu = 1 OR statu IS NULL)
+           AND username IS NOT NULL
+           AND TRIM(username) <> ''
+         ORDER BY username ASC"
+    );
+    $personnelStmt->execute();
+    $personnelList = $personnelStmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (Throwable $e) {
+    $personnelList = [];
 }
 
 $toplam_kesif = (int) ($stats['total_count'] ?? 0);
@@ -788,57 +806,46 @@ try {
         position: relative;
     }
     .kesif-input-group .input-group-text {
-        background: #f8fafc;
-        border-color: #cbd5e1;
+        background: #ffffff;
+        border: 1px solid #cbd5e1 !important;
+        border-right: 0 !important;
         color: #64748b;
         font-size: 13px;
         border-top-left-radius: 8px;
         border-bottom-left-radius: 8px;
         padding: 6px 10px;
         min-width: 38px;
+        height: 48px;
+        box-sizing: border-box;
         justify-content: center;
     }
     .kesif-input-group .form-control {
         border-color: #cbd5e1;
         font-size: 12.5px;
         border-radius: 8px;
-        height: 38px;
+        height: 48px;
         color: #1e293b;
     }
     .kesif-input-group .input-group-prepend + .form-control {
+        border-left: 0;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }
-    .kesif-input-group.firma-input-group {
+    .kesif-input-group.select2-input-group {
         flex-wrap: nowrap;
     }
-    #kesifModal .firma-input-group .input-group-prepend {
+    #kesifModal .select2-input-group .input-group-prepend {
         flex: 0 0 auto;
     }
-    #kesifModal .firma-input-group .select2-container {
+    #kesifModal .select2-input-group .select2-container {
         flex: 1 1 0;
         width: auto !important;
         min-width: 0;
-        height: 38px;
     }
-    #kesifModal .firma-input-group .select2-selection--single {
-        height: 38px !important;
-        min-height: 38px !important;
-        border-color: #cbd5e1;
-        border-radius: 0 8px 8px 0;
-    }
-    #kesifModal .firma-input-group .select2-selection--single .select2-selection__rendered {
-        line-height: 36px;
-        padding-left: 11px;
-        padding-right: 28px;
-        color: #1e293b;
-        font-size: 12.5px;
-    }
-    #kesifModal .firma-input-group .select2-selection--single .select2-selection__arrow {
-        height: 36px;
-    }
-    #kesifModal .firma-input-group .select2-selection--single .select2-selection__placeholder {
-        color: #94a3b8;
+    #kesifModal .select2-input-group .select2-selection--single {
+        border-left: 0 !important;
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
     }
     .kesif-input-group .form-control:focus {
         border-color: #0284c7;
@@ -1521,7 +1528,7 @@ try {
                                     <label class="field-label" for="firma">
                                         Firma / Müşteri <span class="req">*</span>
                                     </label>
-                                    <div class="input-group kesif-input-group firma-input-group">
+                                    <div class="input-group kesif-input-group select2-input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-briefcase text-primary"></i></span>
                                         </div>
@@ -1575,12 +1582,18 @@ try {
                                             <label class="field-label" for="gidecek_kisi">
                                                 Keşife Gidecek Kişi <span class="req">*</span>
                                             </label>
-                                            <div class="input-group kesif-input-group">
+                                            <div class="input-group kesif-input-group select2-input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fa fa-user text-primary"></i></span>
                                                 </div>
-                                                <input type="text" id="gidecek_kisi" name="gidecek_kisi" required
-                                                    class="form-control" list="kesif_personel_listesi" placeholder="Personel seçiniz / yazınız">
+                                                <select id="gidecek_kisi" name="gidecek_kisi" class="form-control" required style="width: 100%;">
+                                                    <option value=""></option>
+                                                    <?php foreach ($personnelList as $pName) { ?>
+                                                        <option value="<?php echo htmlspecialchars($pName, ENT_QUOTES, 'UTF-8'); ?>">
+                                                            <?php echo htmlspecialchars($pName, ENT_QUOTES, 'UTF-8'); ?>
+                                                        </option>
+                                                    <?php } ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -1589,13 +1602,18 @@ try {
                                             <label class="field-label" for="formun_bulundugu_kisi">
                                                 Formun Bulunduğu Kişi
                                             </label>
-                                            <div class="input-group kesif-input-group">
+                                            <div class="input-group kesif-input-group select2-input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fa fa-folder-open text-warning"></i></span>
                                                 </div>
-                                                <input type="text" id="formun_bulundugu_kisi" name="formun_bulundugu_kisi"
-                                                    class="form-control" list="kesif_personel_listesi"
-                                                    placeholder="Seçiniz veya yazınız">
+                                                <select id="formun_bulundugu_kisi" name="formun_bulundugu_kisi" class="form-control" style="width: 100%;">
+                                                    <option value=""></option>
+                                                    <?php foreach ($personnelList as $pName) { ?>
+                                                        <option value="<?php echo htmlspecialchars($pName, ENT_QUOTES, 'UTF-8'); ?>">
+                                                            <?php echo htmlspecialchars($pName, ENT_QUOTES, 'UTF-8'); ?>
+                                                        </option>
+                                                    <?php } ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -1605,11 +1623,11 @@ try {
                                     <label class="field-label" for="durum">
                                         Keşif Durumu <span class="req">*</span>
                                     </label>
-                                    <div class="input-group kesif-input-group">
+                                    <div class="input-group kesif-input-group select2-input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-flag text-info"></i></span>
                                         </div>
-                                        <select id="durum" name="durum" class="form-control" required>
+                                        <select id="durum" name="durum" class="form-control" required style="width: 100%;">
                                             <option value="bekliyor">Bekliyor (Sarı)</option>
                                             <option value="kesif_tamamlandi">Keşif Tamamlandı (Mavi)</option>
                                             <option value="teklif_hazirlandi">Teklif Hazırlandı (Mor)</option>
@@ -1668,13 +1686,6 @@ try {
         </form>
     </div>
 </div>
-
-<!-- Personel Datalisti -->
-<datalist id="kesif_personel_listesi">
-    <?php foreach ($personnelList as $pName) { ?>
-        <option value="<?php echo htmlspecialchars($pName, ENT_QUOTES, 'UTF-8'); ?>">
-    <?php } ?>
-</datalist>
 
 <!-- Keşif Detaylar Modal -->
 <div class="modal fade" id="detaylarModal" tabindex="-1" role="dialog" aria-labelledby="detaylarModalLabel" aria-hidden="true">
