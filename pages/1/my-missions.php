@@ -170,7 +170,11 @@ $today = date('Y-m-d');
         </div>
 
         <div class="table-responsive mission-table-responsive">
-            <table id="myMissionsTable" class="data-table select-row table-hover table-bordered premium-table">
+            <table id="myMissionsTable" class="data-table select-row table-hover table-bordered premium-table"
+                   data-empty-title="Henüz bir göreviniz yok"
+                   data-empty-description="Size atanan yeni görevler burada görüntülenecek."
+                   data-empty-icon="fa fa-clipboard"
+                   <?php if (permtrue("missionadd")): ?>data-empty-action-url="index.php?p=new-mission" data-empty-action-label="Yeni Görev Oluştur"<?php endif; ?>>
                 <thead>
                     <tr>
                         <th scope="col" class="text-center no-filter" style="width: 45px;">#Sıra</th>
@@ -184,19 +188,7 @@ $today = date('Y-m-d');
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($myMissions)): ?>
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <div class="empty-state-wrap">
-                                    <div class="empty-icon mb-3">
-                                        <i class="fa fa-clipboard" style="font-size: 38px; color: #cbd5e1;"></i>
-                                    </div>
-                                    <h6 style="color: #64748b; font-weight: 600;">Henüz Göreviniz Bulunmuyor</h6>
-                                    <p class="small text-muted mb-0">Tarafınıza yeni bir görev atandığında bu listede görünecektir.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php else: ?>
+                    <?php if (!empty($myMissions)): ?>
                         <?php
                         $kx = 1;
                         foreach ($myMissions as $row):

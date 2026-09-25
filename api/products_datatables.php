@@ -9,8 +9,14 @@ global $ac;
 
 use App\Helper\Security;
 
-// Permission check: return JSON instead of redirect
-if (!permtrue("productedit") && !permtrue("productadd") && !permtrue("productdelete")) {
+// Liste sayfasıyla aynı ürün modülü yetkilerini kabul et; yetkisiz istekte JSON dön.
+$canViewProducts = permtrue("product_dashboard")
+    || permtrue("productcategory")
+    || permtrue("productadd")
+    || permtrue("productedit")
+    || permtrue("productdelete");
+
+if (!$canViewProducts) {
     http_response_code(403);
     echo json_encode([
         'draw' => intval($_GET['draw'] ?? 0),

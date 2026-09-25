@@ -18,7 +18,7 @@ $cc = $conts->fetch(PDO::FETCH_ASSOC);
 if ($_POST) {
 
 	if (!$_POST["uname"]) {
-		header("Location: index.php?p=user-new&st=empties&id=" . $uid);
+		header("Location: index.php?p=user-edit&st=empties&id=" . $uid);
 		exit;
 	}
 
@@ -112,8 +112,10 @@ if ($_POST) {
 			$uid
 		));
 		header("Location: index.php?p=user-edit&st=newsuccess&id=" . $uid);
-	} catch (PDOException $e) {
-		echo "Hata: " . $e->getMessage();
+		exit;
+	} catch (Throwable $e) {
+		header("Location: index.php?p=user-edit&st=error&id=" . $uid);
+		exit;
 	}
 
 
@@ -124,13 +126,15 @@ if ($_POST) {
 	// 	header("Location: index.php?p=user-edit&st=newsuccess&id=" . $uid);
 	// }
 }
-if (@$_GET["st"] == "empties") {
-	showAlert("alert", "Zorunlu alanları doldurun");
-}
+$status = $_GET["st"] ?? '';
+$sweetAlert = null;
 
-
-if (@$_GET["st"] == "newsuccess") {
-	showAlert("success", "Ekip üyesi Başarı ile güncellendi!");
+if ($status === "empties") {
+	$sweetAlert = ['icon' => 'warning', 'title' => 'Eksik Bilgi', 'text' => 'Zorunlu alanları doldurun.'];
+} elseif ($status === "newsuccess") {
+	$sweetAlert = ['icon' => 'success', 'title' => 'Başarılı', 'text' => 'Ekip üyesi başarıyla güncellendi.'];
+} elseif ($status === "error") {
+	$sweetAlert = ['icon' => 'error', 'title' => 'Güncelleme Başarısız', 'text' => 'Ekip üyesi güncellenirken bir hata oluştu. Lütfen tekrar deneyin.'];
 }
 
 
@@ -211,14 +215,14 @@ $user = $query->fetch(PDO::FETCH_ASSOC);
                 <!-- Pozisyon -->
                 <div class="form-field">
                     <label for="permission"><font color="red">(*)</font> Pozisyon:</label>
-                    <select name="permission" id="permission" class="selectpicker form-control" data-style="border bg-white" data-container="body">
+                    <select name="permission" id="permission" class="form-control user-role-select" style="width: 100%;">
                         <?php
                         $pquery = $ac->prepare("SELECT * FROM userroles");
                         $pquery->execute();
                         while ($pm = $pquery->fetch(PDO::FETCH_ASSOC)) {
                             ?>
-                            <option <?php echo $cc["permission"] == $pm["id"] ? "selected" : ""; ?> value="<?php echo $pm["id"]; ?>">
-                                <?php echo $pm["roleName"]; ?>
+                            <option <?php echo $cc["permission"] == $pm["id"] ? "selected" : ""; ?> value="<?php echo (int) $pm["id"]; ?>">
+                                <?php echo htmlspecialchars($pm["roleName"], ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php } ?>
                     </select>
@@ -286,3 +290,35 @@ $user = $query->fetch(PDO::FETCH_ASSOC);
         </div>
     </div>
 </form>
+
+<script>
+$(document).ready(function() {
+    if ($.fn.select2) {
+        $('#myForm .user-role-select').select2({
+            width: '100%',
+            minimumResultsForSearch: 0,
+            language: {
+                noResults: function() {
+                    return 'Sonuç bulunamadı';
+                },
+                searching: function() {
+                    return 'Aranıyor...';
+                }
+            }
+        });
+    }
+});
+</script>
+
+<?php if ($sweetAlert !== null) { ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+        Swal.fire(<?php echo json_encode($sweetAlert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>);
+        var cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('st');
+        window.history.replaceState({}, document.title, cleanUrl.toString());
+    }
+});
+</script>
+<?php } ?>

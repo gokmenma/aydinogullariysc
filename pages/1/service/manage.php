@@ -719,14 +719,15 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     }
 
     .btn-step-next {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
         color: #fff;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+        box-shadow: 0 4px 15px rgba(22, 163, 74, 0.35);
     }
 
     .btn-step-next:hover {
+        background: linear-gradient(135deg, #15803d 0%, #166534 100%);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+        box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);
         color: #fff;
     }
 
@@ -1449,8 +1450,7 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
             <?php } ?>
 
             <div class="step-navigation" style="justify-content: flex-end;">
-                <button type="button" class="btn-step btn-step-next btn-header-save" onclick="submitServiceForm()"
-                    style="box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);">
+                <button type="button" class="btn-step btn-step-next btn-header-save" onclick="submitServiceForm()">
                     <i class="fa fa-check-circle"></i> <?php echo $isEdit ? 'Güncelle' : 'Kaydet'; ?>
                 </button>
             </div>

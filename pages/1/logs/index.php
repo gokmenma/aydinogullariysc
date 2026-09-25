@@ -797,7 +797,7 @@ if (!function_exists('formatRelativeTime')) {
                             <!-- Kullanıcı -->
                             <div class="col-md-3 mb-10">
                                 <label class="form-label">Kullanıcı</label>
-                                <select name="filter_user" class="form-control select2" style="width: 100%;">
+                                <select name="filter_user" class="form-control activity-filter-select" style="width: 100%;">
                                     <option value="">Tüm Kullanıcılar</option>
                                     <?php foreach ($all_users as $u): ?>
                                         <option value="<?php echo $u['id']; ?>" <?php echo (isset($_GET['filter_user']) && $_GET['filter_user'] == $u['id']) ? 'selected' : ''; ?>>
@@ -809,7 +809,7 @@ if (!function_exists('formatRelativeTime')) {
                             <!-- İşlem Türü -->
                             <div class="col-md-3 mb-10">
                                 <label class="form-label">İşlem Türü</label>
-                                <select name="filter_event" class="form-control selectpicker" data-style="btn-outline-secondary">
+                                <select name="filter_event" class="form-control activity-filter-select" style="width: 100%;">
                                     <option value="all" <?php echo $selected_event === 'all' ? 'selected' : ''; ?>>Tümü (Ziyaretler Dahil)</option>
                                     <option value="operations" <?php echo $selected_event === 'operations' ? 'selected' : ''; ?>>Kullanıcı İşlemleri (CRUD)</option>
                                     <?php foreach ($event_labels as $event_key => $event_label): ?>
@@ -822,7 +822,7 @@ if (!function_exists('formatRelativeTime')) {
                             <!-- Modül -->
                             <div class="col-md-3 mb-10">
                                 <label class="form-label">Modül</label>
-                                <select name="filter_module" class="form-control selectpicker" data-style="btn-outline-secondary">
+                                <select name="filter_module" class="form-control activity-filter-select" style="width: 100%;">
                                     <option value="">Tüm Modüller</option>
                                     <?php foreach ($all_modules as $module_name): ?>
                                         <option value="<?php echo htmlspecialchars($module_name, ENT_QUOTES, 'UTF-8'); ?>" <?php echo (($_GET['filter_module'] ?? '') === $module_name) ? 'selected' : ''; ?>>
@@ -834,7 +834,7 @@ if (!function_exists('formatRelativeTime')) {
                             <!-- Log Seviyesi -->
                             <div class="col-md-3 mb-10">
                                 <label class="form-label">Log Seviyesi</label>
-                                <select name="filter_level" class="form-control selectpicker" data-style="btn-outline-secondary">
+                                <select name="filter_level" class="form-control activity-filter-select" style="width: 100%;">
                                     <option value="">Tüm Seviyeler</option>
                                     <option value="INFO" <?php echo (isset($_GET['filter_level']) && $_GET['filter_level'] == 'INFO') ? 'selected' : ''; ?>>INFO (Normal)</option>
                                     <option value="WARNING" <?php echo (isset($_GET['filter_level']) && $_GET['filter_level'] == 'WARNING') ? 'selected' : ''; ?>>WARNING (Uyarı)</option>
@@ -1737,11 +1737,19 @@ if (!function_exists('formatRelativeTime')) {
 <!-- ========================================================================= -->
 <script>
 $(document).ready(function() {
-    // Select2 Aktif Et (Sadece filtre formu için)
+    // Aktivite filtrelerindeki tüm seçim alanlarını Select2 ile etkinleştir.
     if ($.fn.select2) {
-        $('#activityFilterForm .select2').select2({
-            placeholder: "Seçiniz...",
-            allowClear: true
+        $('#activityFilterForm .activity-filter-select').select2({
+            width: '100%',
+            minimumResultsForSearch: 0,
+            language: {
+                noResults: function() {
+                    return 'Sonuç bulunamadı';
+                },
+                searching: function() {
+                    return 'Aranıyor...';
+                }
+            }
         });
     }
 

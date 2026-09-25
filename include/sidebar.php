@@ -164,7 +164,7 @@ $menuDefinitions = [
             'products/list' => [
                 'title' => 'Ürün&Hizmet Listesi',
                 'link' => 'index.php?p=products/list',
-                'visible' => true
+                'visible' => (permtrue("product_dashboard") || permtrue("productcategory") || permtrue("productadd") || permtrue("productedit") || permtrue("productdelete"))
             ]
         ]
     ],
@@ -712,4 +712,3 @@ $isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
     }
 })();
 </script>
-

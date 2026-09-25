@@ -5,6 +5,16 @@ if (!$_GET["nid"]) {
 	exit;
 }
 $nid = $_GET["nid"];
+$currentUserId = (int)sesset("id");
+
+$ckk = $ac->prepare("SELECT * FROM notes WHERE id = ? AND (visibility = 'general' OR creativer = ?)");
+$ckk->execute(array($nid, $currentUserId));
+$ck = $ckk->fetch(PDO::FETCH_ASSOC);
+if (!$ck) {
+	header("Location:index.php?p=all-notes&st=access_denied");
+	exit;
+}
+
 if ($_POST) {
 
 	$title = @$_POST["title"];
@@ -15,6 +25,10 @@ if ($_POST) {
 
 	$urg = $_POST["urgency"];
 	$cat = $_POST["cat"];
+	$visibility = ($_POST["visibility"] ?? 'general') === 'private' ? 'private' : 'general';
+	if ($visibility === 'private' && (int)$ck['creativer'] !== $currentUserId) {
+		$visibility = 'general';
+	}
 	if (empty($title) || empty($desc)) {
 		header("Location: index.php?p=edit-note&nid=" . $nid . "&st=empties");
 		exit;
@@ -25,9 +39,10 @@ if ($_POST) {
 	dates = ?,
 	lastdate = ?,
 	urgency = ?,
-	descs = ? WHERE id = ?");
+	descs = ?,
+	visibility = ? WHERE id = ? AND (visibility = 'general' OR creativer = ?)");
 
-	$result =$insq->execute(array($cat, $title, $sdate, $lastdate, $urg, $desc, $nid));
+	$result =$insq->execute(array($cat, $title, $sdate, $lastdate, $urg, $desc, $visibility, $nid, $currentUserId));
 
 	if($result){
 		header("Location: index.php?p=all-notes&st=newsuccess");
@@ -35,13 +50,6 @@ if ($_POST) {
 	}
 }
 
-$ckk = $ac->prepare("SELECT * FROM notes WHERE id = ?");
-$ckk->execute(array($nid));
-$ck = $ckk->fetch(PDO::FETCH_ASSOC);
-if (!$ck) {
-	header("Location:index.php?p=all-notes");
-	exit;
-}
 $urgencyFromDatabase = $ck['urgency'];
 
 if (@$_GET["st"] == "empties") {
@@ -91,7 +99,7 @@ if (@$_GET["st"] == "empties") {
                     <p>Notunuza ait genel başlık, aciliyet derecesi, kategori ve tarih detayları</p>
                 </div>
             </div>
-            
+
             <div class="form-grid">
                 <!-- Başlık (Full Width) -->
                 <div class="form-field full-width">
@@ -102,7 +110,7 @@ if (@$_GET["st"] == "empties") {
                 <!-- Aciliyet -->
                 <div class="form-field">
                     <label for="urgency">Aciliyet</label>
-                    <select name="urgency" id="urgency" class="selectpicker form-control" data-style="border bg-white" data-container="body">
+                    <select name="urgency" id="urgency" class="form-control note-select2" style="width: 100%;">
                         <option value="Yüksek" <?php echo $urgencyFromDatabase == "Yüksek" ? "selected" : ""; ?>>Yüksek</option>
                         <option value="Orta" <?php echo $urgencyFromDatabase == "Orta" ? "selected" : ""; ?>>Orta</option>
                         <option value="Düşük" <?php echo $urgencyFromDatabase == "Düşük" ? "selected" : ""; ?>>Düşük</option>
@@ -112,13 +120,23 @@ if (@$_GET["st"] == "empties") {
                 <!-- Kategori -->
                 <div class="form-field">
                     <label for="cat">Kategori</label>
-                    <select name="cat" id="cat" class="selectpicker form-control" data-style="border bg-white" data-container="body">
+                    <select name="cat" id="cat" class="form-control note-select2" style="width: 100%;">
                         <?php
                         $nqu = $ac->prepare("SELECT * FROM note_categories");
                         $nqu->execute();
                         while ($nn = $nqu->fetch(PDO::FETCH_ASSOC)) {
                         ?>
-                            <option <?php echo $nn["id"] == $ck["category"] ? "selected" : ""; ?> value="<?php echo $nn["id"]; ?>"><?php echo $nn["title"]; ?></option>
+                            <option <?php echo $nn["id"] == $ck["category"] ? "selected" : ""; ?> value="<?php echo (int)$nn["id"]; ?>"><?php echo htmlspecialchars($nn["title"], ENT_QUOTES, 'UTF-8'); ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="visibility">Görünürlük</label>
+                    <select name="visibility" id="visibility" class="form-control note-select2" style="width: 100%;">
+                        <option value="general" <?php echo ($ck['visibility'] ?? 'general') === 'general' ? 'selected' : ''; ?>>Genel — Herkes görebilir</option>
+                        <?php if ((int)$ck['creativer'] === $currentUserId) { ?>
+                            <option value="private" <?php echo ($ck['visibility'] ?? 'general') === 'private' ? 'selected' : ''; ?>>Özel — Yalnızca ben görebilirim</option>
                         <?php } ?>
                     </select>
                 </div>
@@ -155,17 +173,41 @@ if (@$_GET["st"] == "empties") {
     </div>
 </form>
 
+<button type="button" id="floatingSubmitButton" class="floating-note-save" onclick="validateForm()" aria-label="Notu güncelle">
+    <i class="fa fa-save"></i><span>Güncelle</span>
+</button>
+
+<style>
+.floating-note-save { position: fixed; right: 24px; bottom: 24px; z-index: 1030; display: none; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 19px; background: #16a34a; color: #fff; font-weight: 700; box-shadow: 0 8px 24px rgba(22,163,74,.32); }
+.floating-note-save.is-visible { display: inline-flex; }
+.floating-note-save:hover { background: #15803d; color: #fff; }
+@media (max-width: 576px) { .floating-note-save { right: 16px; bottom: 16px; } }
+</style>
+
 <script>
 	$(document).ready(function () {
-		$(".selectpicker").selectpicker({
-			selectAllText: "Tümünü Seç",
-			deselectAllText: 'Seçimi Temizle',
-			style: "border bg-white",
-			liveSearch: true,
-			liveSearchPlaceholder: "Ara..",
-			noneResultsText: 'Eşleşen kayıt yok {0}',
-			size: 5,
-			noneSelectedText: "Seçim Yapınız!"
-		})
-	})
+		if ($.fn.select2) {
+			$('#myForm .note-select2').select2({
+				width: '100%',
+				minimumResultsForSearch: 0,
+				language: {
+					noResults: function () { return 'Sonuç bulunamadı'; },
+					searching: function () { return 'Aranıyor...'; }
+				}
+			});
+		}
+	});
+
+	(function () {
+		var originalButton = document.getElementById('submitButton');
+		var floatingButton = document.getElementById('floatingSubmitButton');
+		if (!originalButton || !floatingButton) return;
+		function updateFloatingButton() {
+			var rect = originalButton.getBoundingClientRect();
+			floatingButton.classList.toggle('is-visible', rect.bottom < 0 || rect.top > window.innerHeight);
+		}
+		window.addEventListener('scroll', updateFloatingButton, { passive: true });
+		window.addEventListener('resize', updateFloatingButton);
+		updateFloatingButton();
+	})();
 </script>

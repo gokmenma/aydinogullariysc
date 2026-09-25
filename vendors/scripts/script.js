@@ -18159,7 +18159,10 @@ wysihtml5.Commands = Base.extend(
         "strong": "b",
         "em":     "i",
         "b":      "strong",
-        "i":      "em"
+        "i":      "em",
+        "strike": "s",
+        "del":    "s",
+        "s":      "strike"
       },
       htmlApplier = {};
   
@@ -18559,6 +18562,21 @@ wysihtml5.Commands = Base.extend(
 
     state: function(composer, command) {
       return wysihtml5.commands.formatInline.state(composer, command, "u");
+    },
+
+    value: function() {
+      return undef;
+    }
+  };
+})(wysihtml5);(function(wysihtml5) {
+  var undef;
+  wysihtml5.commands.strike = wysihtml5.commands.strikeThrough = wysihtml5.commands.strikethrough = {
+    exec: function(composer, command) {
+      return wysihtml5.commands.formatInline.exec(composer, command, "s");
+    },
+
+    state: function(composer, command) {
+      return wysihtml5.commands.formatInline.state(composer, command, "s");
     },
 
     value: function() {
@@ -20417,6 +20435,7 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
                 "<a class='btn" + size + "' data-wysihtml5-command='bold' title='CTRL+B'>" + locale.emphasis.bold + "</a>" +
                 "<a class='btn" + size + "' data-wysihtml5-command='italic' title='CTRL+I'>" + locale.emphasis.italic + "</a>" +
                 "<a class='btn" + size + "' data-wysihtml5-command='underline' title='CTRL+U'>" + locale.emphasis.underline + "</a>" +
+                "<a class='btn" + size + "' data-wysihtml5-command='strikeThrough' title='Üstü Çizili'>" + (locale.emphasis.strike || locale.emphasis.strikethrough || "Üstü Çizili") + "</a>" +
               "</div>" +
             "</li>";
         },
@@ -20805,6 +20824,9 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
                 "h3": {},
                 "blockquote": {},
                 "u": 1,
+                "s": 1,
+                "strike": 1,
+                "del": 1,
                 "img": {
                     "check_attributes": {
                         "width": "numbers",
@@ -20845,7 +20867,9 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
             emphasis: {
                 bold: "Kalın",
                 italic: "İtalik",
-                underline: "Altı Çizili"
+                underline: "Altı Çizili",
+                strike: "Üstü Çizili",
+                strikethrough: "Üstü Çizili"
             },
             lists: {
                 unordered: "Unordered list",

@@ -5,6 +5,18 @@ use App\Helper\Security;
 use App\Model\ProductModel;
 use App\Model\DefineModel;
 
+// Sayfa ve DataTables endpoint'i aynı ürün modülü yetki kümesini kullanır.
+$canViewProducts = permtrue('product_dashboard')
+    || permtrue('productcategory')
+    || permtrue('productadd')
+    || permtrue('productedit')
+    || permtrue('productdelete');
+
+if (!$canViewProducts) {
+    echo '<div class="alert alert-danger m-4"><i class="fa fa-exclamation-triangle"></i> Bu sayfayı görüntüleme yetkiniz bulunmamaktadır.</div>';
+    return;
+}
+
 // Model sınıfları
 $ProductModel = new ProductModel();
 $Define = new DefineModel();

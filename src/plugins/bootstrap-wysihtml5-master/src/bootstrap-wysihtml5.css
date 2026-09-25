@@ -53,6 +53,12 @@ ul.wysihtml5-toolbar a[data-wysihtml5-command=underline] {
 	text-decoration: underline;
 }
 
+ul.wysihtml5-toolbar a[data-wysihtml5-command=strikeThrough],
+ul.wysihtml5-toolbar a[data-wysihtml5-command=strikethrough],
+ul.wysihtml5-toolbar a[data-wysihtml5-command=strike] {
+	text-decoration: line-through;
+}
+
 ul.wysihtml5-toolbar a.btn.wysihtml5-command-active, ul.wysihtml5-toolbar a.btn.wysihtml5-action-active{
 	background-image: none;
 	background: #f6f6f6;

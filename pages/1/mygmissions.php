@@ -155,7 +155,11 @@ $today = date('Y-m-d');
         </div>
 
         <div class="table-responsive mission-table-responsive">
-            <table id="mygMissionsTable" class="data-table select-row table-hover table-bordered premium-table">
+            <table id="mygMissionsTable" class="data-table select-row table-hover table-bordered premium-table"
+                   data-empty-title="Henüz verdiğiniz bir görev yok"
+                   data-empty-description="Ekip arkadaşlarınıza atadığınız görevler burada görüntülenecek."
+                   data-empty-icon="fa fa-paper-plane-o"
+                   <?php if (permtrue("missionadd")): ?>data-empty-action-url="index.php?p=new-mission" data-empty-action-label="Yeni Görev Oluştur"<?php endif; ?>>
                 <thead>
                     <tr>
                         <th scope="col" class="text-center no-filter" style="width: 45px;">#Sıra</th>
@@ -169,19 +173,7 @@ $today = date('Y-m-d');
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($givenMissions)): ?>
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <div class="empty-state-wrap">
-                                    <div class="empty-icon mb-3">
-                                        <i class="fa fa-paper-plane-o" style="font-size: 38px; color: #cbd5e1;"></i>
-                                    </div>
-                                    <h6 style="color: #64748b; font-weight: 600;">Henüz Başkasına Atadığınız Görev Yok</h6>
-                                    <p class="small text-muted mb-0">Yukarıdaki "Yeni Görev Oluştur" butonunu kullanarak ekip arkadaşlarınıza görev atayabilirsiniz.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php else: ?>
+                    <?php if (!empty($givenMissions)): ?>
                         <?php
                         $kx = 1;
                         foreach ($givenMissions as $row):

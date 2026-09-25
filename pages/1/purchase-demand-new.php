@@ -106,7 +106,7 @@ if (@$_GET["st"] == "numericerror") {
 <style>
     /* Table column overrides to make first 3 columns minimum size */
     #tProduct th:nth-child(1),
-    #tProduct td:nth-child(1) {
+    #tProduct tbody td:nth-child(1) {
         width: 28px !important;
         min-width: 28px !important;
         max-width: 28px !important;
@@ -114,7 +114,7 @@ if (@$_GET["st"] == "numericerror") {
         padding: 4px 2px !important;
         vertical-align: middle !important;
     }
-    #tProduct td:nth-child(1) a {
+    #tProduct tbody td:nth-child(1) a {
         padding: 0 !important;
         margin: 0 !important;
         border: none !important;
@@ -129,7 +129,7 @@ if (@$_GET["st"] == "numericerror") {
     }
     
     #tProduct th:nth-child(2),
-    #tProduct td:nth-child(2) {
+    #tProduct tbody td:nth-child(2) {
         width: 32px !important;
         min-width: 32px !important;
         max-width: 32px !important;
@@ -137,7 +137,7 @@ if (@$_GET["st"] == "numericerror") {
         padding: 4px 2px !important;
         vertical-align: middle !important;
     }
-    #tProduct td:nth-child(2) a.sil {
+    #tProduct tbody td:nth-child(2) a.sil {
         padding: 0 !important;
         margin: 0 !important;
         width: 24px !important;
@@ -154,7 +154,7 @@ if (@$_GET["st"] == "numericerror") {
     }
     
     #tProduct th:nth-child(3),
-    #tProduct td:nth-child(3) {
+    #tProduct tbody td:nth-child(3) {
         width: 40px !important;
         min-width: 40px !important;
         max-width: 40px !important;
@@ -162,7 +162,7 @@ if (@$_GET["st"] == "numericerror") {
         padding: 4px 2px !important;
         vertical-align: middle !important;
     }
-    #tProduct td:nth-child(3) input {
+    #tProduct tbody td:nth-child(3) input {
         text-align: center !important;
         padding: 2px !important;
         height: 24px !important;
@@ -172,8 +172,13 @@ if (@$_GET["st"] == "numericerror") {
         display: block !important;
     }
     
-    #tProduct td {
+    #tProduct tbody td {
         vertical-align: middle !important;
+    }
+
+    #tProduct tfoot td {
+        text-align: left !important;
+        padding: 10px 12px !important;
     }
     
     .app-item-name {
@@ -302,7 +307,7 @@ if (@$_GET["st"] == "numericerror") {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="10">
+                            <td colspan="10" class="text-left" style="text-align: left !important;">
                                 <button type="button" id="addRow" class="btn btn-sm btn-primary mt-2">
                                     <i class="fa fa-plus-circle"></i> Yeni Satır Ekle
                                 </button>

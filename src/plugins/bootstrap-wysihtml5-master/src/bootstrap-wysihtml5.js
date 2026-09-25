@@ -24,6 +24,7 @@
                 "<a class='btn" + size + "' data-wysihtml5-command='bold' title='CTRL+B'>" + locale.emphasis.bold + "</a>" +
                 "<a class='btn" + size + "' data-wysihtml5-command='italic' title='CTRL+I'>" + locale.emphasis.italic + "</a>" +
                 "<a class='btn" + size + "' data-wysihtml5-command='underline' title='CTRL+U'>" + locale.emphasis.underline + "</a>" +
+                "<a class='btn" + size + "' data-wysihtml5-command='strikeThrough' title='Üstü Çizili'>" + (locale.emphasis.strike || locale.emphasis.strikethrough || "Üstü Çizili") + "</a>" +
               "</div>" +
             "</li>";
         },
@@ -412,6 +413,9 @@
                 "h3": {},
                 "blockquote": {},
                 "u": 1,
+                "s": 1,
+                "strike": 1,
+                "del": 1,
                 "img": {
                     "check_attributes": {
                         "width": "numbers",
@@ -452,7 +456,9 @@
             emphasis: {
                 bold: "Bold",
                 italic: "Italic",
-                underline: "Underline"
+                underline: "Underline",
+                strike: "Üstü Çizili",
+                strikethrough: "Üstü Çizili"
             },
             lists: {
                 unordered: "Unordered list",

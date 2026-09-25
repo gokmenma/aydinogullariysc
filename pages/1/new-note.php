@@ -8,6 +8,7 @@ if ($_POST) {
 	$lastdate = date_tr(@$_POST["lastdate"]);
 	$urg = $_POST["urgency"];
 	$cat = $_POST["cat"];
+	$visibility = ($_POST["visibility"] ?? 'general') === 'private' ? 'private' : 'general';
 
 	// if (empty($title) || empty($desc)) {
 	// 	header("Location: index.php?p=new-note&st=empties");
@@ -22,9 +23,10 @@ if ($_POST) {
 	lastdate = ?,
 	creativer = ?,
 	urgency = ?,
-	descs = ?");
+	descs = ?,
+	visibility = ?");
 
-	$result = $insq->execute(array($cat, $title, $sdate, $lastdate, sesset("id"), $urg, $desc));
+	$result = $insq->execute(array($cat, $title, $sdate, $lastdate, sesset("id"), $urg, $desc, $visibility));
 
 	if ($result) {
 		header("Location: index.php?p=all-notes");
@@ -94,7 +96,7 @@ if (@$_GET["st"] == "newsuccess") {
                 <!-- Aciliyet -->
                 <div class="form-field">
                     <label for="urgency">Aciliyet</label>
-                    <select name="urgency" id="urgency" class="selectpicker form-control" data-style="border bg-white" data-container="body">
+                    <select name="urgency" id="urgency" class="form-control note-select2" style="width: 100%;">
                         <option value="Yüksek">Yüksek</option>
                         <option value="Orta" selected>Orta</option>
                         <option value="Düşük">Düşük</option>
@@ -104,14 +106,22 @@ if (@$_GET["st"] == "newsuccess") {
                 <!-- Kategori -->
                 <div class="form-field">
                     <label for="cat">Kategori</label>
-                    <select name="cat" id="cat" class="selectpicker form-control" data-style="border bg-white" data-container="body">
+                    <select name="cat" id="cat" class="form-control note-select2" style="width: 100%;">
                         <?php
                         $nqu = $ac->prepare("SELECT * FROM note_categories");
                         $nqu->execute();
                         while ($nn = $nqu->fetch(PDO::FETCH_ASSOC)) {
                         ?>
-                            <option value="<?php echo $nn["id"]; ?>"><?php echo $nn["title"]; ?></option>
+                            <option value="<?php echo (int)$nn["id"]; ?>"><?php echo htmlspecialchars($nn["title"], ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php } ?>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="visibility">Görünürlük</label>
+                    <select name="visibility" id="visibility" class="form-control note-select2" style="width: 100%;">
+                        <option value="general" selected>Genel — Herkes görebilir</option>
+                        <option value="private">Özel — Yalnızca ben görebilirim</option>
                     </select>
                 </div>
 
@@ -147,17 +157,41 @@ if (@$_GET["st"] == "newsuccess") {
     </div>
 </form>
 
+<button type="button" id="floatingSubmitButton" class="floating-note-save" onclick="validateForm()" aria-label="Notu kaydet">
+    <i class="fa fa-save"></i><span>Kaydet</span>
+</button>
+
+<style>
+.floating-note-save { position: fixed; right: 24px; bottom: 24px; z-index: 1030; display: none; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 19px; background: #16a34a; color: #fff; font-weight: 700; box-shadow: 0 8px 24px rgba(22,163,74,.32); }
+.floating-note-save.is-visible { display: inline-flex; }
+.floating-note-save:hover { background: #15803d; color: #fff; }
+@media (max-width: 576px) { .floating-note-save { right: 16px; bottom: 16px; } }
+</style>
+
 <script>
 	$(document).ready(function () {
-		$(".selectpicker").selectpicker({
-			selectAllText: "Tümünü Seç",
-			deselectAllText: 'Seçimi Temizle',
-			style: "border bg-white",
-			liveSearch: true,
-			liveSearchPlaceholder: "Ara..",
-			noneResultsText: 'Eşleşen kayıt yok {0}',
-			size: 5,
-			noneSelectedText: "Seçim Yapınız!"
-		})
-	})
+		if ($.fn.select2) {
+			$('#myForm .note-select2').select2({
+				width: '100%',
+				minimumResultsForSearch: 0,
+				language: {
+					noResults: function () { return 'Sonuç bulunamadı'; },
+					searching: function () { return 'Aranıyor...'; }
+				}
+			});
+		}
+	});
+
+	(function () {
+		var originalButton = document.getElementById('submitButton');
+		var floatingButton = document.getElementById('floatingSubmitButton');
+		if (!originalButton || !floatingButton) return;
+		function updateFloatingButton() {
+			var rect = originalButton.getBoundingClientRect();
+			floatingButton.classList.toggle('is-visible', rect.bottom < 0 || rect.top > window.innerHeight);
+		}
+		window.addEventListener('scroll', updateFloatingButton, { passive: true });
+		window.addEventListener('resize', updateFloatingButton);
+		updateFloatingButton();
+	})();
 </script>

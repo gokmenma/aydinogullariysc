@@ -12,12 +12,44 @@ App.TableFilter = {
     domPagingState: {}, // tableId -> { currentPage, pageSize, matchingRows, allRows, totalCount, filteredCount, totalPages, infoEl, paginateEl }
     hooksBound: false,
     xhrBound: false,
+    emptyStateBound: false,
 
     SVG_FILTER_ICON: '<svg class="tf-funnel-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; pointer-events:none;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>',
     SVG_PLUS_ICON: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
     SVG_TRASH_ICON: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
     SVG_CALENDAR_ICON: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
     SVG_SEARCH_ICON: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+
+    escapeEmptyText: function (value) {
+        const element = document.createElement('div');
+        element.textContent = value || '';
+        return element.innerHTML;
+    },
+
+    buildEmptyState: function (table) {
+        const title = App.TableFilter.escapeEmptyText(table.dataset.emptyTitle || 'Gösterilecek kayıt yok');
+        const description = App.TableFilter.escapeEmptyText(table.dataset.emptyDescription || 'Henüz bu tabloya eklenmiş bir kayıt bulunmuyor.');
+        const icon = App.TableFilter.escapeEmptyText(table.dataset.emptyIcon || 'fa fa-table');
+        const actionUrl = table.dataset.emptyActionUrl || '';
+        const actionLabel = App.TableFilter.escapeEmptyText(table.dataset.emptyActionLabel || 'Yeni Kayıt Ekle');
+        const action = actionUrl
+            ? '<a class="dt-empty-action" href="' + App.TableFilter.escapeEmptyText(actionUrl) + '"><i class="fa fa-plus" aria-hidden="true"></i><span>' + actionLabel + '</span></a>'
+            : '';
+
+        return '<div class="dt-empty-state">' +
+            '<span class="dt-empty-icon"><i class="' + icon + '" aria-hidden="true"></i></span>' +
+            '<strong class="dt-empty-title">' + title + '</strong>' +
+            '<span class="dt-empty-description">' + description + '</span>' +
+            action +
+        '</div>';
+    },
+
+    applyEmptyState: function (table) {
+        if (!table) return;
+        const emptyCell = table.querySelector('tbody td.dataTables_empty, tbody td.dt-empty');
+        if (!emptyCell || emptyCell.querySelector('.dt-empty-state')) return;
+        emptyCell.innerHTML = App.TableFilter.buildEmptyState(table);
+    },
 
     init: function (container) {
         App.TableFilter.bindDataTableHooks();
@@ -31,6 +63,7 @@ App.TableFilter = {
                 }
                 App.TableFilter.attachToTable(table);
                 App.TableFilter.relocateSearchInput(table);
+                App.TableFilter.applyEmptyState(table);
             }
         });
 
@@ -129,6 +162,15 @@ App.TableFilter = {
     bindDataTableHooks: function () {
         if (!window.jQuery || !$.fn || !$.fn.dataTable || App.TableFilter.hooksBound) return;
         App.TableFilter.hooksBound = true;
+
+        if (!App.TableFilter.emptyStateBound) {
+            App.TableFilter.emptyStateBound = true;
+            $(document).on('init.dt.dtEmptyState draw.dt.dtEmptyState', function (event, settings) {
+                if (settings && settings.nTable) {
+                    App.TableFilter.applyEmptyState(settings.nTable);
+                }
+            });
+        }
 
         if ($.fn.dataTable.ext && $.fn.dataTable.ext.search) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {

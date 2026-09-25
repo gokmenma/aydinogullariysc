@@ -1,12 +1,14 @@
 <?php
+$currentUserId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION["lid"] ?? ($_SESSION["id"] ?? 0)));
+
 // Silme İşlemi
 $nid = @$_GET["nid"];
 if ($nid && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 	if (function_exists('permcontrol')) {
 		permcontrol("notedelete");
 	}
-	$qcont = $ac->prepare("SELECT * FROM notes WHERE id = ?");
-	$qcont->execute(array($nid));
+	$qcont = $ac->prepare("SELECT * FROM notes WHERE id = ? AND (visibility = 'general' OR creativer = ?)");
+	$qcont->execute(array($nid, $currentUserId));
 	$qkx = $qcont->fetch(PDO::FETCH_ASSOC);
 	if ($qkx) {
 		$pdq = $ac->prepare("DELETE FROM notes WHERE id = ?");
@@ -33,16 +35,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['action']) && 
 	$lastdate = !empty($_POST["lastdate"]) ? (function_exists('date_tr') ? date_tr($_POST["lastdate"]) : $_POST["lastdate"]) : '';
 	$urg = trim($_POST["urgency"] ?? 'Orta');
 	$cat = (int)($_POST["cat"] ?? 0);
+	$visibility = ($_POST["visibility"] ?? 'general') === 'private' ? 'private' : 'general';
 
 	if (empty($title)) {
 		header("Location: index.php?p=all-notes&st=empty_title");
 		exit;
 	}
 
-	$creativer = function_exists('sesset') ? sesset("id") : ($_SESSION["lid"] ?? ($_SESSION["id"] ?? 0));
+	$creativer = $currentUserId;
 
-	$insq = $ac->prepare("INSERT INTO notes (category, title, dates, lastdate, creativer, urgency, descs) VALUES (?, ?, ?, ?, ?, ?, ?)");
-	$result = $insq->execute(array($cat, $title, $sdate, $lastdate, $creativer, $urg, $desc));
+	$insq = $ac->prepare("INSERT INTO notes (category, title, dates, lastdate, creativer, urgency, descs, visibility) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+	$result = $insq->execute(array($cat, $title, $sdate, $lastdate, $creativer, $urg, $desc, $visibility));
 
 	if ($result) {
 		$newId = $ac->lastInsertId();
@@ -50,7 +53,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['action']) && 
 			audit_log('create', 'notes', 'Yeni not eklendi: ' . $title, 'note', $newId, [
 				'title' => $title,
 				'urgency' => $urg,
-				'category' => $cat
+				'category' => $cat,
+				'visibility' => $visibility
 			]);
 		}
 		header("Location: index.php?p=all-notes&st=newsuccess");
@@ -62,12 +66,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['action']) && 
 }
 
 // İstatistikleri Çek
-$statsQuery = $ac->query("SELECT 
+$statsQuery = $ac->prepare("SELECT
 	COUNT(*) AS total_count,
 	SUM(CASE WHEN urgency = 'Yüksek' THEN 1 ELSE 0 END) AS high_count,
 	SUM(CASE WHEN urgency = 'Orta' THEN 1 ELSE 0 END) AS mid_count,
 	SUM(CASE WHEN urgency = 'Düşük' THEN 1 ELSE 0 END) AS low_count
-FROM notes");
+FROM notes
+WHERE visibility = 'general' OR creativer = ?");
+$statsQuery->execute(array($currentUserId));
 $stats = $statsQuery ? $statsQuery->fetch(PDO::FETCH_ASSOC) : ['total_count' => 0, 'high_count' => 0, 'mid_count' => 0, 'low_count' => 0];
 
 $totalCount = (int)($stats['total_count'] ?? 0);
@@ -106,6 +112,13 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 			<button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
+		</div>
+	<?php } ?>
+
+	<?php if (@$_GET["st"] == "access_denied") { ?>
+		<div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; margin-bottom: 20px;">
+			<i class="fa fa-lock mr-2"></i> Bu özel nota erişim yetkiniz bulunmuyor.
+			<button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		</div>
 	<?php } ?>
 
@@ -172,6 +185,7 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 						<th class="text-center col-shrink" data-filter-type="select">Aciliyet</th>
 						<th class="col-expand" data-filter-type="text">Başlık & Not Detayı</th>
 						<th class="col-shrink" data-filter-type="select">Not Tipi / Kategori</th>
+						<th class="col-shrink" data-filter-type="select">Görünürlük</th>
 						<th class="col-shrink" data-filter-type="select">Oluşturan</th>
 						<th class="text-center col-shrink" data-filter-type="date">Başlangıç Tarihi</th>
 						<th class="text-center col-shrink" data-filter-type="date">Bitiş Tarihi</th>
@@ -188,8 +202,9 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 					FROM notes n
 					LEFT JOIN note_categories c ON n.category = c.id
 					LEFT JOIN users u ON n.creativer = u.id
+					WHERE n.visibility = 'general' OR n.creativer = ?
 					ORDER BY n.id DESC");
-					$notesQuery->execute();
+					$notesQuery->execute(array($currentUserId));
 					$rowNum = 1;
 
 					while ($row = $notesQuery->fetch(PDO::FETCH_ASSOC)) {
@@ -213,7 +228,7 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 						$lastDateFormatted = !empty($row["lastdate"]) ? htmlspecialchars($row["lastdate"]) : '-';
 						$startDateFormatted = !empty($row["dates"]) ? htmlspecialchars($row["dates"]) : '-';
 					?>
-						<tr>
+						<tr data-note-row="1" data-note-id="<?php echo (int)$row['id']; ?>" data-note-title="<?php echo htmlspecialchars($row['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 							<td class="text-center font-weight-bold" style="vertical-align: middle; color: #64748b;">
 								<?php echo $rowNum; ?>
 							</td>
@@ -252,6 +267,14 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 								<span class="badge-category">
 									<i class="fa fa-folder-o mr-1"></i> <?php echo htmlspecialchars($categoryName, ENT_QUOTES, 'UTF-8'); ?>
 								</span>
+							</td>
+
+							<td style="vertical-align: middle;">
+								<?php if (($row['visibility'] ?? 'general') === 'private') { ?>
+									<span class="badge-visibility badge-visibility-private"><i class="fa fa-lock mr-1"></i> Özel</span>
+								<?php } else { ?>
+									<span class="badge-visibility"><i class="fa fa-users mr-1"></i> Genel</span>
+								<?php } ?>
 							</td>
 
 							<td style="vertical-align: middle; font-size: 13px; color: #475569;">
@@ -423,6 +446,14 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 							</div>
 						</div>
 
+						<div class="col-md-6 col-12 mb-3">
+							<label class="font-weight-600" for="note_visibility" style="font-size: 13.5px; color: #334155;">Görünürlük</label>
+							<select name="visibility" id="note_visibility" class="form-control form-control-modern">
+								<option value="general" selected>Genel — Herkes görebilir</option>
+								<option value="private">Özel — Yalnızca ben görebilirim</option>
+							</select>
+						</div>
+
 						<!-- Not İçeriği / Açıklama -->
 						<div class="col-12 mb-2">
 							<label class="font-weight-600" for="note_desc" style="font-size: 13.5px; color: #334155;">
@@ -580,6 +611,18 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 	height: 0 !important;
 	min-height: 0 !important;
 }
+.all-notes-wrapper .dataTables_wrapper .row:last-child {
+	padding: 12px 18px !important;
+	margin: 0 !important;
+	border-top: 1px solid #f1f5f9 !important;
+	background: #fafafa !important;
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+}
+.dark-mode .all-notes-wrapper .dataTables_wrapper .row:last-child {
+	background: #151c27 !important;
+	border-top-color: #334155 !important;
+}
 .all-notes-wrapper table.dataTable {
 	margin-top: 0 !important;
 	margin-bottom: 0 !important;
@@ -634,7 +677,7 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 	width: 260px !important;
 	max-width: 100% !important;
 	border-radius: 8px !important;
-	padding: 8px 14px !important;
+	padding: 8px 34px 8px 36px !important;
 	border: 1px solid #cbd5e1 !important;
 	font-size: 13.5px !important;
 	outline: none !important;
@@ -669,6 +712,16 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 	transform: translateY(-1px) !important;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12) !important;
 }
+
+.badge-visibility { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 20px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 12px; font-weight: 600; }
+.badge-visibility-private { background: #f3e8ff; color: #7e22ce; border-color: #e9d5ff; }
+#notesTable tbody tr.context-menu-active td { background-color: #eef2ff !important; }
+.notes-context-menu { position: fixed; z-index: 1090; min-width: 190px; padding: 6px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgba(15,23,42,.18); }
+.notes-context-menu .cm-header { padding: 7px 10px; color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notes-context-menu button, .notes-context-menu a { width: 100%; display: flex; align-items: center; gap: 9px; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: #334155; font-size: 13px; text-align: left; text-decoration: none; }
+.notes-context-menu button:hover, .notes-context-menu a:hover { background: #f1f5f9; color: #1e293b; }
+.notes-context-menu .cm-danger { color: #dc2626; }
+.notes-context-menu .cm-divider { height: 1px; margin: 4px 2px; background: #e2e8f0; }
 
 /* Aciliyet Badge Tasarımları */
 .badge-urgency {
@@ -938,6 +991,15 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 	color: #e2e8f0 !important;
 	border-color: #475569 !important;
 }
+.dark-mode .badge-visibility { background: #0c4a6e; color: #bae6fd; border-color: #075985; }
+.dark-mode .badge-visibility-private { background: #581c87; color: #e9d5ff; border-color: #6b21a8; }
+.dark-mode #notesTable tbody tr.context-menu-active td { background-color: #312e81 !important; }
+.dark-mode .notes-context-menu { background: #1e293b; border-color: #334155; }
+.dark-mode .notes-context-menu .cm-header { color: #94a3b8; }
+.dark-mode .notes-context-menu button, .dark-mode .notes-context-menu a { color: #e2e8f0; }
+.dark-mode .notes-context-menu button:hover, .dark-mode .notes-context-menu a:hover { background: #334155; }
+.dark-mode .notes-context-menu .cm-danger { color: #fca5a5; }
+.dark-mode .notes-context-menu .cm-divider { background: #334155; }
 .dark-mode .all-notes-wrapper .dataTables_filter input {
 	background-color: #0f172a !important;
 	border-color: #334155 !important;
@@ -972,6 +1034,40 @@ $(document).ready(function () {
 	setTimeout(initTableFilters, 100);
 	setTimeout(initTableFilters, 300);
 	setTimeout(initTableFilters, 700);
+
+	function closeNotesContextMenu() {
+		$("#notesContextMenu").remove();
+		$("#notesTable tbody tr").removeClass("context-menu-active");
+	}
+
+	$(document).on("contextmenu", "#notesTable tbody tr[data-note-row]", function (e) {
+		e.preventDefault();
+		closeNotesContextMenu();
+		var row = $(this).addClass("context-menu-active");
+		var title = row.attr("data-note-title") || "Not işlemleri";
+		var menu = $('<div id="notesContextMenu" class="notes-context-menu" role="menu"></div>');
+		menu.append($('<div class="cm-header"></div>').text(title));
+		menu.append('<button type="button" data-action="view"><i class="fa fa-eye"></i> Detayı Görüntüle</button>');
+		if (row.find('a[title="Düzenle"]').length) {
+			menu.append('<a href="' + row.find('a[title="Düzenle"]').attr('href') + '"><i class="fa fa-pencil"></i> Düzenle</a>');
+		}
+		if (row.find('.btn-delete-note').length) {
+			menu.append('<div class="cm-divider"></div><button type="button" class="cm-danger" data-action="delete"><i class="fa fa-trash"></i> Sil</button>');
+		}
+		$("body").append(menu);
+		var menuWidth = menu.outerWidth();
+		var menuHeight = menu.outerHeight();
+		var left = Math.min(e.clientX, window.innerWidth - menuWidth - 8);
+		var top = Math.min(e.clientY, window.innerHeight - menuHeight - 8);
+		menu.css({ left: Math.max(8, left), top: Math.max(8, top) });
+		menu.on("click", '[data-action="view"]', function () { row.find('.view-note-btn').first().trigger('click'); closeNotesContextMenu(); });
+		menu.on("click", '[data-action="delete"]', function () { row.find('.btn-delete-note').trigger('click'); closeNotesContextMenu(); });
+	});
+
+	$(document).on("click scroll", function (e) {
+		if (!$(e.target).closest("#notesContextMenu").length) closeNotesContextMenu();
+	});
+	$(window).on("resize blur", closeNotesContextMenu);
 
 	// Flatpickr / Datepicker Başlatma
 	if (typeof flatpickr !== 'undefined') {
@@ -1026,7 +1122,10 @@ $(document).ready(function () {
 		var editUrl = "index.php?p=edit-note&nid=" + nid;
 		var deleteUrl = "index.php?p=all-notes&mode=delete&code=04md177&reg=true&md=active&nid=" + nid;
 		var safeTitle = $('<div>').text(title || '').html();
-		var actionsHtml = '<a href="' + editUrl + '" class="btn btn-outline-info btn-sm mr-2" style="border-radius: 6px;"><i class="fa fa-pencil mr-1"></i> Bu Notu Düzenle</a>';
+		var actionsHtml = '';
+		<?php if (function_exists('permtrue') && permtrue("noteedit")) { ?>
+		actionsHtml += '<a href="' + editUrl + '" class="btn btn-outline-info btn-sm mr-2" style="border-radius: 6px;"><i class="fa fa-pencil mr-1"></i> Bu Notu Düzenle</a>';
+		<?php } ?>
 		<?php if (function_exists('permtrue') && permtrue("notedelete")) { ?>
 		actionsHtml += '<button type="button" class="btn btn-outline-danger btn-sm btn-delete-note" style="border-radius: 6px;" data-id="' + nid + '" data-title="' + safeTitle + '" data-url="' + deleteUrl + '"><i class="fa fa-trash mr-1"></i> Bu Notu Sil</button>';
 		<?php } ?>

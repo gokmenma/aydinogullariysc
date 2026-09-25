@@ -12,7 +12,9 @@
         emphasis: {
             bold: "Kalın",
             italic: "İtalik",
-            underline: "Altı Çizili"
+            underline: "Altı Çizili",
+            strike: "Üstü Çizili",
+            strikethrough: "Üstü Çizili"
         },
         lists: {
             unordered: "Sırasız Liste",

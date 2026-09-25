@@ -133,26 +133,21 @@ let table;
 $(document).ready(function () {
   //   // Tablonun id'sini al
   var tableId = $(".data-table").attr("id");
-  
+
   // Skip initialization for tables managed elsewhere
   if (tableId === "customerlist" || tableId === "service-table" || tableId === "itemsTable" || tableId === "tblProducts" || tableId === "reportTable" || tableId === "fillingTable" || tableId === "controlTable") {
     return;
   }
-  
-  table = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable, #fillingTable, #controlTable").DataTable({
+
+  var $managedTables = $(".data-table").not("#customerlist, #service-table, #itemsTable, #tblProducts, #reportTable, #fillingTable, #controlTable");
+
+  table = $managedTables.DataTable({
     autoWidth: false,
      lengthMenu: [
       [10, 25, 50, -1],
       [10, 25, 50, "Tümü"],
     ],
     pageLength: (tableId === "offerTable2" || tableId === "serviceTable") ? -1 : 10,
-    
-    layout: {
-      // bottomStart: "pageLength",
-      bottomEnd: "paging",
-      topStart: "buttons",
-      topEnd: null,
-    },
     language: {
       url: "include/js/tr.json",
     },
@@ -180,6 +175,7 @@ $(document).ready(function () {
     },
   });
 });
+
 $("#exportExcel").on("click", function () {
   table.button(".buttons-excel").trigger();
 });

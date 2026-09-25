@@ -6,7 +6,7 @@ if ($_POST) {
 
 	if (!$_POST["uemail"] || !$_POST["uname"] || !$_POST["upassword"]) {
 
-		header("Location: index.php?p=new-user&st=empties");
+		header("Location: index.php?p=user-new&st=empties");
 		exit;
 	}
 
@@ -56,27 +56,27 @@ if ($_POST) {
 										ekipnetno = ?, 
 										statu = ? ");
 
-	$regg->execute(array($fullName, $upassword, $unvan, $uemail, $ugsm, $uperm, $perm, TODAY, sesset("id"), 
-									$meslek,$odasicilno, $yetkinlikno,$ekipnetno, 1));
-		header("Location: index.php?p=user-edit&st=newsuccess");
-	} catch (PDOException $e) {
-		echo "Hata: " . $e->getMessage();
-	}
-
-	if ($regg) {
+		$regg->execute(array($fullName, $upassword, $unvan, $uemail, $ugsm, $uperm, $perm, TODAY, sesset("id"),
+			$meslek, $odasicilno, $yetkinlikno, $ekipnetno, 1));
 		header("Location: index.php?p=user-new&st=newsuccess");
+		exit;
+	} catch (PDOException $e) {
+		header("Location: index.php?p=user-new&st=error");
+		exit;
 	}
 }
 
-if (@$_GET["st"] == "empties") {
-	showAlert('alert', "(*) ile işaretli alanları boş bırakmadan tekrar deneyin.!");
-}
-if ($_GET["st"] == "newsuccess") {
-	showAlert("success", "İşlem Başarı ile tamamlandı!");
+$status = $_GET["st"] ?? '';
+$sweetAlert = null;
 
-}
-if ($_GET["st"] == "thereuser") {
-	showAlert("alert", "Bu email adresi ile kullanıcı kaydı yapılmıştır!");
+if ($status === "empties") {
+	$sweetAlert = ['icon' => 'warning', 'title' => 'Eksik Bilgi', 'text' => '(*) ile işaretli zorunlu alanları doldurun.'];
+} elseif ($status === "newsuccess") {
+	$sweetAlert = ['icon' => 'success', 'title' => 'Başarılı', 'text' => 'Ekip üyesi başarıyla kaydedildi.'];
+} elseif ($status === "thereuser") {
+	$sweetAlert = ['icon' => 'warning', 'title' => 'Kayıt Mevcut', 'text' => 'Bu e-posta adresiyle daha önce bir ekip üyesi kaydedilmiş.'];
+} elseif ($status === "error") {
+	$sweetAlert = ['icon' => 'error', 'title' => 'Kayıt Başarısız', 'text' => 'Ekip üyesi kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.'];
 }
 
 ?>
@@ -153,14 +153,14 @@ if ($_GET["st"] == "thereuser") {
                 <!-- Pozisyon -->
                 <div class="form-field">
                     <label for="permission"><font color="red">(*)</font> Pozisyon:</label>
-                    <select name="permission" id="permission" class="selectpicker form-control" data-style="border bg-white" data-container="body">
+                    <select name="permission" id="permission" class="form-control user-role-select" style="width: 100%;">
                         <?php
                         $pquery = $ac->prepare("SELECT * FROM userroles");
                         $pquery->execute();
                         while ($pm = $pquery->fetch(PDO::FETCH_ASSOC)) {
                             ?>
-                            <option value="<?php echo $pm["id"]; ?>">
-                                <?php echo $pm["roleName"]; ?>
+                            <option value="<?php echo (int) $pm["id"]; ?>">
+                                <?php echo htmlspecialchars($pm["roleName"], ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                         <?php } ?>
                     </select>
@@ -215,6 +215,37 @@ if ($_GET["st"] == "thereuser") {
     </div>
 </form>
 
+<script>
+$(document).ready(function() {
+    if ($.fn.select2) {
+        $('#myForm .user-role-select').select2({
+            width: '100%',
+            minimumResultsForSearch: 0,
+            language: {
+                noResults: function() {
+                    return 'Sonuç bulunamadı';
+                },
+                searching: function() {
+                    return 'Aranıyor...';
+                }
+            }
+        });
+    }
+});
+</script>
+
+<?php if ($sweetAlert !== null) { ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+        Swal.fire(<?php echo json_encode($sweetAlert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>);
+        var cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('st');
+        window.history.replaceState({}, document.title, cleanUrl.toString());
+    }
+});
+</script>
+<?php } ?>
 
 </div>
 <!-- Input Validation End -->

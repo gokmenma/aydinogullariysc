@@ -697,7 +697,7 @@ $postponedCount = (int)($stats['postponed_count'] ?? 0);
 	width: 260px !important;
 	max-width: 100% !important;
 	border-radius: 8px !important;
-	padding: 8px 14px !important;
+	padding: 8px 34px 8px 36px !important;
 	border: 1px solid #cbd5e1 !important;
 	font-size: 13.5px !important;
 	outline: none !important;

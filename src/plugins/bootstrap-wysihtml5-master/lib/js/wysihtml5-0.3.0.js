@@ -7288,7 +7288,10 @@ wysihtml5.Commands = Base.extend(
         "strong": "b",
         "em":     "i",
         "b":      "strong",
-        "i":      "em"
+        "i":      "em",
+        "strike": "s",
+        "del":    "s",
+        "s":      "strike"
       },
       htmlApplier = {};
   
@@ -7688,6 +7691,21 @@ wysihtml5.Commands = Base.extend(
 
     state: function(composer, command) {
       return wysihtml5.commands.formatInline.state(composer, command, "u");
+    },
+
+    value: function() {
+      return undef;
+    }
+  };
+})(wysihtml5);(function(wysihtml5) {
+  var undef;
+  wysihtml5.commands.strike = wysihtml5.commands.strikeThrough = wysihtml5.commands.strikethrough = {
+    exec: function(composer, command) {
+      return wysihtml5.commands.formatInline.exec(composer, command, "s");
+    },
+
+    state: function(composer, command) {
+      return wysihtml5.commands.formatInline.state(composer, command, "s");
     },
 
     value: function() {

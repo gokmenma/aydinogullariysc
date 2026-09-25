@@ -943,6 +943,83 @@ table.dataTable thead th,
     color: #ffffff !important;
 }
 
+/* DataTables empty state */
+.data-table td.dataTables_empty,
+.data-table td.dt-empty,
+table.dataTable td.dataTables_empty,
+table.dataTable td.dt-empty {
+    padding: 0 !important;
+}
+
+.dt-empty-state {
+    display: flex;
+    min-height: 300px;
+    padding: 42px 20px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    color: var(--premium-text, #111827);
+}
+
+.dt-empty-icon {
+    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    margin-bottom: 18px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(37, 99, 235, .1);
+    background: color-mix(in srgb, var(--theme-primary, #2563eb) 10%, transparent);
+    color: var(--theme-primary, #2563eb);
+    font-size: 21px;
+}
+
+.dt-empty-title {
+    margin-bottom: 8px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.dt-empty-description {
+    max-width: 390px;
+    color: var(--premium-muted, #6b7280);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.dt-empty-action {
+    display: inline-flex;
+    margin-top: 22px;
+    padding: 9px 16px;
+    gap: 8px;
+    align-items: center;
+    border-radius: 9px;
+    background: var(--theme-primary, #2563eb);
+    color: #fff !important;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .22);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--theme-primary, #2563eb) 22%, transparent);
+    transition: transform .15s ease, filter .15s ease;
+}
+
+.dt-empty-action:hover {
+    color: #fff !important;
+    filter: brightness(.92);
+    transform: translateY(-1px);
+}
+
+.dark-mode .dt-empty-state {
+    color: #f3f4f6;
+}
+
+.dark-mode .dt-empty-description {
+    color: #9ca3af;
+}
+
 /* Filter Row and Inputs in Dark Mode */
 .dark-mode .search-input-row th {
     background: #252526 !important;
@@ -1650,6 +1727,7 @@ body > .select2-container.select2-container--open,
 .purchase-header-card .btn-header-save,
 .customer-header-card .btn-header-save,
 .service-header-card .btn-header-save,
+.btn-header-save,
 [class*="-header-card"] .btn-header-save {
     background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
     border: 1px solid #15803d !important;
@@ -1662,6 +1740,7 @@ body > .select2-container.select2-container--open,
 .purchase-header-card .btn-header-save:hover,
 .customer-header-card .btn-header-save:hover,
 .service-header-card .btn-header-save:hover,
+.btn-header-save:hover,
 [class*="-header-card"] .btn-header-save:hover {
     background: linear-gradient(135deg, #15803d 0%, #166534 100%) !important;
     transform: translateY(-1px) !important;
@@ -6194,11 +6273,51 @@ html.kpi-pricereq-collapsed-early #kpiSummarySection,
     pointer-events: none !important;
 }
 
+/* Datatables Bottom Controls Row (Pagination, Info, PageLength) */
+.dataTables_wrapper > .row:last-child,
+.dataTables_wrapper .row:last-child,
+.dataTables_wrapper > div.row:last-of-type,
+.dataTables_wrapper .dt-layout-row:last-child,
+.dataTables_wrapper > .row.mt-3,
+.form-card .dataTables_wrapper .row:last-child,
+.card-box .dataTables_wrapper .row:last-child,
+.card .dataTables_wrapper .row:last-child,
+.content .dataTables_wrapper .row:last-child {
+    padding: 12px 18px !important;
+    margin: 0 !important;
+    border-top: 1px solid #f1f5f9 !important;
+    background: #fafafa !important;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+.dark-mode .dataTables_wrapper > .row:last-child,
+.dark-mode .dataTables_wrapper .row:last-child,
+.dark-mode .dataTables_wrapper > div.row:last-of-type,
+.dark-mode .dataTables_wrapper .dt-layout-row:last-child,
+.dark-mode .dataTables_wrapper > .row.mt-3,
+.dark-mode .form-card .dataTables_wrapper .row:last-child,
+.dark-mode .card-box .dataTables_wrapper .row:last-child,
+.dark-mode .card .dataTables_wrapper .row:last-child,
+.dark-mode .content .dataTables_wrapper .row:last-child {
+    background: #151c27 !important;
+    border-top: 1px solid #334155 !important;
+}
+
+.dataTables_wrapper > .row:last-child > [class*="col-"],
+.dataTables_wrapper .row:last-child > [class*="col-"] {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
 /* PageLength and Info controls at bottom */
 .dataTables_wrapper .dataTables_length {
     margin-bottom: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
+    padding: 0 !important;
 }
 
 .dataTables_wrapper .dataTables_length label {
@@ -6237,10 +6356,21 @@ html.kpi-pricereq-collapsed-early #kpiSummarySection,
     color: #64748b !important;
     font-weight: 500 !important;
     padding-top: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
 }
 
 .dark-mode .dataTables_wrapper .dataTables_info {
     color: #94a3b8 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
 }
 
 /* ==========================================================================
@@ -7729,6 +7859,15 @@ textarea.textarea_editor {
     background: #e0e7ff !important;
     color: #4338ca !important;
     border-color: #818cf8 !important;
+}
+
+.wysihtml5-toolbar a[data-wysihtml5-command="strikeThrough"],
+.wysihtml5-toolbar a[data-wysihtml5-command="strikethrough"],
+.wysihtml5-toolbar a[data-wysihtml5-command="strike"],
+.html-editor .wysihtml5-toolbar a[data-wysihtml5-command="strikeThrough"],
+.html-editor .wysihtml5-toolbar a[data-wysihtml5-command="strikethrough"],
+.html-editor .wysihtml5-toolbar a[data-wysihtml5-command="strike"] {
+    text-decoration: line-through !important;
 }
 
 .wysihtml5-toolbar .dropdown-menu,
@@ -10608,7 +10747,7 @@ html.dark-mode .user-toggle-btn .user-avatar-badge,
 [data-theme-font="roboto"] { --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
 /* Tipografi Uygulaması (İkon Fontlarına Dokunmadan) */
-body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .breadcrumb-item, .user-name,
+body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .dropdown-item, .dropdown-header, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .breadcrumb-item, .user-name,
 .datepicker, .datepicker *, .datepickers-container, .datepicker-inline, .flatpickr-calendar, .flatpickr-calendar *, .daterangepicker, .daterangepicker *, .fc, .fc *, .bootstrap-datetimepicker-widget, .bootstrap-datetimepicker-widget *, .td-wrap, .td-box, .crm-month-cal-year-circle, .crm-month-cal-v-month, .crm-month-cal-side-summary {
     font-family: var(--font-sans) !important;
 }
@@ -12479,7 +12618,4 @@ html:not(.dark-mode) [data-theme-preset] .left-side-bar .brand-logo,
 .dark-mode .customer-email-warning-box strong {
     color: #fbbf24 !important;
 }
-
-
-
 
