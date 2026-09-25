@@ -10748,7 +10748,8 @@ html.dark-mode .user-toggle-btn .user-avatar-badge,
 
 /* Tipografi Uygulaması (İkon Fontlarına Dokunmadan) */
 body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .dropdown-item, .dropdown-header, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .breadcrumb-item, .user-name,
-.datepicker, .datepicker *, .datepickers-container, .datepicker-inline, .flatpickr-calendar, .flatpickr-calendar *, .daterangepicker, .daterangepicker *, .fc, .fc *, .bootstrap-datetimepicker-widget, .bootstrap-datetimepicker-widget *, .td-wrap, .td-box, .crm-month-cal-year-circle, .crm-month-cal-v-month, .crm-month-cal-side-summary {
+.datepicker, .datepicker *, .datepickers-container, .datepicker-inline, .flatpickr-calendar, .flatpickr-calendar *, .daterangepicker, .daterangepicker *, .fc, .fc *, .bootstrap-datetimepicker-widget, .bootstrap-datetimepicker-widget *, .td-wrap, .td-box, .crm-month-cal-year-circle, .crm-month-cal-v-month, .crm-month-cal-side-summary,
+.swal2-container, .swal2-popup, .swal2-title, .swal2-html-container, .swal2-input, .swal2-select, .swal2-textarea, .swal2-validation-message, .swal2-actions .swal2-styled {
     font-family: var(--font-sans) !important;
 }
 
@@ -12618,4 +12619,3 @@ html:not(.dark-mode) [data-theme-preset] .left-side-bar .brand-logo,
 .dark-mode .customer-email-warning-box strong {
     color: #fbbf24 !important;
 }
-
