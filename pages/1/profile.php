@@ -32,6 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $newPassword = (string) ($_POST['new_password'] ?? '');
     $newPasswordConfirmation = (string) ($_POST['new_password_confirmation'] ?? '');
     $csrfToken = (string) ($_POST['csrf_token'] ?? '');
+    $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || isset($_POST['ajax']);
+
+    $errorMap = [
+        'csrf_error' => ['Güvenlik Doğrulaması', 'Oturum doğrulaması başarısız oldu. Lütfen formu yeniden gönderin.'],
+        'empties' => ['Eksik Alan', 'Lütfen tüm şifre alanlarını doldurun.'],
+        'current_password_error' => ['Mevcut Şifre Hatalı', 'Girdiğiniz mevcut şifre hatalıdır.'],
+        'password_short' => ['Yetersiz Şifre Uzunluğu', 'Yeni şifreniz en az 8 karakter olmalıdır.'],
+        'password_mismatch' => ['Şifreler Eşleşmiyor', 'Yeni şifre ile şifre tekrarı birbiriyle uyuşmuyor.'],
+        'password_same' => ['Aynı Şifre', 'Yeni şifreniz mevcut şifrenizden farklı olmalıdır.'],
+    ];
 
     if (!hash_equals($_SESSION['profile_csrf_token'], $csrfToken)) {
         $status = 'csrf_error';
@@ -57,7 +67,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             audit_log('update', 'profile', 'Kullanıcı kendi şifresini güncelledi.', 'user', $userId);
         }
 
+        if ($isAjax) {
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'success' => true,
+                'title' => 'İşlem Başarılı',
+                'message' => 'Şifreniz başarıyla güncellendi.',
+                'csrf_token' => $_SESSION['profile_csrf_token']
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
+        }
+
         header('Location: index.php?p=profile&tab=security&st=success');
+        exit;
+    }
+
+    if ($isAjax && isset($errorMap[$status])) {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'title' => $errorMap[$status][0],
+            'message' => $errorMap[$status][1]
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }
 }
@@ -69,18 +106,54 @@ $lastLogin = $activityLogModel->getUserLastLogin($userId);
 $userModules = $activityLogModel->getUserModules($userId);
 $userActivities = $activityLogModel->getUserActivitiesList($userId, 1000);
 
+$sweetAlert = null;
 $alerts = [
-    'success' => ['success', 'Şifreniz başarıyla güncellendi.'],
-    'empties' => ['alert', 'Lütfen tüm şifre alanlarını doldurun.'],
-    'csrf_error' => ['alert', 'Oturum doğrulaması başarısız oldu. Lütfen formu yeniden gönderin.'],
-    'current_password_error' => ['alert', 'Mevcut şifreniz hatalı.'],
-    'password_short' => ['alert', 'Yeni şifreniz en az 8 karakter olmalıdır.'],
-    'password_mismatch' => ['alert', 'Yeni şifre ile şifre tekrarı eşleşmiyor.'],
-    'password_same' => ['alert', 'Yeni şifreniz mevcut şifrenizden farklı olmalıdır.'],
+    'success' => [
+        'icon' => 'success',
+        'title' => 'İşlem Başarılı',
+        'text' => 'Şifreniz başarıyla güncellendi.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
+    'empties' => [
+        'icon' => 'warning',
+        'title' => 'Eksik Alan',
+        'text' => 'Lütfen tüm şifre alanlarını doldurun.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
+    'csrf_error' => [
+        'icon' => 'error',
+        'title' => 'Güvenlik Doğrulaması',
+        'text' => 'Oturum doğrulaması başarısız oldu. Lütfen formu yeniden gönderin.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
+    'current_password_error' => [
+        'icon' => 'error',
+        'title' => 'Mevcut Şifre Hatalı',
+        'text' => 'Girdiğiniz mevcut şifre hatalıdır.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
+    'password_short' => [
+        'icon' => 'warning',
+        'title' => 'Yetersiz Şifre Uzunluğu',
+        'text' => 'Yeni şifreniz en az 8 karakter olmalıdır.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
+    'password_mismatch' => [
+        'icon' => 'warning',
+        'title' => 'Şifreler Eşleşmiyor',
+        'text' => 'Yeni şifre ile şifre tekrarı birbiriyle uyuşmuyor.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
+    'password_same' => [
+        'icon' => 'warning',
+        'title' => 'Aynı Şifre',
+        'text' => 'Yeni şifreniz mevcut şifrenizden farklı olmalıdır.',
+        'confirmButtonColor' => 'var(--theme-primary, #0B7285)'
+    ],
 ];
 
 if (isset($alerts[$status])) {
-    showAlert($alerts[$status][0], $alerts[$status][1]);
+    $sweetAlert = $alerts[$status];
 }
 ?>
 
@@ -1118,6 +1191,112 @@ $(document).ready(function() {
         }
     }
 
+    // Şifre Formu Gönderim Kontrolü (AJAX + SweetAlert2 + Onay Sonrası Yenileme)
+    $('#formChangePassword, #btnSubmitPassword').closest('form').on('submit', function(e) {
+        e.preventDefault();
+
+        var $form = $(this);
+        var p1 = $('#new_password').val();
+        var p2 = $('#new_password_confirmation').val();
+        var curr = $('#current_password').val();
+        var $btn = $('#btnSubmitPassword');
+
+        if (!curr || !p1 || !p2) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Eksik Alan',
+                text: 'Lütfen tüm şifre alanlarını doldurun.',
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: 'var(--theme-primary, #0B7285)'
+            });
+            return false;
+        }
+
+        if (p1.length < 8) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yetersiz Şifre Uzunluğu',
+                text: 'Yeni şifreniz en az 8 karakter olmalıdır.',
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: 'var(--theme-primary, #0B7285)'
+            });
+            return false;
+        }
+
+        if (p1 !== p2) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Şifreler Eşleşmiyor',
+                text: 'Yeni şifre ile şifre tekrarı eşleşmiyor.',
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: 'var(--theme-primary, #0B7285)'
+            });
+            return false;
+        }
+
+        if (curr === p1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Aynı Şifre',
+                text: 'Yeni şifreniz mevcut şifrenizden farklı olmalıdır.',
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: 'var(--theme-primary, #0B7285)'
+            });
+            return false;
+        }
+
+        var originalBtnHtml = $btn.html();
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-2"></i> Güncelleniyor...');
+
+        var formData = $form.serializeArray();
+        formData.push({ name: 'ajax', value: '1' });
+
+        $.ajax({
+            url: 'index.php?p=profile&tab=security',
+            type: 'POST',
+            data: $.param(formData),
+            dataType: 'json',
+            success: function(res) {
+                $btn.prop('disabled', false).html(originalBtnHtml);
+                if (res && res.csrf_token) {
+                    $form.find('input[name="csrf_token"]').val(res.csrf_token);
+                }
+
+                if (res && res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: res.title || 'İşlem Başarılı',
+                        text: res.message || 'Şifreniz başarıyla güncellendi.',
+                        confirmButtonText: 'Tamam',
+                        confirmButtonColor: 'var(--theme-primary, #0B7285)'
+                    }).then(function(result) {
+                        if (result.isConfirmed || result.isDismissed) {
+                            window.location.href = 'index.php?p=profile&tab=security';
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: (res && res.title) ? res.title : 'Hata',
+                        text: (res && res.message) ? res.message : 'Şifre güncellenemedi.',
+                        confirmButtonText: 'Tamam',
+                        confirmButtonColor: 'var(--theme-primary, #0B7285)'
+                    });
+                }
+            },
+            error: function() {
+                $btn.prop('disabled', false).html(originalBtnHtml);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sunucu Hatası',
+                    text: 'İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.',
+                    confirmButtonText: 'Tamam',
+                    confirmButtonColor: 'var(--theme-primary, #0B7285)'
+                });
+            }
+        });
+    });
+
     // 7. KPI Kartları Göster / Gizle Standardı (localStorage)
     var KPI_STORAGE_KEY = 'aydinogullari_kpi_profile_collapsed';
     var $kpiSection = $('#kpiSummarySection');
@@ -1148,9 +1327,28 @@ $(document).ready(function() {
 
     $toggleBtn.on('click', function() {
         var currentState = $kpiSection.is(':visible');
-        var newState = currentState;
+        var newState = !currentState;
         localStorage.setItem(KPI_STORAGE_KEY, newState ? 'true' : 'false');
         updateKpiToggleState(newState, true);
     });
 });
 </script>
+
+<?php if ($sweetAlert !== null) : ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+        var alertConfig = <?php echo json_encode($sweetAlert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+        alertConfig.confirmButtonText = alertConfig.confirmButtonText || 'Tamam';
+        Swal.fire(alertConfig).then(function(result) {
+            if (result.isConfirmed || result.isDismissed) {
+                var cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.delete('st');
+                window.location.href = cleanUrl.toString();
+            }
+        });
+    }
+});
+</script>
+<?php endif; ?>
+
