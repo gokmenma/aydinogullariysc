@@ -10753,10 +10753,159 @@ html.dark-mode .user-toggle-btn .user-avatar-badge,
 [data-theme-font="roboto"] { --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
 /* Tipografi Uygulaması (İkon Fontlarına Dokunmadan) */
-body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .dropdown-item, .dropdown-header, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .breadcrumb-item, .user-name,
+body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .modal, .dropdown-menu, .dropdown-item, .dropdown-header, .popover, .tooltip, .select2-container, p, h1, h2, h3, h4, h5, h6, .mtext, .page-title-text, .crm-hero-title, .crm-hero-subtitle, .theme-preset-name, .theme-font-name, .theme-weight-name, .breadcrumb-item, .user-name,
 .datepicker, .datepicker *, .datepickers-container, .datepicker-inline, .flatpickr-calendar, .flatpickr-calendar *, .daterangepicker, .daterangepicker *, .fc, .fc *, .bootstrap-datetimepicker-widget, .bootstrap-datetimepicker-widget *, .td-wrap, .td-box, .crm-month-cal-year-circle, .crm-month-cal-v-month, .crm-month-cal-side-summary,
 .swal2-container, .swal2-popup, .swal2-title, .swal2-html-container, .swal2-input, .swal2-select, .swal2-textarea, .swal2-validation-message, .swal2-actions .swal2-styled {
     font-family: var(--font-sans) !important;
+}
+
+/* ==============================================================
+   YAZI TİPİ KALINLIĞI (FONT WEIGHT) SEÇİCİ STİLLERİ & KURALLARI
+   ============================================================== */
+
+.theme-weights-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.theme-weight-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 8px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: all 0.2s ease;
+    user-select: none;
+    outline: none !important;
+}
+.dark-mode .theme-weight-btn {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+.theme-weight-btn:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.dark-mode .theme-weight-btn:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+.theme-weight-btn.active {
+    background: #ffffff !important;
+    border: 2px solid #0284c7 !important;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2) !important;
+}
+.dark-mode .theme-weight-btn.active {
+    background: #1e293b !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+}
+
+.theme-weight-name {
+    font-size: 13px;
+    color: #1e293b;
+    line-height: 1.2;
+}
+.dark-mode .theme-weight-name {
+    color: #f8fafc;
+}
+
+.theme-weight-sample {
+    font-size: 10.5px;
+    color: #64748b;
+    line-height: 1.2;
+}
+.dark-mode .theme-weight-sample {
+    color: #94a3b8;
+}
+
+/* Kalınlık Seviyeleri ve Seçiciler */
+[data-theme-weight="400"] body,
+[data-theme-weight="400"] p,
+[data-theme-weight="400"] td,
+[data-theme-weight="400"] th:not(.font-weight-bold),
+[data-theme-weight="400"] span:not(.fa):not([class*="fa-"]):not([class*="icon-"]):not(.badge):not(.font-weight-bold):not(.font-weight-semibold),
+[data-theme-weight="400"] a:not(.btn):not(.dropdown-item):not(.font-weight-bold),
+[data-theme-weight="400"] label:not(.font-weight-bold),
+[data-theme-weight="400"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+[data-theme-weight="400"] select,
+[data-theme-weight="400"] textarea,
+[data-theme-weight="400"] .form-control,
+[data-theme-weight="400"] .table,
+[data-theme-weight="400"] .mtext,
+[data-theme-weight="400"] .select2-container--default .select2-selection--single,
+[data-theme-weight="400"] .select2-container--default .select2-selection__rendered,
+[data-theme-weight="400"] .select2-results__option {
+    font-weight: 400 !important;
+}
+
+/* 500 (Orta / Medium): İnce fontları dolgunlaştırır ve daha okunaklı kılar */
+[data-theme-weight="500"] body,
+[data-theme-weight="500"] p,
+[data-theme-weight="500"] td,
+[data-theme-weight="500"] th,
+[data-theme-weight="500"] span:not(.fa):not([class*="fa-"]):not([class*="icon-"]):not(.badge),
+[data-theme-weight="500"] a:not(.btn):not(.dropdown-item),
+[data-theme-weight="500"] label,
+[data-theme-weight="500"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+[data-theme-weight="500"] select,
+[data-theme-weight="500"] textarea,
+[data-theme-weight="500"] .form-control,
+[data-theme-weight="500"] .table,
+[data-theme-weight="500"] .mtext,
+[data-theme-weight="500"] .select2-container--default .select2-selection--single,
+[data-theme-weight="500"] .select2-container--default .select2-selection__rendered,
+[data-theme-weight="500"] .select2-results__option {
+    font-weight: 500 !important;
+}
+
+/* 600 (Yarı Kalın / Semi-Bold): Okunaklı, tok ve belirgin metinler */
+[data-theme-weight="600"] body,
+[data-theme-weight="600"] p,
+[data-theme-weight="600"] td,
+[data-theme-weight="600"] th,
+[data-theme-weight="600"] span:not(.fa):not([class*="fa-"]):not([class*="icon-"]):not(.badge),
+[data-theme-weight="600"] a:not(.btn):not(.dropdown-item),
+[data-theme-weight="600"] label,
+[data-theme-weight="600"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+[data-theme-weight="600"] select,
+[data-theme-weight="600"] textarea,
+[data-theme-weight="600"] .form-control,
+[data-theme-weight="600"] .table,
+[data-theme-weight="600"] .mtext,
+[data-theme-weight="600"] .select2-container--default .select2-selection--single,
+[data-theme-weight="600"] .select2-container--default .select2-selection__rendered,
+[data-theme-weight="600"] .select2-results__option {
+    font-weight: 600 !important;
+}
+
+/* 700 (Kalın / Bold): Güçlü ve yüksek kontrastlı kalın metinler */
+[data-theme-weight="700"] body,
+[data-theme-weight="700"] p,
+[data-theme-weight="700"] td,
+[data-theme-weight="700"] th,
+[data-theme-weight="700"] span:not(.fa):not([class*="fa-"]):not([class*="icon-"]):not(.badge),
+[data-theme-weight="700"] a:not(.btn):not(.dropdown-item),
+[data-theme-weight="700"] label,
+[data-theme-weight="700"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+[data-theme-weight="700"] select,
+[data-theme-weight="700"] textarea,
+[data-theme-weight="700"] .form-control,
+[data-theme-weight="700"] .table,
+[data-theme-weight="700"] .mtext,
+[data-theme-weight="700"] .select2-container--default .select2-selection--single,
+[data-theme-weight="700"] .select2-container--default .select2-selection__rendered,
+[data-theme-weight="700"] .select2-results__option {
+    font-weight: 700 !important;
 }
 
 /* İkon Fontlarının Kesinlikle Ezilmesini Engelle */

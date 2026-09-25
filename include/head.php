@@ -15,7 +15,7 @@
 <!-- Google Fonts (Geist, Inter, Plus Jakarta Sans, Poppins, Outfit, Roboto, Montserrat, DM Sans, Manrope, Space Grotesk, Urbanist, Figtree, Sora) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Critical Early Scrollbar CSS (Native Scrollbar Flash / FOUC Önleme) -->
 <style id="critical-scrollbar-style">
 	html, body {
@@ -168,6 +168,7 @@
 		window.syncActiveTopbarButtons();
 		window.syncActiveSidebarButtons();
 		window.syncActiveThemeFontButtons();
+		window.syncActiveThemeWeightButtons();
 	};
 
 	window.closeThemeCustomizer = function() {
@@ -332,6 +333,23 @@
 		window.syncActiveThemeFontButtons();
 	};
 
+	// Yazı Tipi Kalınlığı Değiştirme Fonksiyonu
+	window.selectThemeWeight = function(weightName, isManual) {
+		if (!weightName) return;
+		try {
+			if (isManual) {
+				localStorage.setItem('app_theme_weight_manual', 'true');
+			}
+			localStorage.setItem('app_theme_weight', weightName);
+		} catch (err) {}
+
+		document.documentElement.setAttribute('data-theme-weight', weightName);
+		if (document.body) {
+			document.body.setAttribute('data-theme-weight', weightName);
+		}
+		window.syncActiveThemeWeightButtons();
+	};
+
 	// Hazır Tema Seçme Fonksiyonu (Topbar, Sidebar ve Font'u Birlikte Ayarlar)
 	window.selectThemePreset = function(presetName) {
 		if (!presetName) return;
@@ -374,6 +392,7 @@
 		window.syncActiveTopbarButtons();
 		window.syncActiveSidebarButtons();
 		window.syncActiveThemeFontButtons();
+		window.syncActiveThemeWeightButtons();
 		window.syncWysihtml5Theme();
 	};
 
@@ -425,6 +444,18 @@
 		});
 	};
 
+	// Aktif Yazı Tipi Kalınlığı Butonunu Eşitleme
+	window.syncActiveThemeWeightButtons = function() {
+		var activeWeight = localStorage.getItem('app_theme_weight') || document.documentElement.getAttribute('data-theme-weight') || '400';
+		document.querySelectorAll('.theme-weight-btn').forEach(function(btn) {
+			if (btn.getAttribute('data-weight') === activeWeight) {
+				btn.classList.add('active');
+			} else {
+				btn.classList.remove('active');
+			}
+		});
+	};
+
 	// Sayfa render edilmeden önce tema ve font durumunu ayarla (flicker önleme)
 	(function () {
 		try {
@@ -449,7 +480,11 @@
 			}
 			document.documentElement.setAttribute('data-theme-font', savedFont);
 
-			// 4. Dark/Light Mode Yükleme
+			// 4. Yazı Tipi Kalınlığı Yükleme
+			var savedWeight = localStorage.getItem('app_theme_weight') || '400';
+			document.documentElement.setAttribute('data-theme-weight', savedWeight);
+
+			// 5. Dark/Light Mode Yükleme
 			var theme = localStorage.getItem('theme');
 			if (theme === 'dark' || savedPreset === 'koyu-gece') {
 				document.documentElement.classList.add('dark-mode');
@@ -460,11 +495,13 @@
 						document.body.setAttribute('data-topbar-theme', savedTopbar);
 						document.body.setAttribute('data-sidebar-theme', savedSidebar);
 						document.body.setAttribute('data-theme-font', savedFont);
+						document.body.setAttribute('data-theme-weight', savedWeight);
 					}
 					window.syncActiveThemePresetCard();
 					window.syncActiveTopbarButtons();
 					window.syncActiveSidebarButtons();
 					window.syncActiveThemeFontButtons();
+					window.syncActiveThemeWeightButtons();
 					setTimeout(window.syncWysihtml5Theme, 300);
 					setTimeout(window.syncWysihtml5Theme, 1000);
 				});
@@ -477,11 +514,13 @@
 						document.body.setAttribute('data-topbar-theme', savedTopbar);
 						document.body.setAttribute('data-sidebar-theme', savedSidebar);
 						document.body.setAttribute('data-theme-font', savedFont);
+						document.body.setAttribute('data-theme-weight', savedWeight);
 					}
 					window.syncActiveThemePresetCard();
 					window.syncActiveTopbarButtons();
 					window.syncActiveSidebarButtons();
 					window.syncActiveThemeFontButtons();
+					window.syncActiveThemeWeightButtons();
 					setTimeout(window.syncWysihtml5Theme, 300);
 					setTimeout(window.syncWysihtml5Theme, 1000);
 				});

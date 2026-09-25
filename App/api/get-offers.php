@@ -423,6 +423,10 @@ foreach ($results as $of) {
                 <a href="index.php?p=offer-view&id=' . $of["id"] . '&summary=false" target="_blank" class="dropdown-item" type="button"><i class="fa fa-copy mr-2"></i> Toplamsız Şablonu Göster</a>
                 <a href="index.php?p=offer-view&id=' . $of["id"] . '&all_currency=true" target="_blank" class="dropdown-item" type="button"><i class="fa fa-copy mr-2"></i> Çoklu Döviz Şablonunu Göster</a>
                 <a href="index.php?p=offer-view&id=' . $of["id"] . '&proforma=true" target="_blank" class="dropdown-item" type="button"><i class="fa fa-copy mr-2"></i> Proforma Göster</a>';
+
+    if (!empty($of["customer_id"])) {
+        $islem_butonlari .= '<a href="index.php?p=customers/manage&id=' . (int)$of["customer_id"] . '#customerOffersIcmalCard" target="_blank" class="dropdown-item text-primary font-weight-500" type="button"><i class="fa fa-calculator mr-2"></i> Firma Teklif İcmali</a>';
+    }
        
     if (checkAuth("mailandsmssend")) { 
         $islem_butonlari .= '<a href="index.php?p=report-send-as-mail&type=offer&id=' . $of['id'] . '"

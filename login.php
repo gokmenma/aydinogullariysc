@@ -70,6 +70,9 @@ if ($_POST) {
                 var savedFont = localStorage.getItem('app_theme_font') || themePresetFonts[savedPreset] || 'inter';
                 document.documentElement.setAttribute('data-theme-font', savedFont);
 
+                var savedWeight = localStorage.getItem('app_theme_weight') || '400';
+                document.documentElement.setAttribute('data-theme-weight', savedWeight);
+
                 var theme = localStorage.getItem('theme');
                 if (theme === 'dark' || savedPreset === 'koyu-gece') {
                     document.documentElement.classList.add('dark-mode');
@@ -81,6 +84,7 @@ if ($_POST) {
                     if (document.body) {
                         document.body.setAttribute('data-theme-preset', savedPreset);
                         document.body.setAttribute('data-theme-font', savedFont);
+                        document.body.setAttribute('data-theme-weight', savedWeight);
                         if (theme === 'dark' || savedPreset === 'koyu-gece') {
                             document.body.classList.add('dark-mode');
                         } else {

@@ -4,9 +4,12 @@
         try {
             var theme = localStorage.getItem('theme');
             var preset = localStorage.getItem('app_theme_preset') || 'kode';
+            var weight = localStorage.getItem('app_theme_weight') || '400';
 
             $('html').attr('data-theme-preset', preset);
             $('body').attr('data-theme-preset', preset);
+            $('html').attr('data-theme-weight', weight);
+            $('body').attr('data-theme-weight', weight);
 
             if (theme === 'dark' || preset === 'koyu-gece') {
                 $('html').addClass('dark-mode');
@@ -20,6 +23,9 @@
 
             if (typeof window.syncActiveThemePresetCard === 'function') {
                 window.syncActiveThemePresetCard();
+            }
+            if (typeof window.syncActiveThemeWeightButtons === 'function') {
+                window.syncActiveThemeWeightButtons();
             }
         } catch (e) {}
 

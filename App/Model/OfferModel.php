@@ -725,4 +725,107 @@ class OfferModel extends BaseModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Belirli bir müşteriye ait tüm teklifleri, kalemlerini ve konsolide icmal özetini getirir
+     * 
+     * @param int $customerId
+     * @return array
+     */
+    public function getCustomerOfferSummary($customerId)
+    {
+        $customerId = (int)$customerId;
+        $stmt = $this->db->prepare("SELECT 
+                o.*,
+                u.username as creator_name
+            FROM offers o
+            LEFT JOIN users u ON o.creativer = u.id
+            WHERE o.cid = :cid AND o.is_template = 0
+            ORDER BY o.id DESC");
+        $stmt->bindParam(':cid', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        $offers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($offers)) {
+            return [
+                'offers' => [],
+                'summary' => [
+                    'total_count' => 0,
+                    'pending_count' => 0,
+                    'won_count' => 0,
+                    'lost_count' => 0,
+                    'total_items' => 0,
+                    'total_tl' => 0,
+                    'total_usd' => 0,
+                    'total_eur' => 0,
+                    'total_try_direct' => 0,
+                    'win_rate' => 0
+                ]
+            ];
+        }
+
+        $offerIds = array_column($offers, 'id');
+        $placeholders = implode(',', array_fill(0, count($offerIds), '?'));
+        $stmtMatters = $this->db->prepare("SELECT * FROM offermatters WHERE oid IN ($placeholders) ORDER BY oid DESC, satirno ASC, id ASC");
+        $stmtMatters->execute($offerIds);
+        $allMatters = $stmtMatters->fetchAll(PDO::FETCH_ASSOC);
+
+        $mattersByOffer = [];
+        foreach ($allMatters as $m) {
+            $mattersByOffer[$m['oid']][] = $m;
+        }
+
+        $totalCount = count($offers);
+        $pendingCount = 0;
+        $wonCount = 0;
+        $lostCount = 0;
+        $totalItems = count($allMatters);
+        $totalTl = 0;
+        $totalUsd = 0;
+        $totalEur = 0;
+        $totalTryDirect = 0;
+
+        foreach ($offers as &$offer) {
+            $oid = (int)$offer['id'];
+            $offer['items'] = $mattersByOffer[$oid] ?? [];
+            $offer['item_count'] = count($offer['items']);
+
+            $statu = (int)$offer['statu'];
+            if ($statu === 1) {
+                $pendingCount++;
+            } elseif ($statu === 2) {
+                $wonCount++;
+            } elseif ($statu === 3) {
+                $lostCount++;
+            }
+
+            $totalVal = !empty($offer['tl_toplam_karsilik']) && (float)$offer['tl_toplam_karsilik'] > 0 
+                ? (float)$offer['tl_toplam_karsilik'] 
+                : (float)($offer['total_price'] ?? 0);
+            $totalTl += $totalVal;
+
+            $totalUsd += (float)($offer['DolarTotal'] ?? 0);
+            $totalEur += (float)($offer['EuroTotal'] ?? 0);
+            $totalTryDirect += (float)($offer['TLTotal'] ?? 0);
+        }
+        unset($offer);
+
+        $winRate = $totalCount > 0 ? round(($wonCount / $totalCount) * 100, 1) : 0;
+
+        return [
+            'offers' => $offers,
+            'summary' => [
+                'total_count' => $totalCount,
+                'pending_count' => $pendingCount,
+                'won_count' => $wonCount,
+                'lost_count' => $lostCount,
+                'total_items' => $totalItems,
+                'total_tl' => $totalTl,
+                'total_usd' => $totalUsd,
+                'total_eur' => $totalEur,
+                'total_try_direct' => $totalTryDirect,
+                'win_rate' => $winRate
+            ]
+        ];
+    }
 }

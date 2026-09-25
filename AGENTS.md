@@ -57,8 +57,8 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
 ## Sürüm Notları Kaydı (Changelog Standardı)
 
 - Sürüm notu, her mesaj veya ara adım için değil; kullanıcıya teslim edilebilir durumdaki **tamamlanmış geliştirme paketi** için bir kez oluşturulmalıdır.
-- Aynı konuşma içinde aynı amaca hizmet eden ek geliştirmeler, düzeltmeler ve doğrulamalar tek sürüm notunda birleştirilmelidir. Görev devam ederken yeni sürüm notu veya yeni bir sürüm notu migration dosyası açılmamalıdır.
-- Görev kapsamında daha önce sürüm notu migration dosyası oluşturulduysa, teslimata kadar yapılacak ilişkili değişiklikler mümkünse aynı dosya ve aynı kayıt açıklaması güncellenerek tutulmalıdır.
+- Aynı konuşmada veya farklı konuşmalarda aynı amaca hizmet eden geliştirme, düzeltme ve doğrulamalar tek sürüm notunda birleştirilmelidir. Görev devam ederken ara sürüm kayıtları açılmamalıdır.
+- Tüm sürüm notu SQL kayıtları yalnızca `database/migrations/version_notes.sql` dosyasında tutulmalıdır. Sürüm notu için ayrı tarihli SQL dosyası oluşturulmamalı ve başka migration dosyalarının içine sürüm notu eklenmemelidir.
 - Birbirinden bağımsız ve ayrı teslim edilebilen geliştirmeler aynı konuşmada yapılsa bile ayrı sürüm notları olabilir; yalnızca mesaj sayısı veya çalışma süresinin uzaması yeni sürüm gerekçesi değildir.
 - Yalnızca analiz, inceleme, soru-cevap, test, dokümantasyon veya proje çalışma kurallarındaki değişiklikler; uygulamanın kodunu, veritabanını ya da kullanıcıya sunulan davranışı değiştirmiyorsa sürüm notu gerektirmez.
 - Sürüm notu ve buna ait SQL migration, işin kapsamı netleşip uygulama ve doğrulama tamamlandıktan sonra, nihai teslimattan hemen önce hazırlanmalıdır.
@@ -66,13 +66,13 @@ Bu dosya, proje üzerinde çalışan geliştiriciler ve kodlama ajanları için 
   - `title`: Yapılan geliştirmeyi veya çözümü net özetleyen başlık (Örn: "Sürüm Notları Sayfası Modernizasyonu").
   - `version_tag`: Güncel sürüm etiketi veya alt sürüm numarası (Örn: `v2.4.0` veya `v2026.09.20`).
   - `category`: İşin niteliğine göre uygun kategori (`feature`, `improvement`, `bugfix`, `security`, `other`).
-  - `description`: Yapılan değişiklikleri, eklenen/güncellenen özellikleri ve düzeltmeleri listeleyen maddeli açıklama (`- ` maddeleri şeklinde).
+  - `description`: Kullanıcının anlayacağı dilde, teknik ayrıntıya girmeyen ve tercihen tek maddeden oluşan kısa açıklama (`- ` ile başlamalıdır).
   - `author`: "Antigravity AI" veya işlem yapan kullanıcı/ajan bilgisi.
   - `created_at`: Anlık tarih-saat bilgisi (`Y-m-d H:i:s`).
-- **SQL Migration Dosyası Zorunluluğu**:
-  - Teslimatta eklenen her sürüm notu için mutlaka `database/migrations/` altında tarihli ve idempotent tek bir `.sql` dosyası oluşturulmalıdır (Örn: `database/migrations/YYYYMMDD_HHMMSS_version_note_vX_X_X.sql` veya `YYYYMMDD_add_version_note_vX_X_X.sql`).
-  - SQL dosyası `INSERT INTO version_notes (...) SELECT ... WHERE NOT EXISTS (...)` formatında olmalı ve tekrar çalıştırıldığında mükerrer kayıt oluşturmamalıdır.
-- Kayıt, nihai teslimat aşamasında hem `database/migrations/` altındaki SQL dosyasında bulunmalı hem de doğrudan veritabanına (`App\Model\VersionNoteModel` veya güvenli PDO sorgusu ile) eklenmelidir. Teslimat açıklamasında sürüm notunun ve SQL dosyasının oluşturulduğu belirtilmelidir.
+- **Merkezi SQL Dosyası Zorunluluğu**:
+  - Teslimatta eklenen sürüm notu mevcut `database/migrations/version_notes.sql` dosyasına eklenmelidir; ikinci bir sürüm notu SQL dosyası oluşturulmamalıdır.
+  - SQL kaydı `INSERT INTO version_notes (...) SELECT ... WHERE NOT EXISTS (...)` biçiminde olmalı ve tekrar çalıştırıldığında mükerrer kayıt oluşturmamalıdır.
+- Kayıt, nihai teslimat aşamasında hem merkezi SQL dosyasında bulunmalı hem de doğrudan veritabanına (`App\Model\VersionNoteModel` veya güvenli PDO sorgusu ile) eklenmelidir. Teslimat açıklamasında sürüm notunun ve merkezi SQL dosyasının güncellendiği belirtilmelidir.
 
 ## Doğrulama
 

@@ -37,6 +37,22 @@
 }
 
 /* ==========================================================================
+   1.1 FONT WEIGHT DEFINITIONS
+   ========================================================================== */
+[data-theme-weight="400"], html[data-theme-weight="400"] body {
+    font-weight: 400;
+}
+[data-theme-weight="500"], html[data-theme-weight="500"] body, html[data-theme-weight="500"] .login-box p, html[data-theme-weight="500"] .login-box label, html[data-theme-weight="500"] .login-box input {
+    font-weight: 500;
+}
+[data-theme-weight="600"], html[data-theme-weight="600"] body, html[data-theme-weight="600"] .login-box p, html[data-theme-weight="600"] .login-box label, html[data-theme-weight="600"] .login-box input {
+    font-weight: 600;
+}
+[data-theme-weight="700"], html[data-theme-weight="700"] body, html[data-theme-weight="700"] .login-box p, html[data-theme-weight="700"] .login-box label, html[data-theme-weight="700"] .login-box input {
+    font-weight: 700;
+}
+
+/* ==========================================================================
    2. THEME COLOR PRESETS
    ========================================================================== */
 /* Default / 1. KODE (Klasik Mavi) */

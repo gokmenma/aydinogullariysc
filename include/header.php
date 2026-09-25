@@ -713,5 +713,29 @@ $maintenanceHeaderJson = htmlspecialchars(
 				<span class="theme-font-sample">Klasik & Sade</span>
 			</button>
 		</div>
+
+		<!-- 5. Bölüm: Yazı Tipi Kalınlığı (Font Weight) Seçimi -->
+		<div class="theme-customizer-section-title-wrap mt-4">
+			<h6 class="theme-customizer-section-title">Yazı Tipi Kalınlığı (Font Weight)</h6>
+			<span class="theme-customizer-badge" style="background: #fef3c7; color: #b45309;">Kalınlık</span>
+		</div>
+		<div class="theme-weights-grid">
+			<button type="button" class="theme-weight-btn" data-weight="400" onclick="selectThemeWeight('400', true);">
+				<span class="theme-weight-name" style="font-weight: 400;">Normal (400)</span>
+				<span class="theme-weight-sample">Varsayılan & İnce/Zarif</span>
+			</button>
+			<button type="button" class="theme-weight-btn" data-weight="500" onclick="selectThemeWeight('500', true);">
+				<span class="theme-weight-name" style="font-weight: 500;">Orta (500)</span>
+				<span class="theme-weight-sample">Daha Belirgin & Net</span>
+			</button>
+			<button type="button" class="theme-weight-btn" data-weight="600" onclick="selectThemeWeight('600', true);">
+				<span class="theme-weight-name" style="font-weight: 600;">Yarı Kalın (600)</span>
+				<span class="theme-weight-sample">Tok & Güçlü Okuma</span>
+			</button>
+			<button type="button" class="theme-weight-btn" data-weight="700" onclick="selectThemeWeight('700', true);">
+				<span class="theme-weight-name" style="font-weight: 700;">Kalın (700)</span>
+				<span class="theme-weight-sample">Vurgulu & Dolgun</span>
+			</button>
+		</div>
 	</div>
 </div>
