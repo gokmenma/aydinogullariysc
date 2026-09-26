@@ -161,16 +161,13 @@ function offerRowAdd(sayac) {
       '" name="salecur[]" ' +
       ' data-style="border bg-white" class="selectpicker form-control">';
 
-    var moneys = ["TRY", "USD", "EUR"]; // "birimler" adı düzeltildi
+    var moneys = ["TRY", "USD", "EUR"];
     for (var i = 0; i < moneys.length; i++) {
       saleselectmoneys +=
         '<option value="' + moneys[i] + '">' + moneys[i] + "</option>";
     }
 
     saleselectmoneys += "</select>";
-    //**** SATIŞ PARA BİRİMLERİ*****//
-
-    //******************************/
 
     //****ALIŞ PARA BİRİMLERİ*****//
     var buyselectmoneys =
@@ -179,78 +176,62 @@ function offerRowAdd(sayac) {
       '" name="buycur[]" ' +
       'data-header="Birimler" data-style="border bg-white" class="selectpicker form-control">';
 
-    var moneys = ["TRY", "USD", "EUR"]; // "birimler" adı düzeltildi
     for (var i = 0; i < moneys.length; i++) {
       buyselectmoneys +=
         '<option value="' + moneys[i] + '">' + moneys[i] + "</option>";
     }
 
     buyselectmoneys += "</select>";
-    //**** ALIŞ PARA BİRİMLERİ*****//
 
     $("#kalem_ekle tbody").append(
-      "<tr> " +
-      '<td> <a href="#" class="btn btn-sm"> ' +
-           '<i class="fa fa-arrows-alt"></i>' +
-        '</a> '+
-    '</td> '+
-        '<td class="app-item-action-2">' +
-        '<a href="#" class="sil btn btn-sm btn-danger">Sil</a>' +
-        '<div class="dropdown d-inline">' +
-        '<button class="btn btn-secondary btn-sm ml-1" type="button" id="dropdownMenu2" data-toggle="dropdown">' +
-        '<i class="fa fa-list ml-1 mr-1"></i>' +
-        "</button>" +
-        '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu2">' +
-        '<button type="button" class="moveUp dropdown-item" type="button">' +
-        '<i class="fa fa-arrow-up mr-2"></i>Yukarı Taşı</button>' +
-        '<button type="button" class="moveDown dropdown-item" type="button">' +
-        '<i class="fa fa-arrow-down mr-2"></i>Aşağı Taşı</button>' +
-        "</div>" +
-        "</div>" +
-        "</td>" +
-        '<td class="app-item-number"> ' +
-        '<input type="text" name = "satirno[]" class="form-control" value="' +
-        sayac +
-        '">' +
-        "</td>" +
-        '<td ><input type="text" id="stokKodu' +
-        sayac +
-        '" name="stokKodu[]" class="form-control" placeholder="Stok Kodu giriniz!"></td>' +
-        "<td>" +
-        '<div class="input-group m-0">' +
-        '<input required type="text" required name="urunAdi[]" id="urunAdi' +
-        sayac +
-        '"  placeholder="Ürün adını giriniz!" class="form-control">' +
-        '<button type="button" id="' +
-        sayac +
-        '" class="btn btn-info btn-sm selectProduct" data-bs-toggle="modal" data-bs-target="#staticBackdrop"> ' +
-        '<i class="fa fa-plus-circle"></i></button>' +
-        "</div>" +
-        "</td>" +
-        '<td><input required id="amount' +
-        sayac +
-        '" autocomplete="off" name="amount[]" type="number"' +
-        'class="form-control">' +
-        "</td>" +
-        "<td>" +
-        selectUnit +
-        "</td>" +
-        '<td><input required id="saleprice' +
-        sayac +
-        '" name="saleprice[]" type="number" class="form-control" autocomplete="off">' +
-        "</td>" +
-        "<td >" +
-        saleselectmoneys +
-        "</td>" +
-        '<td><input required type="text" id="total" name="total[]" class="form-control" readonly></td>' +
-        '<td class="d-flex text-nowrap">' +
-        '<input id="buyprice' +
-        sayac +
-        '" name="buyprice[]" type="number" class="form-control mr-1" autocomplete="off"></td> ' +
-        "<td >" +
-        buyselectmoneys +
-        "</td>" +
-        "</tr>"
+      '<tr class="ui-state-default">' +
+        '<td class="text-center" style="vertical-align: middle; cursor: grab;">' +
+          '<span class="btn btn-sm text-muted p-0 drag-handle" title="Sıralamayı Değiştirmek İçin Sürükleyin">' +
+            '<i class="fa fa-arrows-alt"></i>' +
+          '</span>' +
+        '</td>' +
+        '<td class="app-item-action-2" style="vertical-align: middle; white-space: nowrap;">' +
+          '<div class="btn-group btn-group-sm" role="group">' +
+            '<button type="button" class="sil btn btn-danger btn-sm" title="Satırı Sil"><i class="fa fa-trash"></i></button>' +
+            '<button type="button" class="btn btn-outline-primary btn-sm btn-clone-row" title="Satırı Klonla"><i class="fa fa-clone"></i></button>' +
+          '</div>' +
+        '</td>' +
+        '<td class="app-item-number" style="vertical-align: middle;">' +
+          '<input type="text" name="satirno[]" class="form-control text-center font-weight-bold" value="' + sayac + '" readonly style="background: #f8fafc; border-radius: 6px;">' +
+        '</td>' +
+        '<td class="app-item-stock" style="vertical-align: middle;">' +
+          '<div class="product-autocomplete-wrap">' +
+            '<input type="text" id="stokKodu' + sayac + '" name="stokKodu[]" class="form-control stokKodu-input" placeholder="Stok Kodu" autocomplete="off" style="border-radius: 6px;">' +
+          '</div>' +
+        '</td>' +
+        '<td class="app-item-name" style="vertical-align: middle;">' +
+          '<div class="product-autocomplete-wrap position-relative">' +
+            '<input required type="text" name="urunAdi[]" id="urunAdi' + sayac + '" placeholder="Ürün adı yazarak arayın veya seçin..." class="form-control urunAdi-input" autocomplete="off" style="border-radius: 6px;">' +
+            '<div class="product-autocomplete-results" style="display: none;"></div>' +
+          '</div>' +
+        '</td>' +
+        '<td class="app-item-amount" style="vertical-align: middle;">' +
+          '<input required id="amount' + sayac + '" autocomplete="off" name="amount[]" type="number" step="any" min="0" class="form-control text-center amount-input" placeholder="0" style="border-radius: 6px;">' +
+        '</td>' +
+        '<td class="app-item-unit" style="vertical-align: middle;">' +
+          selectUnit +
+        '</td>' +
+        '<td class="app-item-price" style="vertical-align: middle;">' +
+          '<input required id="saleprice' + sayac + '" name="saleprice[]" type="text" class="form-control text-right saleprice-input" autocomplete="off" placeholder="0.00" style="min-width: 85px; border-radius: 6px;">' +
+        '</td>' +
+        '<td class="app-item-cur" style="vertical-align: middle;">' +
+          saleselectmoneys +
+        '</td>' +
+        '<td class="app-item-rowtotal" style="vertical-align: middle;">' +
+          '<input type="text" id="total' + sayac + '" name="total[]" class="form-control text-right font-weight-bold row-total-input" value="0.00" readonly style="background: #f8fafc; border-radius: 6px; min-width: 85px;">' +
+        '</td>' +
+        '<td class="app-item-price" style="vertical-align: middle;">' +
+          '<input id="buyprice' + sayac + '" name="buyprice[]" type="text" class="form-control text-right buyprice-input" autocomplete="off" placeholder="0.00" style="min-width: 85px; border-radius: 6px;">' +
+        '</td>' +
+        '<td class="app-item-cur" style="vertical-align: middle;">' +
+          buyselectmoneys +
+        '</td>' +
+      '</tr>'
     );
     $(".selectpicker").selectpicker("refresh");
   });

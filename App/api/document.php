@@ -19,7 +19,8 @@ if ($_POST["action"] == "receiveDocument") {
         $message = "Evrak teslim alındı";
     } catch (PDOException $ex) {
         $status = "error";
-        $message = $ex->getMessage();
+        error_log('Document receive failed: ' . $ex->getMessage());
+        $message = 'Evrak işlemi sırasında bir hata oluştu.';
     }
     $res = [
         'status' => $status,

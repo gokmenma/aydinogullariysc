@@ -603,6 +603,7 @@ try {
     height: 320px !important;
     border-radius: 8px !important;
     border: 1px solid #cbd5e1 !important;
+    padding: 0 !important;
 }
 .premium-modal-content {
     border-radius: 16px;

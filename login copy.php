@@ -1,4 +1,8 @@
-<?php require_once 'configs/config.php' ?>
+<?php
+header('Location: login.php', true, 301);
+exit;
+require_once 'configs/config.php';
+?>
 <?php require_once 'configs/functions.php' ?>
 
 <?php

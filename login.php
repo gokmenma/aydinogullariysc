@@ -2,18 +2,65 @@
 require_once 'bootstrap.php';
 
 if ($_POST) {
-	$up = $_POST['email'];
-	$pp = md5(md5(md5($_POST['passwordp'])));
+	$up = trim((string) ($_POST['email'] ?? ''));
+	$plainPassword = (string) ($_POST['passwordp'] ?? '');
+	$csrfToken = (string) ($_POST['csrf_token'] ?? '');
+	$ipAddress = substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
+	$identityHash = hash('sha256', mb_strtolower($up, 'UTF-8'));
 
-	if (!$up || !$pp) {
+	if (!\App\Helper\Security::checkCsrfToken($csrfToken)) {
+		header('Location: login.php?error=104');
+		exit;
+	}
+
+	if ($up === '' || $plainPassword === '') {
 		header('Location: login.php?error=102');
 		exit;
 	} else {
-		$ucont = $ac->prepare('SELECT * FROM users WHERE email = ? AND password = ? AND statu = ?');
-		$ucont->execute(array($up, $pp, 1));
-		$conts = $ucont->fetch();
+		// Aynı tarayıcı oturumunda e-posta değiştirilerek limitin aşılmasını engelle.
+		$sessionFailureCount = (int) ($_SESSION['login_failure_count'] ?? 0);
+		$sessionFailureStartedAt = (int) ($_SESSION['login_failure_started_at'] ?? 0);
+		if ($sessionFailureStartedAt === 0 || (time() - $sessionFailureStartedAt) > 900) {
+			$sessionFailureCount = 0;
+			$_SESSION['login_failure_count'] = 0;
+			$_SESSION['login_failure_started_at'] = time();
+		}
+		if ($sessionFailureCount >= 5) {
+			\App\Helper\ApiSecurity::log($ac, 'login_rate_limited', 'login.php', [
+				'identity_hash' => $identityHash,
+				'limit_scope' => 'browser_session',
+			]);
+			header('Location: login.php?error=105');
+			exit;
+		}
 
-		if ($conts) {
+		$attemptQuery = $ac->prepare('SELECT COUNT(*) FROM login_attempts WHERE identity_hash = ? AND ip_address = ? AND was_successful = 0 AND attempted_at >= (NOW() - INTERVAL 15 MINUTE)');
+		$attemptQuery->execute([$identityHash, $ipAddress]);
+		if ((int) $attemptQuery->fetchColumn() >= 5) {
+			\App\Helper\ApiSecurity::log($ac, 'login_rate_limited', 'login.php', ['identity_hash' => $identityHash]);
+			header('Location: login.php?error=105');
+			exit;
+		}
+
+		$ucont = $ac->prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND statu = ? LIMIT 1');
+		$ucont->execute(array($up, 1));
+		$conts = $ucont->fetch();
+		$storedHash = (string) ($conts['password'] ?? '');
+		$isLegacy = (bool) preg_match('/^[a-f0-9]{32}$/i', $storedHash);
+		$isValid = $conts && ($isLegacy
+			? hash_equals(strtolower($storedHash), md5(md5(md5($plainPassword))))
+			: password_verify($plainPassword, $storedHash));
+
+		$attemptInsert = $ac->prepare('INSERT INTO login_attempts (identity_hash, ip_address, was_successful, attempted_at) VALUES (?, ?, ?, NOW())');
+		$attemptInsert->execute([$identityHash, $ipAddress, $isValid ? 1 : 0]);
+
+		if ($isValid) {
+			unset($_SESSION['login_failure_count'], $_SESSION['login_failure_started_at']);
+			if ($isLegacy || password_needs_rehash($storedHash, PASSWORD_DEFAULT)) {
+				$newHash = password_hash($plainPassword, PASSWORD_DEFAULT);
+				$rehash = $ac->prepare('UPDATE users SET password = ? WHERE id = ?');
+				$rehash->execute([$newHash, $conts['id']]);
+			}
 			session_regenerate_id(true);
 			$_SESSION['login'] = true;
 			$_SESSION['perm'] = $conts['permission'];
@@ -24,11 +71,21 @@ if ($_POST) {
 			audit_log("login", "auth", "Sisteme giriş yaptı", "user", $conts['id']);
 
 			// returnUrl parametresini kontrol edin ve varsayılan değeri ayarlayın
-			$redirectUri = isset($_GET['returnUrl']) && !empty($_GET['returnUrl']) ? $_GET['returnUrl'] : 'index.php?p=home';
+			$redirectUri = 'index.php?p=home';
+			if (!empty($_GET['returnUrl'])) {
+				$candidate = rawurldecode((string) $_GET['returnUrl']);
+				if ($candidate !== '' && $candidate[0] === '/' && substr($candidate, 0, 2) !== '//') {
+					$redirectUri = $candidate;
+				} elseif (preg_match('/^index\.php(?:\?|$)/', $candidate)) {
+					$redirectUri = $candidate;
+				}
+			}
 
 			header('Location: ' . $redirectUri);
 			exit;
 		} else {
+			$_SESSION['login_failure_count'] = $sessionFailureCount + 1;
+			$_SESSION['login_failure_started_at'] = $_SESSION['login_failure_started_at'] ?? time();
 			header('Location: login.php?error=103&HATA');
 			exit;
 		}
@@ -142,6 +199,9 @@ if ($_POST) {
             <p class="subtitle">E-posta ve parolanızla devam edin.</p>
 
             <?php 
+            if (isset($_GET['password_reset'])) {
+                echo '<div class="alert" style="background:#dcfce7;color:#166534;">Parolanız yenilendi. Yeni parolanızla giriş yapabilirsiniz.</div>';
+            }
             if (isset($_GET['error'])) {
                 $errorMessage = '';
                 switch ($_GET['error']) {
@@ -150,6 +210,12 @@ if ($_POST) {
                         break;
                     case '103':
                         $errorMessage = 'E-posta veya parola hatalı.';
+                        break;
+                    case '104':
+                        $errorMessage = 'Oturum doğrulaması başarısız. Lütfen tekrar deneyin.';
+                        break;
+                    case '105':
+                        $errorMessage = 'Çok fazla başarısız deneme. Lütfen 15 dakika sonra tekrar deneyin.';
                         break;
                     default:
                         $errorMessage = 'Bilinmeyen bir hata oluştu.';
@@ -160,6 +226,7 @@ if ($_POST) {
             ?>
 
             <form action="login.php<?php echo isset($_GET['returnUrl']) ? '?returnUrl=' . htmlspecialchars($_GET['returnUrl'], ENT_QUOTES, 'UTF-8') : ''; ?>" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(\App\Helper\Security::csrf(), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="floating-group">
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope icon"></i>

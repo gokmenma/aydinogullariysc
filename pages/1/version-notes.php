@@ -3,7 +3,9 @@ use App\Model\VersionNoteModel;
 
 $versionModel = new VersionNoteModel();
 $stats = $versionModel->getStats();
-$isAdmin = (sesset("perm") == 1);
+$userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+$userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? ($_SESSION['perm'] ?? 0)));
+$isAdmin = in_array($userId, [1, 12], true) || in_array($userPerm, [1, 13], true) || (function_exists('permtrue') && (permtrue("panelsettings") || permtrue("authdefine")));
 
 // Varsayılan olarak son 1 ayın başlangıç ve bitiş tarihleri
 $defaultStartDate = date('Y-m-d', strtotime('-30 days'));
@@ -849,6 +851,7 @@ body.dark-mode .vn-empty-state {
                 </button>
             </div>
             <form id="versionNoteForm" onsubmit="saveVersionNote(event);">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(\App\Helper\Security::csrf(), ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id" id="vn_id" value="">
                 <input type="hidden" name="action" value="save">
                 

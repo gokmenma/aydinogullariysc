@@ -19,7 +19,8 @@ function fetchUrlWithUserAgent($url) {
     curl_setopt($ch, CURLOPT_USERAGENT, 'AydinogullariYSC-App/1.0 (internal-crm-geocoding)');
     curl_setopt($ch, CURLOPT_TIMEOUT, 6);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Accept-Language: tr-TR,tr;q=0.9,en;q=0.8'

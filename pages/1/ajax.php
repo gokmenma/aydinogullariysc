@@ -133,7 +133,7 @@ if ($_POST["page"] == "offers" && $_GET["mode"] == "delete" && @$_GET["code"] ==
         return false;
     } catch (PDOException $e) {
         $res = array(
-            "message" => $e->getMessage(), // Hata mesajı döndürülür
+            "message" => "İşlem sırasında bir hata oluştu.",
             "status" => 400 // Başarısız durum kodu
         );
         echo json_encode($res);
@@ -327,7 +327,7 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
             return false;
         } catch (Throwable $e) {
             $res = array(
-                "message" => $e->getMessage(), // Hata mesajı döndürülür
+                "message" => "İşlem sırasında bir hata oluştu.",
                 "status" => 400 // Başarısız durum kodu
             );
             echo json_encode($res);

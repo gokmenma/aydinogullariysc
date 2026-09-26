@@ -27,7 +27,7 @@ if ($_POST) {
 	$fullName = @$_POST["uname"];
 	$uemail = @$_POST["uemail"];
 	$unvan = @$_POST["unvan"];
-	$upassword = md5(md5(md5($_POST["upassword"])));
+	$upassword = password_hash((string) $_POST["upassword"], PASSWORD_DEFAULT);
 	$uperm = 1;
 	$perm = @$_POST["permission"];
 	$ugsm = @$_POST["ugsm"];

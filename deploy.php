@@ -1,5 +1,9 @@
 <?php
-$secret = "mZp49fNosA1tylpx1XfYHSGFKXDGXW18"; // Bunu GitHub'da da Secret olarak yazacaks覺n
+$secret = (string) getenv('DEPLOY_WEBHOOK_SECRET');
+if ($secret === '') {
+    http_response_code(503);
+    exit('Webhook yapılandırılmamış.');
+}
 
 $payload = file_get_contents("php://input");
 $signature = $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '';

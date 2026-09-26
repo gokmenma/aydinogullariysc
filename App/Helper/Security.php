@@ -21,13 +21,11 @@ class Security
         return $token;
     }
 
-    public static function checkCsrfToken()
+    public static function checkCsrfToken($token = null)
     {
-        //kullaNıcının session_token alanı ile Session'daki csrf_token alanını karşılaştırır
-        $token = $_SESSION['user']->session_token ?? null;
-        return hash_equals($_SESSION['csrf_token'], $token);
-
-   
+        $token = $token ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? ''));
+        $expected = (string) ($_SESSION['csrf_token'] ?? '');
+        return $expected !== '' && is_string($token) && $token !== '' && hash_equals($expected, $token);
     }
 
     public static function generatePassword($password)

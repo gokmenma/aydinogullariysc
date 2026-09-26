@@ -32,22 +32,8 @@ try {
     ]);
 } catch (\Throwable $e) {}
 
-try {
-    $ac->exec("CREATE TABLE IF NOT EXISTS service_accounting_receipt_logs (
-        id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-        service_id INT UNSIGNED NOT NULL,
-        action VARCHAR(20) NOT NULL,
-        action_by INT UNSIGNED NOT NULL,
-        action_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY idx_service_id (service_id),
-        KEY idx_action_at (action_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-} catch (PDOException $e) {
-    // Tablo oluşturulamasa da liste ekranı çalışmaya devam etsin.
-}
-
-// Optimize edilmiş tek sorgu ile tüm verileri çek
+// Müşteri veya tek servis görünümünde gerekli kayıtları doğrudan getir.
+// Ana liste, verileri yalnızca server-side DataTables API'sinden yükler.
 if ($cid) {
     $query = $ac->prepare("
         SELECT p.*,
@@ -124,46 +110,9 @@ if ($cid) {
         ORDER BY p.id desc
     ");
     $query->execute(array($sid));
-} else {
-    $query = $ac->prepare("
-        SELECT p.*,
-               c.company as company_name,
-               c.deleted_at as customer_deleted_at,
-               r.title as region_name,
-               s.title as service_title, 
-               u.username as creator_username,
-             uu.username as updater_username,
-             ar.action as accounting_action,
-             ar.action_at as accounting_action_at,
-             au.username as accounting_actor_username,
-               cs.title as contract_status_title,
-               cs.colour as contract_status_color,
-               st.title as status_title,
-               st.colour as status_color
-        FROM projects p
-        LEFT JOIN customers c ON c.id = p.pcid
-        LEFT JOIN units r ON r.id = p.region
-        LEFT JOIN units s ON s.id = p.servicestype
-        LEFT JOIN users u ON u.id = p.pcreativer
-        LEFT JOIN users uu ON uu.id = p.updater
-        LEFT JOIN (
-            SELECT l.service_id, l.action, l.action_by, l.action_at
-            FROM service_accounting_receipt_logs l
-            INNER JOIN (
-                SELECT service_id, MAX(id) as max_id
-                FROM service_accounting_receipt_logs
-                GROUP BY service_id
-            ) lm ON lm.max_id = l.id
-        ) ar ON ar.service_id = p.id
-        LEFT JOIN users au ON au.id = ar.action_by
-        LEFT JOIN units cs ON cs.id = p.contract_statu AND cs.statu = 4
-        LEFT JOIN units st ON st.id = p.pstatu AND st.statu = 4
-        ORDER BY p.id desc
-    ");
-    $query->execute();
 }
 
-$projects = $query->fetchAll(PDO::FETCH_ASSOC);
+$projects = isset($query) ? $query->fetchAll(PDO::FETCH_ASSOC) : [];
 
 
 
@@ -946,7 +895,7 @@ if ($cid || $sid) {
                         <p>Anlık arama, sütun filtreleme ve iş emri yönetimi</p>
                     </div>
                 </div>
-                <div class="d-flex align-items-center" style="gap: 8px;">
+                <div class="d-flex align-items-center">
                     <div class="dt-header-filter-box d-flex align-items-center"></div>
                     <button type="button" id="toggleKpiSummary" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle / Göster" style="border-radius: 8px; width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
                         <i class="fa fa-chevron-up"></i>

@@ -2,6 +2,22 @@
 
 use App\Helper\Helper;
 
+$getNextServiceSequence = static function () use ($ac): int {
+    $counterQuery = $ac->prepare("SELECT service FROM define_numbers LIMIT 1");
+    $counterQuery->execute();
+    $counter = (int) $counterQuery->fetchColumn();
+
+    $maxQuery = $ac->prepare(
+        "SELECT COALESCE(MAX(CAST(SUBSTRING(service_number, 4) AS UNSIGNED)), 0)
+         FROM projects
+         WHERE service_number REGEXP '^SRV[0-9]+$'"
+    );
+    $maxQuery->execute();
+    $nextFromProjects = ((int) $maxQuery->fetchColumn()) + 1;
+
+    return max($counter, $nextFromProjects, 1);
+};
+
 // ─── Mod Belirleme: Yeni mi, Düzenleme mi? ───
 $isEdit = isset($_GET['id']) && is_numeric($_GET['id']);
 $oid = @$_GET["oid"]; // Tekliften gelen servis oluşturma
@@ -43,7 +59,7 @@ if ($isEdit) {
 $service_number = '';
 $getNumber = 0;
 if (!$isEdit) {
-    $getNumber = setNumber("service");
+    $getNumber = $getNextServiceSequence();
     $service_number = "SRV" . str_pad($getNumber, 5, "0", STR_PAD_LEFT);
 } else {
     $service_number = $cc['service_number'];
@@ -77,229 +93,7 @@ if ($oid && !$isEdit) {
     $comp_region = $cust["region"];
 }
 
-// ─── POST İŞLEMİ ───
-if ($_POST) {
-    if (!$_POST["company"] || !$_POST["ServisKonusu"] || !$_POST["TahsilatTuru"] || !$_POST["region"]) {
-        if ($isEdit) {
-            header('Location: index.php?p=service/manage&st=empties&id=' . $sid);
-        } else {
-            header("Location: index.php?p=service/manage&st=empties");
-        }
-        exit;
-    }
-
-    if ($isEdit) {
-        // ─── GÜNCELLEME ───
-        if (@$_POST['pstatu'] == 18) {
-            $kadi = $cscs['username'];
-            $datetime = $cc['pregdate'];
-            $date = date('d.m.Y H:i:s', strtotime($datetime));
-            $servissonucu = @$_POST['servicesnote'];
-            $pnote = 'Servis ' . $kadi . ' adlı kullanıcı tarafından ' . $date . ' tarihinde iptal edilmiştir. ' . $servissonucu;
-        } else {
-            $pnote = addslashes(@$_POST['servicesnote']);
-        }
-
-        $company = $_POST['company'];
-        $offerno = !empty($_POST['offerno']) ? (int)$_POST['offerno'] : null;
-        $servicestype = $_POST['ServisKonusu'];
-        $collectiontype = $_POST['TahsilatTuru'];
-        $address = $_POST['address'];
-        $region = $_POST['region'];
-        $updater = sesset('id');
-        $update_at = date('Y-m-d H:i:s');
-        $pdesc = $_POST['pdesc'];
-        $pstartdate = !empty($_POST["pstartdate"]) ? date_tr($_POST['pstartdate']) : ($cc['pstart_date'] ?: null);
-        $psecond_date = !empty($_POST["pseconddate"]) ? date_tr($_POST['pseconddate']) : ($cc['psecond_date'] ?: null);
-        $price = !empty($_POST['price']) ? $_POST['price'] : null;
-        $price_desc = $_POST['price_desc'] ?? null;
-        $pstatu = !empty($_POST['pstatu']) ? (int)$_POST['pstatu'] : null;
-        $contract_statu = !empty($_POST['contract_statu']) ? (int)$_POST['contract_statu'] : null;
-        $contract_updated_at = $cc['contract_updated_at'] ?? null;
-        $contract_updated_by = $cc['contract_updated_by'] ?? null;
-        if ($contract_statu == 2 && $cc['contract_statu'] != 2) {
-            $contract_updated_at = date('Y-m-d H:i:s');
-            $contract_updated_by = sesset('id');
-        } elseif ($contract_statu != 2) {
-            $contract_updated_at = null;
-            $contract_updated_by = null;
-        }
-        $pps = '';
-        foreach (($_POST['permings'] ?? []) as $psx) {
-            $pps .= $psx . '|';
-        }
-
-        $upxsx = $ac->prepare("UPDATE projects SET
-                pcid = ?,
-                poid = ?,
-                servicestype = ?,
-                collectiontype = ?,
-                address = ?,
-                region =  ?,
-                update_at = ?,
-                updater = ?,
-                pdesc = ?,
-                pstart_date = ?,
-                psecond_date = ?,
-                pauthors = ?,
-                price = ?,price_desc = ?,
-                pnotes = ?,
-                pstatu = ? ,
-                contract_statu = ?,
-                contract_updated_at = ?,
-                contract_updated_by = ?
-                 WHERE id = ?");
-
-        $upxsx->execute(array(
-            $company,
-            $offerno,
-            $servicestype,
-            $collectiontype,
-            $address,
-            $region,
-            $update_at,
-            $updater,
-            $pdesc,
-            $pstartdate,
-            $psecond_date,
-            $pps,
-            $price,
-            $price_desc,
-            $pnote,
-            $pstatu,
-            $contract_statu,
-            $contract_updated_at,
-            $contract_updated_by,
-            $sid
-        ));
-
-        if ($upxsx) {
-            audit_log(
-                "update",
-                "services",
-                "Servis güncellendi: $service_number",
-                "service",
-                $sid,
-                [
-                    'service_number' => $service_number,
-                    'customer_id' => (int) $company,
-                    'changed_fields' => audit_changes(
-                        $cc,
-                        [
-                            'pcid' => $company,
-                            'poid' => $offerno,
-                            'servicestype' => $servicestype,
-                            'collectiontype' => $collectiontype,
-                            'address' => $address,
-                            'region' => $region,
-                            'pstart_date' => $pstartdate,
-                            'price' => $price,
-                            'pstatu' => $pstatu,
-                            'contract_statu' => $contract_statu,
-                        ],
-                        ['pcid', 'poid', 'servicestype', 'collectiontype', 'address', 'region', 'pstart_date', 'price', 'pstatu', 'contract_statu']
-                    ),
-                ]
-            );
-            header("Location: index.php?p=service/manage&id=$sid&st=updatesuccess");
-        } else {
-            header('Location: index.php?p=service/manage&id=$sid&st=newerror');
-        }
-        exit;
-
-    } else {
-        // ─── YENİ EKLEME ───
-        // Dosya yükleme
-        $soneklenen_dosyaid = null;
-        if (@$_FILES["dosya"]["name"]) {
-            $dizin = "files/";
-            $kaynak = $_FILES["dosya"]["tmp_name"];
-            $rast1 = rand(1, 100);
-            $hedef = $dizin . $rast1 . "_" . basename($_FILES["dosya"]["name"]);
-            $upx = move_uploaded_file($kaynak, $hedef);
-            if (@$upx) {
-                $ins = $ac->prepare("INSERT INTO files SET pid = ?, oid = ?, filename = ?, size = ?, creativer = ?");
-                $ins->execute(array(@$_POST["company"], @$_POST["offerno"], $rast1 . "_" . basename($_FILES["dosya"]["name"]), $_FILES["dosya"]["size"], sesset("id")));
-                $soneklenen_dosyaid = $ac->lastInsertId();
-            }
-        }
-
-        $company = $_POST["company"];
-        $offerno = !empty($_POST["offerno"]) ? (int)$_POST["offerno"] : null;
-        $region = $_POST["region"];
-        $servicestype = $_POST["ServisKonusu"];
-        $collectiontype = $_POST["TahsilatTuru"];
-        $address = $_POST["address"];
-        $creativerx = sesset("id");
-        $pdesc = $_POST["pdesc"];
-        $pstartdate = !empty($_POST["pstartdate"]) ? date_tr($_POST["pstartdate"]) : null;
-        $price = !empty($_POST["price"]) ? $_POST["price"] : null;
-        $price_desc = $_POST["price_desc"] ?? null;
-        $teklifID = $soneklenen_dosyaid;
-        $pnote = addslashes(@$_POST["servicesnote"]);
-        $pstatu = !empty($_POST["pstatu"]) ? (int)$_POST["pstatu"] : null;
-        $contract_statu = !empty($_POST["contract_statu"]) ? (int)$_POST["contract_statu"] : null;
-        $contract_updated_at = null;
-        $contract_updated_by = null;
-        if ($contract_statu == 2) {
-            $contract_updated_at = date('Y-m-d H:i:s');
-            $contract_updated_by = sesset('id');
-        }
-        $pps = "";
-
-        foreach (($_POST["permings"] ?? []) as $psx) {
-            $pps .= $psx . "|";
-        }
-
-        $regxs = $ac->prepare("INSERT INTO projects SET
-                pcid = ?, poid = ?, servicestype = ?, service_number = ?,
-                collectiontype = ?, address = ?, region = ?, pcreativer = ?,
-                pdesc = ?, pstart_date = ?, pauthors = ?, price = ?,
-                price_desc = ?, teklifID = ?, pnotes = ?, pstatu = ?, contract_statu = ?,
-                contract_updated_at = ?, contract_updated_by = ?");
-
-        $regxs->execute(array(
-            $company,
-            $offerno,
-            $servicestype,
-            $service_number,
-            $collectiontype,
-            $address,
-            $region,
-            $creativerx,
-            $pdesc,
-            $pstartdate,
-            $pps,
-            $price,
-            $price_desc,
-            $teklifID,
-            $pnote,
-            $pstatu,
-            $contract_statu,
-            $contract_updated_at,
-            $contract_updated_by
-        ));
-
-        if ($regxs) {
-            $last_id = $ac->lastInsertId();
-            audit_log(
-                "create",
-                "services",
-                "Yeni servis oluşturuldu: $service_number",
-                "service",
-                $last_id,
-                ['service_number' => $service_number, 'customer_id' => (int) $company]
-            );
-            $getNumber += 1;
-            $upquery = $ac->prepare("UPDATE define_numbers SET service = ?");
-            $upquery->execute(array($getNumber));
-            header("Location:index.php?p=service/manage&st=newsuccess");
-        } else {
-            header("Location: index.php?p=service/manage&st=newerror");
-        }
-        exit;
-    }
-}
+// Servis kayıt ve güncelleme işlemleri App/api/service-save.php üzerinden yürütülür.
 
 // ─── Uyarı Mesajları ───
 if (@$_GET["st"] == "newsuccess") {
@@ -529,7 +323,21 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     .form-field {
         display: flex;
         flex-direction: column;
+        justify-content: flex-start;
         gap: 8px;
+    }
+
+    .form-field select.select2-hidden-accessible {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        min-height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
     }
 
     .form-field label {
@@ -612,17 +420,37 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
         width: 100%;
     }
 
+    .form-field > span.select2.select2-container {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        align-self: stretch;
+    }
+
+    .form-field .select2-container,
+    .form-field .select2-selection,
+    .form-field .select2-selection:focus {
+        outline: none !important;
+    }
+
     .form-field .input-group .bootstrap-select,
     .form-field .input-group span.select2.select2-container {
         flex: 1 1 auto !important;
         width: 1% !important;
         min-width: 0 !important;
+        margin: 0 !important;
     }
 
     .form-field .input-group .bootstrap-select .btn,
     .form-field .input-group .select2-container .select2-selection {
         border-top-right-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
+    }
+
+    .form-field .offer-input-group:not(.has-view-offer) .form-control,
+    .form-field .offer-input-group:not(.has-view-offer) .select2-container .select2-selection {
+        border-top-right-radius: 10px !important;
+        border-bottom-right-radius: 10px !important;
     }
 
     .form-field .input-group .btn-add-new,
@@ -1086,7 +914,7 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
 
 
 
-    <form name="serviceForm" id="serviceForm" enctype="multipart/form-data" method="POST">
+    <form name="serviceForm" id="serviceForm" action="App/api/service-save.php" enctype="multipart/form-data" method="POST">
 
         <!-- ═══════ STEP 1: Temel Bilgiler ═══════ -->
         <div class="step-panel active" id="step-1">
@@ -1167,6 +995,18 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                         <span class="field-error-msg"><i class="fa fa-exclamation-circle"></i> Tahsilat türü seçimi zorunludur</span>
                     </div>
 
+                    <!-- Başlama Tarihi -->
+                    <div class="form-field">
+                        <label>Başlama Tarihi</label>
+                        <?php if ($isEdit && !in_array($_SESSION['lid'], array(4, 6, 12, 11, 28))) { ?>
+                            <div class="readonly-value"><?php echo $cc['pstart_date']; ?></div>
+                        <?php } else { ?>
+                            <input name="pstartdate" class="form-control date-picker" autocomplete="off"
+                                placeholder="Tarih Seçin" type="text"
+                                value="<?php echo $isEdit ? $cc['pstart_date'] : ''; ?>">
+                        <?php } ?>
+                    </div>
+
                     <!-- Adres Bölge -->
                     <div class="form-field" id="field-region">
                         <label><span class="required-dot"></span> Adres Bölge</label>
@@ -1180,18 +1020,6 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                         <input type="text" id="address" readonly name="address"
                             value="<?php echo $isEdit ? $cc['address'] : ($comp_city . " / " . $comp_ilce); ?>"
                             class="form-control">
-                    </div>
-
-                    <!-- Başlama Tarihi -->
-                    <div class="form-field">
-                        <label>Başlama Tarihi</label>
-                        <?php if ($isEdit && !in_array($_SESSION['lid'], array(4, 6, 12, 11, 28))) { ?>
-                            <div class="readonly-value"><?php echo $cc['pstart_date']; ?></div>
-                        <?php } else { ?>
-                            <input name="pstartdate" class="form-control date-picker" autocomplete="off"
-                                placeholder="Tarih Seçin" type="text"
-                                value="<?php echo $isEdit ? $cc['pstart_date'] : ''; ?>">
-                        <?php } ?>
                     </div>
 
                     <?php if ($isEdit) { ?>
@@ -1283,7 +1111,7 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                     <!-- Teklif Numarası -->
                     <div class="form-field">
                         <label>Teklif Numarası</label>
-                        <div class="input-group">
+                        <div class="input-group offer-input-group">
                             <?php if ($isEdit) { ?>
                                 <select id="offerno" name="offerno" class="form-control select2"
                                     data-placeholder="Teklif Seçiniz">
@@ -1462,7 +1290,7 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
 </div>
 
 <!-- Şirket seçildiğinde il,ilçe seçimi ve o şirkete ait varsa teklif no seçimi -->
-<script src="include/js/service.js"></script>
+<script src="include/js/service.js?v=<?php echo filemtime('include/js/service.js'); ?>"></script>
 
 <script>
 
@@ -1475,7 +1303,11 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
         { id: 'region',        fieldId: 'field-region',         label: 'Adres Bölge' }
     ];
 
-    function submitServiceForm() {
+    var serviceFormSubmitting = false;
+
+    async function submitServiceForm() {
+        if (serviceFormSubmitting) return;
+
         // Önceki hataları temizle
         $('.form-field.field-error').removeClass('field-error');
 
@@ -1503,12 +1335,72 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
             return;
         }
 
-        <?php if (!$isEdit) { ?>
-        // Başarılı kayıt öncesi local storage temizle
-        try { localStorage.removeItem('<?php echo 'svcForm_' . $service_number; ?>'); } catch(e) {}
-        <?php } ?>
+        var form = document.getElementById('serviceForm');
+        var submitButtons = document.querySelectorAll('.btn-header-save');
+        var buttonContents = [];
 
-        document.getElementById('serviceForm').submit();
+        serviceFormSubmitting = true;
+        submitButtons.forEach(function (button) {
+            buttonContents.push(button.innerHTML);
+            button.disabled = true;
+            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> İşleniyor';
+        });
+
+        try {
+            var formData = new FormData(form);
+            <?php if ($isEdit) { ?>
+            formData.append('service_id', '<?php echo (int) $sid; ?>');
+            <?php } ?>
+
+            var response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            var responseText = await response.text();
+            var result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                throw new Error('Sunucudan geçersiz bir yanıt alındı. Lütfen tekrar deneyin.');
+            }
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'İşlem sırasında bir hata oluştu.');
+            }
+
+            <?php if (!$isEdit) { ?>
+            try { localStorage.removeItem('<?php echo 'svcForm_' . $service_number; ?>'); } catch(e) {}
+            <?php } ?>
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Başarılı!',
+                text: result.message,
+                confirmButtonText: 'Tamam',
+                allowOutsideClick: false
+            });
+
+            <?php if (!$isEdit) { ?>
+            window.location.href = 'index.php?p=service/manage&id=' + encodeURIComponent(result.service_id);
+            <?php } ?>
+        } catch (error) {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Hata!',
+                text: error.message || 'İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.',
+                confirmButtonText: 'Tamam'
+            });
+        } finally {
+            serviceFormSubmitting = false;
+            submitButtons.forEach(function (button, index) {
+                button.disabled = false;
+                button.innerHTML = buttonContents[index];
+            });
+        }
     }
 
     // Hata göstergelerini alana tekrar tıklandığında/değiştirildiğinde temizle
@@ -1630,11 +1522,15 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
 
     function updateViewOfferButton(offerId) {
         var btn = $("#viewOfferBtn");
+        var inputGroup = btn.closest(".offer-input-group");
         if (offerId && offerId != "" && offerId != "0") {
+            inputGroup.addClass("has-view-offer");
             btn.attr("href", "index.php?p=offer-view&id=" + offerId);
             btn.fadeIn(300).css("display", "flex");
         } else {
-            btn.fadeOut(200);
+            btn.fadeOut(200, function () {
+                inputGroup.removeClass("has-view-offer");
+            });
         }
     }
 

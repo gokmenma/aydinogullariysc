@@ -23,7 +23,7 @@ if ($_POST) {
 	}
 
 	if (@$_POST["upassword"] && $_POST["upassword"] != "******") {
-		$upassword = md5(md5(md5($_POST["upassword"])));
+		$upassword = password_hash((string) $_POST["upassword"], PASSWORD_DEFAULT);
 	} else {
 		$upassword = $cc["password"];
 	}

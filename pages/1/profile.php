@@ -47,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $status = 'csrf_error';
     } elseif ($currentPassword === '' || $newPassword === '' || $newPasswordConfirmation === '') {
         $status = 'empties';
-    } elseif (md5(md5(md5($currentPassword))) !== (string) sesset('password')) {
+    } elseif (!password_verify($currentPassword, (string) sesset('password'))
+        && !hash_equals((string) sesset('password'), md5(md5(md5($currentPassword))))) {
         $status = 'current_password_error';
     } elseif (strlen($newPassword) < 8) {
         $status = 'password_short';
@@ -56,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } elseif ($currentPassword === $newPassword) {
         $status = 'password_same';
     } else {
-        $passwordHash = md5(md5(md5($newPassword)));
+        $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
         $update = $ac->prepare('UPDATE users SET password = ? WHERE id = ?');
         $update->execute([$passwordHash, $userId]);
 
@@ -1390,4 +1391,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
-

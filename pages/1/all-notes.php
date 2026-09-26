@@ -12,9 +12,9 @@ if ($nid && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 	$qkx = $qcont->fetch(PDO::FETCH_ASSOC);
 	if ($qkx) {
 		$pdq = $ac->prepare("DELETE FROM notes WHERE id = ?");
-		$pdq->execute(array($nid));
+		$deleted = $pdq->execute(array($nid));
 
-		if (function_exists('audit_log')) {
+		if ($deleted && function_exists('audit_log')) {
 			audit_log('delete', 'notes', 'Not silindi: ' . ($qkx['title'] ?? ''), 'note', $nid, ['deleted_title' => $qkx['title'] ?? '']);
 		}
 
@@ -132,16 +132,16 @@ $allCategories = $catStmt ? $catStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 				<div class="header-title">
 					<h4>Tüm Notlar</h4>
 					<div class="header-stat-pills d-flex align-items-center flex-wrap" style="gap: 8px; margin-top: 6px;">
-						<span class="header-pill header-pill-total">
+						<span class="header-pill header-pill-total" data-note-count="total">
 							<i class="fa fa-list-ul mr-1"></i> Toplam: <strong><?php echo $totalCount; ?></strong>
 						</span>
-						<span class="header-pill header-pill-high">
+						<span class="header-pill header-pill-high" data-note-count="Yüksek">
 							<i class="fa fa-exclamation-circle mr-1"></i> Yüksek: <strong><?php echo $highCount; ?></strong>
 						</span>
-						<span class="header-pill header-pill-mid">
+						<span class="header-pill header-pill-mid" data-note-count="Orta">
 							<i class="fa fa-clock-o mr-1"></i> Orta: <strong><?php echo $midCount; ?></strong>
 						</span>
-						<span class="header-pill header-pill-low">
+						<span class="header-pill header-pill-low" data-note-count="Düşük">
 							<i class="fa fa-check-circle mr-1"></i> Düşük: <strong><?php echo $lowCount; ?></strong>
 						</span>
 					</div>
@@ -1143,8 +1143,70 @@ $(document).ready(function () {
 	$(document).on("click", ".btn-delete-note", function (e) {
 		e.preventDefault();
 		var btn = $(this);
+		var noteId = parseInt(btn.attr("data-id"), 10);
 		var noteTitle = btn.attr("data-title") || "Seçilen";
-		var deleteUrl = btn.attr("data-url");
+		var deleteUrl = "App/api/note-delete.php";
+		var row = $('#notesTable tbody tr[data-note-id="' + noteId + '"]');
+
+		function updateNoteCount(key) {
+			var countEl = $('[data-note-count="' + key + '"] strong');
+			if (countEl.length) {
+				countEl.text(Math.max(0, parseInt(countEl.text(), 10) - 1));
+			}
+		}
+
+		function deleteNote() {
+			btn.prop("disabled", true);
+			return $.ajax({
+				url: deleteUrl,
+				type: "POST",
+				dataType: "json",
+				data: { note_id: noteId }
+			}).done(function (response) {
+				if (!response || response.success !== true) {
+					Swal.fire({
+						icon: "error",
+						title: "Silinemedi",
+						text: response && response.message ? response.message : "Sunucudan geçerli bir işlem sonucu alınamadı.",
+						confirmButtonText: "Tamam"
+					});
+					return;
+				}
+
+				if ($.fn.DataTable && $.fn.DataTable.isDataTable("#notesTable")) {
+					$("#notesTable").DataTable().row(row).remove().draw(false);
+				} else {
+					row.remove();
+				}
+				updateNoteCount("total");
+				updateNoteCount(response.urgency || "Orta");
+				closeNotesContextMenu();
+				if ($.fn.modal && $("#viewNoteModal").hasClass("show")) {
+					$("#viewNoteModal").modal("hide");
+				} else if (typeof bootstrap !== "undefined" && bootstrap.Modal && typeof bootstrap.Modal.getInstance === "function") {
+					var openModal = bootstrap.Modal.getInstance(document.getElementById("viewNoteModal"));
+					if (openModal) openModal.hide();
+				}
+
+				Swal.fire({
+					icon: "success",
+					title: "Silindi",
+					text: response.message || "Not başarıyla silindi.",
+					confirmButtonText: "Tamam",
+					timer: 1800,
+					timerProgressBar: true
+				});
+			}).fail(function (xhr) {
+				var message = "Sunucuyla iletişim kurulurken bir sorun oluştu.";
+				try {
+					var errorResponse = JSON.parse(String(xhr.responseText || "").trim());
+					if (errorResponse.message) message = errorResponse.message;
+				} catch (ignoredError) {}
+				Swal.fire({ icon: "error", title: "Silinemedi", text: message, confirmButtonText: "Tamam" });
+			}).always(function () {
+				btn.prop("disabled", false);
+			});
+		}
 
 		if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
 			Swal.fire({
@@ -1166,12 +1228,14 @@ $(document).ready(function () {
 				buttonsStyling: false
 			}).then(function (result) {
 				if (result.isConfirmed) {
-					window.location.href = deleteUrl;
+					deleteNote();
 				}
 			});
 		} else {
 			if (confirm('"' + noteTitle + '" başlıklı notu silmek istediğinize emin misiniz?')) {
-				window.location.href = deleteUrl;
+				$.ajax({ url: deleteUrl, type: "POST", data: { note_id: noteId } })
+					.done(function () { window.location.reload(); })
+					.fail(function () { alert("Not silinemedi."); });
 			}
 		}
 	});

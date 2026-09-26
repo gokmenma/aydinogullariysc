@@ -11,6 +11,7 @@
 <!-- Mobile Specific Metas -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="csrf-token" content="<?php echo htmlspecialchars(\App\Helper\Security::csrf(), ENT_QUOTES, 'UTF-8'); ?>">
 
 <!-- Google Fonts (Geist, Inter, Plus Jakarta Sans, Poppins, Outfit, Roboto, Montserrat, DM Sans, Manrope, Space Grotesk, Urbanist, Figtree, Sora) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,6 +73,7 @@
 
 <!-- <script src="//code.jquery.com/jquery-3.6.0.min.js"></script> -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="include/js/security.js?v=<?php echo filemtime('include/js/security.js'); ?>"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
@@ -113,8 +115,15 @@
 			var isDark = document.documentElement.classList.contains('dark-mode') || (document.body && document.body.classList.contains('dark-mode'));
 			document.querySelectorAll('iframe.wysihtml5-sandbox').forEach(function(iframe) {
 				try {
+					iframe.style.setProperty('padding', '0', 'important');
 					var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
 					if (doc && doc.body) {
+						if (doc.documentElement) {
+							doc.documentElement.style.margin = '0';
+							doc.documentElement.style.padding = '0';
+						}
+						doc.body.style.padding = '8px 12px';
+						doc.body.style.margin = '0';
 						if (isDark) {
 							doc.body.style.backgroundColor = '#0f172a';
 							doc.body.style.color = '#f8fafc';

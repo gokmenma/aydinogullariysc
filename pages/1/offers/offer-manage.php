@@ -583,6 +583,11 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 opacity: 0 !important;
             }
 
+            .offerHeaderContent iframe.wysihtml5-sandbox,
+            .offerFooterContent iframe.wysihtml5-sandbox {
+                padding: 0 !important;
+            }
+
             .offerHeaderContent iframe.wysihtml5-sandbox {
                 height: 190px !important;
                 min-height: 190px !important;
@@ -591,6 +596,203 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .offerFooterContent iframe.wysihtml5-sandbox {
                 height: 220px !important;
                 min-height: 220px !important;
+            }
+
+            /* Dinamik Müşteri Select2 Stilleri (E-posta / Alıcı Seçimi Standardı ile birebir aynı) */
+            .customer-select-box .select2-container--default .select2-selection--single {
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 8px !important;
+                height: 42px !important;
+                min-height: 42px !important;
+                padding: 6px 12px !important;
+                background-color: #ffffff !important;
+                display: flex !important;
+                align-items: center !important;
+                transition: all 0.2s ease;
+            }
+
+            .customer-select-box .select2-container--default.select2-container--focus .select2-selection--single,
+            .customer-select-box .select2-container--default.select2-container--open .select2-selection--single {
+                border-color: #3b82f6 !important;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+            }
+
+            .customer-select-box .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: #0f172a !important;
+                font-weight: 500 !important;
+                font-size: 13.5px !important;
+                line-height: normal !important;
+                padding-left: 0 !important;
+                padding-right: 20px !important;
+            }
+
+            .customer-select-box .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 40px !important;
+                right: 10px !important;
+            }
+
+            .select2-dropdown {
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 10px !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+                overflow: hidden !important;
+                z-index: 99999 !important;
+            }
+
+            .select2-results__option {
+                padding: 9px 14px !important;
+                font-size: 13px !important;
+                border-bottom: 1px solid #f1f5f9;
+                background-color: #ffffff !important;
+                transition: background 0.15s ease, color 0.15s ease;
+            }
+
+            .select2-results__option:last-child {
+                border-bottom: none;
+            }
+
+            .select2-customer-option {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .customer-title {
+                font-weight: 600;
+                color: #0f172a !important;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                font-size: 13.5px;
+            }
+
+            .customer-title i {
+                color: #2563eb !important;
+            }
+
+            .customer-sub {
+                font-size: 12px;
+                color: #475569 !important;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .customer-sub i {
+                color: #64748b !important;
+            }
+
+            /* HOVER & HIGHLIGHTED DURUM: Yüksek Kontrastlı Koyu Mavi Arka Plan */
+            .select2-container--default .select2-results__option--highlighted[aria-selected],
+            .select2-container--default .select2-results__option--highlighted,
+            .select2-results__option:hover {
+                background: #1d4ed8 !important;
+                color: #ffffff !important;
+            }
+
+            .select2-container--default .select2-results__option--highlighted .customer-title,
+            .select2-container--default .select2-results__option--highlighted .customer-title i,
+            .select2-results__option:hover .customer-title,
+            .select2-results__option:hover .customer-title i {
+                color: #ffffff !important;
+            }
+
+            .select2-container--default .select2-results__option--highlighted .customer-sub,
+            .select2-container--default .select2-results__option--highlighted .customer-sub i,
+            .select2-results__option:hover .customer-sub,
+            .select2-results__option:hover .customer-sub i {
+                color: #dbeafe !important;
+            }
+
+            /* Satır İçi Ürün Otomatik Tamamlama (Inline Autocomplete) */
+            .product-autocomplete-wrap {
+                position: relative;
+                width: 100%;
+            }
+
+            .product-autocomplete-results {
+                position: fixed !important;
+                max-height: 280px;
+                overflow-y: auto;
+                background: #ffffff;
+                border: 1px solid #cbd5e1;
+                border-radius: 10px;
+                box-shadow: 0 14px 35px -5px rgba(15, 23, 42, 0.25);
+                z-index: 9999999 !important;
+                padding: 4px;
+            }
+
+            .product-autocomplete-item {
+                padding: 8px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                border-bottom: 1px solid #f1f5f9;
+                transition: all 0.15s ease;
+            }
+
+            .product-autocomplete-item:last-child {
+                border-bottom: none;
+            }
+
+            .product-autocomplete-item:hover,
+            .product-autocomplete-item.active {
+                background: var(--theme-primary-light, #eff6ff);
+                border-left: 3px solid var(--theme-primary, #2563eb);
+            }
+
+            .product-autocomplete-item .product-item-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: #0f172a;
+                line-height: 1.25;
+            }
+
+            .product-autocomplete-item .product-item-stock {
+                font-size: 11px;
+                font-weight: 700;
+                color: #475569;
+                background: #f1f5f9;
+                padding: 2px 6px;
+                border-radius: 4px;
+                border: 1px solid #e2e8f0;
+            }
+
+            .product-autocomplete-item .product-item-meta {
+                font-size: 11.5px;
+                color: #64748b;
+                margin-top: 4px;
+            }
+
+            /* Dark Mode Autocomplete */
+            .dark-mode .product-autocomplete-results {
+                background: #1e293b !important;
+                border-color: #334155 !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            .dark-mode .product-autocomplete-item {
+                border-bottom-color: #334155 !important;
+            }
+
+            .dark-mode .product-autocomplete-item:hover,
+            .dark-mode .product-autocomplete-item.active {
+                background: #334155 !important;
+                border-left-color: var(--theme-primary, #3b82f6) !important;
+            }
+
+            .dark-mode .product-autocomplete-item .product-item-title {
+                color: #f8fafc !important;
+            }
+
+            .dark-mode .product-autocomplete-item .product-item-stock {
+                background: #0f172a !important;
+                color: #cbd5e1 !important;
+                border-color: #334155 !important;
+            }
+
+            .dark-mode .product-autocomplete-item .product-item-meta {
+                color: #94a3b8 !important;
             }
         </style>
 
@@ -625,30 +827,40 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         
                         <!-- Firma Adı -->
                         <div class="form-field customer-select-field">
-                            <label for="customers"><font color="red">(*)</font> Firma Adı</label>
-                            <div class="input-group">
-                                <select required name="customers" id="customers" data-placeholder="Firma Seçiniz..." class="form-control select2">
-                                    <option value="">Firma Seçiniz...</option>
-                                    <?php
-                                    $customer_id = $offer->cid ?? 0;
-                                    $qct = $ac->prepare(
-                                        'SELECT * FROM customers
-                                         WHERE deleted_at IS NULL OR id = ?
-                                         ORDER BY id DESC'
-                                    );
-                                    $qct->execute([$customer_id]);
-                                    while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
-                                        ?>
-                                        <option <?php echo $customer_id == $cscs['id'] ? ' selected' : '' ?> value="<?php echo $cscs['id']; ?>">
-                                            <?php echo htmlspecialchars($cscs['company']); ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label for="customers" class="mb-0 font-14 weight-600"><font color="red">(*)</font> Firma Adı</label>
                                 <?php if (permtrue('customeradd')) { ?>
-                                    <a href="index.php?p=new-customer" target="_blank" class="btn btn-info btn-sm d-flex align-items-center" data-tooltip="Yeni Firma Eklemek için tıklayınız!">
-                                        <i class="fa fa-plus"></i>
-                                    </a>
+                                    <button type="button" id="btnOpenQuickCustomerModal" class="btn btn-outline-primary btn-sm" style="border-radius: 6px; padding: 2px 10px; font-size: 12px; font-weight: 600; line-height: 1.4;">
+                                        <i class="fa fa-plus-circle mr-1"></i> Hızlı Firma Ekle
+                                    </button>
                                 <?php } ?>
+                            </div>
+                            <div class="customer-select-box" style="width: 100%;">
+                                <select required name="customers" id="customers" data-placeholder="Firma adı veya yetkili yazarak arayın..." class="form-control select2-customer-select" style="width: 100%;">
+                                    <option value="">Firma adı veya yetkili yazarak arayın...</option>
+                                    <?php
+                                    $selectedId = (int)($offer->cid ?? 0);
+                                    if ($selectedId > 0) {
+                                        $stmtSelected = $ac->prepare("SELECT id, company, yetkili, email, gsm, city, ilce, OdemeVade FROM customers WHERE id = :id AND deleted_at IS NULL LIMIT 1");
+                                        $stmtSelected->execute([':id' => $selectedId]);
+                                        $cSel = $stmtSelected->fetch(PDO::FETCH_ASSOC);
+                                        if ($cSel) {
+                                            ?>
+                                            <option value="<?php echo (int)$cSel['id']; ?>" selected
+                                                data-company="<?php echo htmlspecialchars($cSel['company'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-author="<?php echo htmlspecialchars($cSel['yetkili'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-payperiod="<?php echo htmlspecialchars($cSel['OdemeVade'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-email="<?php echo htmlspecialchars($cSel['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-gsm="<?php echo htmlspecialchars($cSel['gsm'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-city="<?php echo htmlspecialchars($cSel['city'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-ilce="<?php echo htmlspecialchars($cSel['ilce'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?php echo htmlspecialchars($cSel['company']); ?>
+                                            </option>
+                                            <?php
+                                        }
+                                    }
+                                    ?>
+                                </select>
                             </div>
                         </div>
 
@@ -1016,7 +1228,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         <thead>
                             <tr>
                                 <th style="width: 35px;">Taşı</th>
-                                <th style="width: 75px;">İşlem</th>
+                                <th style="width: 65px;">İşlem</th>
                                 <th class="text-center" style="width: 45px;">Sıra</th>
                                 <th style="width: 100px;">Stok Kodu</th>
                                 <th style="width: 250px;">Ürün/Malzeme</th>
@@ -1073,10 +1285,20 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="12">
-                                    <button type="button" id="ekle" class="btn btn-sm btn-primary mt-3 mb-3" style="border-radius: 8px;">
-                                        <i class="fa fa-plus"></i> Yeni Satır
-                                    </button>
+                                <td colspan="12" class="py-3">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button type="button" id="ekle" class="btn btn-primary btn-sm" style="border-radius: 8px; font-weight: 600; padding: 7px 18px;">
+                                                <i class="fa fa-plus-circle mr-1"></i> Yeni Satır Ekle
+                                            </button>
+                                            <button type="button" id="btnOpenMultiProductModal" class="btn btn-outline-primary btn-sm" style="border-radius: 8px; font-weight: 600; padding: 7px 18px;">
+                                                <i class="fa fa-th-list mr-1"></i> Toplu Ürün Ekle
+                                            </button>
+                                        </div>
+                                        <div class="text-muted font-12 d-flex align-items-center">
+                                            <i class="fa fa-keyboard-o mr-1 text-primary"></i> İpucu: Satırda <b>Tab</b> tuşuyla sonraki alana geçebilir, ürün adını yazarak anında seçebilirsiniz.
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </tfoot>
@@ -1297,9 +1519,12 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
     </aside>
     <div id="offerTotalsBackdrop" class="offer-totals-backdrop" aria-hidden="true"></div>
 
-    <!-- Tablonun içine eklendiği zaman satır silince diğer satırlarda çalışmıyor -->
-    <?php include_once 'offer-modal.php'; ?>
 </form>
+
+<!-- Modallar (HTML standartlarına uygun şekilde form dışında tanımlanır) -->
+<?php include_once __DIR__ . '/offer-modal.php'; ?>
+<?php include_once __DIR__ . '/offer-quick-customer-modal.php'; ?>
+<?php include_once __DIR__ . '/offer-multi-product-modal.php'; ?>
 
 <!--buradan başlıyor-->
 <script src="include/js/offer.js"></script>
@@ -1332,8 +1557,132 @@ $(document).ready(function() {
         }
     });
 
+    // -------------------------------------------------------------
+    // 1. Dinamik AJAX Firma Seçimi (Ultra Hızlı, 60 FPS, E-Posta Stili)
+    // -------------------------------------------------------------
+    function formatCustomerResult(item) {
+        if (item.loading) {
+            return item.text;
+        }
+        if (!item.id) {
+            return item.text;
+        }
+
+        var company = item.company || item.text || '';
+        var yetkili = item.yetkili || '';
+        var gsm = item.gsm || '';
+        var email = item.email || '';
+        var city = item.city || '';
+        var ilce = item.ilce || '';
+
+        var subParts = [];
+        if (yetkili && yetkili !== '.' && yetkili !== '') {
+            subParts.push('<i class="fa fa-user mr-1"></i>' + $('<div>').text(yetkili).html());
+        }
+        if (gsm && gsm !== '.' && gsm !== '') {
+            subParts.push('<i class="fa fa-phone mr-1"></i>' + $('<div>').text(gsm).html());
+        }
+        if (email && email !== '.' && email !== '') {
+            subParts.push('<i class="fa fa-envelope mr-1"></i>' + $('<div>').text(email).html());
+        }
+        if (city && city !== '') {
+            var cityText = city + (ilce ? ' / ' + ilce : '');
+            subParts.push('<i class="fa fa-map-marker mr-1"></i>' + $('<div>').text(cityText).html());
+        }
+        var subHtml = subParts.length > 0 ? subParts.join(' &bull; ') : '<span style="opacity: 0.7;">Ek iletişim bilgisi bulunmuyor</span>';
+
+        return $(
+            '<div class="select2-customer-option">' +
+                '<div class="customer-title"><i class="fa fa-building"></i> ' + $('<div>').text(company).html() + '</div>' +
+                '<div class="customer-sub">' + subHtml + '</div>' +
+            '</div>'
+        );
+    }
+
+    function formatCustomerSelection(item) {
+        if (!item.id) {
+            return item.text || 'Firma adı veya yetkili yazarak arayın...';
+        }
+        var company = item.company || (item.element ? $(item.element).data('company') : '') || item.text;
+        return company;
+    }
+
+    var $customerSelect = $('#customers');
+    if ($customerSelect.length && $.fn.select2) {
+        if ($customerSelect.data('select2')) {
+            $customerSelect.select2('destroy');
+        }
+
+        $customerSelect.select2({
+            placeholder: 'Firma adı veya yetkili yazarak arayın...',
+            allowClear: false,
+            width: '100%',
+            minimumInputLength: 0,
+            ajax: {
+                url: 'api/search_customers.php',
+                dataType: 'json',
+                delay: 100,
+                data: function(params) {
+                    return {
+                        q: params.term || '',
+                        limit: 30
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.results || []
+                    };
+                },
+                cache: true
+            },
+            templateResult: formatCustomerResult,
+            templateSelection: formatCustomerSelection,
+            language: {
+                searching: function() { return "Aranıyor..."; },
+                noResults: function() { return "Eşleşen firma bulunamadı"; },
+                loadingMore: function() { return "Daha fazla yükleniyor..."; },
+                inputTooShort: function() { return "Aramak için yazmaya başlayın..."; }
+            }
+        });
+
+        // Tıklandığında anında ilk 30 firmayı getir
+        $customerSelect.on('select2:open', function() {
+            var s2 = $customerSelect.data('select2');
+            if (s2 && s2.dataAdapter) {
+                s2.dataAdapter.query({ term: '' }, function(data) {
+                    s2.results.append(data);
+                });
+            }
+        });
+
+        // Seçim yapıldığında yetkili ve vadeyi otomatik doldur / yoksa temizle
+        $customerSelect.on('select2:select', function(e) {
+            var data = e.params ? e.params.data : null;
+            if (data) {
+                var author = data.yetkili || $(this).find('option:selected').data('author') || '';
+                var payPeriod = data.odemevadesi || data.payperiod || $(this).find('option:selected').data('payperiod') || '';
+                if (author && author !== '.' && author !== '-') {
+                    $('#compAuths').val(author);
+                } else {
+                    $('#compAuths').val('');
+                }
+                if (payPeriod && payPeriod !== '') {
+                    $('#payPeriod').val(payPeriod);
+                } else {
+                    $('#payPeriod').val('');
+                }
+            }
+        });
+
+        $customerSelect.on('select2:clear select2:unselect', function() {
+            $('#compAuths').val('');
+            $('#payPeriod').val('');
+        });
+    }
+
+    // Diğer normal select2 elemanlarını başlat (Modal ve müşteri hariç)
     if ($.fn.select2) {
-        $('.select2').each(function () {
+        $('select.select2:not(#customers):not(.select2-customer-select):not(.modal-select2):not(.modal-select2-tags)').each(function () {
             var $this = $(this);
             $this.select2({
                 placeholder: $this.attr('placeholder') || $this.data('placeholder') || 'Seçim Yapınız',
@@ -1342,6 +1691,194 @@ $(document).ready(function() {
             });
         });
     }
+
+    // -------------------------------------------------------------
+    // 2. Hızlı Firma Ekleme Modalı İşlemleri
+    // -------------------------------------------------------------
+    $(document).on('click', '#btnOpenQuickCustomerModal', function(e) {
+        e.preventDefault();
+        var formEl = document.getElementById('quickCustomerForm');
+        if (formEl) {
+            formEl.reset();
+        }
+
+        // İl seçenekleri eksikse dinamik yükle (güvenlik ağı)
+        var $ilSelect = $('#quick_il');
+        if ($ilSelect.find('option').length <= 1) {
+            $.getJSON('src/scripts/il-bolge.json', function(provinces) {
+                $.each(provinces, function(i, p) {
+                    $ilSelect.append($('<option>', {
+                        value: p.il,
+                        text: p.il
+                    }));
+                });
+                $ilSelect.val('').trigger('change');
+            });
+        } else {
+            $ilSelect.val('').trigger('change');
+        }
+
+        $('#quick_ilce').empty().append('<option value="">İlçe Seçiniz</option>').trigger('change');
+        $('#categoryName, #quick_categoryName').val('').trigger('change');
+        $('#quick_vade').val('').trigger('change');
+        $('#quickAddCustomerModal').modal('show');
+    });
+
+    $('#quickAddCustomerModal').on('shown.bs.modal', function() {
+        if ($.fn.select2) {
+            $('#quickAddCustomerModal .modal-select2').select2({
+                dropdownParent: $('#quickAddCustomerModal'),
+                width: '100%'
+            });
+            $('#quickAddCustomerModal .modal-select2-tags').select2({
+                dropdownParent: $('#quickAddCustomerModal'),
+                width: '100%',
+                tags: true
+            });
+        }
+        $('#quick_company').focus();
+    });
+
+    $(document).on('change', '#quick_il', function() {
+        var selectedIl = $(this).val();
+        var $ilceSelect = $('#quick_ilce');
+        $ilceSelect.empty().append('<option value="">İlçe Seçiniz</option>');
+
+        if (selectedIl) {
+            $.getJSON('src/scripts/il-ilce.json', function(data) {
+                $.each(data, function(i, item) {
+                    if (item.il === selectedIl) {
+                        $ilceSelect.append($('<option>', {
+                            value: item.ilce,
+                            text: item.ilce
+                        }));
+                    }
+                });
+                if ($.fn.select2 && $ilceSelect.hasClass('select2-hidden-accessible')) {
+                    $ilceSelect.trigger('change');
+                }
+            });
+        } else {
+            if ($.fn.select2 && $ilceSelect.hasClass('select2-hidden-accessible')) {
+                $ilceSelect.trigger('change');
+            }
+        }
+    });
+
+    $(document).on('click', '#btnSaveQuickCustomer', function() {
+        var $btn = $(this);
+        var $form = $('#quickCustomerForm');
+        var company = $.trim($('#quick_company').val());
+        var cgsm = $.trim($('#quick_cgsm').val());
+        var address = $.trim($('#quick_customer_address').val());
+        var il = $('#quick_il').val();
+
+        if (!company) {
+            swal.fire({
+                title: 'Eksik Bilgi',
+                text: 'Lütfen firma adını giriniz.',
+                icon: 'warning'
+            });
+            $('#quick_company').focus();
+            return;
+        }
+
+        if (!cgsm) {
+            swal.fire({
+                title: 'Eksik Bilgi',
+                text: 'Lütfen telefon (GSM) bilgisini giriniz.',
+                icon: 'warning'
+            });
+            $('#quick_cgsm').focus();
+            return;
+        }
+
+        if (!il) {
+            swal.fire({
+                title: 'Eksik Bilgi',
+                text: 'Lütfen il seçimi yapınız.',
+                icon: 'warning'
+            });
+            $('#quick_il').focus();
+            return;
+        }
+
+        if (!address) {
+            swal.fire({
+                title: 'Eksik Bilgi',
+                text: 'Lütfen açık adres bilgisini giriniz.',
+                icon: 'warning'
+            });
+            $('#quick_customer_address').focus();
+            return;
+        }
+
+        var formData = new FormData($form[0]);
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Kaydediliyor...');
+
+        fetch('App/api/customer.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            $btn.prop('disabled', false).html('<i class="fa fa-check"></i> <span>Firmayı Kaydet & Seç</span>');
+            if (data.status === 'success') {
+                var newId = data.id;
+                var newCompany = data.company || company;
+                var newYetkili = data.yetkili || $('#quick_yetkili').val() || '';
+                var newVade = data.vade || $('#quick_vade').val() || '';
+                var newEmail = data.email || $('#quick_cemail').val() || '';
+                var newGsm = data.gsm || cgsm;
+                var newCity = data.city || il;
+
+                // Select2'ye yeni option ekle ve seç
+                var newOption = new Option(newCompany, newId, true, true);
+                $(newOption).attr({
+                    'data-company': newCompany,
+                    'data-author': newYetkili,
+                    'data-payperiod': newVade,
+                    'data-email': newEmail,
+                    'data-gsm': newGsm,
+                    'data-city': newCity
+                });
+                $('#customers').append(newOption).val(newId).trigger('change');
+
+                // Firma yetkilisi ve vade alanlarını doldur
+                if (newYetkili) {
+                    $('#compAuths').val(newYetkili);
+                }
+                if (newVade) {
+                    $('#payPeriod').val(newVade);
+                }
+
+                $('#quickAddCustomerModal').modal('hide');
+
+                swal.fire({
+                    title: 'Başarılı!',
+                    text: 'Firma oluşturuldu ve teklife seçildi.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                swal.fire({
+                    title: 'Hata!',
+                    text: data.message || 'Firma kaydedilirken bir hata oluştu.',
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(function(err) {
+            $btn.prop('disabled', false).html('<i class="fa fa-check"></i> <span>Firmayı Kaydet & Seç</span>');
+            swal.fire({
+                title: 'Hata!',
+                text: 'Sunucu ile iletişim kurulurken bir sorun oluştu.',
+                icon: 'error'
+            });
+            console.error('Quick customer error:', err);
+        });
+    });
 
     if ($.fn.selectpicker) {
         $('.selectpicker').selectpicker();

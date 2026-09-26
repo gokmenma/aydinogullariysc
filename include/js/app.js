@@ -568,6 +568,9 @@ function formatDate(date) {
 //başka bilgilerde gerekirse customer-info.php sayfasına ekleme yapılabilir
 function getcustomerInfo(e) {
   var customerID = $(e).val();
+  if (!customerID) {
+    return;
+  }
   $.ajax({
     url: "pages/1/customer-info.php",
     method: "POST",
@@ -576,10 +579,15 @@ function getcustomerInfo(e) {
     },
     dataType: "JSON",
     success: function (response) {
-      var compAuths = $("#compAuths");
-      var payPeriod = $("#payPeriod");
-      compAuths.val(response.yetkili);
-      payPeriod.val(response.odemevadesi);
+      if (response) {
+        var compAuths = $("#compAuths");
+        var payPeriod = $("#payPeriod");
+        var yetkili = (response.yetkili && response.yetkili !== '.' && response.yetkili !== '-') ? response.yetkili : '';
+        compAuths.val(yetkili);
+
+        var vade = (response.odemevadesi && response.odemevadesi !== null) ? response.odemevadesi : '';
+        payPeriod.val(vade);
+      }
     },
     error: function (xhr, status, error) {
       console.error(error);
@@ -827,22 +835,40 @@ function initGlobalWysiPadding() {
         if (typeof $ === 'undefined') return;
         $('iframe.wysihtml5-sandbox').each(function () {
             try {
+                this.style.setProperty('padding', '0', 'important');
                 var doc = this.contentDocument || this.contentWindow.document;
                 if (doc && doc.body) {
-                    if (!doc.getElementById('wysi-global-padding-style')) {
+                    var cssContent = 'html { margin: 0 !important; padding: 0 !important; } ' +
+                        'body { padding: 8px 12px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.5 !important; color: #334155 !important; box-sizing: border-box !important; } ' +
+                        'body.placeholder { color: #94a3b8 !important; padding: 8px 12px !important; margin: 0 !important; } ' +
+                        'body.dark-mode { color: #f8fafc !important; } ' +
+                        'p { margin: 0 0 6px 0 !important; } ' +
+                        'p:last-child { margin-bottom: 0 !important; } ' +
+                        'ul, ol { margin: 0 0 6px 0 !important; padding-left: 20px !important; }';
+
+                    var existingStyle = doc.getElementById('wysi-global-padding-style');
+                    if (!existingStyle) {
                         var style = doc.createElement('style');
                         style.id = 'wysi-global-padding-style';
-                        style.innerHTML = 'html, body { padding: 10px 14px !important; margin: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 13.5px !important; line-height: 1.5 !important; color: #334155 !important; box-sizing: border-box !important; } body.placeholder { color: #94a3b8 !important; padding: 10px 14px !important; margin: 0 !important; }';
+                        style.innerHTML = cssContent;
                         doc.head.appendChild(style);
+                    } else if (existingStyle.innerHTML !== cssContent) {
+                        existingStyle.innerHTML = cssContent;
                     }
-                    doc.body.style.padding = '10px 14px';
+                    if (doc.documentElement) {
+                        doc.documentElement.style.margin = '0';
+                        doc.documentElement.style.padding = '0';
+                    }
+                    doc.body.style.padding = '8px 12px';
+                    doc.body.style.margin = '0';
                 }
             } catch (e) {}
         });
     }
 
     applyPadding();
-    setTimeout(applyPadding, 100);
+    setTimeout(applyPadding, 50);
+    setTimeout(applyPadding, 150);
     setTimeout(applyPadding, 300);
     setTimeout(applyPadding, 700);
     setTimeout(applyPadding, 1500);

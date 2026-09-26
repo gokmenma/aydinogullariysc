@@ -4,6 +4,7 @@ namespace App\Model;
 
 use PDO;
 use Exception;
+use App\Helper\UploadSecurity;
 
 class SettingsModel extends BaseModel
 {
@@ -110,22 +111,14 @@ class SettingsModel extends BaseModel
             return ['success' => false, 'message' => 'Geçersiz dosya veya dosya yüklenmedi.', 'path' => ''];
         }
 
-        $allowedExtensions = ['png', 'jpg', 'jpeg', 'svg', 'webp'];
-        $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($fileExt, $allowedExtensions)) {
+        try {
+            $file = UploadSecurity::validate($file, 5 * 1024 * 1024, [
+                'image/png' => ['png'], 'image/jpeg' => ['jpg', 'jpeg'], 'image/webp' => ['webp'],
+            ]);
+        } catch (\RuntimeException $e) {
             return [
                 'success' => false,
-                'message' => 'Geçersiz dosya formatı. Sadece PNG, JPG, JPEG, SVG ve WEBP formatları desteklenir.',
-                'path' => ''
-            ];
-        }
-
-        // 5 MB boyut sınırı
-        if ($file['size'] > 5 * 1024 * 1024) {
-            return [
-                'success' => false,
-                'message' => 'Logo dosyası en fazla 5MB olabilir.',
+                'message' => $e->getMessage(),
                 'path' => ''
             ];
         }
@@ -135,8 +128,7 @@ class SettingsModel extends BaseModel
             mkdir($targetDir, 0755, true);
         }
 
-        $cleanBaseName = preg_replace('/[^a-zA-Z0-9_-]/', '', pathinfo($file['name'], PATHINFO_FILENAME));
-        $newFileName = 'logo_' . time() . '_' . $cleanBaseName . '.' . $fileExt;
+        $newFileName = 'logo_' . UploadSecurity::randomName($file);
         $targetPath = $targetDir . $newFileName;
 
         if (move_uploaded_file($file['tmp_name'], $targetPath)) {

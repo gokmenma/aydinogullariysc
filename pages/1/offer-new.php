@@ -1,4 +1,7 @@
 <?php
+
+// bu eski dosya burada herhangi bir değişiklik yapılmayacak.
+//yeni dosyamu offers/offer-manage.php
 permcontrol("offeradd");
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
@@ -292,12 +295,14 @@ if (@$_GET["st"] == "empties") {
                             class="selectpicker form-control" data-style="border bg-white" data-size="8"
                             data-live-search="true">
                             <?php
-                            $qct = $ac->prepare("SELECT * FROM customers WHERE deleted_at IS NULL ORDER BY id DESC");
+                            $qct = $ac->prepare("SELECT id, company, yetkili, OdemeVade FROM customers WHERE deleted_at IS NULL ORDER BY id DESC");
                             $qct->execute();
                             while ($cscs = $qct->fetch(PDO::FETCH_ASSOC)) {
                                 ?>
-                                <option value="<?php echo $cscs["id"]; ?>">
-                                    <?php echo $cscs["company"]; ?>
+                                <option value="<?php echo $cscs["id"]; ?>"
+                                    data-author="<?php echo htmlspecialchars($cscs['yetkili'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    data-payperiod="<?php echo htmlspecialchars($cscs['OdemeVade'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                    <?php echo htmlspecialchars($cscs["company"]); ?>
                                 </option>
                                 <?php
                             }
@@ -788,7 +793,26 @@ if (@$_GET["st"] == "empties") {
 
     });
 
-    $("#customers").on("change", function () {
-        getcustomerInfo(this);
-    })
+    $(document).on("change selectpicker:changed select2:select", "#customers", function (e) {
+        var data = (e && e.params) ? e.params.data : null;
+        var $selected = $(this).find("option:selected");
+        var author = (data && typeof data.yetkili !== "undefined") ? data.yetkili : ($selected.data("author") || "");
+        var payPeriod = (data && (data.odemevadesi || data.payperiod)) ? (data.odemevadesi || data.payperiod) : ($selected.data("payperiod") || "");
+
+        if (author && author !== "." && author !== "-") {
+            $("#compAuths").val(author);
+        } else {
+            $("#compAuths").val("");
+        }
+
+        if (payPeriod && payPeriod !== "") {
+            $("#payPeriod").val(payPeriod);
+        } else {
+            $("#payPeriod").val("");
+        }
+
+        if (typeof getcustomerInfo === "function" && $(this).val()) {
+            getcustomerInfo(this);
+        }
+    });
 </script>

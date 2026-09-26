@@ -221,3 +221,89 @@ UPDATE `version_notes` SET `title` = 'Keşif Formunda Firma Arama', `description
 UPDATE `version_notes` SET `title` = 'Global Arama Kayıt Optimizasyonu', `description` = '- Global arama daha az ve daha anlamlı aktivite kaydı oluşturacak şekilde düzenlendi.' WHERE `version_tag` = 'v2.4.88';
 UPDATE `version_notes` SET `title` = 'Rapor Formları Tema Yenilemesi', `description` = '- YAS, OYS ve AAS rapor formları ortak tema, gelişmiş seçim alanları ve koyu mod desteğiyle yenilendi.' WHERE `version_tag` = 'v2.4.89';
 UPDATE `version_notes` SET `title` = 'Yazı Kalınlığı Ayarı', `description` = '- Tema özelleştiriciye kullanıcı tercihini hatırlayan yazı kalınlığı seçimi eklendi.' WHERE `version_tag` = 'v2.4.90';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.4.96', 'Dinamik Not Silme', 'improvement', '- Notlar sayfasındaki silme işlemi, sayfa yenilenmeden ve anlaşılır bildirimlerle tamamlanabilir hale getirildi.', 'Antigravity AI', '2026-09-26 08:31:39'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.4.96');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.4.97', 'Servis Formu Alan Düzeni', 'improvement', '- Servis formundaki alan sıralaması ve firma seçimi sonrasında adres bölge ile teklif numarası alanlarının görünümü düzenlendi.', 'Antigravity AI', '2026-09-26 08:40:21'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.4.97');
+
+UPDATE `version_notes`
+SET `description` = '- Servis formundaki alan sıralaması ve firma seçimi sonrasında adres bölge ile teklif numarası alanlarının görünümü düzenlendi.'
+WHERE `version_tag` = 'v2.4.97';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.4.98', 'Dinamik Servis Kayıt Bildirimleri', 'improvement', '- Servis oluşturma ve güncelleme işlemleri sayfa yenilenmeden tamamlanarak sonuçları doğru ve anlaşılır bildirimlerle gösterilir hale getirildi.', 'Antigravity AI', '2026-09-26 08:48:18'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.4.98');
+
+UPDATE `version_notes`
+SET `description` = '- Servis oluşturma ve güncelleme işlemleri sayfa yenilenmeden tamamlanarak sonuçları doğru ve anlaşılır bildirimlerle gösterilir hale getirildi.'
+WHERE `version_tag` = 'v2.4.98';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.4.99', 'Benzersiz Servis Numarası Koruması', 'bugfix', '- 21 Eylül sonrasındaki servis numaraları kayıt sırasına göre düzenlendi; sayaç eşitlendi ve yeni servislerin mükerrer numarayla oluşturulması engellendi.', 'Antigravity AI', '2026-09-26 08:54:25'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.4.99');
+
+UPDATE `version_notes`
+SET `description` = '- 21 Eylül sonrasındaki servis numaraları kayıt sırasına göre düzenlendi; sayaç eşitlendi ve yeni servislerin mükerrer numarayla oluşturulması engellendi.'
+WHERE `version_tag` = 'v2.4.99';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.0', 'Servis Kayıt API’si', 'improvement', '- Servis oluşturma ve güncelleme işlemleri güvenli, yetki kontrollü ve yalnızca JSON yanıt veren merkezi bir API üzerinden çalışır hale getirildi.', 'Antigravity AI', '2026-09-26 09:24:19'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.0');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.1', 'Servis Listesi Hızlandırması', 'improvement', '- Servis listesi yalnızca görüntülenen kayıtları yükleyecek şekilde optimize edilerek açılış süresi kısaltıldı.', 'Antigravity AI', '2026-09-26 09:37:46'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.1');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.3', 'Merkezi Güvenlik Sertleştirmesi', 'security', '- API oturum ve işlem yetkileri, CSRF koruması, güvenli dosya yükleme, oturum çerezleri, parola altyapısı ve giriş denemesi koruması merkezi olarak güçlendirildi.', 'Antigravity AI', '2026-09-26 09:51:40'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.3');
+
+UPDATE `version_notes`
+SET `description` = '- API oturum ve işlem yetkileri, CSRF koruması, güvenli dosya yükleme, oturum çerezleri, parola altyapısı ve e-posta değişiklikleriyle aşılamayan giriş denemesi koruması merkezi olarak güçlendirildi.'
+WHERE `version_tag` = 'v2.5.3';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.4', 'Güvenli Parola Sıfırlama Akışı', 'security', '- Parolamı unuttum ekranı süreli ve tek kullanımlık bağlantı gönderecek, kullanıcıların güçlü bir parola belirlemesini sağlayacak şekilde çalışır hale getirildi.', 'Antigravity AI', '2026-09-26 10:08:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.4');
+
+UPDATE `version_notes`
+SET `description` = '- Parolamı unuttum ekranı, doğrulanmış SMTP hesabıyla süreli ve tek kullanımlık bağlantı gönderecek ve kullanıcıların güçlü bir parola belirlemesini sağlayacak şekilde çalışır hale getirildi.'
+WHERE `version_tag` = 'v2.5.4';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.5', 'Tekliflerde Firma Yetkilisi Otomatik Doldurma', 'bugfix', '- Teklif oluşturma ve düzenleme ekranlarında firma seçildiğinde yetkili ve ödeme vadesi bilgilerinin otomatik olarak alanlara doldurulması sağlandı.', 'Antigravity AI', '2026-09-26 10:28:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.5');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.6', 'Dinamik Firma Arama ve Hızlı Firma Ekleme', 'feature', '- Teklif yönetimine e-posta ekranıyla aynı standartta dinamik AJAX firma araması, yetkili/vade otomatik aktarımı ve sayfadan ayrılmadan firma oluşturan hızlı modal entegre edildi.', 'Antigravity AI', '2026-09-26 10:41:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.6');
+
+UPDATE `version_notes`
+SET `description` = '- Teklif yönetimine dinamik AJAX firma araması, yetkili/vade otomatik aktarımı ve modern kartlı arayüze sahip hızlı firma ekleme modalı entegre edildi.'
+WHERE `version_tag` = 'v2.5.6';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.7', 'Hızlı Kalem Girişi, Canlı Ürün Arama ve Toplu Kalem Ekleme', 'feature', '- Teklif kalemlerinde modal zorunluluğu kaldırılarak satır içi canlı otomatik tamamlama, tek seferde çoklu ürün ekleme modalı, satır klonlama ve klavye ile hızlı geçiş özellikleri entegre edildi.', 'Antigravity AI', '2026-09-26 11:26:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.7');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.8', 'Firma Değişiminde Yetkili ve Vade Bilgisi Temizleme', 'bugfix', '- Teklif formunda firma değiştirildiğinde seçilen yeni firmanın yetkili veya vade bilgisi yoksa önceki firmanın bilgilerinin kalması engellendi.', 'Antigravity AI', '2026-09-26 11:40:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.8');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.5.9', 'Zengin Metin Editörleri İç Boşluk (Padding) Standardizasyonu', 'improvement', '- Teklif yönetimi ve tüm sayfalardaki zengin metin editörlerinde aşırı iç boşluklar (padding) giderilerek 8px 12px standart, derli toplu ve hizalı bir görünüm sağlandı.', 'Antigravity AI', '2026-09-26 11:43:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.5.9');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.6.0', 'Sürüm Notları Sayfası Erişim Yetkisi Düzeltmesi', 'bugfix', '- Sürüm notları API uç noktasındaki okuma yetkisi kısıtı düzeltilerek tüm oturum açmış kullanıcıların ve rollerin sürüm notlarını eksiksiz görüntüleyebilmesi sağlandı.', 'Antigravity AI', '2026-09-26 12:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.6.0');
+
+
+
+
+
+

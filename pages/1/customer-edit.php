@@ -688,6 +688,7 @@ if ($_GET["st"] == "newsuccess") {
                 border: 1px solid #cbd5e1 !important;
                 border-radius: 8px !important;
                 background: #ffffff !important;
+                padding: 0 !important;
             }
             .offerHeaderContent iframe.wysihtml5-sandbox {
                 height: 140px !important;

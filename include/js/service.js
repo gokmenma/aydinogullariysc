@@ -38,9 +38,9 @@
                     } else {
                         options += '<option value="">Teklif No Yok</option>';
                     }
-                    $('#offerno').html(options).show();
+                    $('#offerno').html(options).val('');
                     if ($.fn.select2) {
-                        $('#offerno').trigger('change.select2');
+                        $('#offerno').trigger('change');
                     }
                     if ($.fn.selectpicker && $('#offerno').hasClass('selectpicker')) {
                         $('#offerno').selectpicker("refresh");

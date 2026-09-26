@@ -233,7 +233,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'oauth_callback') {
         ]));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -370,7 +370,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'ajax_delete_backup' && !emp
         $userHash = $userStmt->fetchColumn();
 
         $inputHash = md5(md5(md5($_POST['confirm_password'])));
-        $isValidPassword = ($userHash && ($userHash === $inputHash || password_verify($_POST['confirm_password'], $userHash)));
+        $isValidPassword = ($userHash && (hash_equals($userHash, $inputHash) || password_verify($_POST['confirm_password'], $userHash)));
 
         if (!$isValidPassword) {
             http_response_code(400);

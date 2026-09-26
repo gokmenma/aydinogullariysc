@@ -191,7 +191,7 @@ if (@$_GET["st"] == "error") {
         background: #fafafa !important;
         width: 100% !important;
         min-height: 120px !important;
-        padding: 8px !important;
+        padding: 0 !important;
     }
 
     /* Minimal Table Container Matching offer-manage */

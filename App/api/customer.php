@@ -148,7 +148,14 @@ if (($_POST['action'] ?? '') == 'create') {
     }
     $res = [
         'status' => $status,
-        'message' => $message
+        'message' => $message,
+        'id' => $lastInsertId ?? 0,
+        'company' => $company ?? '',
+        'yetkili' => $data['yetkili'] ?? '',
+        'vade' => $data['OdemeVade'] ?? '',
+        'email' => $data['email'] ?? '',
+        'gsm' => $data['gsm'] ?? '',
+        'city' => $data['city'] ?? ''
     ];
     echo json_encode($res, JSON_UNESCAPED_UNICODE);
 }

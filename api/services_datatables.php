@@ -24,21 +24,6 @@ use App\Helper\DataTableFilter;
 use App\Helper\Helper;
 use App\Helper\Security;
 
-try {
-    $ac->exec("CREATE TABLE IF NOT EXISTS service_accounting_receipt_logs (
-        id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-        service_id INT UNSIGNED NOT NULL,
-        action VARCHAR(20) NOT NULL,
-        action_by INT UNSIGNED NOT NULL,
-        action_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY idx_service_id (service_id),
-        KEY idx_action_at (action_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-} catch (PDOException $e) {
-    // Tablo oluşturulamasa da listeleme akışı devam etsin.
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -202,8 +187,8 @@ $base_query = "
     LEFT JOIN users au ON au.id = ar.action_by
 ";
 
-// Count total records
-$count_query = "SELECT COUNT(*) as total " . $base_query;
+// Toplam kayıt için JOIN çalıştırmaya gerek yok.
+$count_query = "SELECT COUNT(*) as total FROM projects";
 $count_stmt = $ac->prepare($count_query);
 $count_stmt->execute();
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
@@ -330,13 +315,17 @@ if (!empty($requested_columns) && is_array($requested_columns)) {
 
 $where_clause = count($where_conditions) ? (" WHERE " . implode(" AND ", $where_conditions)) : "";
 
-$filtered_count_query = "SELECT COUNT(*) as filtered " . $base_query . $where_clause;
-$filtered_stmt = $ac->prepare($filtered_count_query);
-foreach ($params as $k => $v) {
-    $filtered_stmt->bindValue($k, $v);
+if ($where_clause === '') {
+    $filtered_records = $total_records;
+} else {
+    $filtered_count_query = "SELECT COUNT(*) as filtered " . $base_query . $where_clause;
+    $filtered_stmt = $ac->prepare($filtered_count_query);
+    foreach ($params as $k => $v) {
+        $filtered_stmt->bindValue($k, $v);
+    }
+    $filtered_stmt->execute();
+    $filtered_records = $filtered_stmt->fetch(PDO::FETCH_ASSOC)['filtered'];
 }
-$filtered_stmt->execute();
-$filtered_records = $filtered_stmt->fetch(PDO::FETCH_ASSOC)['filtered'];
 
 // Main data query
 $data_query = "

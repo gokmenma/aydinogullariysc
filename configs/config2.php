@@ -6,17 +6,18 @@ if (session_status() == PHP_SESSION_NONE) {
 
 error_reporting(0);
 ob_start();
-	define("HOSTNAME", "localhost"); // Veritabanı Sunucu
-	define("HOSTUSERNAME","aydinogu_prod");	// Veritabanı Kullanıcı Adı
-	define("HOSTPASSWORD","t)QiTEWAY{*Uz=fK");	// Veritabanı Kullanıcı Parolası
-	define("HOSTDATABASE","aydinogu_aydinogullari_yeni");	// Veritabanı İsmi
+	define("HOSTNAME", getenv('DB_HOST') ?: "localhost");
+	define("HOSTUSERNAME", getenv('DB_USER') ?: "root");
+	define("HOSTPASSWORD", getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : "");
+	define("HOSTDATABASE", getenv('DB_NAME') ?: "aydinogu_aydinogullari_yeni");
 
 try{
 
-	$ac = new PDO("mysql:host=".HOSTNAME.";dbname=".HOSTDATABASE, HOSTUSERNAME, HOSTPASSWORD);
+	$ac = new PDO("mysql:host=".HOSTNAME.";dbname=".HOSTDATABASE.";charset=utf8mb4", HOSTUSERNAME, HOSTPASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false]);
 	
 }catch(PDOException $e){
-	echo "Hata! <br>".$e->getMessage();
+	error_log('Database connection failed: ' . $e->getMessage());
+	echo "Veritabanı bağlantısı kurulamadı.";
 	die();
 }
 $ac->query("SET CHARACTER SET utf8");

@@ -3,6 +3,7 @@ namespace App\Model;
 
 use PDO;
 use App\Logging\LoggerFactory;
+use App\Helper\UploadSecurity;
 
 
 
@@ -85,7 +86,8 @@ class BaseModel extends PDO
 
     public function uploadFile($file)
     {
-        $uploadPath = $this->uploadDir . basename($file['name']);
+        $file = UploadSecurity::validate($file);
+        $uploadPath = rtrim($this->uploadDir, '/\\') . DIRECTORY_SEPARATOR . UploadSecurity::randomName($file);
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
             return $uploadPath;
         } else {

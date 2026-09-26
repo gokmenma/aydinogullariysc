@@ -26,7 +26,8 @@ if ($_POST['action'] == 'doneDemand') {
         $message = 'Talep başarıyla tamamlandı.';
     } catch (PDOException $ex) {
         $status = 'error';
-        $message = $ex->getMessage();
+        error_log('Purchase status update failed: ' . $ex->getMessage());
+        $message = 'Satın alma işlemi sırasında bir hata oluştu.';
     }
 
     $res = array(

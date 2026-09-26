@@ -3,12 +3,69 @@ require_once "bootstrap.php";
 
 $message = '';
 if ($_POST) {
-    $email = $_POST['email'] ?? '';
-    if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $email = trim((string) ($_POST['email'] ?? ''));
+    $csrfToken = (string) ($_POST['csrf_token'] ?? '');
+    if (!\App\Helper\Security::checkCsrfToken($csrfToken)) {
+        $message = '<div class="alert error">Oturum doğrulaması başarısız. Sayfayı yenileyip tekrar deneyin.</div>';
+    } elseif (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = '<div class="alert error">Lütfen geçerli bir e-posta adresi girin.</div>';
+    } else {
+        $ipAddress = substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
+        $emailHash = hash('sha256', mb_strtolower($email, 'UTF-8'));
+        $limit = $ac->prepare('SELECT COUNT(*) FROM password_reset_tokens WHERE request_ip = ? AND created_at >= (NOW() - INTERVAL 1 HOUR)');
+        $limit->execute([$ipAddress]);
+
+        if ((int) $limit->fetchColumn() < 5) {
+            $userQuery = $ac->prepare('SELECT id, username, email FROM users WHERE LOWER(TRIM(email)) = LOWER(TRIM(?)) AND statu = 1 LIMIT 1');
+            $userQuery->execute([$email]);
+            $user = $userQuery->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                try {
+                    $rawToken = bin2hex(random_bytes(32));
+                    $tokenHash = hash('sha256', $rawToken);
+                    $ac->beginTransaction();
+                    $invalidate = $ac->prepare('UPDATE password_reset_tokens SET used_at = NOW() WHERE user_id = ? AND used_at IS NULL');
+                    $invalidate->execute([(int) $user['id']]);
+                    $insert = $ac->prepare('INSERT INTO password_reset_tokens (user_id, token_hash, request_ip, expires_at, created_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE), NOW())');
+                    $insert->execute([(int) $user['id'], $tokenHash, $ipAddress]);
+                    $ac->commit();
+
+                    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+                    $basePath = rtrim(str_replace('\\', '/', dirname((string) ($_SERVER['SCRIPT_NAME'] ?? ''))), '/');
+                    $resetUrl = ($isHttps ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+                        . $basePath . '/reset-password.php?token=' . rawurlencode($rawToken);
+
+                    $mailer = get_configured_mailer(null, 'Aydınoğulları YSC');
+                    $mailer->addAddress((string) $user['email'], (string) $user['username']);
+                    $mailer->Subject = 'Parola Sıfırlama Bağlantısı';
+                    $safeName = htmlspecialchars((string) $user['username'], ENT_QUOTES, 'UTF-8');
+                    $safeUrl = htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8');
+                    $mailer->Body = '<p>Merhaba ' . $safeName . ',</p>'
+                        . '<p>Parolanızı yenilemek için aşağıdaki bağlantıyı kullanabilirsiniz. Bağlantı 30 dakika geçerlidir ve yalnızca bir kez kullanılabilir.</p>'
+                        . '<p><a href="' . $safeUrl . '">Parolamı Yenile</a></p>'
+                        . '<p>Bu talebi siz oluşturmadıysanız e-postayı dikkate almayın.</p>';
+                    $mailer->AltBody = "Parolanızı yenilemek için bağlantıyı açın (30 dakika geçerli): " . $resetUrl;
+                    $mailer->send();
+                    \App\Helper\ApiSecurity::log($ac, 'password_reset_sent', 'forgot-password.php', [
+                        'user_id' => (int) $user['id'],
+                        'identity_hash' => $emailHash,
+                    ]);
+                } catch (Throwable $e) {
+                    if ($ac->inTransaction()) {
+                        $ac->rollBack();
+                    }
+                    error_log('Password reset request failed: ' . $e->getMessage());
+                    \App\Helper\ApiSecurity::log($ac, 'password_reset_delivery_failed', 'forgot-password.php', ['identity_hash' => $emailHash]);
+                }
+            }
+        } else {
+            \App\Helper\ApiSecurity::log($ac, 'password_reset_rate_limited', 'forgot-password.php', ['identity_hash' => $emailHash]);
+        }
+
+        // Hesap varlığını dışarı sızdırmamak için her durumda aynı sayfaya yönlendir.
         header('Location: forgot-password-success.php');
         exit;
-    } else {
-        $message = '<div class="alert error">Lütfen geçerli bir e-posta adresi girin.</div>';
     }
 }
 ?>
@@ -82,6 +139,7 @@ if ($_POST) {
             <?php echo $message; ?>
 
             <form action="forgot-password.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(\App\Helper\Security::csrf(), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="floating-group">
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope icon"></i>

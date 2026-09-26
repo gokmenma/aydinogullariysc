@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+use App\Helper\UploadSecurity;
 $target_dir = "files/projects/offers/";
 
 $request = 1;
@@ -17,14 +18,16 @@ if (isset($_POST['request'])) {
 if ($request == 1) {
 	$msg = "";
 
-	$target_file = $target_dir . basename($_FILES["file"]["name"]);
+	$validatedFile = UploadSecurity::validate($_FILES['file']);
+	$storedName = UploadSecurity::randomName($validatedFile);
+	$target_file = $target_dir . $storedName;
 
 	if ($target_file) {
 
 
-		if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_dir . $_FILES['file']['name'])) {
+		if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
 
-			$file_path = $target_dir . $_FILES['file']['name'];
+			$file_path = $target_file;
 			$upfile = $ac->prepare("INSERT INTO files SET oid = ?, filename = ?, regdate = ? ");
 			$upfile->execute(array($oid, $file_path, $Today));
 			$msg = "Dosya yüklendi";

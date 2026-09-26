@@ -1271,10 +1271,12 @@ function get_configured_mailer($fromEmail = null, $fromName = null)
 
 	$fromAddress = $fromEmail ?: $user;
 
-	if (!empty($fromEmail)) {
+	// Ana SMTP ayarındaki parola güncelliğini yitirmiş olabilir. Aynı gönderici
+	// mail_accounts içinde tanımlıysa doğrulanmış hesap parolasını tercih et.
+	if (!empty($fromAddress)) {
 		try {
 			$mailModel = new \App\Model\MailAccountModel();
-			$account = $mailModel->getAccountByAddress($fromEmail);
+			$account = $mailModel->getAccountByAddress($fromAddress);
 			if ($account && !empty($account['mail_password'])) {
 				$user = $account['mail_address'];
 				$pass = $account['mail_password'];

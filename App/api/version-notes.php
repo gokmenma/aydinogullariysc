@@ -177,8 +177,12 @@ if ($action === 'list') {
 }
 
 if ($action === 'save') {
-    // Sadece yönetici ekleyebilir/düzenleyebilir (perm == 1)
-    if (sesset("perm") != 1) {
+    // Sadece yetkili kullanıcılar ekleyebilir/düzenleyebilir
+    $userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+    $userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? ($_SESSION['perm'] ?? 0)));
+    $canManage = in_array($userId, [1, 12], true) || in_array($userPerm, [1, 13], true) || (function_exists('permtrue') && (permtrue("panelsettings") || permtrue("authdefine")));
+
+    if (!$canManage) {
         http_response_code(403);
         echo json_encode(['status' => 'error', 'message' => 'Bu işlem için yetkiniz bulunmamaktadır.']);
         exit;
@@ -234,7 +238,11 @@ if ($action === 'save') {
 }
 
 if ($action === 'delete') {
-    if (sesset("perm") != 1) {
+    $userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
+    $userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? ($_SESSION['perm'] ?? 0)));
+    $canManage = in_array($userId, [1, 12], true) || in_array($userPerm, [1, 13], true) || (function_exists('permtrue') && (permtrue("panelsettings") || permtrue("authdefine")));
+
+    if (!$canManage) {
         http_response_code(403);
         echo json_encode(['status' => 'error', 'message' => 'Bu işlem için yetkiniz bulunmamaktadır.']);
         exit;
