@@ -5,6 +5,7 @@
 use App\Helper\Date;
 use App\Model\OfferModel;
 
+
 $ois = @$_GET["id"];
 $cid = @$_GET["cid"];
 $sablonlari_goster = isset($_GET["sablon"]) ? true : false;

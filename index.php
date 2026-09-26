@@ -48,9 +48,7 @@ try {
     <?php include 'include/head.php'; ?>
 </head>
 <body>
-    <div id="preloader">
-        <div class="loader"></div>
-    </div>
+   
 
     <?php include 'include/header.php'; ?>
     <?php include 'include/sidebar.php'; ?>
@@ -63,8 +61,11 @@ try {
     } else {
         ?>
         <div class="main-container" id="content">
-            <div id="maincontainer" class="content crm-inner-page-wrapper pd-ltr-20 xs-pd-20-10">
-    <?php } ?>
+             <div id="preloader">
+        <div class="loader"></div>
+    </div>
+    <div id="maincontainer" class="content crm-inner-page-wrapper pd-ltr-20 xs-pd-20-10">
+        <?php  } ?>
     <?php
     if ($plink) {
         $pl = $ac->prepare("SELECT * FROM pages WHERE p_link = ?");

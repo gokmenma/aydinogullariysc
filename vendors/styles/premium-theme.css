@@ -7865,14 +7865,14 @@ table.dataTable td,
     background: #252538 !important;
     background: color-mix(in srgb, var(--sidebar-bg, #1e1e2d) 78%, var(--topbar-color, #2563eb) 22%) !important;
     font-weight: 600 !important;
-    margin: 0 4px 0 0 !important;
+    margin: 0 24px 0 0 !important;
     padding: 0 12px !important;
     border-radius: 6px !important;
     box-shadow: none !important;
 }
 
 /* ==============================================================
-   DARK MODE UYUMLULUĞU (CAN SAĞLIK SEN DARK PALETİ)
+   DARK MODE UYUMLULUĞU (DARK PALETİ)
    ============================================================== */
 .dark-mode .left-side-bar {
     background: #18181b !important;
