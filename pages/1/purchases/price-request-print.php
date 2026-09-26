@@ -1,14 +1,21 @@
 <?php
-require_once dirname(__DIR__, 3) . "/bootstrap.php";
-
+// Standalone Print and PDF Generator for Price Requests
 use App\Helper\Security;
 use App\Model\PurchaseModel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-// Oturum ve Yetki Kontrolü
-if (!sesset('id')) {
-    header("Location: /login.php");
+// Bootstrap yukleme
+if (!class_exists('App\Helper\Security')) {
+    require_once dirname(__DIR__, 3) . "/bootstrap.php";
+}
+
+$userId = (int)($_SESSION['lid'] ?? $_SESSION['id'] ?? $_SESSION['user_id'] ?? 0);
+
+// Oturum Kontrolu
+if (empty($_SESSION['login']) || $userId <= 0) {
+    while (ob_get_level()) { ob_end_clean(); }
+    header("Location: login.php");
     exit;
 }
 
@@ -28,15 +35,23 @@ $Purchase = new PurchaseModel();
 $purchase = $Purchase->find($id);
 
 if (!$purchase) {
+    while (ob_get_level()) { ob_end_clean(); }
     http_response_code(404);
-    echo '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Kayıt Bulunamadı</title><link rel="stylesheet" href="/vendors/styles/style.css"></head><body class="p-4 text-center"><h4>Kayıt bulunamadı!</h4><p>İstenen fiyat talebi kaydına ulaşılamadı veya silinmiş olabilir.</p><button onclick="window.close()" class="btn btn-secondary mt-2">Pencereyi Kapat</button></body></html>';
+    echo '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Kayit Bulunamadi</title><link rel="stylesheet" href="/vendors/styles/style.css"></head><body class="p-4 text-center"><h4>Kayit bulunamadi!</h4><p>Istenen fiyat talebi kaydina ulasilamadi veya silinmis olabilir.</p><button onclick="window.close()" class="btn btn-secondary mt-2">Pencereyi Kapat</button></body></html>';
     exit;
 }
 
-// Yetki kontrolü: Tüm talepleri görme yetkisi yoksa sadece oluşturan görebilir
-if (!permtrue('tum_fiyat_taleplerini_gor') && (int)($purchase->creator ?? 0) !== (int)sesset('id')) {
+$isCreator = ((int)($purchase->creator ?? 0) === $userId);
+$isSuperAdmin = ($userId === 1);
+$hasAllPerm = false;
+try {
+    $hasAllPerm = permtrue('tum_fiyat_taleplerini_gor');
+} catch (\Throwable $e) {}
+
+if (!$isSuperAdmin && !$isCreator && !$hasAllPerm) {
+    while (ob_get_level()) { ob_end_clean(); }
     http_response_code(403);
-    echo '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Erişim Engellendi</title><link rel="stylesheet" href="/vendors/styles/style.css"></head><body class="p-4 text-center"><h4>Yetkisiz Erişim</h4><p>Bu fiyat talebini görüntüleme yetkiniz bulunmamaktadır.</p><button onclick="window.close()" class="btn btn-secondary mt-2">Pencereyi Kapat</button></body></html>';
+    echo '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Yetkisiz Erisim</title><link rel="stylesheet" href="/vendors/styles/style.css"></head><body class="p-4 text-center"><h4>Yetkisiz Erisim</h4><p>Bu fiyat talebini goruntuleme yetkiniz bulunmamaktadir.</p><button onclick="window.close()" class="btn btn-secondary mt-2">Pencereyi Kapat</button></body></html>';
     exit;
 }
 
@@ -44,7 +59,7 @@ $items = $Purchase->getPurchaseItems($id);
 $customer_name = getCustomerName($purchase->companyID);
 $creator_name = getUserName($purchase->creator);
 
-// Müşteri İletişim Bilgileri
+// Musteri Iletisim Bilgileri
 $cust_extra = null;
 if (!empty($purchase->companyID)) {
     try {
@@ -54,35 +69,37 @@ if (!empty($purchase->companyID)) {
     } catch (\Throwable $e) {}
 }
 
-function parseCurrencyNumber($val): float {
-    if (is_numeric($val)) return (float)$val;
-    if (is_string($val)) {
-        $val = trim($val);
-        if ($val === '') return 0.0;
-        if (strpos($val, '.') !== false && strpos($val, ',') !== false) {
-            if (strrpos($val, ',') > strrpos($val, '.')) {
-                $val = str_replace('.', '', $val);
+if (!function_exists('parseCurrencyNumber')) {
+    function parseCurrencyNumber($val): float {
+        if (is_numeric($val)) return (float)$val;
+        if (is_string($val)) {
+            $val = trim($val);
+            if ($val === '') return 0.0;
+            if (strpos($val, '.') !== false && strpos($val, ',') !== false) {
+                if (strrpos($val, ',') > strrpos($val, '.')) {
+                    $val = str_replace('.', '', $val);
+                    $val = str_replace(',', '.', $val);
+                } else {
+                    $val = str_replace(',', '', $val);
+                }
+            } elseif (strpos($val, ',') !== false) {
                 $val = str_replace(',', '.', $val);
-            } else {
-                $val = str_replace(',', '', $val);
             }
-        } elseif (strpos($val, ',') !== false) {
-            $val = str_replace(',', '.', $val);
+            return is_numeric($val) ? (float)$val : 0.0;
         }
-        return is_numeric($val) ? (float)$val : 0.0;
+        return 0.0;
     }
-    return 0.0;
 }
 
 function getLogoBase64(): string {
+    $rootDir = dirname(__DIR__, 3);
     $candidates = [
-        ROOT . '/src/images/logo.png',
-        ROOT . '/vendors/images/logo.png',
-        dirname(__DIR__, 3) . '/src/images/logo.png',
-        dirname(__DIR__, 3) . '/vendors/images/logo.png',
+        $rootDir . '/src/images/logo.png',
+        $rootDir . '/vendors/images/logo.png',
     ];
     if (!empty($_SERVER['DOCUMENT_ROOT'])) {
-        $candidates[] = $_SERVER['DOCUMENT_ROOT'] . '/src/images/logo.png';
+        $candidates[] = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/src/images/logo.png';
+        $candidates[] = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/vendors/images/logo.png';
     }
     foreach ($candidates as $path) {
         if (file_exists($path) && is_readable($path)) {
@@ -94,14 +111,14 @@ function getLogoBase64(): string {
     return '';
 }
 
-// Log Kaydı
+// Log Kaydi
 try {
     $logger = \getLogger("Fiyat Talepleri");
-    $logger->info("Fiyat talebi yazdırıldı / PDF istendi.", [
+    $logger->info("Fiyat talebi yazdirildi / PDF istendi.", [
         'id' => $id,
         'siparisNo' => $purchase->siparisNo,
         'pdf_mode' => isset($_GET['pdf']),
-        'user_id' => sesset('id')
+        'user_id' => $userId
     ]);
 } catch (\Throwable $e) {}
 
@@ -122,7 +139,7 @@ if ($tlTotal <= 0 && $altToplam > 0) {
 
 $isPdf = isset($_GET['pdf']) && $_GET['pdf'] == '1';
 
-// HTML Çıktısı Hazırlama
+// HTML Ciktisi Hazirlama
 ob_start();
 ?>
 <!DOCTYPE html>
@@ -140,7 +157,7 @@ ob_start();
             font-family: "DejaVu Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             font-size: 11px;
             color: #1e293b;
-            background: #ffffff;
+            background: <?php echo $isPdf ? '#ffffff' : '#f1f5f9'; ?>;
             margin: 0;
             padding: <?php echo $isPdf ? '0' : '20px'; ?>;
             line-height: 1.4;
@@ -150,21 +167,25 @@ ob_start();
             margin: 12mm 10mm 15mm 10mm;
         }
         
-        /* Print Toolbar (Tarayıcıda görünür, yazdırmada ve PDF'te gizli) */
+        /* Print Toolbar */
         .print-toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            max-width: 800px;
+            margin: 0 auto 16px auto;
             background: #1e293b;
             color: #ffffff;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
-            margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .print-toolbar-title {
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .print-toolbar-actions {
             display: flex;
@@ -217,6 +238,7 @@ ob_start();
                 box-shadow: none !important;
                 border: none !important;
                 padding: 0 !important;
+                max-width: 100% !important;
             }
         }
 
@@ -398,10 +420,10 @@ ob_start();
     </div>
     <div class="print-toolbar-actions">
         <button type="button" class="toolbar-btn toolbar-btn-primary" onclick="window.print()">
-            &#128438; Yazdır
+            Yazdır
         </button>
-        <a href="pages/1/purchases/price-request-print.php?id=<?php echo $id; ?>&pdf=1" class="toolbar-btn toolbar-btn-danger" target="_blank">
-            &#128196; PDF İndir
+        <a href="index.php?p=purchases/price-request-print&id=<?php echo $id; ?>&pdf=1" class="toolbar-btn toolbar-btn-danger" target="_blank">
+            PDF İndir
         </a>
         <button type="button" class="toolbar-btn" onclick="window.close()">
             Kapat
@@ -567,10 +589,10 @@ ob_start();
 
 <?php if (!$isPdf): ?>
 <script>
-    // Kullanıcı sayfayı doğrudan açtığında otomatik yazdırma diyaloğu (opsiyonel)
     window.addEventListener('load', function() {
-        // Otomatik print çalıştırmak isterseniz:
-        // window.print();
+        setTimeout(function() {
+            window.print();
+        }, 350);
     });
 </script>
 <?php endif; ?>
@@ -579,6 +601,10 @@ ob_start();
 </html>
 <?php
 $htmlContent = ob_get_clean();
+
+while (ob_get_level()) {
+    ob_end_clean();
+}
 
 if ($isPdf) {
     try {
@@ -591,12 +617,15 @@ if ($isPdf) {
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $fileName = ($purchase->siparisNo ? $purchase->siparisNo : 'Fiyat_Talebi') . ".pdf";
-        $dompdf->stream($fileName, ["Attachment" => false]);
+        $dompdf->stream($fileName, ["Attachment" => 0]);
+        exit;
     } catch (\Throwable $ex) {
         error_log("PDF generation error: " . $ex->getMessage());
         http_response_code(500);
         echo "PDF oluşturulurken bir hata meydana geldi: " . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8');
+        exit;
     }
 } else {
     echo $htmlContent;
+    exit;
 }

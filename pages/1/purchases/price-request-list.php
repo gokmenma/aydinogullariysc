@@ -940,13 +940,13 @@ $(document).ready(function() {
 
     $('#btnPrintModal').on('click', function() {
         if (activeDetailId) {
-            window.open('pages/1/purchases/price-request-print.php?id=' + activeDetailId, '_blank');
+            window.open('index.php?p=purchases/price-request-print&id=' + activeDetailId, '_blank');
         }
     });
 
     $('#btnPdfModal').on('click', function() {
         if (activeDetailId) {
-            window.open('pages/1/purchases/price-request-print.php?id=' + activeDetailId + '&pdf=1', '_blank');
+            window.open('index.php?p=purchases/price-request-print&id=' + activeDetailId + '&pdf=1', '_blank');
         }
     });
 
@@ -1009,8 +1009,8 @@ $(document).ready(function() {
         });
 
         $('#ctxEdit').attr('href', 'index.php?p=purchases/price-request-manage&id=' + pid);
-        $('#ctxPrint').attr('href', 'pages/1/purchases/price-request-print.php?id=' + pid);
-        $('#ctxPdf').attr('href', 'pages/1/purchases/price-request-print.php?id=' + pid + '&pdf=1');
+        $('#ctxPrint').attr('href', 'index.php?p=purchases/price-request-print&id=' + pid);
+        $('#ctxPdf').attr('href', 'index.php?p=purchases/price-request-print&id=' + pid + '&pdf=1');
 
         // Sil
         $('#ctxDelete').off('click').on('click', function(ev) {
