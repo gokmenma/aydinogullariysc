@@ -303,11 +303,11 @@ SELECT 'v2.6.0', 'Sürüm Notları Sayfası Erişim Yetkisi Düzeltmesi', 'bugfi
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.6.0');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.7.0', 'Özelleştirilebilir ve Boyutlandırılabilir Pano (Dashboard) Kartları', 'feature', '- Ana sayfa kartları hizalı biçimde sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime döviz kurları, bugünkü işler, geciken/yaklaşan işler ve satın alma/onay kartları eklendi.', 'Antigravity AI', '2026-09-26 13:00:00'
+SELECT 'v2.7.0', 'Özelleştirilebilir ve Boyutlandırılabilir Pano (Dashboard) Kartları', 'feature', '- Ana sayfa kartları sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime yeni operasyon kartları eklendi ve sayfa açılışındaki yerleşim sıçraması giderildi.', 'Antigravity AI', '2026-09-26 13:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.0');
 
 UPDATE `version_notes`
-SET `description` = '- Ana sayfa kartları hizalı biçimde sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime döviz kurları, bugünkü işler, geciken/yaklaşan işler ve satın alma/onay kartları eklendi.'
+SET `description` = '- Ana sayfa kartları sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime yeni operasyon kartları eklendi ve sayfa açılışındaki yerleşim sıçraması giderildi.'
 WHERE `version_tag` = 'v2.7.0';
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
@@ -377,6 +377,15 @@ WHERE `version_tag` = 'v2.8.2';
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.3', 'Teklif Listesi Kolon ve Yerleşim İyileştirmesi', 'improvement', '- Teklif listesinde konu alanı genişletilerek ferahlatıldı; sıra no, oluşturma tarihi (tarih/saat alt alta), teklif no (kompakt rozet), onay tarihi, ödeme vadesi ve teklif veren kolonları daraltılıp başlıkları çok satırlı düzenlendi.', 'Antigravity AI', '2026-09-26 20:46:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.3');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.4', 'Gönderilen Maillerde Kopya (CC) Takibi ve Ayrı Kolon Gösterimi', 'feature', '- Gönderilen e-posta listesine Kopya (CC) kolonu eklendi; mail gönderim loglarına CC adresleri kaydedilerek hem tabloda hem detay penceresinde net olarak görüntülenmesi sağlandı.', 'Antigravity AI', '2026-09-26 21:12:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.4');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.5', 'Teklif Listesi Ödeme Vadesi Kolon Filtresi Metin Türüne Güncellendi', 'improvement', '- Teklif listesi tablosundaki Ödeme Vadesi kolon filtresi tarih yerine metin (string) filtreleme türüne güncellenerek vade türlerine (Peşin, Nakit, Gün vb.) göre arama yapılması sağlandı.', 'Antigravity AI', '2026-09-26 23:28:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.5');
+
 
 
 

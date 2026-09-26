@@ -82,11 +82,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        $rawCc = $_POST["cc_recipients"] ?? [];
+        $validCc = [];
+        if (is_array($rawCc)) {
+            foreach ($rawCc as $ccItem) {
+                $parts = preg_split('/[,;\s]+/', trim($ccItem), -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($parts as $part) {
+                    $cleaned = filter_var(trim($part), FILTER_VALIDATE_EMAIL);
+                    if ($cleaned && !in_array($cleaned, $validCc, true) && !in_array($cleaned, $validEmails, true)) {
+                        $validCc[] = $cleaned;
+                    }
+                }
+            }
+        }
+
         $mail = get_configured_mailer($mail_from);
 
         foreach ($validEmails as $recipientEmail) {
             $mail->addAddress($recipientEmail);
             $mailto .= $recipientEmail . "|";
+        }
+
+        foreach ($validCc as $ccEmail) {
+            $mail->addCC($ccEmail);
         }
 
         if (!empty($hedef) && file_exists($hedef)) {
@@ -97,10 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->Body    = $mailicerik;
 
         if ($mail->send()) {
+            $mailcc = !empty($validCc) ? implode(', ', $validCc) : null;
             // Veritabanına log kaydet (statu = 1: Başarılı)
             try {
-                $sql = $ac->prepare("INSERT INTO mail_logs (tomail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, 1, ?)");
-                $sql->execute([$mailto, $mail_from, $dosya_adi, $mailicerik, (int)sesset("id")]);
+                $sql = $ac->prepare("INSERT INTO mail_logs (tomail, cc_mail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, ?, 1, ?)");
+                $sql->execute([$mailto, $mailcc, $mail_from, $dosya_adi, $mailicerik, (int)sesset("id")]);
             } catch (Exception $dbEx) {
                 error_log("Mail log db error: " . $dbEx->getMessage());
             }
@@ -109,11 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 audit_log(
                     'send',
                     'mail',
-                    "E-posta başarıyla iletildi. (" . count($validEmails) . " alıcı, Konu: {$mailkonu})",
+                    "E-posta başarıyla iletildi. (" . count($validEmails) . " alıcı" . ($mailcc ? ", CC: {$mailcc}" : "") . ", Konu: {$mailkonu})",
                     'customers',
                     (string)count($validEmails),
                     [
                         'recipients_count' => count($validEmails),
+                        'cc' => $validCc,
                         'subject' => $mailkonu,
                         'from' => $mail_from
                     ]
@@ -802,6 +822,21 @@ body.dark-mode .mail-template-item-name {
                         Listeden hem <strong>firma adı</strong> hem de <strong>e-posta</strong> ile arama yapabilir veya kayıtlı olmayan bir adresi doğrudan yazıp <kbd>Enter</kbd> tuşuna basarak ekleyebilirsiniz.
                     </div>
                 </div>
+
+                <!-- 3. Satır: Kopya Olarak Gönder (CC) (Tam Genişlik) -->
+                <div class="form-field" style="grid-column: 1 / -1;">
+                    <label for="cc_recipients">Kopya Olarak Gönder (CC):</label>
+                    <select name="cc_recipients[]" id="cc_recipients" class="selectpicker form-control" multiple data-actions-box="true"
+                        data-style="border bg-white" data-selected-text-format="count > 2" data-live-search="true">
+                        <?php
+                        $userSql = $ac->prepare("SELECT email, username, Unvan from users WHERE email IS NOT NULL AND email != '' ORDER BY username ASC");
+                        $userSql->execute();
+                        while ($uRow = $userSql->fetch(PDO::FETCH_OBJ)) {
+                            echo "<option value=\"" . htmlspecialchars($uRow->email, ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($uRow->username . " (" . ($uRow->Unvan ? $uRow->Unvan . " - " : "") . $uRow->email . ")", ENT_QUOTES, 'UTF-8') . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -1402,6 +1437,18 @@ $(document).ready(function() {
                     doc.body.style.margin = '0';
                 }
             } catch (e) {}
+        });
+    }
+
+    // Selectpicker Başlatma (Kopya CC)
+    if ($.fn.selectpicker) {
+        $('.selectpicker').selectpicker({
+            noneSelectedText: "Kullanıcı Seçin...",
+            size: 8,
+            deselectAllText: "Seçimi Temizle",
+            selectAllText: "Tümünü Seç",
+            countSelectedText: "{0} kullanıcı seçildi",
+            liveSearch: true
         });
     }
 

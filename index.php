@@ -48,7 +48,12 @@ try {
     <?php include 'include/head.php'; ?>
 </head>
 <body>
-   
+    <div id="preloader">
+        <div class="fire-loader-wrapper">
+            <img src="files/fire.svg" alt="Yükleniyor..." class="fire-loader-img">
+            <span class="fire-loader-text">Yükleniyor...</span>
+        </div>
+    </div>
 
     <?php include 'include/header.php'; ?>
     <?php include 'include/sidebar.php'; ?>
@@ -61,11 +66,8 @@ try {
     } else {
         ?>
         <div class="main-container" id="content">
-             <div id="preloader">
-        <div class="loader"></div>
-    </div>
-    <div id="maincontainer" class="content crm-inner-page-wrapper pd-ltr-20 xs-pd-20-10">
-        <?php  } ?>
+            <div id="maincontainer" class="content crm-inner-page-wrapper pd-ltr-20 xs-pd-20-10">
+        <?php } ?>
     <?php
     if ($plink) {
         $pl = $ac->prepare("SELECT * FROM pages WHERE p_link = ?");
@@ -182,11 +184,59 @@ try {
     </script>
 
     <script>
-        window.addEventListener('load', function () {
+        function hidePreloader() {
             var preloader = document.getElementById('preloader');
+            if (preloader && !preloader.classList.contains('preloader-hidden')) {
+                preloader.style.opacity = '0';
+                setTimeout(function () {
+                    preloader.style.display = 'none';
+                    preloader.classList.add('preloader-hidden', 'd-none');
+                }, 250);
+            }
             var content = document.getElementById('content');
-            if (preloader) preloader.style.display = 'none';
-            if (content) content.style.display = 'block';
+            if (content) {
+                content.style.display = 'block';
+            }
+        }
+        window.hidePreloader = hidePreloader;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var hasDataTable = document.querySelector('table.data-table, #offerTable, table.dataTable');
+
+            if (hasDataTable && window.jQuery) {
+                // Sayfada DataTable varsa, veriler gerçekten sunucudan gelip tabloya çizildiğinde kapat
+                var tableLoaded = false;
+                $(document).one('draw.dt init.dt', function () {
+                    if (!tableLoaded) {
+                        tableLoaded = true;
+                        setTimeout(hidePreloader, 100);
+                    }
+                });
+
+                // Güvenlik zaman aşımı (API geç yanıt verse veya hata olsa bile kilitli kalmaması için)
+                setTimeout(function () {
+                    if (!tableLoaded) {
+                        hidePreloader();
+                    }
+                }, 6000);
+            } else {
+                // DataTable olmayan normal sayfalarda sayfa yüklenince kapat
+                window.addEventListener('load', hidePreloader);
+                setTimeout(hidePreloader, 400);
+            }
+
+            // Menüye tıklandığında eski sayfada preloader patlatmadan sadece mükerrer tıklamayı kilitle
+            var menuLinks = document.querySelectorAll('.left-side-bar a[href]:not([href="javascript:;"]):not([href^="#"])');
+            menuLinks.forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    if (this.target !== '_blank' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                        var sidebar = document.querySelector('.left-side-bar');
+                        if (sidebar) {
+                            sidebar.style.pointerEvents = 'none';
+                        }
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -356,6 +356,19 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
     padding: 0 !important;
     box-sizing: border-box !important;
 }
+.grid-stack.crm-grid-preparing {
+    visibility: hidden;
+    opacity: 0;
+    animation: crm-grid-failsafe 0s 2s forwards;
+}
+.grid-stack.crm-grid-ready {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.12s ease-out;
+}
+@keyframes crm-grid-failsafe {
+    to { visibility: visible; opacity: 1; }
+}
 .grid-stack-item {
     box-sizing: border-box !important;
 }
@@ -652,7 +665,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 		</div>
 
 		<!-- 2. GRIDSTACK ANA IZGARA ALANI -->
-		<div class="grid-stack" id="crmDashboardGrid">
+		<div class="grid-stack crm-grid-preparing" id="crmDashboardGrid" aria-busy="true">
 
 			<!-- WIDGET 1: KPI SUMMARY CARDS -->
 			<?php 
@@ -1889,6 +1902,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	var csrfMeta = document.querySelector('meta[name="csrf-token"]');
 	var CSRF_TOKEN = csrfMeta ? csrfMeta.getAttribute('content') : <?php echo json_encode(\App\Helper\Security::csrf()); ?>;
 
+	function revealDashboardGrid() {
+		if (!gridEl) return;
+		gridEl.classList.remove('crm-grid-preparing');
+		gridEl.classList.add('crm-grid-ready');
+		gridEl.setAttribute('aria-busy', 'false');
+	}
+
 	// GridStack Başlatma
 	var grid = null;
 	if (typeof GridStack !== 'undefined' && gridEl) {
@@ -1901,7 +1921,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			resizable: {
 				handles: 'e, s, se'
 			},
-			animate: true,
+			// İlk yerleşimde animasyon kapalıdır; kayıtlı konumlar ekranda sıçramadan uygulanır.
+			animate: false,
 			disableOneColumnMode: false,
 			float: false
 		}, gridEl);
@@ -1928,6 +1949,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			triggerAutoSave();
 		});
 		applyServiceViewHeight((widgetSettings.widget_service_board || {}).view);
+		requestAnimationFrame(function() {
+			requestAnimationFrame(function() {
+				revealDashboardGrid();
+				if (grid && typeof grid.setAnimation === 'function') grid.setAnimation(true);
+			});
+		});
+	} else {
+		// Kütüphane yüklenemezse içerik erişilebilir kalır.
+		revealDashboardGrid();
 	}
 
 	function applyServiceViewHeight(viewMode) {

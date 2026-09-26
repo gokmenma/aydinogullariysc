@@ -583,6 +583,7 @@ $st = $_GET['st'] ?? '';
                     <tr>
                         <th style="width: 40px;" class="text-center">#</th>
                         <th>Alıcı (To)</th>
+                        <th>Kopya (CC)</th>
                         <th>Gönderen (From)</th>
                         <th>İçerik Özeti</th>
                         <th>Ek Dosya</th>
@@ -598,6 +599,7 @@ $st = $_GET['st'] ?? '';
                     foreach ($logs as $row):
                         $id = (int)$row['id'];
                         $toMail = htmlspecialchars($row['tomail'] ?? '', ENT_QUOTES, 'UTF-8');
+                        $ccMail = htmlspecialchars($row['cc_mail'] ?? '', ENT_QUOTES, 'UTF-8');
                         $fromMail = htmlspecialchars($row['from_mail'] ?? '', ENT_QUOTES, 'UTF-8');
                         $mailBody = $row['mail_body'] ?? '';
                         $bodySummary = htmlspecialchars(function_exists('shorted') ? shorted(strip_tags($mailBody), 30) : mb_substr(strip_tags($mailBody), 0, 30) . '...', ENT_QUOTES, 'UTF-8');
@@ -612,10 +614,19 @@ $st = $_GET['st'] ?? '';
                                 <span class="font-weight-bold text-dark"><?php echo $toMail; ?></span>
                             </td>
                             <td>
+                                <?php if (!empty($ccMail)): ?>
+                                    <span class="text-muted font-12" title="<?php echo $ccMail; ?>">
+                                        <i class="fa fa-copy text-secondary mr-1 font-11"></i><?php echo $ccMail; ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted font-12">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <span class="text-muted font-12"><?php echo $fromMail ?: '-'; ?></span>
                             </td>
                             <td>
-                                <div class="mail-body-preview" onclick="viewMailDetail(<?php echo $id; ?>, '<?php echo addslashes($toMail); ?>', '<?php echo addslashes($fromMail); ?>', '<?php echo addslashes($dateStr); ?>', '<?php echo addslashes($mailFile); ?>', '<?php echo $isSuccess ? '1' : '0'; ?>', '<?php echo addslashes($senderName); ?>')" title="İçeriği görmek için tıklayın">
+                                <div class="mail-body-preview" onclick="viewMailDetail(<?php echo $id; ?>, '<?php echo addslashes($toMail); ?>', '<?php echo addslashes($ccMail); ?>', '<?php echo addslashes($fromMail); ?>', '<?php echo addslashes($dateStr); ?>', '<?php echo addslashes($mailFile); ?>', '<?php echo $isSuccess ? '1' : '0'; ?>', '<?php echo addslashes($senderName); ?>')" title="İçeriği görmek için tıklayın">
                                     <i class="fa fa-file-text-o text-primary mr-1"></i>
                                     <?php echo !empty($bodySummary) ? $bodySummary : '<span class="text-muted font-italic">Boş içerik</span>'; ?>
                                 </div>
@@ -653,7 +664,7 @@ $st = $_GET['st'] ?? '';
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm">
-                                    <button type="button" class="btn btn-outline-primary" onclick="viewMailDetail(<?php echo $id; ?>, '<?php echo addslashes($toMail); ?>', '<?php echo addslashes($fromMail); ?>', '<?php echo addslashes($dateStr); ?>', '<?php echo addslashes($mailFile); ?>', '<?php echo $isSuccess ? '1' : '0'; ?>', '<?php echo addslashes($senderName); ?>')" title="Detay">
+                                    <button type="button" class="btn btn-outline-primary" onclick="viewMailDetail(<?php echo $id; ?>, '<?php echo addslashes($toMail); ?>', '<?php echo addslashes($ccMail); ?>', '<?php echo addslashes($fromMail); ?>', '<?php echo addslashes($dateStr); ?>', '<?php echo addslashes($mailFile); ?>', '<?php echo $isSuccess ? '1' : '0'; ?>', '<?php echo addslashes($senderName); ?>')" title="Detay">
                                         <i class="fa fa-eye"></i>
                                     </button>
                                     <?php if ($canDelete): ?>
@@ -697,13 +708,19 @@ $st = $_GET['st'] ?? '';
             <div class="modal-body p-4">
                 <!-- Üst Bilgi Kartları -->
                 <div class="row mb-3">
-                    <div class="col-sm-6 mb-2">
+                    <div class="col-sm-4 mb-2">
                         <div class="modal-meta-box">
                             <span class="meta-label">Alıcı (To)</span>
                             <strong id="modalToMail" class="meta-val text-primary">-</strong>
                         </div>
                     </div>
-                    <div class="col-sm-6 mb-2">
+                    <div class="col-sm-4 mb-2">
+                        <div class="modal-meta-box">
+                            <span class="meta-label">Kopya (CC)</span>
+                            <strong id="modalCcMail" class="meta-val text-secondary">-</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-2">
                         <div class="modal-meta-box">
                             <span class="meta-label">Gönderen (From)</span>
                             <strong id="modalFromMail" class="meta-val">-</strong>
@@ -759,11 +776,12 @@ $st = $_GET['st'] ?? '';
 </div>
 
 <script>
-function viewMailDetail(id, toMail, fromMail, dateStr, mailFile, status, senderName) {
+function viewMailDetail(id, toMail, ccMail, fromMail, dateStr, mailFile, status, senderName) {
     let raw = document.getElementById('mail_raw_' + id);
     let body = raw ? raw.value : '';
 
     document.getElementById('modalToMail').textContent = toMail || '-';
+    document.getElementById('modalCcMail').textContent = ccMail || '-';
     document.getElementById('modalFromMail').textContent = fromMail || '-';
     document.getElementById('modalSender').textContent = senderName || 'Sistem';
     document.getElementById('modalDate').textContent = dateStr || '-';

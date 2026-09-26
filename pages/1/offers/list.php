@@ -430,8 +430,7 @@ if (@$_GET["st"] == "success-mail") {
     }
 </style>
 
-<div class="pd-ltr-20 xs-pd-20-10">
-    <div class="offer-list-wrapper">
+<div class="offer-list-wrapper">
     <!-- Sayfa Üst Bölümü (Header + Quick Actions) -->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap px-1" style="gap: 12px;">
         <div class="page-title-box">
@@ -644,7 +643,7 @@ if (@$_GET["st"] == "success-mail") {
                         <th style="width: 80px;" class="text-center">DURUM</th>
                         <th style="width: 90px;" class="text-center">ONAY TARİHİ</th>
                         <th>KONUSU</th>
-                        <th style="width: 95px;" class="text-center">ÖDEME VADESİ</th>
+                        <th style="width: 95px;" class="text-center" data-filter-type="text">ÖDEME VADESİ</th>
                         <th style="width: 110px;">TEKLİF VEREN</th>
                         <th class="no-export text-center" style="width: 1%; white-space: nowrap;">İŞLEM</th>
                     </tr>
@@ -1179,6 +1178,14 @@ $(document).ready(function() {
         initComplete: function () {
             if (window.App && window.App.TableFilter) {
                 App.TableFilter.attachToTable(this.api().table().node());
+            }
+            if (typeof window.hidePreloader === 'function') {
+                window.hidePreloader();
+            }
+        },
+        drawCallback: function () {
+            if (typeof window.hidePreloader === 'function') {
+                window.hidePreloader();
             }
         }
     });

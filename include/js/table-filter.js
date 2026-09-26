@@ -466,7 +466,7 @@ App.TableFilter = {
         let t = App.TableFilter.toTrLower(title);
 
         if (t.includes('tarih') || t.includes('date') || t.includes('bitis') || t.includes('bitiş') ||
-            t.includes('baslangic') || t.includes('başlangıç') || t.includes('vade') || t.includes('onay') ||
+            t.includes('baslangic') || t.includes('başlangıç') || t.includes('vade tarihi') || t.includes('onay tarihi') ||
             t.includes('zaman') || t.includes('saat')) {
             return 'date';
         }

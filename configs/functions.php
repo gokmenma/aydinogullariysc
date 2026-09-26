@@ -1388,12 +1388,13 @@ function send_pdf_email_attachment($pdfContent, $attachmentName, $redirectSucces
 
 		if ($mail->send()) {
 			$allTo = implode(', ', $validTo);
+			$allCc = !empty($validCc) ? implode(', ', $validCc) : null;
 			$fromMail = $mail->From ?? (string)set('mail_username');
 			$senderId = (int)sesset("id");
 
 			try {
-				$stmtLog = $ac->prepare("INSERT INTO mail_logs (tomail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, 1, ?)");
-				$stmtLog->execute([$allTo, $fromMail, $safeAttachmentName, $bodyHtml, $senderId]);
+				$stmtLog = $ac->prepare("INSERT INTO mail_logs (tomail, cc_mail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, ?, 1, ?)");
+				$stmtLog->execute([$allTo, $allCc, $fromMail, $safeAttachmentName, $bodyHtml, $senderId]);
 			} catch (\Throwable $logEx) {
 				error_log("Mail log db error: " . $logEx->getMessage());
 			}
@@ -1402,7 +1403,7 @@ function send_pdf_email_attachment($pdfContent, $attachmentName, $redirectSucces
 				audit_log(
 					'send',
 					'mail',
-					"Rapor e-posta ile başarıyla gönderildi. (Alıcılar: {$allTo}, Konu: {$subject})",
+					"Rapor e-posta ile başarıyla gönderildi. (Alıcılar: {$allTo}" . ($allCc ? ", CC: {$allCc}" : "") . ", Konu: {$subject})",
 					'reports',
 					'0',
 					[
@@ -1426,11 +1427,12 @@ function send_pdf_email_attachment($pdfContent, $attachmentName, $redirectSucces
 		$_SESSION['mail_last_error'] = $e->getMessage();
 
 		$allTo = implode(', ', $validTo);
+		$allCc = !empty($validCc) ? implode(', ', $validCc) : null;
 		$fromMail = (string)set('mail_username');
 		$senderId = (int)sesset("id");
 		try {
-			$stmtLog = $ac->prepare("INSERT INTO mail_logs (tomail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, 0, ?)");
-			$stmtLog->execute([$allTo, $fromMail, $safeAttachmentName ?? $attachmentName, $bodyHtml, $senderId]);
+			$stmtLog = $ac->prepare("INSERT INTO mail_logs (tomail, cc_mail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, ?, 0, ?)");
+			$stmtLog->execute([$allTo, $allCc, $fromMail, $safeAttachmentName ?? $attachmentName, $bodyHtml, $senderId]);
 		} catch (\Throwable $ignored) {}
 
 		header("Location: " . $redirectFail);

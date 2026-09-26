@@ -26725,7 +26725,7 @@ textarea.form-control {
 .main-container {
   padding: 70px 0 0px 250px;
   height: 100vh;
-  display: none;
+  display: block;
   background-color: var(--bg-dark-container);
 }
 
