@@ -85,7 +85,7 @@ function validateForm(routelink = null) {
         icon: 'warning',
         title: 'Zorunlu Alanlar Eksik',
         html: alertBodyHtml,
-        confirmButtonText: 'Tamam, Dolduracağım',
+        confirmButtonText: 'Tamam!',
         confirmButtonColor: '#2563eb',
         customClass: {
           popup: 'swal2-border-radius-16'
