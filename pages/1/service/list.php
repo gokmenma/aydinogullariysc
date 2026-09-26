@@ -766,6 +766,133 @@ if ($cid || $sid) {
         padding: 0;
         width: 100%;
     }
+
+    /* Modal & Timeline Stilleri for Services */
+    #accountingReceiptLogModal .modal-content,
+    #serviceLogsModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        overflow: hidden;
+    }
+    #accountingReceiptLogModal .modal-header,
+    #serviceLogsModal .modal-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px 20px;
+    }
+    #accountingReceiptLogModal .modal-icon-badge,
+    #serviceLogsModal .modal-icon-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: rgba(2, 132, 199, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+    }
+    .service-log-summary-card {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .service-badge-no {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #e0f2fe;
+        color: #0369a1 !important;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+    }
+    .service-log-timeline {
+        position: relative;
+        padding-left: 26px;
+    }
+    .service-log-timeline::before {
+        content: '';
+        position: absolute;
+        top: 12px;
+        bottom: 12px;
+        left: 11px;
+        width: 2px;
+        background: #e2e8f0;
+    }
+    .service-log-item {
+        position: relative;
+        margin-bottom: 16px;
+    }
+    .service-log-item:last-child {
+        margin-bottom: 0;
+    }
+    .service-log-icon {
+        position: absolute;
+        left: -26px;
+        top: 4px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        z-index: 2;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .service-log-content {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .service-log-content:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .service-log-diff-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+    .dark-mode #accountingReceiptLogModal .modal-content,
+    .dark-mode #serviceLogsModal .modal-content {
+        background: #1e293b;
+        color: #f1f5f9;
+    }
+    .dark-mode #accountingReceiptLogModal .modal-header,
+    .dark-mode #serviceLogsModal .modal-header,
+    .dark-mode .service-log-summary-card {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .service-badge-no {
+        background: #1e3a5f;
+        color: #38bdf8 !important;
+    }
+    .dark-mode #accountingReceiptLogModal .modal-footer,
+    .dark-mode #serviceLogsModal .modal-footer {
+        background: #0f172a;
+        border-color: #334155;
+    }
+    .dark-mode .service-log-timeline::before {
+        background: #334155;
+    }
+    .dark-mode .service-log-item .service-log-icon {
+        border-color: #1e293b;
+    }
+    .dark-mode .service-log-content {
+        background: #0f172a;
+        border-color: #334155;
+    }
+    .dark-mode .service-log-diff-box {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    .dark-mode #accountingReceiptLogModal .close,
+    .dark-mode #serviceLogsModal .close {
+        color: #cbd5e1;
+        text-shadow: none;
+    }
 </style>
 
 <div class="services-list-page-container">
@@ -1043,37 +1170,137 @@ if ($cid || $sid) {
 
 <!-- Muhasebe Teslim Logları Modalı -->
 <div class="modal fade" id="accountingReceiptLogModal" tabindex="-1" role="dialog" aria-labelledby="accountingReceiptLogModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="accountingReceiptLogModalLabel">
-                    <i class="fa fa-history mr-2 text-primary"></i>Muhasebe Teslim Logları
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 680px;">
+        <div class="modal-content custom-log-modal-content">
+            <div class="modal-header custom-log-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div class="modal-icon-badge" style="background: rgba(16, 185, 129, 0.12);">
+                        <i class="fa fa-book text-success"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title font-16 weight-700 mb-0" id="accountingReceiptLogModalLabel">
+                            Muhasebe Teslim Logları
+                        </h5>
+                        <small class="text-muted">Muhasebeye teslim edilme ve iade alma işlem geçmişi</small>
+                    </div>
+                </div>
+                <button type="button" class="close btn-log-modal-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0" id="accountingReceiptLogTable">
-                        <thead class="thead-light">
-                            <tr>
-                                <th style="width: 60px;" class="text-center">#</th>
-                                <th style="width: 150px;">İşlem</th>
-                                <th>İşlem Yapan</th>
-                                <th style="width: 170px;">İşlem Tarihi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-3">Yükleniyor...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+            <!-- Servis Özet Bilgi Şeridi -->
+            <div class="service-log-summary-card px-4 py-3 bg-light border-bottom d-flex flex-wrap justify-content-between align-items-center" style="gap: 10px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                    <span class="service-badge-no font-14 font-weight-bold text-primary" id="acctModalServiceNumber">-</span>
+                    <span class="text-muted font-13 font-weight-500 text-truncate" id="acctModalCompanyName" style="max-width: 320px;">-</span>
+                </div>
+                <div id="acctModalCurrentStatus">-</div>
+            </div>
+
+            <div class="modal-body p-4" style="max-height: calc(75vh - 160px); overflow-y: auto;">
+                <div id="acctLogsLoading" class="text-center py-4">
+                    <div class="spinner-border text-success mb-2" role="status" style="width: 2rem; height: 2rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <div class="text-muted font-13 font-weight-500">Muhasebe kayıtları yükleniyor...</div>
+                </div>
+
+                <div id="acctLogsEmpty" class="text-center py-4 d-none">
+                    <div class="mb-2">
+                        <i class="fa fa-calendar-times-o text-muted" style="font-size: 32px;"></i>
+                    </div>
+                    <h6 class="weight-600 text-dark mb-1 font-14">Muhasebe Kaydı Yok</h6>
+                    <p class="text-muted font-12 mb-0">Bu iş emri için henüz bir muhasebe teslim veya iade işlemi yapılmamış.</p>
+                </div>
+
+                <div id="acctLogsTimeline" class="service-log-timeline d-none">
+                    <!-- Dinamik kayıtlar eklenecek -->
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Kapat</button>
+
+            <div class="modal-footer custom-log-modal-footer d-flex justify-content-between align-items-center px-4 py-3">
+                <div class="text-muted font-12" id="acctLogsCountText">Toplam 0 kayıt</div>
+                <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Servis Genel Log Kayıtları Modalı -->
+<div class="modal fade" id="serviceLogsModal" tabindex="-1" role="dialog" aria-labelledby="serviceLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 850px;">
+        <div class="modal-content custom-log-modal-content">
+            <div class="modal-header custom-log-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div class="modal-icon-badge">
+                        <i class="fa fa-history text-primary"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title font-16 weight-700 mb-0" id="serviceLogsModalLabel">
+                            Servis İşlem & Log Kayıtları
+                        </h5>
+                        <small class="text-muted">Kim, ne zaman, hangi işlemi yapmış geçmişi</small>
+                    </div>
+                </div>
+                <button type="button" class="close btn-log-modal-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Servis Özet Bilgi Şeridi -->
+            <div class="service-log-summary-card px-4 py-3 bg-light border-bottom d-flex flex-wrap justify-content-between align-items-center" style="gap: 10px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                    <span class="service-badge-no font-14 font-weight-bold text-primary" id="srvLogServiceNo">-</span>
+                    <span class="text-muted font-13 font-weight-500 text-truncate" id="srvLogCompanyName" style="max-width: 280px;">-</span>
+                </div>
+                <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <span class="badge badge-light border font-12" id="srvLogServiceType">-</span>
+                    <span class="badge badge-light border font-12" id="srvLogRegion">-</span>
+                    <div id="srvLogStatusBadge">-</div>
+                </div>
+            </div>
+
+            <div class="modal-body p-4" style="max-height: calc(80vh - 180px); overflow-y: auto;">
+                <!-- Loading State -->
+                <div id="serviceLogsLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary mb-2" role="status" style="width: 2.2rem; height: 2.2rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <div class="text-muted font-13 font-weight-500">Log kayıtları yükleniyor...</div>
+                </div>
+
+                <!-- Error State -->
+                <div id="serviceLogsError" class="alert alert-danger d-none my-3" role="alert">
+                    <i class="fa fa-exclamation-triangle mr-2"></i>
+                    <span id="serviceLogsErrorMessage">Kayıtlar yüklenirken bir sorun oluştu.</span>
+                </div>
+
+                <!-- Empty State -->
+                <div id="serviceLogsEmpty" class="text-center py-5 d-none">
+                    <div class="empty-icon-circle mb-3">
+                        <i class="fa fa-folder-open-o text-muted" style="font-size: 38px;"></i>
+                    </div>
+                    <h6 class="weight-600 text-dark mb-1">Kayıt Bulunamadı</h6>
+                    <p class="text-muted font-13 mb-0">Bu servise ait henüz detaylı bir aktivite kaydı bulunmuyor.</p>
+                </div>
+
+                <!-- Timeline / Log Container -->
+                <div id="serviceLogsContainer" class="service-log-timeline d-none">
+                    <!-- Dinamik log kartları JS ile eklenecek -->
+                </div>
+            </div>
+
+            <div class="modal-footer custom-log-modal-footer d-flex justify-content-between align-items-center px-4 py-3">
+                <div class="text-muted font-12" id="serviceLogsCountText">Toplam 0 işlem kaydı</div>
+                <div class="d-flex" style="gap: 8px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="btnRefreshServiceLogs">
+                        <i class="fa fa-refresh mr-1"></i> Yenile
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal">
+                        Kapat
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1342,17 +1569,202 @@ if ($cid || $sid) {
             }
         });
 
+        // ==========================================
+        // Servis Genel Log Modalı
+        // ==========================================
+        var currentLogServiceId = null;
+        var currentLogServiceNumber = null;
+
+        $(document).on('click', '.btn-service-logs', function (e) {
+            e.preventDefault();
+            var serviceId = $(this).data('service-id') || $(this).attr('data-service-id');
+            var serviceNumber = $(this).data('service-number') || $(this).attr('data-service-number') || '';
+
+            if (!serviceId) {
+                var $row = $(this).closest('tr');
+                var dt = $('#service-table').DataTable();
+                if ($row.length && dt) {
+                    var rowData = dt.row($row).data();
+                    if (rowData) {
+                        serviceId = rowData.DT_RowId ? rowData.DT_RowId.replace('row_', '') : rowData[0];
+                        serviceNumber = rowData[1] ? $('<div>').html(rowData[1]).text().trim() : '';
+                    }
+                }
+            }
+
+            serviceId = parseInt(serviceId, 10);
+            if (!serviceId) {
+                showSimpleMessage('error', 'Hata', 'Servis kimliği belirlenemedi.');
+                return;
+            }
+
+            currentLogServiceId = serviceId;
+            currentLogServiceNumber = serviceNumber;
+            loadServiceLogs(serviceId, serviceNumber);
+        });
+
+        $('#btnRefreshServiceLogs').on('click', function () {
+            if (currentLogServiceId) {
+                loadServiceLogs(currentLogServiceId, currentLogServiceNumber);
+            }
+        });
+
+        function loadServiceLogs(serviceId, serviceNumber) {
+            $('#serviceLogsModalLabel').text('Servis İşlem & Log Kayıtları' + (serviceNumber ? ' (' + serviceNumber + ')' : ''));
+            $('#srvLogServiceNo').text(serviceNumber || ('#' + serviceId));
+            $('#srvLogCompanyName').text('Yükleniyor...');
+            $('#srvLogServiceType').text('-');
+            $('#srvLogRegion').text('-');
+            $('#srvLogStatusBadge').html('-');
+            $('#serviceLogsCountText').text('Kayıtlar getiriliyor...');
+
+            $('#serviceLogsLoading').removeClass('d-none');
+            $('#serviceLogsError').addClass('d-none');
+            $('#serviceLogsEmpty').addClass('d-none');
+            $('#serviceLogsContainer').addClass('d-none').empty();
+
+            $('#serviceLogsModal').modal('show');
+
+            $.ajax({
+                url: 'api/services_datatables.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'get_service_logs',
+                    service_id: serviceId
+                },
+                success: function (response) {
+                    $('#serviceLogsLoading').addClass('d-none');
+
+                    if (response && response.success) {
+                        var service = response.service || {};
+                        var logs = response.logs || [];
+
+                        // Özet şeridini güncelle
+                        $('#srvLogServiceNo').text(service.service_number || ('#' + service.id));
+                        $('#srvLogCompanyName').text(service.company_name || 'Firma Belirtilmemiş');
+                        $('#srvLogServiceType').text(service.service_type_name || '-');
+                        $('#srvLogRegion').text(service.region_name || '-');
+
+                        if (service.status_label) {
+                            $('#srvLogStatusBadge').html('<span class="badge ' + (service.status_badge_class || 'badge-secondary') + '">' + $('<div>').text(service.status_label).html() + '</span>');
+                        } else {
+                            $('#srvLogStatusBadge').html('');
+                        }
+
+                        $('#serviceLogsCountText').text('Toplam ' + logs.length + ' işlem kaydı bulundu');
+
+                        if (logs.length === 0) {
+                            $('#serviceLogsEmpty').removeClass('d-none');
+                            return;
+                        }
+
+                        renderServiceLogsTimeline(logs);
+                        $('#serviceLogsContainer').removeClass('d-none');
+                    } else {
+                        $('#serviceLogsErrorMessage').text((response && response.message) ? response.message : 'Log kayıtları alınamadı.');
+                        $('#serviceLogsError').removeClass('d-none');
+                    }
+                },
+                error: function (xhr) {
+                    $('#serviceLogsLoading').addClass('d-none');
+                    var errMsg = 'Log kayıtları yüklenirken bir hata oluştu.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    }
+                    $('#serviceLogsErrorMessage').text(errMsg);
+                    $('#serviceLogsError').removeClass('d-none');
+                }
+            });
+        }
+
+        function renderServiceLogsTimeline(logs) {
+            var $container = $('#serviceLogsContainer');
+            $container.empty();
+
+            logs.forEach(function (log) {
+                var eventIcon = log.event_icon || 'fa fa-history';
+                var badgeClass = log.badge_class || 'soft-blue';
+                var eventLabel = log.event_label || 'İşlem';
+                var summary = $('<div>').text(log.summary || '').html();
+                var userName = $('<div>').text(log.user_name || 'Kullanıcı').html();
+                var userUnvan = log.user_unvan ? '<span class="text-muted font-12">(' + $('<div>').text(log.user_unvan).html() + ')</span>' : '';
+                var timeFormatted = $('<div>').text(log.created_at_formatted || '-').html();
+                var relTime = log.relative_time ? '<span class="badge badge-light border text-muted ml-2 font-11"><i class="fa fa-clock-o mr-1"></i>' + $('<div>').text(log.relative_time).html() + '</span>' : '';
+                var ipBadge = (log.ip_address && log.ip_address !== '-') ? '<span class="text-muted font-11 ml-auto"><i class="fa fa-globe mr-1"></i>IP: ' + $('<div>').text(log.ip_address).html() + '</span>' : '';
+
+                // Değişen alanlar diff kutusu
+                var changesHtml = '';
+                if (log.changed_fields && log.changed_fields.length > 0) {
+                    changesHtml += '<div class="service-log-diff-box mt-2 p-2 rounded">';
+                    changesHtml += '<div class="font-12 font-weight-bold text-secondary mb-1"><i class="fa fa-exchange mr-1"></i> Değiştirilen Alanlar:</div>';
+                    changesHtml += '<table class="table table-sm table-borderless font-12 mb-0">';
+                    log.changed_fields.forEach(function (ch) {
+                        changesHtml += '<tr>';
+                        changesHtml += '<td style="width: 35%;" class="font-weight-600 text-muted">' + $('<div>').text(ch.label).html() + ':</td>';
+                        changesHtml += '<td style="width: 30%;" class="text-danger"><del>' + $('<div>').text(ch.old).html() + '</del></td>';
+                        changesHtml += '<td style="width: 5%;" class="text-muted text-center"><i class="fa fa-arrow-right"></i></td>';
+                        changesHtml += '<td style="width: 30%;" class="text-success font-weight-600">' + $('<div>').text(ch.new).html() + '</td>';
+                        changesHtml += '</tr>';
+                    });
+                    changesHtml += '</table></div>';
+                }
+
+                var logIdText = log.id > 0 ? '#' + log.id : 'Sistem Kaydı';
+
+                var itemHtml = `
+                    <div class="service-log-item">
+                        <div class="service-log-icon ${badgeClass}">
+                            <i class="${eventIcon}"></i>
+                        </div>
+                        <div class="service-log-content shadow-sm">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between mb-1" style="gap: 8px;">
+                                <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                                    <span class="crm-badge-soft ${badgeClass}">${eventLabel}</span>
+                                    <strong class="text-dark font-13">${userName}</strong>
+                                    ${userUnvan}
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted font-12">${timeFormatted}</span>
+                                    ${relTime}
+                                </div>
+                            </div>
+                            <div class="service-log-summary font-13 text-secondary mt-1">
+                                ${summary}
+                            </div>
+                            ${changesHtml}
+                            <div class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top border-light">
+                                <span class="text-muted font-11"><i class="fa fa-shield mr-1"></i>${logIdText}</span>
+                                ${ipBadge}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $container.append(itemHtml);
+            });
+        }
+
+        // ==========================================
         // Muhasebe Log Modalı
+        // ==========================================
         $(document).on('click', '.js-accounting-log', function () {
-            var serviceId = parseInt($(this).data('service-id'), 10);
-            var serviceNumber = $(this).data('service-number') || '';
+            var serviceId = parseInt($(this).data('service-id') || $(this).attr('data-service-id'), 10);
+            var serviceNumber = $(this).data('service-number') || $(this).attr('data-service-number') || '';
 
             if (!serviceId) {
                 return;
             }
 
-            $('#accountingReceiptLogModalLabel').html('<i class="fa fa-history mr-2 text-primary"></i>Muhasebe Teslim Logları - Servis No: ' + serviceNumber);
-            $('#accountingReceiptLogTable tbody').html('<tr><td colspan="4" class="text-center py-3"><i class="fa fa-spinner fa-spin mr-1"></i> Yükleniyor...</td></tr>');
+            $('#accountingReceiptLogModalLabel').html('<i class="fa fa-history mr-2 text-primary"></i>Muhasebe Teslim Logları' + (serviceNumber ? ' - ' + serviceNumber : ''));
+            $('#acctModalServiceNumber').text(serviceNumber || ('#' + serviceId));
+            $('#acctModalCompanyName').text('Yükleniyor...');
+            $('#acctModalCurrentStatus').html('');
+            $('#acctLogsCountText').text('Kayıtlar getiriliyor...');
+
+            $('#acctLogsLoading').removeClass('d-none');
+            $('#acctLogsEmpty').addClass('d-none');
+            $('#acctLogsTimeline').addClass('d-none').empty();
+
             $('#accountingReceiptLogModal').modal('show');
 
             $.ajax({
@@ -1364,36 +1776,113 @@ if ($cid || $sid) {
                     service_id: serviceId
                 }
             }).done(function (response) {
+                $('#acctLogsLoading').addClass('d-none');
+
                 if (!response || !response.success) {
-                    $('#accountingReceiptLogTable tbody').html('<tr><td colspan="4" class="text-center text-danger py-3">Loglar alınamadı.</td></tr>');
+                    $('#acctLogsEmpty').removeClass('d-none').find('p').text('Log kayıtları alınamadı.');
                     return;
                 }
 
+                var service = response.service || {};
                 var logs = response.logs || [];
+
+                $('#acctModalCompanyName').text(service.company_name || 'Firma Belirtilmemiş');
+
+                if (service.current_accounting_status === 'received') {
+                    $('#acctModalCurrentStatus').html('<span class="crm-badge-soft soft-emerald"><i class="fa fa-check-circle mr-1"></i>Muhasebeye Teslim Edildi</span>');
+                } else {
+                    $('#acctModalCurrentStatus').html('<span class="crm-badge-soft soft-amber"><i class="fa fa-clock-o mr-1"></i>Teslim Bekliyor / İade</span>');
+                }
+
+                $('#acctLogsCountText').text('Toplam ' + logs.length + ' kayıt bulundu');
+
                 if (!logs.length) {
-                    $('#accountingReceiptLogTable tbody').html('<tr><td colspan="4" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>');
+                    var statusTitle = service.status_title || '';
+                    var isStatusMuhasebe = statusTitle.toUpperCase().indexOf('MUHASEBE') !== -1;
+                    
+                    var emptyHtml = '';
+                    if (isStatusMuhasebe) {
+                        emptyHtml = '<div class="text-center py-3">' +
+                            '<div class="mb-2"><i class="fa fa-info-circle text-info" style="font-size: 36px;"></i></div>' +
+                            '<h6 class="weight-600 text-dark mb-1 font-15">Muhasebe Teslim Onayı Bekliyor</h6>' +
+                            '<p class="text-muted font-12 mb-3 mx-auto" style="max-width: 480px;">Bu servisin genel iş emri durumu <strong>' + $('<div>').text(statusTitle).html() + '</strong> olarak ayarlanmıştır; ancak muhasebe departmanı tarafından henüz <em>"Muhasebe Teslim Al"</em> butonu ile evrak kabulü yapılmamıştır.</p>' +
+                            '<button type="button" class="btn btn-sm btn-outline-primary px-3 js-switch-to-service-logs" data-service-id="' + (service.id || serviceId) + '" data-service-number="' + $('<div>').text(service.service_number || serviceNumber).html() + '">' +
+                            '<i class="fa fa-history mr-1"></i> Tüm Servis & Durum Değişikliği Loglarını Gör</button>' +
+                            '</div>';
+                    } else {
+                        emptyHtml = '<div class="text-center py-3">' +
+                            '<div class="mb-2"><i class="fa fa-calendar-times-o text-muted" style="font-size: 36px;"></i></div>' +
+                            '<h6 class="weight-600 text-dark mb-1 font-14">Muhasebe Kaydı Yok</h6>' +
+                            '<p class="text-muted font-12 mb-3">Bu iş emri için henüz bir muhasebe teslim veya iade işlemi yapılmamış.</p>' +
+                            '<button type="button" class="btn btn-sm btn-outline-secondary px-3 js-switch-to-service-logs" data-service-id="' + (service.id || serviceId) + '" data-service-number="' + $('<div>').text(service.service_number || serviceNumber).html() + '">' +
+                            '<i class="fa fa-history mr-1"></i> Genel Servis Loglarını Gör</button>' +
+                            '</div>';
+                    }
+                    $('#acctLogsEmpty').html(emptyHtml).removeClass('d-none');
                     return;
                 }
 
-                var html = '';
-                for (var i = 0; i < logs.length; i++) {
-                    var log = logs[i];
+                var $timeline = $('#acctLogsTimeline');
+                $timeline.empty();
+
+                logs.forEach(function (log) {
                     var isReceived = log.action === 'received';
-                    var actionBadge = isReceived 
-                        ? '<span class="crm-badge-soft soft-emerald"><i class="fa fa-check-circle mr-1"></i>Teslim Alındı</span>' 
-                        : '<span class="crm-badge-soft soft-rose"><i class="fa fa-undo mr-1"></i>İade Alındı</span>';
-                    
-                    html += '<tr>' +
-                        '<td class="text-center font-weight-bold">' + (i + 1) + '</td>' +
-                        '<td>' + actionBadge + '</td>' +
-                        '<td><i class="fa fa-user-circle-o mr-1 text-muted"></i>' + (log.action_by_name || '-') + '</td>' +
-                        '<td><span class="text-muted font-12"><i class="fa fa-clock-o mr-1"></i>' + (log.action_at || '-') + '</span></td>' +
-                        '</tr>';
-                }
-                $('#accountingReceiptLogTable tbody').html(html);
+                    var iconClass = isReceived ? 'fa fa-check-circle' : 'fa fa-undo';
+                    var badgeStyle = isReceived ? 'soft-emerald' : 'soft-rose';
+                    var actionLabel = isReceived ? 'Muhasebeye Teslim Edildi' : 'Muhasebeden İade Alındı';
+                    var summary = isReceived
+                        ? 'Servis evrakları muhasebe departmanına başarıyla teslim edildi.'
+                        : 'Servisin muhasebe teslim kaydı geri alındı / iade edildi.';
+                    var userName = $('<div>').text(log.action_by_name || 'Kullanıcı').html();
+                    var userUnvan = log.action_by_unvan ? '<span class="text-muted font-12">(' + $('<div>').text(log.action_by_unvan).html() + ')</span>' : '';
+                    var timeFormatted = $('<div>').text(log.action_at_formatted || log.action_at || '-').html();
+                    var relTime = log.relative_time ? '<span class="badge badge-light border text-muted ml-2 font-11"><i class="fa fa-clock-o mr-1"></i>' + $('<div>').text(log.relative_time).html() + '</span>' : '';
+
+                    var itemHtml = `
+                        <div class="service-log-item">
+                            <div class="service-log-icon ${badgeStyle}">
+                                <i class="${iconClass}"></i>
+                            </div>
+                            <div class="service-log-content shadow-sm">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between mb-1" style="gap: 8px;">
+                                    <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                                        <span class="crm-badge-soft ${badgeStyle}">${actionLabel}</span>
+                                        <strong class="text-dark font-13">${userName}</strong>
+                                        ${userUnvan}
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="text-muted font-12">${timeFormatted}</span>
+                                        ${relTime}
+                                    </div>
+                                </div>
+                                <div class="service-log-summary font-13 text-secondary mt-1">
+                                    ${summary}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $timeline.append(itemHtml);
+                });
+
+                $timeline.removeClass('d-none');
             }).fail(function () {
-                $('#accountingReceiptLogTable tbody').html('<tr><td colspan="4" class="text-center text-danger py-3">Loglar alınırken hata oluştu.</td></tr>');
+                $('#acctLogsLoading').addClass('d-none');
+                $('#acctLogsEmpty').removeClass('d-none').find('p').text('Loglar alınırken bir bağlantı hatası oluştu.');
             });
+        });
+
+        $(document).on('click', '.js-switch-to-service-logs', function (e) {
+            e.preventDefault();
+            var sId = parseInt($(this).data('service-id') || $(this).attr('data-service-id'), 10);
+            var sNum = $(this).data('service-number') || $(this).attr('data-service-number') || '';
+            $('#accountingReceiptLogModal').modal('hide');
+            setTimeout(function () {
+                if (sId) {
+                    currentLogServiceId = sId;
+                    currentLogServiceNumber = sNum;
+                    loadServiceLogs(sId, sNum);
+                }
+            }, 350);
         });
 
         // ==========================================

@@ -127,4 +127,3 @@ if (@$_GET["st"] == "newsuccess") {
 		</div>
 	</form>
 </div>
-

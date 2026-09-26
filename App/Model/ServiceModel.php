@@ -5,6 +5,7 @@ use PDO;
 use PDOException;
 use App\Helper\Date;
 use App\Model\BaseModel;
+use App\Model\ActivityLogModel;
 
 class ServiceModel extends BaseModel
 {
@@ -650,4 +651,257 @@ class ServiceModel extends BaseModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Belirli bir servise ait tüm aktivite/log kayıtlarını getirir.
+     *
+     * @param int $serviceId
+     * @return array
+     */
+    public function getServiceLogs(int $serviceId): array
+    {
+        // 1. Servis ve bağlı bilgileri al
+        $stmtService = $this->db->prepare("
+            SELECT p.*,
+                   c.company as company_name,
+                   u_srv.title as servicestype_title,
+                   u_col.title as collectiontype_title,
+                   u_reg.title as region_title,
+                   u_st.title as status_title,
+                   u_st.colour as status_color,
+                   u_cr.username as creator_name,
+                   u_cr.Unvan as creator_unvan,
+                   u_up.username as updater_name,
+                   u_up.Unvan as updater_unvan
+            FROM {$this->table} p
+            LEFT JOIN customers c ON p.pcid = c.id
+            LEFT JOIN units u_srv ON p.servicestype = u_srv.id
+            LEFT JOIN units u_col ON p.collectiontype = u_col.id
+            LEFT JOIN units u_reg ON p.region = u_reg.id
+            LEFT JOIN units u_st ON p.pstatu = u_st.id
+            LEFT JOIN users u_cr ON p.pcreativer = u_cr.id
+            LEFT JOIN users u_up ON p.updater = u_up.id
+            WHERE p.id = ?
+        ");
+        $stmtService->execute([$serviceId]);
+        $service = $stmtService->fetch(PDO::FETCH_OBJ);
+
+        if (!$service) {
+            return [
+                'service' => null,
+                'logs' => [],
+            ];
+        }
+
+        $serviceNumber = trim($service->service_number ?? '');
+        $serviceIdStr = (string)$serviceId;
+
+        // 2. Log kayıtlarını sorgula
+        $whereClauses = [];
+        $params = [];
+
+        if ($serviceNumber !== '') {
+            $whereClauses[] = "(l.entity_type = 'service' AND (l.entity_id = :e_id1 OR l.entity_id = :e_no1))";
+            $whereClauses[] = "(l.module = 'services' AND (l.entity_id = :e_id2 OR l.entity_id = :e_no2))";
+            $whereClauses[] = "(l.module = 'services' AND l.summary LIKE :summary_like)";
+            $params[':e_id1'] = $serviceIdStr;
+            $params[':e_no1'] = $serviceNumber;
+            $params[':e_id2'] = $serviceIdStr;
+            $params[':e_no2'] = $serviceNumber;
+            $params[':summary_like'] = '%' . $serviceNumber . '%';
+        } else {
+            $whereClauses[] = "(l.entity_type = 'service' AND l.entity_id = :e_id1)";
+            $whereClauses[] = "(l.module = 'services' AND l.entity_id = :e_id2)";
+            $params[':e_id1'] = $serviceIdStr;
+            $params[':e_id2'] = $serviceIdStr;
+        }
+
+        $sql = "SELECT l.*,
+                       COALESCE(NULLIF(u.username, ''), IF(COALESCE(NULLIF(l.user_id, 0), l.author) = 0, 'Sistem', CONCAT('Kullanıcı #', COALESCE(NULLIF(l.user_id, 0), l.author)))) as username,
+                       u.Unvan as user_unvan,
+                       p.p_title as role_title
+                FROM logs l
+                LEFT JOIN users u ON u.id = COALESCE(NULLIF(l.user_id, 0), l.author)
+                LEFT JOIN perms p ON u.permission = p.id
+                WHERE (" . implode(' OR ', $whereClauses) . ")
+                ORDER BY l.created_at DESC, l.id DESC";
+
+        $stmtLogs = $this->db->prepare($sql);
+        $stmtLogs->execute($params);
+        $rawLogs = $stmtLogs->fetchAll(PDO::FETCH_OBJ);
+
+        $formattedLogs = [];
+        $hasCreateLog = false;
+
+        foreach ($rawLogs as $row) {
+            $eventType = $row->event_type ?: ($row->action ?: 'update');
+            if ($eventType === 'create' || stripos((string)$row->summary, 'Yeni servis oluşturuldu') !== false) {
+                $hasCreateLog = true;
+            }
+
+            // JSON detaylarını ayrıştır
+            $detailsData = null;
+            $changedFields = [];
+            if (!empty($row->details)) {
+                $decoded = json_decode($row->details, true);
+                if (is_array($decoded)) {
+                    $detailsData = $decoded;
+                    $contextData = $decoded['context']['data'] ?? [];
+                    if (!empty($contextData['changed_fields']) && is_array($contextData['changed_fields'])) {
+                        $changedFields = $this->formatChangedFields($contextData['changed_fields']);
+                    }
+                }
+            }
+
+            $formattedLogs[] = [
+                'id' => (int)$row->id,
+                'event_type' => $eventType,
+                'event_label' => ActivityLogModel::getEventLabel($eventType),
+                'event_icon' => ActivityLogModel::getEventIcon($eventType),
+                'badge_class' => ActivityLogModel::getEventBadgeClass($eventType),
+                'summary' => $row->summary ?: ActivityLogModel::getEventLabel($eventType),
+                'user_name' => $row->username ?: 'Bilinmeyen Kullanıcı',
+                'user_unvan' => $row->user_unvan ?: ($row->role_title ?: ''),
+                'user_id' => (int)($row->user_id ?: $row->author),
+                'created_at' => $row->created_at ?: ($row->dates . ' ' . $row->clock),
+                'created_at_formatted' => !empty($row->created_at) ? date('d.m.Y H:i:s', strtotime($row->created_at)) : ($row->dates . ' ' . $row->clock),
+                'relative_time' => ActivityLogModel::formatRelativeTime($row->created_at, $row->dates, $row->clock),
+                'ip_address' => $row->ip_address ?: '-',
+                'changed_fields' => $changedFields,
+            ];
+        }
+
+        // Eğer logs tablosunda oluşturma kaydı yoksa başlangıç oluşturma kaydı üret
+        if (!$hasCreateLog && (!empty($service->pcreativer) || !empty($service->pregdate))) {
+            $createdAt = !empty($service->pregdate) ? date('Y-m-d H:i:s', strtotime($service->pregdate)) : null;
+            $formattedLogs[] = [
+                'id' => 0,
+                'event_type' => 'create',
+                'event_label' => 'Oluşturma',
+                'event_icon' => 'fa fa-plus-circle',
+                'badge_class' => 'soft-emerald',
+                'summary' => 'Servis Oluşturuldu: ' . $serviceNumber,
+                'user_name' => $service->creator_name ?: ($service->pcreativer ? 'Kullanıcı #' . $service->pcreativer : 'Sistem'),
+                'user_unvan' => $service->creator_unvan ?: '',
+                'user_id' => (int)($service->pcreativer ?: 0),
+                'created_at' => $createdAt,
+                'created_at_formatted' => $createdAt ? date('d.m.Y H:i:s', strtotime($createdAt)) : '-',
+                'relative_time' => $createdAt ? ActivityLogModel::formatRelativeTime($createdAt) : '-',
+                'ip_address' => '-',
+                'changed_fields' => [],
+            ];
+        }
+
+        return [
+            'service' => [
+                'id' => (int)$service->id,
+                'service_number' => $service->service_number,
+                'company_name' => $service->company_name,
+                'customer_id' => (int)$service->pcid,
+                'service_type' => $service->servicestype_title ?: '-',
+                'region' => $service->region_title ?: '-',
+                'collection_type' => $service->collectiontype_title ?: '-',
+                'status_title' => $service->status_title ?: 'Belirtilmemiş',
+                'status_color' => $service->status_color ?: '#64748b',
+                'start_date' => $service->pstart_date,
+                'second_date' => $service->psecond_date,
+                'price' => $service->price ? (float)$service->price : null,
+                'contract_statu' => (int)$service->contract_statu,
+                'contract_statu_label' => $this->getContractStatusLabel((int)$service->contract_statu),
+                'created_at' => $service->pregdate,
+                'creator_name' => $service->creator_name,
+                'creator_unvan' => $service->creator_unvan,
+                'updater_name' => $service->updater_name,
+                'updated_at' => $service->update_at,
+            ],
+            'logs' => $formattedLogs,
+        ];
+    }
+
+    /**
+     * Sözleşme durum etiketi döndürür.
+     */
+    public function getContractStatusLabel(int $status): string
+    {
+        $map = [
+            1 => 'Bekliyor',
+            2 => 'Sözleşmeli',
+            3 => 'Yapılmadı',
+            4 => 'S. Kapsamında Değildir'
+        ];
+        return $map[$status] ?? 'Diğer';
+    }
+
+    /**
+     * Loglanan servis alanı değişikliklerini formatlar.
+     */
+    protected function formatChangedFields(array $changes): array
+    {
+        $fieldMap = [
+            'pstatu' => ['label' => 'Servis Durumu', 'type' => 'unit_status'],
+            'contract_statu' => ['label' => 'Sözleşme Durumu', 'type' => 'contract_status'],
+            'servicestype' => ['label' => 'Servis Konusu / Türü', 'type' => 'unit_general'],
+            'collectiontype' => ['label' => 'Tahsilat Türü', 'type' => 'unit_general'],
+            'region' => ['label' => 'Servis Bölgesi', 'type' => 'unit_general'],
+            'pstart_date' => ['label' => 'İş Emri / Başlangıç Tarihi', 'type' => 'text'],
+            'psecond_date' => ['label' => 'Bitiş Tarihi', 'type' => 'text'],
+            'price' => ['label' => 'Servis Bedeli', 'type' => 'money'],
+            'price_desc' => ['label' => 'Fiyat Açıklaması', 'type' => 'text'],
+            'address' => ['label' => 'Servis Adresi', 'type' => 'text'],
+            'pdesc' => ['label' => 'Açıklama', 'type' => 'text'],
+            'pnotes' => ['label' => 'Notlar', 'type' => 'text'],
+            'pcid' => ['label' => 'Firma ID', 'type' => 'text'],
+            'poid' => ['label' => 'Bağlı Teklif ID', 'type' => 'text'],
+        ];
+
+        // Units tablosundaki başlıkları yükle
+        static $cachedUnits = null;
+        if ($cachedUnits === null) {
+            try {
+                $stUnits = $this->db->query("SELECT id, title FROM units");
+                $cachedUnits = $stUnits ? $stUnits->fetchAll(PDO::FETCH_KEY_PAIR) : [];
+            } catch (\Throwable $e) {
+                $cachedUnits = [];
+            }
+        }
+
+        $result = [];
+        foreach ($changes as $field => $val) {
+            $old = $val['old'] ?? null;
+            $new = $val['new'] ?? null;
+
+            $meta = $fieldMap[$field] ?? ['label' => ucfirst($field), 'type' => 'text'];
+            $label = $meta['label'];
+            $type = $meta['type'];
+
+            $formatVal = function ($v) use ($type, $cachedUnits) {
+                if ($v === null || $v === '') {
+                    return '<i class="text-muted">Boş</i>';
+                }
+                if ($type === 'money') {
+                    return '₺ ' . number_format((float)$v, 2, ',', '.');
+                }
+                if ($type === 'contract_status') {
+                    return $this->getContractStatusLabel((int)$v);
+                }
+                if ($type === 'unit_status' || $type === 'unit_general') {
+                    $uId = (int)$v;
+                    return htmlspecialchars($cachedUnits[$uId] ?? (string)$v, ENT_QUOTES, 'UTF-8');
+                }
+                return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+            };
+
+            $result[] = [
+                'field' => $field,
+                'label' => $label,
+                'old_raw' => $old,
+                'new_raw' => $new,
+                'old' => $formatVal($old),
+                'new' => $formatVal($new),
+            ];
+        }
+
+        return $result;
+    }
 }
+

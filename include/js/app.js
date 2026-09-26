@@ -1,59 +1,107 @@
 function validateForm(routelink = null) {
-  var form = document.getElementById("myForm");
+  var form = document.getElementById("myForm") || document.querySelector("form");
+  if (!form) return;
 
   var elements = form.elements;
   var emptyFields = [];
+  var invalidElements = [];
+
+  // Önceki geçersizlik işaretlemelerini temizle
+  $(form).find(".is-invalid, .form-control-invalid, .select2-invalid").removeClass("is-invalid form-control-invalid select2-invalid");
+  $(form).find(".select2-selection").removeClass("is-invalid select2-invalid");
 
   for (var i = 0; i < elements.length; i++) {
-    // Form elemanının parent node'u bir td ise, tablo içinde yer alır ve kontrol edilmemeli
-    if (!isDescendantOfTable(elements[i])) {
-      if (
-        (elements[i].hasAttribute("required") &&
-          elements[i].value.trim() === "") ||
-        elements[i].value.trim() === null
-      ) {
-        var label = document.querySelector(
-          'label[for="' + elements[i].getAttribute("name") + '"]'
-        );
+    var el = elements[i];
+    if (!el || el.type === "submit" || el.type === "button" || el.type === "hidden" || el.type === "reset") continue;
+
+    // Form elemanının parent node'u bir td ise, tablo içinde yer alır ve checkRequiredCells'te kontrol edilmeli
+    if (!isDescendantOfTable(el)) {
+      var isRequired = el.hasAttribute("required") || $(el).hasClass("required");
+      var val = (el.value !== undefined && el.value !== null) ? String(el.value).trim() : "";
+
+      if (isRequired && (val === "" || val === null)) {
+        var label = document.querySelector('label[for="' + el.getAttribute("name") + '"]') ||
+                    document.querySelector('label[for="' + el.getAttribute("id") + '"]') ||
+                    $(el).closest('.form-field, .form-group').find('label').first()[0];
         var labelText = label
           ? label.textContent.trim().replace(/[:\(\*\)]/g, "")
-          : elements[i].getAttribute("name");
-        emptyFields.push(labelText);
+          : (el.getAttribute("placeholder") || el.getAttribute("name") || "Zorunlu Alan");
+
+        if (labelText && !emptyFields.includes(labelText)) {
+          emptyFields.push(labelText);
+        }
+        invalidElements.push(el);
+        $(el).addClass("is-invalid");
+
+        // Select2 kontrolü
+        var $select2 = $(el).next(".select2-container");
+        if ($select2.length) {
+          $select2.find(".select2-selection").addClass("is-invalid select2-invalid");
+        }
       }
     }
   }
 
-  //Tablodaki zorunlu alanları kontrol ederek diziye ekler
-  checkRequiredCells(emptyFields);
-  //console.log("Boş olan zorunlu alanlar: ", emptyFields);
+  // Tablodaki zorunlu alanları kontrol ederek diziye ekler ve elemanları renklendirir
+  checkRequiredCells(emptyFields, invalidElements);
 
   if (emptyFields.length > 0) {
-    var errorMessage =
-      "Lütfen zorunlu alanları doldurun: <br/>" + emptyFields.join(", ");
-
-    if (routelink == null) {
-      var url = window.location.href;
-      var params = new URLSearchParams(new URL(url).search);
-      var pValue = params.get("p");
-      var id = params.get("id");
-      if (id != null) {
-        if (routelink != null) {
-          routelink = pValue + "&id=" + id;
-        } else {
-          routelink = pValue + "&id=" + id;
-        }
-      } else {
-        routelink = pValue;
+    // İlk hatalı alana odaklan ve oraya yumuşakça kaydır
+    if (invalidElements.length > 0) {
+      var firstEl = invalidElements[0];
+      var $scrollTarget = $(firstEl).closest('.form-field, .form-group, td, tr');
+      if ($scrollTarget.length) {
+        $('html, body').animate({
+          scrollTop: Math.max(0, $scrollTarget.offset().top - 130)
+        }, 250);
       }
+      setTimeout(function () {
+        try {
+          if ($(firstEl).is("select") && $(firstEl).data("select2")) {
+            $(firstEl).select2("open");
+          } else {
+            firstEl.focus();
+          }
+        } catch (e) {}
+      }, 300);
     }
-    showMessage(errorMessage, "alert", routelink);
-  } else {
-    var form = document.getElementById("myForm");
-    var button = document.getElementById("submitButton");
 
-    button.disabled = "true";
-    form.submit(); // Formu gönder
-    button.disabled = "false";
+    // Modern SweetAlert2 ile şık uyarı penceresi
+    if (typeof Swal !== "undefined" && typeof Swal.fire === "function") {
+      var fieldItemsHtml = emptyFields.map(function (field) {
+        return '<li style="margin-bottom: 5px; font-weight: 600; color: #b91c1c;">' + field + '</li>';
+      }).join('');
+
+      var alertBodyHtml = '<div style="text-align: left; background: #fff5f5; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; margin-top: 10px;">' +
+        '<div style="font-size: 13px; font-weight: 600; color: #dc2626; margin-bottom: 8px;">' +
+        '<i class="fa fa-exclamation-triangle mr-1"></i> Lütfen aşağıdaki zorunlu alanları doldurunuz:' +
+        '</div>' +
+        '<ul style="margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.6;">' +
+        fieldItemsHtml +
+        '</ul>' +
+        '</div>';
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Zorunlu Alanlar Eksik',
+        html: alertBodyHtml,
+        confirmButtonText: 'Tamam, Dolduracağım',
+        confirmButtonColor: '#2563eb',
+        customClass: {
+          popup: 'swal2-border-radius-16'
+        }
+      });
+    } else {
+      var errorMessage = "Lütfen zorunlu alanları doldurun: <br/>" + emptyFields.join(", ");
+      showMessage(errorMessage, "alert", routelink);
+    }
+    return false;
+  } else {
+    var button = document.getElementById("submitButton");
+    if (button) {
+      button.disabled = true;
+    }
+    form.submit();
   }
 }
 
@@ -69,34 +117,39 @@ function isDescendantOfTable(element) {
 }
 
 // Tablodaki zorunlu olan td elemanlarını kontrol eder ve boş olanların sütun başlıklarını diziye ekler
-function checkRequiredCells(emptyFields) {
-  var tables = document.getElementsByClassName("table");
-  for (var i = 0; i < tables.length; i++) {
-    var table = tables[i];
-    var rows = table.getElementsByTagName("tr");
-    for (var j = 0; j < rows.length; j++) {
-      var cells = rows[j].getElementsByTagName("td");
-      for (var k = 0; k < cells.length; k++) {
-        var cell = cells[k];
-        // td içindeki tüm form elemanlarını al
+function checkRequiredCells(emptyFields, invalidElements) {
+  var tables = document.querySelectorAll("#tProduct, .premium-table, table.table");
+  tables.forEach(function (table) {
+    var rows = table.querySelectorAll("tbody tr");
+    rows.forEach(function (row) {
+      var cells = row.querySelectorAll("td");
+      cells.forEach(function (cell, colIndex) {
         var formElements = cell.querySelectorAll("input, select, textarea");
-        for (var l = 0; l < formElements.length; l++) {
-          var formElement = formElements[l];
-          // Form elemanı zorunlu mu ve değeri boş mu?
-          if (
-            formElement.hasAttribute("required") &&
-            formElement.value.trim() === ""
-          ) {
-            // Zorunlu ve boş olan form elemanının bulunduğu sütunun başlığını bul
-            var columnHeader = getTableHeaderForColumn(table, k);
+        formElements.forEach(function (formElement) {
+          if (formElement.type === "hidden" || formElement.type === "submit" || formElement.type === "button") return;
+
+          var isRequired = formElement.hasAttribute("required") || $(formElement).hasClass("required");
+          var val = (formElement.value !== undefined && formElement.value !== null) ? String(formElement.value).trim() : "";
+
+          if (isRequired && val === "") {
+            var columnHeader = getTableHeaderForColumn(table, colIndex);
             if (columnHeader && !emptyFields.includes(columnHeader)) {
               emptyFields.push(columnHeader);
             }
+            if (invalidElements) {
+              invalidElements.push(formElement);
+            }
+            $(formElement).addClass("is-invalid");
+
+            var $select2 = $(formElement).next(".select2-container");
+            if ($select2.length) {
+              $select2.find(".select2-selection").addClass("is-invalid select2-invalid");
+            }
           }
-        }
-      }
-    }
-  }
+        });
+      });
+    });
+  });
 }
 
 function getTableHeaderForColumn(table, columnIndex) {
@@ -104,74 +157,90 @@ function getTableHeaderForColumn(table, columnIndex) {
   if (headerRow) {
     var headers = headerRow.getElementsByTagName("th");
     if (columnIndex < headers.length) {
-      return headers[columnIndex].textContent.trim();
+      var th = headers[columnIndex];
+      var clone = th.cloneNode(true);
+      var triggers = clone.querySelectorAll('.tf-trigger, button, i, svg');
+      triggers.forEach(function(t) { t.remove(); });
+      return clone.textContent.trim() || th.textContent.trim();
     }
   }
   return null;
 }
 
-// function getColumnName(tdElement) {
-//   // tdElement'in içinde bulunduğu satırı bul
-//   var row = tdElement.parentNode;
-
-//   // Satırın içindeki tüm hücreleri al
-//   var cells = row.getElementsByTagName("td");
-
-//   // tdElement'in hangi sütuna ait olduğunu belirlemek için indeksini bul
-//   for (var i = 0; i < cells.length; i++) {
-//       if (cells[i] === tdElement) {
-//           // Bu indeksteki sütun başlığını al
-//           var columnHeader = row.parentNode.getElementsByTagName("th")[i].textContent;
-//           return columnHeader;
-//       }
-//   }
-//   // Eğer sütun başlığı bulunamazsa boş döndür
-//   return "";
-// }
-// function isTdElement(element) {
-//   return element instanceof HTMLTableCellElement;
-// }
-
 function showMessage(message, type, routelink) {
-  var alertClass = "";
-  var firstLetter = "";
+  var icon = "info";
+  var title = "Bilgi";
+  var confirmBtnColor = "#2563eb";
 
   if (type === "success") {
-    alertClass = "alert-success";
-    firstLetter = "Başarılı!";
-  } else if (type === "alert") {
-    alertClass = "alert-danger";
-    firstLetter = "Uyarı!";
+    icon = "success";
+    title = "Başarılı!";
+    confirmBtnColor = "#10b981";
+  } else if (type === "alert" || type === "danger") {
+    icon = "warning";
+    title = "Uyarı!";
+    confirmBtnColor = "#f59e0b";
   } else if (type === "error") {
-    alertClass = "alert-warning";
-    firstLetter = "Hata";
-  } else if (type === "info") {
-    alertClass = "alert-info";
-    firstLetter = "Bilgi";
+    icon = "error";
+    title = "Hata!";
+    confirmBtnColor = "#ef4444";
   }
 
-  if (alertClass && message) {
-    var alertMessage = $(
-      '<div class="message alert ' +
-        alertClass +
-        ' alert-dismissible fade show">' +
-        "<strong>" +
-        firstLetter +
-        "</strong> " +
-        message +
-        '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-        "</div>"
-    );
-
-    window.history.pushState({}, "", "index.php?p=" + routelink);
-    $("#maincontainer").before(alertMessage);
-    window.setTimeout(function () {
-      alertMessage.fadeTo(500, 0).slideUp(500, function () {
-        $(this).remove();
-      });
-    }, 5000);
+  if (routelink) {
+    try {
+      window.history.pushState({}, "", "index.php?p=" + routelink);
+    } catch (e) {}
   }
+
+  if (typeof Swal !== "undefined" && typeof Swal.fire === "function") {
+    Swal.fire({
+      icon: icon,
+      title: title,
+      html: message,
+      confirmButtonText: "Tamam",
+      confirmButtonColor: confirmBtnColor,
+      customClass: {
+        popup: 'swal2-border-radius-16'
+      }
+    });
+    return;
+  }
+
+  // Fallback to legacy alert banner if SweetAlert is somehow unavailable
+  var alertClass = (type === "success") ? "alert-success" : ((type === "alert" || type === "danger") ? "alert-danger" : ((type === "error") ? "alert-warning" : "alert-info"));
+  var alertMessage = $(
+    '<div class="message alert ' +
+      alertClass +
+      ' alert-dismissible fade show">' +
+      "<strong>" + title + "</strong> " +
+      message +
+      '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+      "</div>"
+  );
+  $("#maincontainer").before(alertMessage);
+  window.setTimeout(function () {
+    alertMessage.fadeTo(500, 0).slideUp(500, function () {
+      $(this).remove();
+    });
+  }, 5000);
 }
+
+// Form doğrulama hata sınıflarını kullanıcı veri girdiğinde otomatik temizle
+$(document).on("input change keyup", "input.is-invalid, textarea.is-invalid", function () {
+  if ($(this).val() && String($(this).val()).trim() !== "") {
+    $(this).removeClass("is-invalid form-control-invalid");
+  }
+});
+
+$(document).on("change select2:select", "select", function () {
+  if ($(this).val() && String($(this).val()).trim() !== "") {
+    $(this).removeClass("is-invalid form-control-invalid");
+    var $s2 = $(this).next(".select2-container");
+    if ($s2.length) {
+      $s2.find(".select2-selection").removeClass("is-invalid select2-invalid");
+    }
+  }
+});
 
 function addDataTableColumnSearchRow(api) {
   if (window.App && window.App.TableFilter) {
@@ -420,42 +489,45 @@ const responde = await fetch("App/api/units.php",
   selectmoneys += "</select>";
   //****PARA BİRİMLERİ*****//
 
-  $("#tProduct tbody").append(
-    "<tr>" +
-    '<td><a href="#" class="btn btn-sm"><i class="fa fa-arrows-alt"></i></a></td>' +
-      '<td class="app-item-action"><a href="#" class="sil btn btn-sm btn-danger"><i class="fa fa-trash"></i></a></td>' +
-      '<td class="app-item-number"><input class="form-control" type="text" value="' +
-      sayac +
-      '"></td>' +
-      '<td class="mw-100p"><input type="text" id="stokKodu' +
-      sayac +
-      '" name="stokKodu[]" class="form-control" placeholder="Stok Kodu giriniz!"></td>' +
-      "<td>" +
-      '<div class="input-group m-0">' +
-      '<input type="text" required name="urunAdi[]" id="urunAdi' +
-      sayac +
-      '"  placeholder="Ürün adını giriniz!" class="urunAdi form-control">' +
-      '<button type="button" id="' +
-      sayac +
-      '" class="selectProduct btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#staticBackdrop"> ' +
-      '<i class="fa fa-plus-circle"></i>' +
-      "</button>" +
-      "</div>" +
-      "</td>" +
-      '<td class="app-item-amount"><input type="number" required id="amount' +
-      sayac +
-      '" name="amount[]" autocomplete="off"  class="Adet form-control"></td>' +
-      '<td class="app-item-unit">' +
-      selectUnit +
-      "</td>" +
-      '<td class="app-item-price"><input type="text" required id="price' +
-      sayac +
-      '" name="price[]" class="BirimFiyat form-control"></td>' +
-      '<td class="app-item-cur">' +
-      selectmoneys +
-      '</td> ' + rowdescription + 
-      "</tr>"
-  );
+  var rowHtml = 
+    "<tr class='ui-state-default'>" +
+    '<td style="width: 35px; min-width: 35px; text-align: center; vertical-align: middle;"><span class="btn btn-sm text-muted p-0 drag-handle" style="cursor: grab;"><i class="fa fa-arrows-alt"></i></span></td>' +
+    '<td class="app-item-action-2 text-center" style="width: 80px; min-width: 80px; vertical-align: middle; white-space: nowrap;">' +
+      '<div class="btn-group btn-group-sm" role="group" style="display: inline-flex;">' +
+        '<a type="button" class="sil btn btn-sm btn-danger text-white" title="Satırı Sil" style="padding: 4px 8px; border-radius: 6px 0 0 6px;"><i class="fa fa-trash"></i></a>' +
+        '<button type="button" class="btn btn-sm btn-outline-primary btn-clone-row" title="Satırı Klonla" style="padding: 4px 8px; border-radius: 0 6px 6px 0;"><i class="fa fa-clone"></i></button>' +
+      '</div>' +
+    '</td>' +
+    '<td class="app-item-number text-center" style="width: 55px; min-width: 55px; vertical-align: middle;">' +
+      '<input class="form-control text-center font-weight-bold" name="satirno[]" type="text" value="' + sayac + '" readonly style="background: #f8fafc; border-radius: 6px; width: 45px; margin: 0 auto;">' +
+    '</td>' +
+    '<td class="app-item-stock" style="width: 140px; min-width: 120px; vertical-align: middle;">' +
+      '<div class="product-autocomplete-wrap">' +
+        '<input type="text" id="stokKodu' + sayac + '" name="stokKodu[]" class="form-control stokKodu-input" placeholder="Stok Kodu" autocomplete="off" style="border-radius: 6px; border-color: #cbd5e1;">' +
+      '</div>' +
+    '</td>' +
+    '<td class="app-item-name" style="min-width: 220px; vertical-align: middle;">' +
+      '<div class="product-autocomplete-wrap position-relative">' +
+        '<input type="text" required name="urunAdi[]" id="urunAdi' + sayac + '" placeholder="Ürün adı yazarak arayın veya seçin..." class="urunAdi form-control urunAdi-input" autocomplete="off" style="border-radius: 6px; border-color: #cbd5e1;">' +
+      '</div>' +
+    '</td>' +
+    '<td class="app-item-amount text-center" style="width: 90px; min-width: 80px; vertical-align: middle;">' +
+      '<input type="number" step="any" min="0" required id="amount' + sayac + '" name="amount[]" autocomplete="off" class="Adet form-control amount-input text-center" placeholder="0" style="border-radius: 6px; border-color: #cbd5e1;">' +
+    '</td>' +
+    '<td class="app-item-unit" style="width: 110px; min-width: 100px; vertical-align: middle;">' + selectUnit + '</td>' +
+    '<td class="app-item-price" style="width: 120px; min-width: 100px; vertical-align: middle;">' +
+      '<input type="text" required id="price' + sayac + '" name="price[]" class="BirimFiyat form-control price-input text-right" autocomplete="off" placeholder="0.00" style="border-radius: 6px; border-color: #cbd5e1;">' +
+    '</td>' +
+    '<td class="app-item-cur" style="width: 100px; min-width: 90px; vertical-align: middle;">' + selectmoneys + '</td> ' +
+    (demand ? ('<td style="min-width: 180px; vertical-align: middle;"><input type="text" class="form-control" style="min-width: 150px; width: 100%; border-radius: 6px; border-color: #cbd5e1;" name="rowdescription[]" value="" placeholder="Kalem açıklaması..."></td>') : '') + 
+    "</tr>";
+
+  if ($("#sortable").length) {
+    $("#sortable").append(rowHtml);
+  } else {
+    $("#tProduct tbody").append(rowHtml);
+  }
+
   $(".selectpicker").selectpicker("refresh");
   $("#preloader").hide();
 }

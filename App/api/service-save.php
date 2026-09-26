@@ -147,11 +147,15 @@ try {
                         'address' => $address,
                         'region' => $region,
                         'pstart_date' => $startDate,
+                        'psecond_date' => $secondDate,
                         'price' => $price,
+                        'price_desc' => $priceDescription,
+                        'pdesc' => $description,
+                        'pnotes' => $serviceNote,
                         'pstatu' => $status,
                         'contract_statu' => $contractStatus,
                     ],
-                    ['pcid', 'poid', 'servicestype', 'collectiontype', 'address', 'region', 'pstart_date', 'price', 'pstatu', 'contract_statu']
+                    ['pcid', 'poid', 'servicestype', 'collectiontype', 'address', 'region', 'pstart_date', 'psecond_date', 'price', 'price_desc', 'pdesc', 'pnotes', 'pstatu', 'contract_statu']
                 ),
             ]
         );
@@ -223,7 +227,17 @@ try {
         'Yeni servis oluşturuldu: ' . $serviceNumber,
         'service',
         $newServiceId,
-        ['service_number' => $serviceNumber, 'customer_id' => (int) $company]
+        [
+            'service_number' => $serviceNumber,
+            'customer_id' => (int) $company,
+            'servicestype' => $serviceType,
+            'region' => $region,
+            'collectiontype' => $collectionType,
+            'pstatu' => $status,
+            'contract_statu' => $contractStatus,
+            'price' => $price,
+            'pstart_date' => $startDate,
+        ]
     );
     $ac->commit();
 

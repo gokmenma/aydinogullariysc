@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'get_accounting_receipt_logs') {
-        if (!permtrue("muhasebe_teslim_alma_yetkisi")) {
+        if (!permtrue("muhasebe_teslim_alma_yetkisi") && !permtrue("serviceView")) {
             http_response_code(403);
             echo json_encode([
                 'success' => false,
@@ -108,7 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $logQuery = $ac->prepare("SELECT l.action, l.action_at, u.username as action_by_name
+        $logQuery = $ac->prepare("SELECT l.action, l.action_at, 
+                   COALESCE(NULLIF(u.username, ''), 'Kullanıcı') as action_by_name,
+                   u.Unvan as action_by_unvan
             FROM service_accounting_receipt_logs l
             LEFT JOIN users u ON u.id = l.action_by
             WHERE l.service_id = ?
@@ -116,9 +118,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $logQuery->execute([$serviceId]);
         $logs = $logQuery->fetchAll(PDO::FETCH_ASSOC);
 
+        // Servis detayları
+        $srvQuery = $ac->prepare("
+            SELECT p.id, p.service_number, c.company as company_name, p.pstatu,
+                   st.title as status_title, st.colour as status_color,
+                   (SELECT action FROM service_accounting_receipt_logs WHERE service_id = p.id ORDER BY id DESC LIMIT 1) as current_accounting_status
+            FROM projects p
+            LEFT JOIN customers c ON p.pcid = c.id
+            LEFT JOIN units st ON st.id = p.pstatu
+            WHERE p.id = ?
+        ");
+        $srvQuery->execute([$serviceId]);
+        $serviceInfo = $srvQuery->fetch(PDO::FETCH_ASSOC);
+
+        foreach ($logs as &$log) {
+            $log['relative_time'] = \App\Model\ActivityLogModel::formatRelativeTime($log['action_at']);
+            $log['action_at_formatted'] = !empty($log['action_at']) ? date('d.m.Y H:i:s', strtotime($log['action_at'])) : '-';
+        }
+        unset($log);
+
         echo json_encode([
             'success' => true,
+            'service' => $serviceInfo,
             'logs' => $logs
+        ]);
+        exit;
+    }
+
+    if ($action === 'get_service_logs') {
+        if (!permtrue("serviceView") && !permtrue("serviceEdit") && !permtrue("serviceAdd")) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Bu işlem için yetkiniz yok.'
+            ]);
+            exit;
+        }
+
+        $serviceId = intval($_POST['service_id'] ?? 0);
+        if ($serviceId <= 0) {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Geçersiz servis ID.'
+            ]);
+            exit;
+        }
+
+        $serviceModel = new \App\Model\ServiceModel();
+        $result = $serviceModel->getServiceLogs($serviceId);
+
+        if (!$result || empty($result['service'])) {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Servis kaydı bulunamadı.'
+            ]);
+            exit;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'service' => $result['service'],
+            'logs' => $result['logs'],
         ]);
         exit;
     }
@@ -489,8 +551,10 @@ foreach ($projects as $project) {
             $confirmText = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
             $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle text-success" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-check text-success mr-2"></i> Muhasebe Teslim Al</button>';
         }
-        $actions .= '<button type="button" class="dropdown-item js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-history text-dark mr-2"></i> Muhasebe Logları</button>';
+        $actions .= '<button type="button" class="dropdown-item js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-book text-dark mr-2"></i> Muhasebe Logları</button>';
     }
+
+    $actions .= '<button type="button" class="dropdown-item btn-service-logs" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-history text-info mr-2"></i> Log Kayıtları</button>';
 
     if ($canDel) {
         $actions .= '<div class="dropdown-divider"></div>';

@@ -657,7 +657,211 @@ if (@$_GET["st"] == "success-mail") {
     </div>
 </div>
 </div>
+
+<!-- Teklif Log Kayıtları Modalı -->
+<div class="modal fade" id="offerLogsModal" tabindex="-1" role="dialog" aria-labelledby="offerLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 850px;">
+        <div class="modal-content custom-log-modal-content">
+            <div class="modal-header custom-log-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <div class="modal-icon-badge">
+                        <i class="fa fa-history text-primary"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title font-16 weight-700 mb-0" id="offerLogsModalLabel">
+                            Teklif İşlem & Log Kayıtları
+                        </h5>
+                        <small class="text-muted" id="offerLogsSubTitle">Kim, ne zaman, hangi işlemi yapmış geçmişi</small>
+                    </div>
+                </div>
+                <button type="button" class="close btn-log-modal-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Teklif Özet Kartı (Modal İçi) -->
+            <div class="offer-log-summary-card px-4 py-3 bg-light border-bottom d-flex flex-wrap justify-content-between align-items-center" id="offerLogsSummaryCard" style="gap: 12px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 12px;">
+                    <span class="offer-badge-no font-14 font-weight-bold text-primary" id="logOfferNo">-</span>
+                    <span class="text-muted font-13 font-weight-500" id="logOfferCustomer">-</span>
+                </div>
+                <div class="d-flex align-items-center flex-wrap" style="gap: 12px;">
+                    <div class="font-13"><span class="text-muted">Toplam Tutar:</span> <strong id="logOfferTotal" class="text-dark font-weight-bold">-</strong></div>
+                    <div id="logOfferStatus">-</div>
+                </div>
+            </div>
+
+            <div class="modal-body p-4" style="max-height: calc(80vh - 180px); overflow-y: auto;">
+                <!-- Loading State -->
+                <div id="offerLogsLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary mb-2" role="status" style="width: 2.2rem; height: 2.2rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <div class="text-muted font-13 font-weight-500">Log kayıtları yükleniyor...</div>
+                </div>
+
+                <!-- Error State -->
+                <div id="offerLogsError" class="alert alert-danger d-none my-3" role="alert">
+                    <i class="fa fa-exclamation-triangle mr-2"></i>
+                    <span id="offerLogsErrorMessage">Kayıtlar yüklenirken bir sorun oluştu.</span>
+                </div>
+
+                <!-- Empty State -->
+                <div id="offerLogsEmpty" class="text-center py-5 d-none">
+                    <div class="empty-icon-circle mb-3">
+                        <i class="fa fa-folder-open-o text-muted" style="font-size: 38px;"></i>
+                    </div>
+                    <h6 class="weight-600 text-dark mb-1">Kayıt Bulunamadı</h6>
+                    <p class="text-muted font-13 mb-0">Bu teklife ait henüz detaylı bir aktivite kaydı bulunmuyor.</p>
+                </div>
+
+                <!-- Timeline / Log Container -->
+                <div id="offerLogsContainer" class="offer-log-timeline d-none">
+                    <!-- Dinamik log kartları JS ile eklenecek -->
+                </div>
+            </div>
+
+            <div class="modal-footer custom-log-modal-footer d-flex justify-content-between align-items-center px-4 py-3">
+                <div class="text-muted font-12" id="offerLogsCountText">Toplam 0 işlem kaydı</div>
+                <div class="d-flex" style="gap: 8px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="btnRefreshOfferLogs">
+                        <i class="fa fa-refresh mr-1"></i> Yenile
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal">
+                        Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+/* Modal & Timeline Stilleri */
+#offerLogsModal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+#offerLogsModal .modal-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 20px;
+}
+#offerLogsModal .modal-icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: rgba(2, 132, 199, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+.offer-log-summary-card {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+.offer-badge-no {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #e0f2fe;
+    color: #0369a1 !important;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+.offer-log-timeline {
+    position: relative;
+    padding-left: 26px;
+}
+.offer-log-timeline::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 11px;
+    width: 2px;
+    background: #e2e8f0;
+}
+.offer-log-item {
+    position: relative;
+    margin-bottom: 18px;
+}
+.offer-log-item:last-child {
+    margin-bottom: 0;
+}
+.offer-log-icon {
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    z-index: 2;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.offer-log-content {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.offer-log-content:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.offer-log-diff-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.dark-mode #offerLogsModal .modal-content {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+.dark-mode #offerLogsModal .modal-header,
+.dark-mode .offer-log-summary-card {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+.dark-mode .offer-badge-no {
+    background: #1e3a5f;
+    color: #38bdf8 !important;
+}
+.dark-mode #offerLogsModal .modal-footer {
+    background: #0f172a;
+    border-color: #334155;
+}
+.dark-mode .offer-log-timeline::before {
+    background: #334155;
+}
+.dark-mode .offer-log-item .offer-log-icon {
+    border-color: #1e293b;
+}
+.dark-mode .offer-log-content {
+    background: #0f172a;
+    border-color: #334155;
+}
+.dark-mode .offer-log-diff-box {
+    background: #1e293b;
+    border-color: #334155;
+}
+.dark-mode #logOfferTotal {
+    color: #f8fafc !important;
+}
+.dark-mode #logOfferCustomer {
+    color: #cbd5e1 !important;
+}
+.dark-mode #offerLogsModal .close {
+    color: #cbd5e1;
+    text-shadow: none;
+}
     /* DataTables'ın sabit genişliklerini ezmek için */
 table.dataTable {
     width: 100% !important;
@@ -1100,9 +1304,10 @@ $(document).ready(function() {
                 var target = $item.attr('target') ? ' target="' + $item.attr('target') + '"' : '';
                 var text = $item.html();
                 var dataId = $item.attr('data-id') ? ' data-id="' + $item.attr('data-id') + '"' : '';
+                var dataOfferNo = $item.attr('data-offer-no') ? ' data-offer-no="' + $item.attr('data-offer-no') + '"' : '';
                 var classAttr = $item.attr('class') || '';
 
-                menuHtml += '<a href="' + href + '"' + target + dataId + ' class="' + classAttr + '">' + text + '</a>';
+                menuHtml += '<a href="' + href + '"' + target + dataId + dataOfferNo + ' class="' + classAttr + '">' + text + '</a>';
             });
         }
 
@@ -1166,5 +1371,184 @@ $(document).ready(function() {
             $('#offerTable tbody tr').removeClass('context-menu-active');
         }
     });
+
+    // ==========================================
+    // Teklif Log Kayıtları İşlemleri
+    // ==========================================
+    var currentLogOfferId = null;
+    var currentLogOfferNo = null;
+
+    $(document).on('click', '.btn-offer-logs', function(e) {
+        e.preventDefault();
+        var offerId = $(this).attr('data-id') || $(this).data('id');
+        var offerNo = $(this).attr('data-offer-no') || $(this).data('offer-no') || '';
+
+        if (!offerId) {
+            var $row = $(this).closest('tr');
+            offerId = $row.find('.teklif-sil, .offer-copy, .btn-offer-logs').first().data('id');
+            if (!offerNo) {
+                offerNo = $row.find('td:nth-child(3)').text().trim();
+            }
+        }
+
+        if (!offerId) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hata',
+                    text: 'Teklif kimliği belirlenemedi.',
+                    confirmButtonText: 'Tamam'
+                });
+            } else {
+                alert('Teklif kimliği belirlenemedi.');
+            }
+            return;
+        }
+
+        currentLogOfferId = offerId;
+        currentLogOfferNo = offerNo;
+        loadOfferLogs(offerId, offerNo);
+    });
+
+    $('#btnRefreshOfferLogs').on('click', function() {
+        if (currentLogOfferId) {
+            loadOfferLogs(currentLogOfferId, currentLogOfferNo);
+        }
+    });
+
+    function loadOfferLogs(offerId, offerNo) {
+        $('#offerLogsModalTitle').text('Teklif İşlem & Log Kayıtları ' + (offerNo ? '(' + offerNo + ')' : ''));
+        $('#logOfferNo').text(offerNo || ('#' + offerId));
+        $('#logOfferCustomer').text('Yükleniyor...');
+        $('#logOfferTotal').text('-');
+        $('#logOfferStatus').html('');
+        $('#offerLogsCountText').text('Kayıtlar getiriliyor...');
+
+        $('#offerLogsLoading').removeClass('d-none');
+        $('#offerLogsError').addClass('d-none');
+        $('#offerLogsEmpty').addClass('d-none');
+        $('#offerLogsContainer').addClass('d-none').empty();
+
+        $('#offerLogsModal').modal('show');
+
+        $.ajax({
+            url: 'App/api/offer.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'getOfferLogs',
+                id: offerId
+            },
+            success: function(response) {
+                $('#offerLogsLoading').addClass('d-none');
+
+                if (response && response.status === 'success') {
+                    var offer = response.offer || {};
+                    var logs = response.logs || [];
+
+                    // Özet bilgileri güncelle
+                    $('#logOfferNo').text(offer.offer_number || ('#' + offer.id));
+                    $('#logOfferCustomer').text(offer.company_name || 'Firma Belirtilmemiş');
+                    if (offer.total_price) {
+                        $('#logOfferTotal').text('₺ ' + parseFloat(offer.total_price).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    } else {
+                        $('#logOfferTotal').text('₺ 0,00');
+                    }
+                    if (offer.statu_label) {
+                        $('#logOfferStatus').html('<span class="badge ' + (offer.statu_badge_class || 'badge-secondary') + '">' + offer.statu_label + '</span>');
+                    }
+
+                    $('#offerLogsCountText').text('Toplam ' + logs.length + ' işlem kaydı bulundu');
+
+                    if (logs.length === 0) {
+                        $('#offerLogsEmpty').removeClass('d-none');
+                        return;
+                    }
+
+                    renderOfferLogsTimeline(logs);
+                    $('#offerLogsContainer').removeClass('d-none');
+                } else {
+                    $('#offerLogsErrorMessage').text(response.message || 'Log kayıtları alınamadı.');
+                    $('#offerLogsError').removeClass('d-none');
+                }
+            },
+            error: function(xhr) {
+                $('#offerLogsLoading').addClass('d-none');
+                var errMsg = 'Log kayıtları yüklenirken sunucu hatası oluştu.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errMsg = xhr.responseJSON.message;
+                }
+                $('#offerLogsErrorMessage').text(errMsg);
+                $('#offerLogsError').removeClass('d-none');
+            }
+        });
+    }
+
+    function renderOfferLogsTimeline(logs) {
+        var $container = $('#offerLogsContainer');
+        $container.empty();
+
+        logs.forEach(function(log) {
+            var eventIcon = log.event_icon || 'fa fa-history';
+            var badgeClass = log.badge_class || 'soft-blue';
+            var eventLabel = log.event_label || 'İşlem';
+            var summary = $('<div>').text(log.summary || '').html();
+            var userName = $('<div>').text(log.user_name || 'Kullanıcı').html();
+            var userUnvan = log.user_unvan ? '<span class="text-muted font-12">(' + $('<div>').text(log.user_unvan).html() + ')</span>' : '';
+            var timeFormatted = $('<div>').text(log.created_at_formatted || '-').html();
+            var relTime = log.relative_time ? '<span class="badge badge-light border text-muted ml-2 font-11"><i class="fa fa-clock-o mr-1"></i>' + $('<div>').text(log.relative_time).html() + '</span>' : '';
+            var ipBadge = (log.ip_address && log.ip_address !== '-') ? '<span class="text-muted font-11 ml-auto"><i class="fa fa-globe mr-1"></i>IP: ' + $('<div>').text(log.ip_address).html() + '</span>' : '';
+
+            // Değişen alanlar kartı
+            var changesHtml = '';
+            if (log.changed_fields && log.changed_fields.length > 0) {
+                changesHtml += '<div class="offer-log-diff-box mt-2 p-2 rounded">';
+                changesHtml += '<div class="font-12 font-weight-bold text-secondary mb-1"><i class="fa fa-exchange mr-1"></i> Değiştirilen Alanlar:</div>';
+                changesHtml += '<table class="table table-sm table-borderless font-12 mb-0">';
+                log.changed_fields.forEach(function(ch) {
+                    changesHtml += '<tr>';
+                    changesHtml += '<td style="width: 35%;" class="font-weight-600 text-muted">' + $('<div>').text(ch.label).html() + ':</td>';
+                    changesHtml += '<td style="width: 30%;" class="text-danger"><del>' + ch.old + '</del></td>';
+                    changesHtml += '<td style="width: 5%;" class="text-muted text-center"><i class="fa fa-arrow-right"></i></td>';
+                    changesHtml += '<td style="width: 30%;" class="text-success font-weight-600">' + ch.new + '</td>';
+                    changesHtml += '</tr>';
+                });
+                changesHtml += '</table></div>';
+            }
+
+            var logIdText = log.id > 0 ? '#' + log.id : 'İlk Kayıt';
+
+            var itemHtml = `
+                <div class="offer-log-item">
+                    <div class="offer-log-icon ${badgeClass}">
+                        <i class="${eventIcon}"></i>
+                    </div>
+                    <div class="offer-log-content shadow-sm">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between mb-1" style="gap: 8px;">
+                            <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                                <span class="crm-badge-soft ${badgeClass}">${eventLabel}</span>
+                                <strong class="text-dark font-13">${userName}</strong>
+                                ${userUnvan}
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted font-12">${timeFormatted}</span>
+                                ${relTime}
+                            </div>
+                        </div>
+                        <div class="offer-log-summary font-13 text-secondary mt-1">
+                            ${summary}
+                        </div>
+                        ${changesHtml}
+                        <div class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top border-light">
+                            <span class="text-muted font-11"><i class="fa fa-shield mr-1"></i>${logIdText}</span>
+                            ${ipBadge}
+                        </div>
+                    </div>
+                </div>
+            `;
+            $container.append(itemHtml);
+        });
+    }
 </script>
 <!-- <script src="include/js/data-table.js"></script> -->
+

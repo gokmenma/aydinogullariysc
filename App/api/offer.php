@@ -9,8 +9,51 @@ use App\Model\OfferModel;
 
 $offer = new OfferModel();
 
-if (!isset($_POST['action'])) {
+$action = $_POST['action'] ?? ($_GET['action'] ?? null);
+
+if (!$action) {
     echo json_encode(['status' => 'error', 'message' => 'Geçersiz istek.']);
+    exit;
+}
+
+if ($action === 'getOfferLogs') {
+    if (empty($_SESSION['login'])) {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Oturum açmanız gerekiyor.']);
+        exit;
+    }
+
+    if (!permtrue('offerview') && !permtrue('offersView') && !permtrue('offeredit') && !permtrue('offer') && !checkAuth('offerview')) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Bu işlem için yetkiniz bulunmamaktadır.']);
+        exit;
+    }
+
+    $id = (int) ($_POST['id'] ?? ($_GET['id'] ?? 0));
+    if ($id <= 0) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Geçersiz teklif ID.']);
+        exit;
+    }
+
+    try {
+        $result = $offer->getOfferLogs($id);
+        if (!$result || empty($result['offer'])) {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Teklif bulunamadı.']);
+            exit;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'offer' => $result['offer'],
+            'logs' => $result['logs'],
+        ]);
+    } catch (\Throwable $ex) {
+        error_log("Teklif logları getirme hatası: " . $ex->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Log kayıtları yüklenirken bir hata oluştu.']);
+    }
     exit;
 }
 

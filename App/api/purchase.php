@@ -114,6 +114,7 @@ if ($_POST['action'] == 'savePurchases') {
             'state' => $_POST['state'] ?? 1,
             'invoice_date' => $_POST['invoice_date'] ?? '',
             'invoice_number' => $_POST['invoice_number'] ?? '',
+            'emailState' => $_POST['emailState'] ?? '0',
             'type' => $_POST['type'] ?? 0
             
         ];

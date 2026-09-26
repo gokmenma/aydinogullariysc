@@ -1,17 +1,42 @@
 <?php
 require_once dirname(__DIR__, 3) . "/bootstrap.php";
 
-use App\Helper\Helper;
+use App\Helper\Security;
 use App\Model\PurchaseModel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-$id = $_GET['id'] ?? 0;
+// Oturum ve Yetki Kontrolü
+if (!sesset('id')) {
+    header("Location: /login.php");
+    exit;
+}
+
+$rawId = $_GET['id'] ?? 0;
+$id = 0;
+if (is_numeric($rawId)) {
+    $id = (int)$rawId;
+} else {
+    try {
+        $id = (int)Security::decrypt($rawId);
+    } catch (\Throwable $e) {
+        $id = 0;
+    }
+}
+
 $Purchase = new PurchaseModel();
 $purchase = $Purchase->find($id);
 
 if (!$purchase) {
-    echo "Kayıt bulunamadı!";
+    http_response_code(404);
+    echo '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Kayıt Bulunamadı</title><link rel="stylesheet" href="/vendors/styles/style.css"></head><body class="p-4 text-center"><h4>Kayıt bulunamadı!</h4><p>İstenen fiyat talebi kaydına ulaşılamadı veya silinmiş olabilir.</p><button onclick="window.close()" class="btn btn-secondary mt-2">Pencereyi Kapat</button></body></html>';
+    exit;
+}
+
+// Yetki kontrolü: Tüm talepleri görme yetkisi yoksa sadece oluşturan görebilir
+if (!permtrue('tum_fiyat_taleplerini_gor') && (int)($purchase->creator ?? 0) !== (int)sesset('id')) {
+    http_response_code(403);
+    echo '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Erişim Engellendi</title><link rel="stylesheet" href="/vendors/styles/style.css"></head><body class="p-4 text-center"><h4>Yetkisiz Erişim</h4><p>Bu fiyat talebini görüntüleme yetkiniz bulunmamaktadır.</p><button onclick="window.close()" class="btn btn-secondary mt-2">Pencereyi Kapat</button></body></html>';
     exit;
 }
 
@@ -19,158 +44,559 @@ $items = $Purchase->getPurchaseItems($id);
 $customer_name = getCustomerName($purchase->companyID);
 $creator_name = getUserName($purchase->creator);
 
-// Fetch customer extra info
-$cust_sql = $ac->prepare("SELECT yetkili, email FROM customers WHERE id = ?");
-$cust_sql->execute([$purchase->companyID]);
-$cust_extra = $cust_sql->fetch(PDO::FETCH_ASSOC);
+// Müşteri İletişim Bilgileri
+$cust_extra = null;
+if (!empty($purchase->companyID)) {
+    try {
+        $cust_sql = $ac->prepare("SELECT yetkili, email, telefon, gsm, city, address FROM customers WHERE id = ?");
+        $cust_sql->execute([$purchase->companyID]);
+        $cust_extra = $cust_sql->fetch(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {}
+}
 
-function toBase64($image) {
-    if (file_exists($image)) {
-        $data = base64_encode(file_get_contents($image));
-        return 'data:' . mime_content_type($image) . ';base64,' . $data;
+function parseCurrencyNumber($val): float {
+    if (is_numeric($val)) return (float)$val;
+    if (is_string($val)) {
+        $val = trim($val);
+        if ($val === '') return 0.0;
+        if (strpos($val, '.') !== false && strpos($val, ',') !== false) {
+            if (strrpos($val, ',') > strrpos($val, '.')) {
+                $val = str_replace('.', '', $val);
+                $val = str_replace(',', '.', $val);
+            } else {
+                $val = str_replace(',', '', $val);
+            }
+        } elseif (strpos($val, ',') !== false) {
+            $val = str_replace(',', '.', $val);
+        }
+        return is_numeric($val) ? (float)$val : 0.0;
+    }
+    return 0.0;
+}
+
+function getLogoBase64(): string {
+    $candidates = [
+        ROOT . '/src/images/logo.png',
+        ROOT . '/vendors/images/logo.png',
+        dirname(__DIR__, 3) . '/src/images/logo.png',
+        dirname(__DIR__, 3) . '/vendors/images/logo.png',
+    ];
+    if (!empty($_SERVER['DOCUMENT_ROOT'])) {
+        $candidates[] = $_SERVER['DOCUMENT_ROOT'] . '/src/images/logo.png';
+    }
+    foreach ($candidates as $path) {
+        if (file_exists($path) && is_readable($path)) {
+            $data = base64_encode(file_get_contents($path));
+            $mime = function_exists('mime_content_type') ? mime_content_type($path) : 'image/png';
+            return 'data:' . $mime . ';base64,' . $data;
+        }
     }
     return '';
 }
 
-$html = '
+// Log Kaydı
+try {
+    $logger = \getLogger("Fiyat Talepleri");
+    $logger->info("Fiyat talebi yazdırıldı / PDF istendi.", [
+        'id' => $id,
+        'siparisNo' => $purchase->siparisNo,
+        'pdf_mode' => isset($_GET['pdf']),
+        'user_id' => sesset('id')
+    ]);
+} catch (\Throwable $e) {}
+
+$logoSrc = getLogoBase64();
+$companyHeader = format_company_header_title(set('company_name'));
+$companyAddress = set('company_address');
+$companyPhone = set('company_phone1');
+$companyMail = set('admin_mail');
+
+$createDateFormatted = !empty($purchase->create_time) ? date('d.m.Y H:i', strtotime($purchase->create_time)) : '-';
+$deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purchase->deadline)) : '-';
+
+$altToplam = parseCurrencyNumber($purchase->altToplam ?? 0);
+$tlTotal = parseCurrencyNumber($purchase->TLTotal ?? 0);
+if ($tlTotal <= 0 && $altToplam > 0) {
+    $tlTotal = $altToplam;
+}
+
+$isPdf = isset($_GET['pdf']) && $_GET['pdf'] == '1';
+
+// HTML Çıktısı Hazırlama
+ob_start();
+?>
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Fiyat Talebi - ' . $purchase->siparisNo . '</title>
+    <title>Fiyat Talebi - <?php echo htmlspecialchars($purchase->siparisNo ?? '', ENT_QUOTES, 'UTF-8'); ?></title>
     <style>
-        body { font-family: "DejaVu Sans", sans-serif; font-size: 10px; color: #333; }
-        .header { width: 100%; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 20px; }
-        .logo { width: 150px; }
-        .company-info { text-align: right; }
-        .title { text-align: center; font-size: 18px; font-weight: bold; color: #3b82f6; margin: 20px 0; }
-        .info-table { width: 100%; margin-bottom: 20px; }
-        .info-table td { padding: 5px; }
-        .items-table { width: 100%; border-collapse: collapse; }
-        .items-table th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
-        .items-table td { border: 1px solid #cbd5e1; padding: 8px; }
-        .text-right { text-align: right; }
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        body {
+            font-family: "DejaVu Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: 11px;
+            color: #1e293b;
+            background: #ffffff;
+            margin: 0;
+            padding: <?php echo $isPdf ? '0' : '20px'; ?>;
+            line-height: 1.4;
+        }
+        @page {
+            size: A4 portrait;
+            margin: 12mm 10mm 15mm 10mm;
+        }
+        
+        /* Print Toolbar (Tarayıcıda görünür, yazdırmada ve PDF'te gizli) */
+        .print-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .print-toolbar-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .print-toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .toolbar-btn {
+            background: #ffffff;
+            color: #1e293b;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .toolbar-btn:hover {
+            background: #f1f5f9;
+        }
+        .toolbar-btn-primary {
+            background: #7c3aed;
+            color: #ffffff;
+        }
+        .toolbar-btn-primary:hover {
+            background: #6d28d9;
+            color: #ffffff;
+        }
+        .toolbar-btn-danger {
+            background: #dc2626;
+            color: #ffffff;
+        }
+        .toolbar-btn-danger:hover {
+            background: #b91c1c;
+            color: #ffffff;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+            .document-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+        }
+
+        .document-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            <?php if (!$isPdf): ?>
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            padding: 30px;
+            <?php endif; ?>
+        }
+
+        .doc-header {
+            width: 100%;
+            border-bottom: 2px solid #7c3aed;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .doc-header table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .doc-logo {
+            max-height: 48px;
+            max-width: 160px;
+        }
+        .company-info {
+            text-align: right;
+            font-size: 9.5px;
+            color: #475569;
+            line-height: 1.35;
+        }
+        .company-info strong {
+            color: #0f172a;
+            font-size: 11px;
+        }
+
+        .doc-title-bar {
+            text-align: center;
+            margin: 12px 0 16px 0;
+            position: relative;
+        }
+        .doc-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #7c3aed;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .info-grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .info-grid-table td {
+            padding: 6px 10px;
+            font-size: 10.5px;
+            vertical-align: top;
+            border: 0.5px solid #e2e8f0;
+        }
+        .info-label {
+            font-weight: 700;
+            color: #475569;
+            width: 16%;
+            background: #f1f5f9;
+        }
+        .info-val {
+            color: #0f172a;
+            width: 34%;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        .items-table th {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 7px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: left;
+        }
+        .items-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 8px;
+            font-size: 10.5px;
+            vertical-align: middle;
+        }
+        .items-table tbody tr:nth-child(even) {
+            background: #fbfcfe;
+        }
         .text-center { text-align: center; }
-        .footer { margin-top: 50px; width: 100%; }
-        .signature-box { width: 45%; display: inline-block; text-align: center; border-top: 1px solid #333; padding-top: 10px; }
-        .total-section { margin-top: 20px; text-align: right; }
-        .total-box { display: inline-block; width: 250px; }
-        .total-row { padding: 5px; border-bottom: 1px solid #eee; }
-        .total-label { font-weight: bold; }
+        .text-right { text-align: right; }
+        .text-bold { font-weight: 700; }
+
+        .total-wrapper {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .total-wrapper table {
+            width: 280px;
+            margin-left: auto;
+            border-collapse: collapse;
+            border: 1px solid #cbd5e1;
+        }
+        .total-wrapper td {
+            padding: 6px 10px;
+            font-size: 11px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .total-wrapper tr.grand-total {
+            background: #f3e8ff;
+            font-weight: 800;
+            font-size: 12px;
+            color: #7c3aed;
+            border-top: 2px solid #7c3aed;
+        }
+
+        .note-section {
+            background: #f8fafc;
+            border-left: 3px solid #7c3aed;
+            padding: 8px 12px;
+            margin-bottom: 24px;
+            font-size: 10.5px;
+        }
+        .note-section strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #7c3aed;
+            font-size: 11px;
+        }
+
+        .signatures-table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+        .signatures-table td {
+            width: 45%;
+            vertical-align: top;
+            text-align: center;
+            font-size: 10.5px;
+            padding: 10px;
+        }
+        .sig-box {
+            border-top: 1px solid #94a3b8;
+            padding-top: 8px;
+            margin-top: 45px;
+        }
+
+        .doc-footer {
+            margin-top: 25px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+            text-align: center;
+            font-size: 9px;
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <table style="width:100%">
+
+<?php if (!$isPdf): ?>
+<div class="print-toolbar no-print">
+    <div class="print-toolbar-title">
+        Fiyat Talebi: <?php echo htmlspecialchars($purchase->siparisNo ?? '', ENT_QUOTES, 'UTF-8'); ?>
+    </div>
+    <div class="print-toolbar-actions">
+        <button type="button" class="toolbar-btn toolbar-btn-primary" onclick="window.print()">
+            &#128438; Yazdır
+        </button>
+        <a href="pages/1/purchases/price-request-print.php?id=<?php echo $id; ?>&pdf=1" class="toolbar-btn toolbar-btn-danger" target="_blank">
+            &#128196; PDF İndir
+        </a>
+        <button type="button" class="toolbar-btn" onclick="window.close()">
+            Kapat
+        </button>
+    </div>
+</div>
+<?php endif; ?>
+
+<div class="document-container">
+    <!-- Header -->
+    <div class="doc-header">
+        <table>
             <tr>
-                <td><img src="' . toBase64('src/images/logo.png') . '" class="logo"></td>
-                <td class="company-info">
-                    <strong>' . format_company_header_title(set('company_name')) . '</strong><br>
-                    ' . set('company_address') . '<br>
-                    Tel: ' . set('company_phone1') . '<br>
-                    ' . set('admin_mail') . '
+                <td style="width: 40%; vertical-align: middle;">
+                    <?php if (!empty($logoSrc)): ?>
+                        <img src="<?php echo $logoSrc; ?>" alt="Logo" class="doc-logo">
+                    <?php else: ?>
+                        <span style="font-size: 18px; font-weight: bold; color: #7c3aed;"><?php echo htmlspecialchars($companyHeader ?: 'AYDINOĞULLARI', ENT_QUOTES, 'UTF-8'); ?></span>
+                    <?php endif; ?>
+                </td>
+                <td style="width: 60%; vertical-align: middle;" class="company-info">
+                    <strong><?php echo htmlspecialchars($companyHeader, ENT_QUOTES, 'UTF-8'); ?></strong><br>
+                    <?php if (!empty($companyAddress)): ?><?php echo htmlspecialchars($companyAddress, ENT_QUOTES, 'UTF-8'); ?><br><?php endif; ?>
+                    <?php if (!empty($companyPhone)): ?>Tel: <?php echo htmlspecialchars($companyPhone, ENT_QUOTES, 'UTF-8'); ?><?php endif; ?>
+                    <?php if (!empty($companyMail)): ?> | E-posta: <?php echo htmlspecialchars($companyMail, ENT_QUOTES, 'UTF-8'); ?><?php endif; ?>
                 </td>
             </tr>
         </table>
     </div>
 
-    <div class="title">FİYAT TALEBİ</div>
+    <!-- Title -->
+    <div class="doc-title-bar">
+        <h2 class="doc-title">FİYAT TALEP FORMU</h2>
+    </div>
 
-    <table class="info-table">
+    <!-- Metadata Grid -->
+    <table class="info-grid-table">
         <tr>
-            <td style="width:15%"><strong>Talep No:</strong></td>
-            <td style="width:35%">' . $purchase->siparisNo . '</td>
-            <td style="width:15%"><strong>Firma:</strong></td>
-            <td style="width:35%">' . $customer_name . '</td>
+            <td class="info-label">Talep No:</td>
+            <td class="info-val text-bold"><?php echo htmlspecialchars($purchase->siparisNo ?? '-', ENT_QUOTES, 'UTF-8'); ?></td>
+            <td class="info-label">Tedarikçi/Firma:</td>
+            <td class="info-val text-bold"><?php echo htmlspecialchars($customer_name ?: '-', ENT_QUOTES, 'UTF-8'); ?></td>
         </tr>
         <tr>
-            <td><strong>Tarih:</strong></td>
-            <td>' . $purchase->create_time . '</td>
-            <td><strong>Yetkili:</strong></td>
-            <td>' . ($cust_extra['yetkili'] ?? '-') . '</td>
+            <td class="info-label">Kayıt Tarihi:</td>
+            <td class="info-val"><?php echo htmlspecialchars($createDateFormatted, ENT_QUOTES, 'UTF-8'); ?></td>
+            <td class="info-label">İlgili Kişi:</td>
+            <td class="info-val"><?php echo htmlspecialchars($cust_extra['yetkili'] ?? '-', ENT_QUOTES, 'UTF-8'); ?></td>
         </tr>
         <tr>
-            <td><strong>Termin:</strong></td>
-            <td>' . $purchase->deadline . '</td>
-            <td><strong>E-Posta:</strong></td>
-            <td>' . ($cust_extra['email'] ?? '-') . '</td>
+            <td class="info-label">Termin Tarihi:</td>
+            <td class="info-val"><?php echo htmlspecialchars($deadlineFormatted, ENT_QUOTES, 'UTF-8'); ?></td>
+            <td class="info-label">İletişim / E-posta:</td>
+            <td class="info-val">
+                <?php 
+                $contactInfo = [];
+                if (!empty($cust_extra['email'])) $contactInfo[] = $cust_extra['email'];
+                if (!empty($cust_extra['gsm'])) $contactInfo[] = $cust_extra['gsm'];
+                elseif (!empty($cust_extra['telefon'])) $contactInfo[] = $cust_extra['telefon'];
+                echo htmlspecialchars(!empty($contactInfo) ? implode(' / ', $contactInfo) : '-', ENT_QUOTES, 'UTF-8');
+                ?>
+            </td>
         </tr>
     </table>
 
+    <!-- Items Table -->
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width:30px">#</th>
-                <th style="width:100px">Stok Kodu</th>
+                <th style="width: 25px;" class="text-center">#</th>
+                <th style="width: 90px;">Stok Kodu</th>
                 <th>Ürün / Hizmet Açıklaması</th>
-                <th style="width:60px" class="text-center">Miktar</th>
-                <th style="width:60px" class="text-center">Birim</th>
-                <th style="width:80px" class="text-right">B.Fiyat</th>
-                <th style="width:90px" class="text-right">Toplam</th>
+                <th style="width: 55px;" class="text-center">Miktar</th>
+                <th style="width: 50px;" class="text-center">Birim</th>
+                <th style="width: 80px;" class="text-right">B.Fiyat</th>
+                <th style="width: 90px;" class="text-right">Toplam</th>
             </tr>
         </thead>
-        <tbody>';
-
-$i = 0;
-foreach ($items as $item) {
-    $i++;
-    $rowTotal = $item->amount * $item->price;
-    $html .= '
-            <tr>
-                <td class="text-center">' . $i . '</td>
-                <td>' . $item->stokKodu . '</td>
-                <td>' . $item->product . (!empty($item->description) ? '<br><small style="color:#666">' . $item->description . '</small>' : '') . '</td>
-                <td class="text-center">' . $item->amount . '</td>
-                <td class="text-center">' . $item->unit . '</td>
-                <td class="text-right">' . number_format($item->price, 2, ',', '.') . ' ' . $item->currency . '</td>
-                <td class="text-right">' . number_format($rowTotal, 2, ',', '.') . ' ' . $item->currency . '</td>
-            </tr>';
-}
-
-$html .= '
+        <tbody>
+            <?php if (empty($items)): ?>
+                <tr>
+                    <td colspan="7" class="text-center" style="padding: 15px; color: #64748b;">Kayıtlı ürün veya hizmet kalemi bulunamadı.</td>
+                </tr>
+            <?php else: ?>
+                <?php 
+                $i = 0;
+                $calculatedTotal = 0.0;
+                foreach ($items as $item): 
+                    $i++;
+                    $amount = parseCurrencyNumber($item->amount ?? 0);
+                    $price = parseCurrencyNumber($item->price ?? 0);
+                    $rowTotal = $amount * $price;
+                    $calculatedTotal += $rowTotal;
+                    $curr = !empty($item->currency) ? htmlspecialchars($item->currency, ENT_QUOTES, 'UTF-8') : 'TRY';
+                    $unit = !empty($item->unit) ? htmlspecialchars($item->unit, ENT_QUOTES, 'UTF-8') : 'Adet';
+                    $stokKodu = !empty($item->stokKodu) ? htmlspecialchars($item->stokKodu, ENT_QUOTES, 'UTF-8') : '-';
+                ?>
+                <tr>
+                    <td class="text-center"><?php echo $i; ?></td>
+                    <td><?php echo $stokKodu; ?></td>
+                    <td>
+                        <strong><?php echo htmlspecialchars($item->product ?? '', ENT_QUOTES, 'UTF-8'); ?></strong>
+                        <?php if (!empty($item->description)): ?>
+                            <br><small style="color:#64748b; font-size: 9.5px;"><?php echo nl2br(htmlspecialchars($item->description, ENT_QUOTES, 'UTF-8')); ?></small>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-center"><?php echo rtrim(rtrim(number_format($amount, 2, ',', '.'), '0'), ','); ?></td>
+                    <td class="text-center"><?php echo $unit; ?></td>
+                    <td class="text-right"><?php echo number_format($price, 2, ',', '.') . ' ' . $curr; ?></td>
+                    <td class="text-right text-bold"><?php echo number_format($rowTotal, 2, ',', '.') . ' ' . $curr; ?></td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </tbody>
     </table>
 
-    <div class="total-section">
-        <div class="total-box">
-            <div class="total-row">
-                <span class="total-label">ARA TOPLAM:</span>
-                <span>' . number_format($purchase->TLTotal, 2, ',', '.') . ' ₺</span>
-            </div>
-            <div class="total-row" style="background:#f1f5f9; font-size:12px; font-weight:bold; border-bottom: 2px solid #3b82f6;">
-                <span class="total-label">GENEL TOPLAM:</span>
-                <span>' . number_format($purchase->altToplam, 2, ',', '.') . ' ₺</span>
-            </div>
-        </div>
+    <!-- Totals Section -->
+    <div class="total-wrapper">
+        <table>
+            <tr>
+                <td style="width: 55%;" class="text-bold">Ara Toplam:</td>
+                <td style="width: 45%;" class="text-right"><?php echo number_format($tlTotal > 0 ? $tlTotal : $calculatedTotal, 2, ',', '.'); ?> ₺</td>
+            </tr>
+            <tr class="grand-total">
+                <td>GENEL TOPLAM:</td>
+                <td class="text-right"><?php echo number_format($altToplam > 0 ? $altToplam : ($tlTotal > 0 ? $tlTotal : $calculatedTotal), 2, ',', '.'); ?> ₺</td>
+            </tr>
+        </table>
     </div>
 
-    <div style="margin-top:20px">
-        <strong>Açıklama:</strong><br>
-        ' . nl2br($purchase->description1) . '
+    <!-- Notes / Description -->
+    <?php if (!empty($purchase->description1)): ?>
+    <div class="note-section">
+        <strong>Açıklama / Özel Notlar:</strong>
+        <?php echo nl2br(htmlspecialchars($purchase->description1, ENT_QUOTES, 'UTF-8')); ?>
     </div>
+    <?php endif; ?>
 
-    <div class="footer">
-        <div class="signature-box" style="float:left">
-            <strong>Hazırlayan</strong><br><br><br>
-            ' . $creator_name . '
-        </div>
-        <div class="signature-box" style="float:right">
-            <strong>Firma Onayı</strong><br><br><br>
-            Kaşe / İmza
-        </div>
+    <!-- Signatures -->
+    <table class="signatures-table">
+        <tr>
+            <td>
+                <strong>Talep Eden / Hazırlayan</strong><br>
+                <div class="sig-box">
+                    <strong><?php echo htmlspecialchars($creator_name ?: 'Yetkili', ENT_QUOTES, 'UTF-8'); ?></strong><br>
+                    İmza
+                </div>
+            </td>
+            <td style="width: 10%;"></td>
+            <td>
+                <strong>Tedarikçi / Firma Onayı</strong><br>
+                <div class="sig-box">
+                    Kaşe / Yetkili İmza
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="doc-footer">
+        Bu belge <?php echo date('d.m.Y H:i'); ?> tarihinde sistem üzerinden üretilmiştir.
     </div>
+</div>
+
+<?php if (!$isPdf): ?>
+<script>
+    // Kullanıcı sayfayı doğrudan açtığında otomatik yazdırma diyaloğu (opsiyonel)
+    window.addEventListener('load', function() {
+        // Otomatik print çalıştırmak isterseniz:
+        // window.print();
+    });
+</script>
+<?php endif; ?>
+
 </body>
-</html>';
+</html>
+<?php
+$htmlContent = ob_get_clean();
 
-if (isset($_GET['pdf'])) {
-    $options = new Options();
-    $options->set('isRemoteEnabled', true);
-    $dompdf = new Dompdf($options);
-    $dompdf->loadHtml($html);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->render();
-    $dompdf->stream($purchase->siparisNo . ".pdf", array("Attachment" => false));
+if ($isPdf) {
+    try {
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('defaultFont', 'DejaVu Sans');
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($htmlContent, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $fileName = ($purchase->siparisNo ? $purchase->siparisNo : 'Fiyat_Talebi') . ".pdf";
+        $dompdf->stream($fileName, ["Attachment" => false]);
+    } catch (\Throwable $ex) {
+        error_log("PDF generation error: " . $ex->getMessage());
+        http_response_code(500);
+        echo "PDF oluşturulurken bir hata meydana geldi: " . htmlspecialchars($ex->getMessage(), ENT_QUOTES, 'UTF-8');
+    }
 } else {
-    echo $html;
-    echo '<script>window.print();</script>';
+    echo $htmlContent;
 }

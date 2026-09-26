@@ -27,6 +27,28 @@ if (!empty($purchase->companyID)) {
     } catch (\Throwable $e) {}
 }
 
+if (!function_exists('parseCurrencyNumber')) {
+    function parseCurrencyNumber($val): float {
+        if (is_numeric($val)) return (float)$val;
+        if (is_string($val)) {
+            $val = trim($val);
+            if ($val === '') return 0.0;
+            if (strpos($val, '.') !== false && strpos($val, ',') !== false) {
+                if (strrpos($val, ',') > strrpos($val, '.')) {
+                    $val = str_replace('.', '', $val);
+                    $val = str_replace(',', '.', $val);
+                } else {
+                    $val = str_replace(',', '', $val);
+                }
+            } elseif (strpos($val, ',') !== false) {
+                $val = str_replace(',', '.', $val);
+            }
+            return is_numeric($val) ? (float)$val : 0.0;
+        }
+        return 0.0;
+    }
+}
+
 function getFileIconClass($path) {
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) return 'fa-file-image-o text-primary';
@@ -40,7 +62,7 @@ function getFileIconClass($path) {
 $totalItemCount = count($items);
 $totalQuantity = 0;
 foreach ($items as $it) {
-    $totalQuantity += (float)($it->amount ?? 0);
+    $totalQuantity += parseCurrencyNumber($it->amount ?? 0);
 }
 
 $state = (int)($purchase->state ?? 0);
@@ -58,6 +80,12 @@ if ($state === 0) {
 
 $createDateFormatted = !empty($purchase->create_time) ? date('d.m.Y H:i', strtotime($purchase->create_time)) : '-';
 $deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purchase->deadline)) : '-';
+
+$altToplam = parseCurrencyNumber($purchase->altToplam ?? 0);
+$tlTotal = parseCurrencyNumber($purchase->TLTotal ?? 0);
+if ($tlTotal <= 0 && $altToplam > 0) {
+    $tlTotal = $altToplam;
+}
 ?>
 
 <style>
@@ -65,7 +93,7 @@ $deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purc
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         color: #1e293b;
         background: #f8fafc;
-        padding: 24px;
+        padding: 16px 20px;
     }
 
     /* Hero / Header Card */
@@ -493,13 +521,13 @@ $deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purc
     </div>
 
     <!-- Stat Cards Row -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-3">
         <!-- 1. Ara Toplam -->
-        <div class="col-md-4">
+        <div class="col-12 col-sm-4">
             <div class="ft-stat-card ft-stat-subtotal">
                 <div>
                     <span class="ft-stat-label">Ara Toplam (TL)</span>
-                    <h4 class="ft-stat-val"><?php echo number_format((float)($purchase->TLTotal ?? 0), 2, ',', '.') . ' ₺'; ?></h4>
+                    <h4 class="ft-stat-val"><?php echo number_format($tlTotal, 2, ',', '.') . ' ₺'; ?></h4>
                 </div>
                 <div class="ft-stat-icon-box ft-stat-icon-blue">
                     <i class="fa fa-calculator"></i>
@@ -508,11 +536,11 @@ $deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purc
         </div>
 
         <!-- 2. Genel Toplam -->
-        <div class="col-md-4">
+        <div class="col-12 col-sm-4">
             <div class="ft-stat-card ft-stat-grandtotal">
                 <div>
                     <span class="ft-stat-label">Genel Toplam (TL)</span>
-                    <h4 class="ft-stat-val text-emerald"><?php echo number_format((float)($purchase->altToplam ?? 0), 2, ',', '.') . ' ₺'; ?></h4>
+                    <h4 class="ft-stat-val text-emerald"><?php echo number_format($altToplam > 0 ? $altToplam : $tlTotal, 2, ',', '.') . ' ₺'; ?></h4>
                 </div>
                 <div class="ft-stat-icon-box ft-stat-icon-green">
                     <i class="fa fa-money"></i>
@@ -521,11 +549,11 @@ $deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purc
         </div>
 
         <!-- 3. Kalem ve Miktar Özeti -->
-        <div class="col-md-4">
+        <div class="col-12 col-sm-4">
             <div class="ft-stat-card ft-stat-items">
                 <div>
                     <span class="ft-stat-label">Kalem & Miktar</span>
-                    <h4 class="ft-stat-val" style="color: #7c3aed;"><?php echo $totalItemCount; ?> <small style="font-size: 14px; font-weight: 600; color: #64748b;">Kalem</small></h4>
+                    <h4 class="ft-stat-val" style="color: #7c3aed;"><?php echo $totalItemCount; ?> <small style="font-size: 13px; font-weight: 600; color: #64748b;">Kalem</small></h4>
                 </div>
                 <div class="ft-stat-icon-box ft-stat-icon-purple">
                     <i class="fa fa-cubes"></i>
@@ -581,8 +609,8 @@ $deadlineFormatted = !empty($purchase->deadline) ? date('d.m.Y', strtotime($purc
                         $i = 0;
                         foreach ($items as $item): 
                             $i++;
-                            $amount = (float)($item->amount ?? 0);
-                            $price = (float)($item->price ?? 0);
+                            $amount = parseCurrencyNumber($item->amount ?? 0);
+                            $price = parseCurrencyNumber($item->price ?? 0);
                             $rowTotal = $amount * $price;
                             $curr = !empty($item->currency) ? htmlspecialchars($item->currency, ENT_QUOTES, 'UTF-8') : 'TRY';
                             $unit = !empty($item->unit) ? htmlspecialchars($item->unit, ENT_QUOTES, 'UTF-8') : 'Adet';

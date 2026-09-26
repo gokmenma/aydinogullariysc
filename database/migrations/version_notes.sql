@@ -322,3 +322,44 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.7.3', 'Tema Özelleştiricide Dinamik Primary (Birincil) Renk Seçimi', 'feature', '- Tema özelleştiriciye 12 hazır palet ve özel HEX renk seçici eklendi; butonlar, formlar, aktif menüler ve Select2 odaklanma renkleri anında seçilen renkle senkronize edildi.', 'Antigravity AI', '2026-09-26 16:30:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.3');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.4', 'Teklif ve Satın Alma Formları Tasarım İyileştirmesi', 'improvement', '- Teklif alt toplamları ile satın alma ve fiyat talebi formları daha düzenli, okunabilir ve mobil kullanıma uyumlu hale getirildi.', 'Antigravity AI', '2026-09-26 17:47:36'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.4');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.5', 'Teklif Listesi Sağ Tık Menüsüne Log Kayıtları Eklendi', 'feature', '- Teklif listesi sağ tık ve işlem menüsüne detaylı log kayıtları eklendi; kimin, ne zaman hangi işlemi yaptığı ve değişen alanlar timeline olarak görüntülenebilir hale getirildi.', 'Antigravity AI', '2026-09-26 17:52:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.5');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.6', 'Merkezi Ürün Seçim ve Yönetim Modülü Entegrasyonu', 'feature', '- Tüm ürün seçimi sayfalarında (Teklif, Satın Alma Siparişi, Satın Alma Talebi, Fiyat Talebi) eski tekil modal ve artı butonları kaldırılarak odaklanma/tıklama ile anında açılan dinamik tamamlama, klavye kısayolları, satır klonlama ve toplu ürün ekleme modalı merkezi yapıya taşındı.', 'Antigravity AI', '2026-09-26 18:05:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.6');
+
+UPDATE `version_notes`
+SET `description` = '- Tüm ürün seçimi sayfalarında (Teklif, Satın Alma Siparişi, Satın Alma Talebi, Fiyat Talebi) eski tekil modal ve artı butonları kaldırılarak odaklanma/tıklama ile anında açılan dinamik tamamlama, klavye kısayolları, satır klonlama ve toplu ürün ekleme modalı merkezi yapıya taşındı.'
+WHERE `version_tag` = 'v2.7.6';
+
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.7', 'Servis ve Muhasebe Log Kayıtları ve Denetim İzi Güçlendirmesi', 'feature', '- Servis listesine detaylı işlem geçmişi (audit log) modalı ve sağ tık menüsü entegre edildi; muhasebe teslim logları zaman tüneli ile modernize edildi ve tüm servis/teklif değişiklikleri için alan bazlı fark (diff) loglaması güçlendirildi.', 'Antigravity AI', '2026-09-26 18:10:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.7');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.8', 'Satın Alma Form Validasyonu, SweetAlert Uyarısı ve Hata Düzeltmeleri', 'improvement', '- Satın alma talebi kayıt hatası giderildi; eski kırmızı üst bildirim çubuğu yerine modern SweetAlert uyarıları getirildi, eksik zorunlu alanlar kırmızı çerçeve ve arkaplan ile renklendirilerek ilk eksik alana otomatik odaklanma sağlandı.', 'Antigravity AI', '2026-09-26 18:58:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.8');
+
+UPDATE `version_notes`
+SET `title` = 'Satın Alma Form Validasyonu, SweetAlert Uyarısı ve Hata Düzeltmeleri',
+    `description` = '- Satın alma talebi kayıt hatası giderildi; eski kırmızı üst bildirim çubuğu yerine modern SweetAlert uyarıları getirildi, eksik zorunlu alanlar kırmızı çerçeve ve arkaplan ile renklendirilerek ilk eksik alana otomatik odaklanma sağlandı.'
+WHERE `version_tag` = 'v2.7.8';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.9', 'Fiyat Talebi Detay Modalı ve Yazdırma / PDF Düzeltmesi', 'improvement', '- Fiyat talebi detay penceresi daha kompakt ve okunaklı hale getirildi; form yazdırma ve PDF indirme akışlarındaki sayı formatı hatası giderilerek sorunsuz çalışması sağlandı.', 'Antigravity AI', '2026-09-26 19:08:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.9');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.0', 'Sol Menü (Sidebar) Aktif Sayfa Eşleştirme İyileştirmesi', 'improvement', '- Satın alma fiyat talebi yönetimi ve menüde doğrudan yer almayan alt/detay sayfalarında sol menünün ve ilgili alt sekmelerin otomatik olarak açık ve aktif gelmesi sağlandı.', 'Antigravity AI', '2026-09-26 19:10:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.0');
+
+
+
+

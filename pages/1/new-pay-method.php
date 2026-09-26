@@ -151,4 +151,4 @@ if (@$_GET["st"] == "empties") {
 		var form = document.getElementById("myForm");
 		form.submit();
 	});
-</script>
+</script>

@@ -1219,6 +1219,175 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 overflow-x: auto;
                 width: 100%;
             }
+
+            /* Teklif alt toplamları */
+            .offer-totals-card {
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .offer-totals-card .form-card-header {
+                margin: 0;
+                padding: 20px 24px;
+                border-bottom: 1px solid #e8eef5;
+                background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            }
+
+            .offer-totals-card .card-icon {
+                background: #fff4cc;
+                color: #9a6700;
+            }
+
+            .offer-totals-table-wrap {
+                padding: 18px 20px 20px;
+                background: #f8fafc;
+            }
+
+            #tblAltToplam {
+                min-width: 720px;
+                margin: 0;
+                table-layout: fixed !important;
+                border: 1px solid #dbe4ee !important;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, .04);
+            }
+
+            #tblAltToplam col:first-child { width: 25%; }
+            #tblAltToplam col:not(:first-child) { width: 25%; }
+
+            #tblAltToplam thead th {
+                height: 48px;
+                padding: 10px 14px !important;
+                border-right: 1px solid #e2e8f0;
+                border-bottom: 1px solid #dbe4ee;
+                background: #f1f5f9;
+                color: #334155;
+                font-size: 12px !important;
+                letter-spacing: .04em;
+            }
+
+            #tblAltToplam thead th:last-child { border-right: 0; }
+
+            #tblAltToplam .currency-heading {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
+            }
+
+            #tblAltToplam .currency-heading i { color: #64748b; }
+
+            #tblAltToplam td {
+                height: 46px;
+                padding: 7px 8px !important;
+                border-right: 1px solid #edf1f5;
+                border-bottom: 1px solid #e5ebf2;
+            }
+
+            #tblAltToplam td:last-child { border-right: 0; }
+            #tblAltToplam tbody tr:last-child td { border-bottom: 0; }
+            #tblAltToplam tbody tr:hover td { background: #fbfdff; }
+
+            #tblAltToplam .total-label-cell {
+                padding-left: 16px !important;
+                color: #475569;
+                font-size: 13px;
+                font-weight: 650;
+            }
+
+            #tblAltToplam .total-label {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+            }
+
+            #tblAltToplam .total-label > i {
+                width: 16px;
+                color: #94a3b8;
+                text-align: center;
+            }
+
+            #tblAltToplam .total-label-control {
+                display: grid;
+                grid-template-columns: auto minmax(120px, 1fr);
+                align-items: center;
+                gap: 10px;
+            }
+
+            #tblAltToplam .total-label-control .form-control,
+            #tblAltToplam .total-label-control .bootstrap-select {
+                width: 100% !important;
+                min-width: 0;
+            }
+
+            #tblAltToplam .form-control {
+                height: 34px !important;
+                border: 1px solid #d6dee8 !important;
+                border-radius: 7px !important;
+                background: #fff !important;
+                color: #1e293b;
+                font-size: 13px !important;
+                font-weight: 600;
+                box-shadow: none !important;
+            }
+
+            #tblAltToplam input[readonly] {
+                border-color: transparent !important;
+                background: #f1f5f9 !important;
+                color: #64748b;
+            }
+
+            #tblAltToplam .discount-row td { background: #fffcf3; }
+
+            #tblAltToplam .discount-row input:not([readonly]) {
+                border-color: #f1cc72 !important;
+                background: #fffef8 !important;
+                color: #854d0e;
+            }
+
+            #tblAltToplam .discount-row input:not([readonly]):focus {
+                border-color: #d69e2e !important;
+                box-shadow: 0 0 0 3px rgba(214, 158, 46, .13) !important;
+            }
+
+            #tblAltToplam .grand-total-row td {
+                height: 58px;
+                border-top: 2px solid #cbdaf0;
+                background: linear-gradient(90deg, #eff6ff 0%, #f8fbff 100%);
+            }
+
+            #tblAltToplam .grand-total-row .total-label-cell {
+                color: #1e3a5f;
+                font-size: 14px;
+                font-weight: 750;
+            }
+
+            #tblAltToplam #tl_toplam_karsilik {
+                height: 40px !important;
+                border: 1px solid #bfdbfe !important;
+                background: #fff !important;
+                color: #1d4ed8 !important;
+                font-size: 18px !important;
+                font-weight: 750;
+            }
+
+            .dark-mode .offer-totals-card .form-card-header,
+            .dark-mode .offer-totals-table-wrap { background: #111827; border-color: #334155; }
+            .dark-mode #tblAltToplam { border-color: #334155 !important; box-shadow: none; }
+            .dark-mode #tblAltToplam thead th { background: #1e293b; color: #cbd5e1; border-color: #334155; }
+            .dark-mode #tblAltToplam td { background: #0f172a; border-color: #273449; }
+            .dark-mode #tblAltToplam tbody tr:hover td { background: #152033; }
+            .dark-mode #tblAltToplam .total-label-cell { color: #cbd5e1; }
+            .dark-mode #tblAltToplam input[readonly] { background: #1e293b !important; color: #cbd5e1; }
+            .dark-mode #tblAltToplam .discount-row td { background: #1c1a13; }
+            .dark-mode #tblAltToplam .discount-row input:not([readonly]) { background: #292416 !important; color: #fde68a; }
+            .dark-mode #tblAltToplam .grand-total-row td { background: #172554; border-top-color: #31558b; }
+            .dark-mode #tblAltToplam #tl_toplam_karsilik { background: #0f172a !important; color: #93c5fd !important; border-color: #31558b !important; }
+
+            @media (max-width: 767.98px) {
+                .offer-totals-card .form-card-header { padding: 16px; }
+                .offer-totals-table-wrap { padding: 12px; }
+            }
             </style>
 
             <!-- TEKLİF KALEMLERİ TABLOSU -->
@@ -1309,7 +1478,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
         <input type="hidden" id="rowNumberId" value="<?php echo $satirNo + 1 ?>">
 
         <!-- ALT TOPLAMLAR CARD -->
-        <div class="form-card animate-fade-in mt-4">
+        <div class="form-card offer-totals-card animate-fade-in mt-4">
             <div class="form-card-header">
                 <div class="card-icon">
                     <i class="fa fa-calculator"></i>
@@ -1319,20 +1488,26 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                     <p>İskonto, KDV ve döviz kurlarına göre hesaplanan alt toplam bilgileri.</p>
                 </div>
             </div>
-            <div class="hack1">
-                <div class="hack2">
+            <div class="offer-totals-table-wrap">
+                <div class="hack1">
+                    <div class="hack2">
                     <table id="tblAltToplam" class="table premium-table">
+                        <colgroup>
+                            <col><col><col><col>
+                        </colgroup>
                         <thead>
-                            <th style="min-width:120px">Teklifi Göster</th>
-                            <th>Euro</th>
-                            <th>Dolar</th>
-                            <th>TL</th>
+                            <tr>
+                                <th scope="col"><span class="currency-heading"><i class="fa fa-list-alt"></i> Hesaplama</span></th>
+                                <th scope="col"><span class="currency-heading"><i class="fa fa-eur"></i> Euro</span></th>
+                                <th scope="col"><span class="currency-heading"><i class="fa fa-usd"></i> Dolar</span></th>
+                                <th scope="col"><span class="currency-heading"><i class="fa fa-try"></i> Türk Lirası</span></th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <!-- **********************ALT TOPLAM *****************************-->
-                                <td style="font-weight: 600; color: #475569;">
-                                    Alt Toplam
+                                <td class="total-label-cell">
+                                    <span class="total-label"><i class="fa fa-calculator"></i>Alt Toplam</span>
                                 </td>
                                 <td>
                                     <input type="text" readonly class="form-control text-center" name="euro_alt_toplam" id="euro_alt_toplam" value="<?php echo $offer->euro_alt_toplam ?? 0 ?>" style="border-radius: 8px;">
@@ -1347,9 +1522,9 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                             <!-- **********************ALT TOPLAM *****************************-->
 
                             <!-- *************************İSKONTO *****************************-->
-                            <tr>
-                                <td style="font-weight: 600; color: #475569;">
-                                    İskonto
+                            <tr class="discount-row">
+                                <td class="total-label-cell">
+                                    <span class="total-label"><i class="fa fa-percent"></i>İskonto</span>
                                 </td>
                                 <td>
                                     <input type="number" autocomplete="off" class="form-control text-center" name="euro_iskonto" value="<?php echo $offer->euro_iskonto ?? 0 ?>" id="euro_iskonto" style="border-radius: 8px;">
@@ -1365,8 +1540,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
                             <!-- *************************ARA TOPLAM *****************************-->
                             <tr>
-                                <td style="font-weight: 600; color: #475569;">
-                                    Ara Toplam
+                                <td class="total-label-cell">
+                                    <span class="total-label"><i class="fa fa-minus-circle"></i>Ara Toplam</span>
                                 </td>
                                 <td>
                                     <input type="text" readonly class="form-control text-center" name="euro_ara_toplam" value="<?php echo $offer->euro_ara_toplam ?? 0 ?>" id="euro_ara_toplam" style="border-radius: 8px;">
@@ -1382,9 +1557,9 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
                             <!-- *************************KDV *****************************-->
                             <tr>
-                                <td style="font-weight: 600; color: #475569;">
-                                    <div class="d-flex align-items-center">
-                                        <label class="mr-2 mb-0">Kdv</label>
+                                <td class="total-label-cell">
+                                    <div class="total-label-control">
+                                        <label class="total-label mb-0" for="Kdv"><i class="fa fa-pie-chart"></i>KDV</label>
                                         <?php KdvOranları('Kdv', $offer->Kdv ?? 20) ?>
                                     </div>
                                 </td>
@@ -1402,8 +1577,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
                             <!-- *************************KDVLİ TOPLAM *****************************-->
                             <tr>
-                                <td style="font-weight: 600; color: #475569;">
-                                    KDV'li Toplam
+                                <td class="total-label-cell">
+                                    <span class="total-label"><i class="fa fa-check-circle"></i>KDV'li Toplam</span>
                                 </td>
                                 <td>
                                     <input type="text" readonly class="form-control text-center" name="euro_kdvli_toplam" value="<?php echo $offer->euro_kdvli_toplam ?? 0 ?>" id="euro_kdvli_toplam" style="border-radius: 8px;">
@@ -1419,9 +1594,9 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
                             <!-- *************************KUR BİLGİLERİ *****************************-->
                             <tr>
-                                <td style="font-weight: 600; color: #475569;">
-                                    <div class="d-flex align-items-center">
-                                        <label class="mr-2 mb-0">Kur</label>
+                                <td class="total-label-cell">
+                                    <div class="total-label-control">
+                                        <label class="total-label mb-0" for="currency"><i class="fa fa-exchange"></i>Kur</label>
                                         <?php KurTuru('currency', $offer->currency ?? "Döviz Alış") ?>
                                     </div>
                                 </td>
@@ -1436,9 +1611,9 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                             <!-- **********************KUR BİLGİLERİ *****************************-->
 
                             <!-- *************************TOPLAM TL KARŞILIK *****************************-->
-                            <tr>
-                                <td style="font-weight: 700; color: #1e3a5f;">
-                                    Toplam Tutar
+                            <tr class="grand-total-row">
+                                <td class="total-label-cell">
+                                    <span class="total-label"><i class="fa fa-money"></i>Toplam Tutar</span>
                                 </td>
                                 <td colspan="3">
                                     <input type="text" readonly class="form-control text-center font-weight-bold" name="tl_toplam_karsilik" value="<?php echo tlFormat($offer->tl_toplam_karsilik ?? 0) ?? 0 ?>" id="tl_toplam_karsilik" style="border-radius: 8px; font-size: 16px; background-color: #f8fafc; color: #1e3a5f;">
@@ -1446,7 +1621,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                             </tr>
                             <!-- *************************TOPLAM TL KARŞILIK *****************************-->
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1522,9 +1698,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 </form>
 
 <!-- Modallar (HTML standartlarına uygun şekilde form dışında tanımlanır) -->
-<?php include_once __DIR__ . '/offer-modal.php'; ?>
 <?php include_once __DIR__ . '/offer-quick-customer-modal.php'; ?>
-<?php include_once __DIR__ . '/offer-multi-product-modal.php'; ?>
+<?php include_once __DIR__ . '/../../../components/modals/multi-product-modal.php'; ?>
 
 <!--buradan başlıyor-->
 <script src="include/js/offer.js"></script>

@@ -76,11 +76,304 @@ if ($demand == true || $id == 0) {
             </div>
         </div>
 
+        <style>
+            /* Sipariş detayları: sayfaya özel, dengeli iki sütunlu form düzeni */
+            .purchase-manage-wrapper {
+                width: 100%;
+                max-width: none;
+                margin-right: 0;
+                margin-left: 0;
+            }
+            .purchase-manage-wrapper > .purchase-header-card,
+            .purchase-manage-wrapper > .form-card {
+                width: 100%;
+            }
+            .purchase-products-card,
+            .purchase-totals-card {
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            .purchase-products-card .form-card-header,
+            .purchase-totals-card .form-card-header {
+                margin: 0 !important;
+                padding: 22px 28px 18px !important;
+                border-bottom: 1px solid #e8eef5 !important;
+                border-radius: 16px 16px 0 0;
+                background: linear-gradient(135deg, #fff 0%, #f8fbff 100%);
+            }
+            .purchase-products-card .header-left-inner,
+            .purchase-totals-card .header-left-inner {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .purchase-products-body,
+            .purchase-totals-body {
+                padding: 20px 24px 24px;
+            }
+            .purchase-summary-row {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 15px;
+                width: 100%;
+                margin: 0 0 24px !important;
+            }
+            .purchase-kpi-card {
+                display: flex;
+                min-width: 0;
+                min-height: 98px;
+                align-items: center;
+                gap: 14px;
+                padding: 16px;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                background: #f8fafc;
+                transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+            }
+            .purchase-kpi-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
+                transform: translateY(-2px);
+            }
+            .purchase-kpi-icon {
+                display: flex;
+                width: 48px;
+                height: 48px;
+                flex: 0 0 48px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10px;
+                font-size: 20px;
+            }
+            .purchase-kpi-icon.is-blue { background: #e0f2fe; color: #0284c7; }
+            .purchase-kpi-icon.is-amber { background: #fef3c7; color: #d97706; }
+            .purchase-kpi-icon.is-green { background: #dcfce7; color: #16a34a; }
+            .purchase-kpi-icon.is-purple { background: #f3e8ff; color: #9333ea; }
+            .purchase-kpi-info { min-width: 0; flex: 1; }
+            .purchase-kpi-title {
+                margin-bottom: 4px;
+                color: #64748b;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.2;
+                text-transform: uppercase;
+            }
+            .purchase-kpi-value {
+                overflow: hidden;
+                margin: 0;
+                color: #1e293b;
+                font-size: 18px;
+                font-weight: 700;
+                line-height: 1.2;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .purchase-kpi-sub {
+                overflow: hidden;
+                margin-top: 4px;
+                color: #94a3b8;
+                font-size: 11px;
+                line-height: 1.25;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .purchase-details-card { padding: 0; overflow: visible; }
+            .purchase-details-card .form-card-header {
+                margin: 0;
+                padding: 22px 28px 18px;
+                border-bottom: 1px solid #e8eef5;
+                border-radius: 16px 16px 0 0;
+                background: linear-gradient(135deg, #fff 0%, #f8fbff 100%);
+            }
+            .purchase-details-card .header-left-inner {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .purchase-details-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 20px 34px;
+                padding: 24px 28px 28px;
+            }
+            .purchase-details-column {
+                display: flex;
+                min-width: 0;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .purchase-details-column > .form-group {
+                display: grid;
+                grid-template-columns: 190px minmax(0, 1fr);
+                align-items: center;
+                min-height: 42px;
+                margin: 0;
+            }
+            .purchase-details-column > .purchase-notes-field { align-items: start; }
+            .purchase-details-column > .form-group > label,
+            .purchase-details-column > .form-group > div {
+                width: auto;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                flex: none;
+            }
+            .purchase-details-column > .form-group > label {
+                padding-right: 18px;
+                color: #334155;
+                font-size: 13px !important;
+                line-height: 1.35;
+            }
+            .purchase-details-column .form-control,
+            .purchase-details-column .bootstrap-select > .dropdown-toggle {
+                min-height: 42px !important;
+                border-color: #cbd5e1 !important;
+                border-radius: 8px !important;
+                background-color: #fff;
+                font-size: 13.5px !important;
+                box-shadow: none !important;
+            }
+            .purchase-details-column .form-control:focus,
+            .purchase-details-column .bootstrap-select.show > .dropdown-toggle {
+                border-color: var(--focus-color, var(--theme-primary, #2563eb)) !important;
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--theme-primary, #2563eb)) 16%, transparent) !important;
+            }
+            .purchase-details-column .input-group-text {
+                min-width: 40px;
+                min-height: 42px;
+                justify-content: center;
+            }
+            .purchase-details-column .input-group {
+                overflow: hidden;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #fff;
+                transition: border-color .2s ease, box-shadow .2s ease;
+            }
+            .purchase-details-column .input-group:focus-within {
+                border-color: var(--focus-color, var(--theme-primary, #2563eb));
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--theme-primary, #2563eb)) 16%, transparent);
+            }
+            .purchase-details-column .input-group > .input-group-prepend .input-group-text,
+            .purchase-details-column .input-group > .form-control {
+                border: 0 !important;
+                border-radius: 0 !important;
+            }
+            .purchase-details-column .input-group > .form-control:focus {
+                box-shadow: none !important;
+            }
+            .purchase-details-column > .form-group > div > .row { margin-right: -5px; margin-left: -5px; }
+            .purchase-details-column > .form-group > div > .row > [class*="col-"] { padding-right: 5px !important; padding-left: 5px !important; }
+            .purchase-details-column textarea.form-control {
+                min-height: 118px !important;
+                padding: 12px 14px;
+                resize: vertical;
+            }
+            .purchase-number-value {
+                display: inline-flex;
+                align-items: center;
+                min-height: 36px;
+                padding: 7px 14px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #f1f5f9;
+                color: #334155;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: .02em;
+            }
+            .purchase-customer-control {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) 42px;
+                align-items: center;
+                gap: 8px;
+            }
+            .purchase-customer-control > .w-100 {
+                display: block;
+                width: 100% !important;
+                min-width: 0;
+                margin: 0 !important;
+            }
+            .purchase-customer-control .bootstrap-select,
+            .purchase-customer-control .bootstrap-select.form-control {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                height: 42px !important;
+            }
+            .purchase-customer-control .bootstrap-select > .dropdown-toggle {
+                display: flex !important;
+                width: 100% !important;
+                height: 42px !important;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .purchase-customer-control .bootstrap-select .filter-option {
+                display: flex;
+                min-width: 0;
+                align-items: center;
+            }
+            .purchase-customer-control > .btn { width: 42px !important; height: 42px !important; }
+
+            .dark-mode .purchase-details-card .form-card-header {
+                border-color: #334155;
+                background: linear-gradient(135deg, #111827 0%, #172033 100%);
+            }
+            .dark-mode .purchase-products-card .form-card-header,
+            .dark-mode .purchase-totals-card .form-card-header {
+                border-color: #334155 !important;
+                background: linear-gradient(135deg, #111827 0%, #172033 100%);
+            }
+            .dark-mode .purchase-details-column > .form-group > label { color: #cbd5e1; }
+            .dark-mode .purchase-number-value { border-color: #475569; background: #1e293b; color: #e2e8f0; }
+            .dark-mode .purchase-details-column .form-control,
+            .dark-mode .purchase-details-column .input-group-text,
+            .dark-mode .purchase-details-column .bootstrap-select > .dropdown-toggle {
+                border-color: #475569 !important;
+                background-color: #111827 !important;
+                color: #e2e8f0 !important;
+            }
+            .dark-mode .purchase-details-column .input-group {
+                border-color: #475569;
+                background: #111827;
+            }
+            .dark-mode .purchase-details-column .input-group:focus-within {
+                border-color: var(--focus-color, var(--theme-primary, #6366f1));
+            }
+            .dark-mode .purchase-details-column .form-control[readonly] {
+                background-color: #1e293b !important;
+                color: #94a3b8 !important;
+            }
+            .dark-mode .purchase-kpi-card { border-color: #334155; background: #1e293b; }
+            .dark-mode .purchase-kpi-card:hover { border-color: #475569; box-shadow: 0 4px 14px rgba(0, 0, 0, .2); }
+            .dark-mode .purchase-kpi-title { color: #94a3b8; }
+            .dark-mode .purchase-kpi-value { color: #f1f5f9; }
+            .dark-mode .purchase-kpi-sub { color: #64748b; }
+
+            @media (max-width: 1199.98px) {
+                .purchase-details-grid { grid-template-columns: 1fr; }
+                .purchase-summary-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            }
+            @media (max-width: 575.98px) {
+                .purchase-details-card .form-card-header,
+                .purchase-details-grid { padding: 18px; }
+                .purchase-products-card .form-card-header,
+                .purchase-totals-card .form-card-header,
+                .purchase-products-body,
+                .purchase-totals-body { padding: 16px !important; }
+                .purchase-details-column > .form-group { grid-template-columns: 1fr; gap: 7px; }
+                .purchase-details-column > .form-group > label { padding-right: 0; }
+                .purchase-details-column > .form-group > div > .row > [class*="col-"] { margin-bottom: 8px; }
+                .purchase-details-column > .form-group > div > .row > [class*="col-"]:last-child { margin-bottom: 0; }
+                .purchase-summary-row { grid-template-columns: 1fr; gap: 10px; }
+            }
+        </style>
+
         <!-- Form Card -->
-        <div class="form-card animate-fade-in">
+        <div class="form-card purchase-details-card animate-fade-in">
             <div class="form-card-header d-flex justify-content-between align-items-center">
                 <div class="header-left-inner">
-                    <div class="card-icon card-icon-blue" style="background: #eff6ff; color: #3b82f6;">
+                    <div class="card-icon">
                         <i class="fa fa-file-text-o"></i>
                     </div>
                     <div>
@@ -92,15 +385,15 @@ if ($demand == true || $id == 0) {
                 </div>
             </div>
 
-        <div class="row">
+        <div class="purchase-details-grid">
             <!-- COLUMN ONE -->
-            <div class="col-md-6">
+            <div class="purchase-details-column">
                 <div class="form-group row align-items-center">
                     <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                         <span class="text-danger">*</span> Sipariş Numarası
                     </label>
                     <div class="col-md-8">
-                        <span class="badge badge-light text-dark font-15 weight-600 px-3 py-2" style="border-radius: 6px; background: #f1f5f9; border: 1px solid #cbd5e1;">
+                        <span class="purchase-number-value">
                             <?php echo $siparisNo; ?>
                         </span>
                         <input type="hidden" name="siparisNo" id="siparisNo" value="<?php echo $siparisNo; ?>">
@@ -114,7 +407,7 @@ if ($demand == true || $id == 0) {
                     <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                         <span class="text-danger">*</span> Firma
                     </label>
-                    <div class="col-md-8 d-flex align-items-center">
+                    <div class="col-md-8 purchase-customer-control">
                         <div class="w-100 mr-2">
                             <?php echo customer::getCustomerSelect('customers', $purchase->companyID ?? 0); ?>
                         </div>
@@ -166,7 +459,7 @@ if ($demand == true || $id == 0) {
                 <!-- Ödeme Vadesi -->
 
                 <!-- Açıklama -->
-                <div class="form-group row">
+                <div class="form-group row purchase-notes-field">
                     <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                         Açıklama 1
                     </label>
@@ -181,7 +474,7 @@ if ($demand == true || $id == 0) {
             <!-- COLUMN ONE -->
 
             <!-- COLUMN TWO -->
-            <div class="col-md-6">
+            <div class="purchase-details-column">
                 <!-- Satın Alma Durumu -->
                 <div class="form-group row align-items-center">
                     <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
@@ -261,7 +554,7 @@ if ($demand == true || $id == 0) {
                 <!-- Kur Bilgileri -->
 
                 <!-- Açıklama -->
-                <div class="form-group row">
+                <div class="form-group row purchase-notes-field">
                     <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                         Açıklama 2
                     </label>
@@ -278,7 +571,20 @@ if ($demand == true || $id == 0) {
     </div>
 
 
-    <div class="form-card animate-fade-in mt-4">
+    <div class="form-card purchase-products-card animate-fade-in mt-4">
+        <div class="form-card-header">
+            <div class="header-left-inner">
+                <div class="card-icon">
+                    <i class="fa fa-shopping-basket"></i>
+                </div>
+                <div>
+                    <h5>Ürün Bilgileri</h5>
+                    <p>Sipariş kalemlerini, miktarları ve fiyat bilgilerini bu alandan yönetebilirsiniz.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="purchase-products-body">
 
         <?php
 
@@ -288,64 +594,68 @@ if ($demand == true || $id == 0) {
         $kdvToplam = $purchase->altToplam ?? "0.00"; // KDV dahil toplam tutar
 
         ?>
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="sum-primary">
-                    <label style="font-weight: 600;">Tutar TL</label>
-                    <label id="buy-tl">
-                        <?php echo $alisToplam ?>
-                    </label>
+        <div class="row purchase-summary-row">
+            <div class="purchase-kpi-card">
+                <div class="purchase-kpi-icon is-blue" aria-hidden="true">
+                    <i class="fa fa-file-text-o"></i>
+                </div>
+                <div class="purchase-kpi-info">
+                    <div class="purchase-kpi-title">Tutar TL</div>
+                    <div class="purchase-kpi-value" id="buy-tl"><?php echo $alisToplam ?></div>
+                    <div class="purchase-kpi-sub">Vergi öncesi sipariş tutarı</div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="sum-warning">
-                    <label style="font-weight: 600;">KDV Oranı(%)</label>
-                    <label id="kdv-rate">
-                        <?php echo $kdv ?>
-                    </label>
+            <div class="purchase-kpi-card">
+                <div class="purchase-kpi-icon is-amber" aria-hidden="true">
+                    <i class="fa fa-percent"></i>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="sum-success">
-                    <label style="font-weight: 600;">İskonto TL</label>
-                    <label id="discount">
-                        <?php echo $iskontoToplam ?>
-                    </label>
+                <div class="purchase-kpi-info">
+                    <div class="purchase-kpi-title">KDV Oranı (%)</div>
+                    <div class="purchase-kpi-value" id="kdv-rate"><?php echo $kdv ?></div>
+                    <div class="purchase-kpi-sub">Uygulanan vergi oranı</div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="sum-danger">
-                    <label style="font-weight: 600;">KDV Dahil TL</label>
-                    <label name="lblTotalTL" id="lblTotalTL">
-                        <?php echo $kdvToplam ?>
-                    </label>
+            <div class="purchase-kpi-card">
+                <div class="purchase-kpi-icon is-green" aria-hidden="true">
+                    <i class="fa fa-tags"></i>
+                </div>
+                <div class="purchase-kpi-info">
+                    <div class="purchase-kpi-title">İskonto TL</div>
+                    <div class="purchase-kpi-value" id="discount"><?php echo $iskontoToplam ?></div>
+                    <div class="purchase-kpi-sub">Toplam indirim tutarı</div>
+                </div>
+            </div>
+
+            <div class="purchase-kpi-card">
+                <div class="purchase-kpi-icon is-purple" aria-hidden="true">
+                    <i class="fa fa-calculator"></i>
+                </div>
+                <div class="purchase-kpi-info">
+                    <div class="purchase-kpi-title">KDV Dahil TL</div>
+                    <div class="purchase-kpi-value" id="lblTotalTL"><?php echo $kdvToplam ?></div>
+                    <div class="purchase-kpi-sub">KDV dahil genel toplam</div>
                 </div>
             </div>
         </div>
 
         <!-- Sipariş ürünleri -->
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="text-blue font-weight-700 m-0">Ürün Bilgileri</h5>
-        </div>
-
         <div class="hack1">
             <div class="hack2">
 
-                <table id="tProduct" class="table premium-table">
+                <table id="tProduct" class="table premium-table no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 35px;">Taşı</th>
-                            <th style="width: 50px;">İşlem</th>
-                            <th style="width: 45px;">Sıra</th>
-                            <th style="width: 100px;">Stok Kodu</th>
-                            <th>Ürün Adı</th>
-                            <th style="width: 70px;">Miktar</th>
-                            <th style="width: 100px;">Birim</th>
-                            <th style="width: 90px;">Fiyat</th>
-                            <th style="width: 100px;">Para Birimi</th>
+                            <th style="width: 35px; min-width: 35px;" class="text-center no-filter">Taşı</th>
+                            <th style="width: 80px; min-width: 80px;" class="text-center no-filter">İşlem</th>
+                            <th style="width: 55px; min-width: 55px;" class="text-center no-filter">Sıra</th>
+                            <th style="width: 140px; min-width: 120px;" class="no-filter">Stok Kodu</th>
+                            <th style="min-width: 220px;" class="no-filter">Ürün Adı</th>
+                            <th style="width: 90px; min-width: 80px;" class="text-center no-filter">Miktar</th>
+                            <th style="width: 110px; min-width: 100px;" class="no-filter">Birim</th>
+                            <th style="width: 120px; min-width: 100px;" class="text-right no-filter">Fiyat</th>
+                            <th style="width: 100px; min-width: 90px;" class="no-filter">Para Birimi</th>
                         </tr>
                     </thead>
 
@@ -360,68 +670,67 @@ if ($demand == true || $id == 0) {
                             $i++;
                         ?>
                             <tr class="ui-state-default">
-                                <td style="width: 10px; vertical-align: middle;"><a href="#" class="btn btn-sm"><i class="fa fa-arrows-alt"></i></a></td>
-
-                                <td class="app-item-action" style="vertical-align: middle;">
-                                    <a type="button" class="sil btn btn-sm btn-danger text-white" style="border-radius: 6px;">Sil</a>
+                                <td style="width: 35px; min-width: 35px; text-align: center; vertical-align: middle;">
+                                    <span class="btn btn-sm text-muted p-0 drag-handle" style="cursor: grab;" title="Sıralamayı Değiştirmek İçin Sürükleyin">
+                                        <i class="fa fa-arrows-alt"></i>
+                                    </span>
                                 </td>
 
-                                <!--Sırano-->
-                                <td class="app-item-number" style="vertical-align: middle;">
-                                    <input class="form-control text-center" name="satirno[]" type="text" value="<?php echo $i; ?>" style="border-radius: 6px; border-color: #cbd5e1;">
-                                </td>
-                                <!--Sırano-->
-
-                                <!-- Stok Kodu -->
-                                <td class="app-item-stock" style="vertical-align: middle;"><input type="text" id="stokKodu<?php echo $i; ?>"
-                                        value="<?php echo $item->stokKodu ?? ''; ?>" name="stokKodu[]" class="form-control"
-                                        placeholder="Stok Kodu" style="border-radius: 6px; border-color: #cbd5e1;">
-                                </td>
-                                <!-- Stok Kodu -->
-
-                                <td class="app-item-name" style="vertical-align: middle;">
-                                    <!-- Button trigger modal -->
-                                    <div class="input-group m-0">
-
-                                        <input type="text" class="urunAdi form-control" name="urunAdi[]"
-                                            id="urunAdi<?php echo $i; ?>" value="<?php echo $item->product ?? ''; ?>"
-                                            placeholder="Ürün adı" style="border-radius: 6px 0 0 6px; border-color: #cbd5e1;">
-                                        <button type="button" id="<?php echo $i; ?>"
-                                            class="btn btn-sm btn-info selectProduct text-white" data-bs-toggle="modal"
-                                            data-bs-target="#staticBackdrop" style="border-radius: 0 6px 6px 0;">
-                                            <i class="fa fa-plus-circle"></i>
+                                <td class="app-item-action-2 text-center" style="width: 80px; min-width: 80px; vertical-align: middle; white-space: nowrap;">
+                                    <div class="btn-group btn-group-sm" role="group" style="display: inline-flex;">
+                                        <a type="button" class="sil btn btn-sm btn-danger text-white" title="Satırı Sil" style="padding: 4px 8px; border-radius: 6px 0 0 6px;">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-clone-row" title="Satırı Klonla (Kopyala)" style="padding: 4px 8px; border-radius: 0 6px 6px 0;">
+                                            <i class="fa fa-clone"></i>
                                         </button>
                                     </div>
-
-
-
                                 </td>
-                                <!-- MİKTAR -->
-                                <td class="app-item-amount" style="vertical-align: middle;">
-                                    <input type="number" autocomplete="off" required id="amount" name="amount[]"
-                                        value="<?php echo $item->amount ?? ''; ?>" class="Adet form-control" style="border-radius: 6px; border-color: #cbd5e1;">
+
+                                <!-- Sırano -->
+                                <td class="app-item-number text-center" style="width: 55px; min-width: 55px; vertical-align: middle;">
+                                    <input class="form-control text-center font-weight-bold" name="satirno[]" type="text" value="<?php echo $i; ?>" readonly style="background: #f8fafc; border-radius: 6px; width: 45px; margin: 0 auto;">
                                 </td>
+
+                                <!-- Stok Kodu -->
+                                <td class="app-item-stock" style="width: 140px; min-width: 120px; vertical-align: middle;">
+                                    <div class="product-autocomplete-wrap">
+                                        <input type="text" id="stokKodu<?php echo $i; ?>"
+                                            value="<?php echo htmlspecialchars($item->stokKodu ?? ''); ?>" name="stokKodu[]" class="form-control stokKodu-input"
+                                            placeholder="Stok Kodu" autocomplete="off" style="border-radius: 6px; border-color: #cbd5e1;">
+                                    </div>
+                                </td>
+
+                                <!-- Ürün Adı -->
+                                <td class="app-item-name" style="min-width: 220px; vertical-align: middle;">
+                                    <div class="product-autocomplete-wrap position-relative">
+                                        <input type="text" class="urunAdi form-control urunAdi-input" name="urunAdi[]"
+                                            id="urunAdi<?php echo $i; ?>" value="<?php echo htmlspecialchars($item->product ?? ''); ?>"
+                                            placeholder="Ürün adı yazarak arayın veya seçin..." autocomplete="off" style="border-radius: 6px; border-color: #cbd5e1;">
+                                    </div>
+                                </td>
+
                                 <!-- MİKTAR -->
+                                <td class="app-item-amount text-center" style="width: 90px; min-width: 80px; vertical-align: middle;">
+                                    <input type="number" step="any" min="0" autocomplete="off" required id="amount<?php echo $i; ?>" name="amount[]"
+                                        value="<?php echo $item->amount ?? ''; ?>" class="Adet form-control amount-input text-center" placeholder="0" style="border-radius: 6px; border-color: #cbd5e1;">
+                                </td>
 
                                 <!-- ÖLÇÜ BİRİMLERİ -->
-                                <td class="app-item-unit" style="vertical-align: middle;">
+                                <td class="app-item-unit" style="width: 110px; min-width: 100px; vertical-align: middle;">
                                     <?php OlcuBirimleri('unit[]', $item->unit ?? '', "required", "unit" . $i) ?>
                                 </td>
-                                <!-- ÖLÇÜ BİRİMLERİ -->
 
                                 <!-- FİYAT -->
-                                <td class="app-item-price" style="vertical-align: middle;">
-                                    <input required id="price<?php echo $i; ?>" name="price[]" type="number"
-                                        value="<?php echo $item->price ?? ''; ?>" class="form-control" autocomplete="off" style="border-radius: 6px; border-color: #cbd5e1;">
-
+                                <td class="app-item-price" style="width: 120px; min-width: 100px; vertical-align: middle;">
+                                    <input required id="price<?php echo $i; ?>" name="price[]" type="text"
+                                        value="<?php echo $item->price ?? ''; ?>" class="form-control price-input text-right" autocomplete="off" placeholder="0.00" style="border-radius: 6px; border-color: #cbd5e1;">
                                 </td>
-                                <!-- FİYAT -->
 
                                 <!-- PARA BİRİMLERİ -->
-                                <td class="app-item-cur" style="vertical-align: middle;">
+                                <td class="app-item-cur" style="width: 100px; min-width: 90px; vertical-align: middle;">
                                     <?php echo Financial::getCurrencySelect("currency[]", $item->currency ?? '', "currency" . $i) ?>
                                 </td>
-                                <!-- PARA BİRİMLERİ -->
                             </tr>
 
                         <?php } ?>
@@ -429,25 +738,38 @@ if ($demand == true || $id == 0) {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="9">
-                                <button type="button" id="addRow" class="btn float-left btn-sm btn-primary mt-3 mb-3" style="border-radius: 8px;">
-                                    <i class="fa fa-plus"></i> Yeni Satır
-                                </button>
-
+                            <td colspan="9" style="padding: 10px 12px !important; background: #f8fafc; border-top: 2px solid #e2e8f0;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" id="addRow" class="btn btn-sm btn-primary" style="border-radius: 8px; font-weight: 600; padding: 7px 18px;">
+                                        <i class="fa fa-plus-circle mr-1"></i> Yeni Satır Ekle
+                                    </button>
+                                    <button type="button" id="btnOpenMultiProductModal" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 600; padding: 7px 18px;">
+                                        <i class="fa fa-th-list mr-1"></i> Toplu Ürün Ekle
+                                    </button>
+                                </div>
                             </td>
                         </tr>
-
                     </tfoot>
                 </table>
                 <input type="hidden" id="rowNumberId" value="<?php echo $i + 1 ?>">
 
             </div>
         </div>
-    </div>
-    <div class="form-card animate-fade-in mt-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="text-blue font-weight-700 m-0">Alt Toplamlar</h5>
         </div>
+    </div>
+    <div class="form-card purchase-totals-card animate-fade-in mt-4 mb-4">
+        <div class="form-card-header">
+            <div class="header-left-inner">
+                <div class="card-icon">
+                    <i class="fa fa-calculator"></i>
+                </div>
+                <div>
+                    <h5>Alt Toplamlar</h5>
+                    <p>Döviz, iskonto ve KDV dahil sipariş toplamlarını bu alandan yönetebilirsiniz.</p>
+                </div>
+            </div>
+        </div>
+        <div class="purchase-totals-body">
         <div class="hack1">
             <div class="hack2">
                 <table id="tblAltToplam" class="table premium-table">
@@ -498,45 +820,49 @@ if ($demand == true || $id == 0) {
 
             </div>
         </div>
+        </div>
     </div>
 </div>
 </form>
 
 
 
-<div class="modal show" id="staticBackdrop">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title" id="staticBackdropLabel">Listeden ürün seçiniz!</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <?php generateProductSelect("productName[]", '') ?>
-                <input type="hidden" id="rowID">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Kapat</button>
-                <button type="button" class="btn btn-danger" onclick="getProductInfoPurchase()">Seç</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+<?php include_once __DIR__ . '/../../../components/modals/multi-product-modal.php'; ?>
 
 <script>
-    $(function() {
-    //    $("#sortable").sortable();
+    $(document).ready(function () {
+        if (window.ProductPicker) {
+            ProductPicker.init({
+                tableSelector: '#tProduct, #sortable',
+                fields: {
+                    title: 'input[name="urunAdi[]"]',
+                    stock: 'input[name="stokKodu[]"]',
+                    price: 'input[name="price[]"]',
+                    currency: 'select[name="currency[]"]',
+                    unit: 'select[name="unit[]"]',
+                    amount: 'input[name="amount[]"]'
+                },
+                onSelect: function($row, data) {
+                    if (typeof updateToplamPurchase === 'function') {
+                        updateToplamPurchase();
+                    }
+                }
+            });
+        }
+    });
 
-            var el = document.getElementById('sortable');
-        var sortable = Sortable.create(el, {
-            onUpdate: function (/**Event*/evt) {
-                // Sıralama sonrası numaralandırma
-                $("#tProduct tbody tr").each(function(index) {
-                    // Numara hücresini güncelle (örneğin ilk <td>)
-                    $(this).find("input[name='satirno[]']").val(index + 1);
-                });
-            }
-        });
+    $(function() {
+        var el = document.getElementById('sortable');
+        if (el && typeof Sortable !== 'undefined') {
+            var sortable = Sortable.create(el, {
+                onUpdate: function (/**Event*/evt) {
+                    // Sıralama sonrası numaralandırma
+                    $("#tProduct tbody tr").each(function(index) {
+                        $(this).find("input[name='satirno[]']").val(index + 1);
+                        $(this).find(".app-item-number input").val(index + 1);
+                    });
+                }
+            });
+        }
     });
 </script>

@@ -518,12 +518,102 @@ foreach ($sortedMenu as $menuKey => &$menuData) {
 }
 unset($menuData);
 
+// Menüde doğrudan linki olmayan alt/detay/düzenleme sayfalarının ilgili ana menü ve alt öğe eşleştirmeleri
+$pageMenuAliases = [
+    // Satın Alma (Purchases)
+    'purchases/price-request-manage' => ['menu' => 'purchases', 'item' => 'purchases/price-request-list'],
+    'purchases/price-request-print'  => ['menu' => 'purchases', 'item' => 'purchases/price-request-list'],
+    'purchases/price-request-detail-modal' => ['menu' => 'purchases', 'item' => 'purchases/price-request-list'],
+    'purchase-demand-edit'           => ['menu' => 'purchases', 'item' => 'purchase-demand-new'],
+    'purchase-demand-detail'         => ['menu' => 'purchases', 'item' => 'purchase-demand-new'],
+    'purchase-detail'                => ['menu' => 'purchases', 'item' => 'purchases'],
+    'purchase-edit'                  => ['menu' => 'purchases', 'item' => 'purchases'],
+    'purchase-print'                 => ['menu' => 'purchases', 'item' => 'purchases'],
+    'purchase-new'                   => ['menu' => 'purchases', 'item' => 'purchases/manage'],
+
+    // Teklifler (Offers)
+    'offer-view'                     => ['menu' => 'offers', 'item' => 'offers/list'],
+    'offer-edit'                     => ['menu' => 'offers', 'item' => 'offers/list'],
+    'offers/icmal-view'              => ['menu' => 'offers', 'item' => 'offers/list'],
+    'offers/icmal-to-xls'            => ['menu' => 'offers', 'item' => 'offers/list'],
+
+    // Servis (Service)
+    'service-view'                   => ['menu' => 'service', 'item' => 'service/list'],
+    'service-edit'                   => ['menu' => 'service', 'item' => 'service/list'],
+    'service-detail'                 => ['menu' => 'service', 'item' => 'service/list'],
+    'new-service'                    => ['menu' => 'service', 'item' => 'service/manage'],
+
+    // Keşif (Kesif)
+    'kesif/view-pdf'                 => ['menu' => 'kesif', 'item' => 'kesif/list'],
+    'kesif/export'                   => ['menu' => 'kesif', 'item' => 'kesif/list'],
+
+    // Firmalar (Customers)
+    'customer-edit'                  => ['menu' => 'customers', 'item' => 'customers/list'],
+    'customer-info'                  => ['menu' => 'customers', 'item' => 'customers/list'],
+    'customer-new'                   => ['menu' => 'customers', 'item' => 'customers/manage'],
+    'customer-label'                 => ['menu' => 'customers', 'item' => 'customers/list'],
+
+    // Ürünler (Products)
+    'product-edit'                   => ['menu' => 'products', 'item' => 'products/list'],
+    'product-new'                    => ['menu' => 'products', 'item' => 'products/manage'],
+
+    // Stok Yönetimi (Stock Activity)
+    'stock-activity'                 => ['menu' => 'stock-activity', 'item' => 'stock-activity/list'],
+
+    // Evrak Takip (Indocument)
+    'edit-indocument'                => ['menu' => 'indocument', 'item' => 'view-indocument'],
+    'indocument-edit'                => ['menu' => 'indocument', 'item' => 'view-indocument'],
+
+    // Görevler (Missions)
+    'edit-mission'                   => ['menu' => 'missions', 'item' => 'all-missions'],
+    'view-mission'                   => ['menu' => 'missions', 'item' => 'all-missions'],
+
+    // Yapılacaklar (Tasks)
+    'task-edit'                      => ['menu' => 'tasks', 'item' => 'tasks'],
+
+    // Notlar (Notes)
+    'edit-note'                      => ['menu' => 'notes', 'item' => 'all-notes'],
+
+    // Destek Talepleri (Support)
+    'support-detail'                 => ['menu' => 'support', 'item' => 'support-list'],
+
+    // Ekip (Team)
+    'user-edit'                      => ['menu' => 'team', 'item' => 'users'],
+    'permission-edit'                => ['menu' => 'team', 'item' => 'permission-settings'],
+    'permission-new'                 => ['menu' => 'team', 'item' => 'permission-settings'],
+
+    // Tanımlamalar (Definitions)
+    'edit-unit'                      => ['menu' => 'definitions', 'item' => 'define-units'],
+
+    // Sürüm Notları (Version Notes)
+    'version-note-manage'            => ['menu' => 'version-notes', 'item' => 'version-notes'],
+];
+
 // Aktif menü ve alt menü tespiti (sayfa yüklenmeden önce sunucu tarafında açık getirmek için)
 $currentP = (string)($_GET['p'] ?? 'home');
 $currentFullQuery = (string)($_SERVER['QUERY_STRING'] ?? ('p=' . $currentP));
 parse_str($currentFullQuery, $currentGetParams);
 
-$isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
+$targetMenuKey = null;
+$targetSubKey = null;
+
+if (isset($pageMenuAliases[$currentP])) {
+    $targetMenuKey = $pageMenuAliases[$currentP]['menu'] ?? null;
+    $targetSubKey = $pageMenuAliases[$currentP]['item'] ?? null;
+} elseif (strpos($currentP, '/') !== false) {
+    $prefix = explode('/', $currentP, 2)[0];
+    if (isset($menuDefinitions[$prefix])) {
+        $targetMenuKey = $prefix;
+    }
+}
+
+$isMenuLinkActive = function($link, $itemKey = null, $menuKey = null) use ($currentP, $currentGetParams, $targetMenuKey, $targetSubKey) {
+    if (!empty($targetMenuKey) && $targetMenuKey === $menuKey) {
+        if (!empty($targetSubKey) && $targetSubKey === $itemKey) {
+            return true;
+        }
+    }
+
     if (empty($link)) return false;
     
     $parsed = parse_url($link);
@@ -590,15 +680,20 @@ $isMenuLinkActive = function($link) use ($currentP, $currentGetParams) {
                         foreach ($menu['items'] as $subKey => $item) {
                             if (!empty($item['visible'])) {
                                 $hasVisibleSubItems = true;
-                                if ($isMenuLinkActive($item['link'])) {
+                                if ($isMenuLinkActive($item['link'], $subKey, $menuKey)) {
                                     $isParentActive = true;
                                     $activeSubKeys[$subKey] = true;
                                 }
                             }
                         }
                         if (!$hasVisibleSubItems) continue;
+                        
+                        // Eğer hiçbir alt öğe doğrudan aktif olmadıysa ama hedef ana menü burasıysa (örn: prefix eşleşmesi):
+                        if (!$isParentActive && $targetMenuKey === $menuKey) {
+                            $isParentActive = true;
+                        }
                     } else {
-                        $isParentActive = $isMenuLinkActive($menu['link'] ?? '');
+                        $isParentActive = $isMenuLinkActive($menu['link'] ?? '', null, $menuKey) || ($targetMenuKey === $menuKey);
                     }
                 ?>
                     <li class="dropdown<?php echo $isParentActive ? ' show active' : ''; ?>" data-menu-key="<?php echo htmlspecialchars($menuKey, ENT_QUOTES, 'UTF-8'); ?>">

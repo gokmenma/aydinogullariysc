@@ -153,14 +153,6 @@ $(document).on("click", "#saveButton", function () {
     });
 });
 
-$(document).on('click', '.selectProduct', function () {
-    var buttonId = $(this).attr('id');
-    //var idNumarasi = buttonId.replace('rowID', '');
-    $('#rowID').val(buttonId);
-
-
-});
-
 $(document).ready(function () {
     $("#company").on("change", function () {
         getcustomerInfo(this);

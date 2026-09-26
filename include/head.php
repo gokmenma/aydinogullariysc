@@ -163,6 +163,16 @@
 		window.syncWysihtml5Theme();
 	};
 
+	// HEX to RGBA Helper
+	window.hexToRgba = function(hex, alpha) {
+		if (!hex || typeof hex !== 'string' || hex[0] !== '#') return 'rgba(37, 99, 235, ' + alpha + ')';
+		var c = hex.substring(1);
+		if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+		if (c.length !== 6) return 'rgba(37, 99, 235, ' + alpha + ')';
+		var num = parseInt(c, 16);
+		return 'rgba(' + ((num >> 16) & 255) + ', ' + ((num >> 8) & 255) + ', ' + (num & 255) + ', ' + alpha + ')';
+	};
+
 	// Primary (Birincil / Vurgu) Rengi Değiştirme Fonksiyonu
 	window.selectPrimaryTheme = function(hexColor, nameKey, isManual) {
 		if (!hexColor) return;
@@ -174,18 +184,21 @@
 			localStorage.setItem('app_primary_name', nameKey || 'custom');
 		} catch (err) {}
 
+		var shadowRgba = window.hexToRgba(hexColor, 0.32);
+		var lightRgba = window.hexToRgba(hexColor, 0.12);
+
 		var html = document.documentElement;
 		html.style.setProperty('--theme-primary', hexColor);
 		html.style.setProperty('--theme-primary-hover', hexColor);
-		html.style.setProperty('--theme-primary-shadow', 'color-mix(in srgb, ' + hexColor + ' 30%, transparent)');
-		html.style.setProperty('--theme-primary-light', 'color-mix(in srgb, ' + hexColor + ' 12%, #ffffff)');
+		html.style.setProperty('--theme-primary-shadow', shadowRgba);
+		html.style.setProperty('--theme-primary-light', lightRgba);
 		html.style.setProperty('--focus-color', hexColor);
 
 		if (document.body) {
 			document.body.style.setProperty('--theme-primary', hexColor);
 			document.body.style.setProperty('--theme-primary-hover', hexColor);
-			document.body.style.setProperty('--theme-primary-shadow', 'color-mix(in srgb, ' + hexColor + ' 30%, transparent)');
-			document.body.style.setProperty('--theme-primary-light', 'color-mix(in srgb, ' + hexColor + ' 12%, #ffffff)');
+			document.body.style.setProperty('--theme-primary-shadow', shadowRgba);
+			document.body.style.setProperty('--theme-primary-light', lightRgba);
 			document.body.style.setProperty('--focus-color', hexColor);
 		}
 
@@ -586,10 +599,12 @@
 			var savedPrimaryColor = localStorage.getItem('app_primary_color');
 			var savedPrimaryManual = localStorage.getItem('app_primary_manual');
 			if (savedPrimaryColor && savedPrimaryManual === 'true') {
+				var earlyShadow = window.hexToRgba(savedPrimaryColor, 0.32);
+				var earlyLight = window.hexToRgba(savedPrimaryColor, 0.12);
 				html.style.setProperty('--theme-primary', savedPrimaryColor);
 				html.style.setProperty('--theme-primary-hover', savedPrimaryColor);
-				html.style.setProperty('--theme-primary-shadow', 'color-mix(in srgb, ' + savedPrimaryColor + ' 30%, transparent)');
-				html.style.setProperty('--theme-primary-light', 'color-mix(in srgb, ' + savedPrimaryColor + ' 12%, #ffffff)');
+				html.style.setProperty('--theme-primary-shadow', earlyShadow);
+				html.style.setProperty('--theme-primary-light', earlyLight);
 				html.style.setProperty('--focus-color', savedPrimaryColor);
 			}
 
@@ -617,8 +632,12 @@
 						document.body.setAttribute('data-theme-font', savedFont);
 						document.body.setAttribute('data-theme-weight', savedWeight);
 						if (savedPrimaryColor && savedPrimaryManual === 'true') {
+							var bodyShadow = window.hexToRgba(savedPrimaryColor, 0.32);
+							var bodyLight = window.hexToRgba(savedPrimaryColor, 0.12);
 							document.body.style.setProperty('--theme-primary', savedPrimaryColor);
 							document.body.style.setProperty('--theme-primary-hover', savedPrimaryColor);
+							document.body.style.setProperty('--theme-primary-shadow', bodyShadow);
+							document.body.style.setProperty('--theme-primary-light', bodyLight);
 							document.body.style.setProperty('--focus-color', savedPrimaryColor);
 						}
 					}
@@ -642,8 +661,12 @@
 						document.body.setAttribute('data-theme-font', savedFont);
 						document.body.setAttribute('data-theme-weight', savedWeight);
 						if (savedPrimaryColor && savedPrimaryManual === 'true') {
+							var bodyShadow = window.hexToRgba(savedPrimaryColor, 0.32);
+							var bodyLight = window.hexToRgba(savedPrimaryColor, 0.12);
 							document.body.style.setProperty('--theme-primary', savedPrimaryColor);
 							document.body.style.setProperty('--theme-primary-hover', savedPrimaryColor);
+							document.body.style.setProperty('--theme-primary-shadow', bodyShadow);
+							document.body.style.setProperty('--theme-primary-light', bodyLight);
 							document.body.style.setProperty('--focus-color', savedPrimaryColor);
 						}
 					}

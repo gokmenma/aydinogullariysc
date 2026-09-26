@@ -1,2 +1,2 @@
 <?php
-// Footer kaldırıldı
+// Footer kaldırıldı

@@ -265,6 +265,189 @@ $genelToplam = $purchase->altToplam ?? "0.00";
     .dark-mode .bg-blue-light {
         background-color: rgba(59, 130, 246, 0.15) !important;
     }
+
+    /* Talep genel bilgileri: dengeli form yerleşimi */
+    .pricereq-details-card {
+        padding: 0;
+        overflow: visible;
+    }
+    .pricereq-details-card .form-card-header {
+        margin: 0;
+        padding: 22px 28px 18px;
+        border-bottom: 1px solid #e8eef5;
+        border-radius: 16px 16px 0 0;
+        background: linear-gradient(135deg, #fff 0%, #f8fbff 100%);
+    }
+    .pricereq-details-card .header-left-inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .pricereq-details-card .header-left-inner .card-icon {
+        margin-right: 0 !important;
+    }
+    .pricereq-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 34px;
+        padding: 24px 28px 28px;
+    }
+    .pricereq-details-column {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .pricereq-details-column > .form-group {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        align-items: center;
+        min-height: 42px;
+        margin: 0;
+    }
+    .pricereq-details-column > .pricereq-notes-field { align-items: start; }
+    .pricereq-details-column > .form-group > label,
+    .pricereq-details-column > .form-group > div {
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        flex: none;
+    }
+    .pricereq-details-column > .form-group > label {
+        padding-right: 18px;
+        color: #334155;
+        font-size: 13px !important;
+        line-height: 1.35;
+    }
+    .pricereq-details-column .form-control,
+    .pricereq-details-column .bootstrap-select > .dropdown-toggle {
+        min-height: 42px !important;
+        border-color: #cbd5e1 !important;
+        border-radius: 8px !important;
+        background-color: #fff;
+        font-size: 13.5px !important;
+        box-shadow: none !important;
+    }
+    .pricereq-details-column .form-control:focus,
+    .pricereq-details-column .bootstrap-select.show > .dropdown-toggle {
+        border-color: var(--focus-color, var(--theme-primary, #2563eb)) !important;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--theme-primary, #2563eb)) 16%, transparent) !important;
+    }
+    .pricereq-number-value {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 7px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+    .pricereq-customer-control {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 42px;
+        align-items: center;
+        gap: 8px;
+    }
+    .pricereq-customer-control > .w-100 {
+        display: block;
+        width: 100% !important;
+        min-width: 0;
+        margin: 0 !important;
+    }
+    .pricereq-customer-control .bootstrap-select,
+    .pricereq-customer-control .bootstrap-select.form-control {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 42px !important;
+    }
+    .pricereq-customer-control .bootstrap-select > .dropdown-toggle {
+        display: flex !important;
+        width: 100% !important;
+        height: 42px !important;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .pricereq-customer-control > .btn { width: 42px !important; height: 42px !important; }
+    .pricereq-details-column .input-group {
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .pricereq-details-column .input-group:focus-within {
+        border-color: var(--focus-color, var(--theme-primary, #2563eb));
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--theme-primary, #2563eb)) 16%, transparent);
+    }
+    .pricereq-details-column .input-group > .input-group-prepend .input-group-text,
+    .pricereq-details-column .input-group > .form-control {
+        min-width: 40px;
+        min-height: 42px;
+        border: 0 !important;
+        border-radius: 0 !important;
+    }
+    .pricereq-details-column .input-group > .form-control:focus { box-shadow: none !important; }
+    .pricereq-details-column > .form-group > div > .row { margin-right: -5px; margin-left: -5px; }
+    .pricereq-details-column > .form-group > div > .row > [class*="col-"] { padding-right: 5px !important; padding-left: 5px !important; }
+    .pricereq-details-column textarea.form-control {
+        min-height: 145px !important;
+        padding: 12px 14px;
+        resize: vertical;
+    }
+    .pricereq-summary-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+        margin: 4px 0 0 !important;
+    }
+    .pricereq-summary-row > div { width: auto; max-width: none; padding: 0; }
+    .pricereq-summary-row .summary-kpi-card { min-height: 74px; }
+    .pricereq-products-card {
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    .pricereq-products-card .form-card-header {
+        margin: 0 !important;
+        padding: 22px 28px 18px !important;
+        border-bottom: 1px solid #e8eef5 !important;
+        border-radius: 16px 16px 0 0;
+        background: linear-gradient(135deg, #fff 0%, #f8fbff 100%);
+    }
+    .pricereq-products-card .header-left-inner { gap: 12px; }
+    .pricereq-products-card .header-left-inner .card-icon { margin-right: 0 !important; }
+    .pricereq-products-body { padding: 20px 24px 24px; }
+
+    .dark-mode .pricereq-details-card .form-card-header {
+        border-color: #334155;
+        background: linear-gradient(135deg, #111827 0%, #172033 100%);
+    }
+    .dark-mode .pricereq-details-column > .form-group > label { color: #cbd5e1; }
+    .dark-mode .pricereq-number-value { border-color: #475569; background: #1e293b; color: #e2e8f0; }
+    .dark-mode .pricereq-details-column .input-group { border-color: #475569; background: #111827; }
+    .dark-mode .pricereq-products-card .form-card-header {
+        border-color: #334155 !important;
+        background: linear-gradient(135deg, #111827 0%, #172033 100%);
+    }
+
+    @media (max-width: 1199.98px) {
+        .pricereq-details-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 575.98px) {
+        .pricereq-details-card .form-card-header,
+        .pricereq-details-grid { padding: 18px; }
+        .pricereq-products-card .form-card-header,
+        .pricereq-products-body { padding: 16px !important; }
+        .pricereq-details-column > .form-group { grid-template-columns: 1fr; gap: 7px; }
+        .pricereq-details-column > .form-group > label { padding-right: 0; }
+        .pricereq-details-column > .form-group > div > .row > [class*="col-"] { margin-bottom: 8px; }
+        .pricereq-details-column > .form-group > div > .row > [class*="col-"]:last-child { margin-bottom: 0; }
+        .pricereq-summary-row { grid-template-columns: 1fr; gap: 10px; }
+    }
 </style>
 
 <form enctype="multipart/form-data" method="POST" id="myForm">
@@ -309,7 +492,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
         </div>
 
         <!-- Form Card: Talep Genel Bilgileri -->
-        <div class="form-card animate-fade-in">
+        <div class="form-card pricereq-details-card animate-fade-in">
             <div class="form-card-header d-flex justify-content-between align-items-center">
                 <div class="header-left-inner d-flex align-items-center">
                     <div class="card-icon card-icon-blue" style="background: #eff6ff; color: #3b82f6; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-right: 12px;">
@@ -324,15 +507,15 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                 </div>
             </div>
 
-            <div class="row">
+            <div class="pricereq-details-grid">
                 <!-- Sol Kolon -->
-                <div class="col-md-6">
+                <div class="pricereq-details-column">
                     <div class="form-group row align-items-center">
                         <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                             <span class="text-danger">*</span> Talep Numarası
                         </label>
                         <div class="col-md-8">
-                            <span class="badge badge-light text-dark font-14 weight-600 px-3 py-2" style="border-radius: 6px; background: #f1f5f9; border: 1px solid #cbd5e1;">
+                            <span class="pricereq-number-value">
                                 <i class="fa fa-tag text-primary mr-1"></i> <?php echo $siparisNo; ?>
                             </span>
                         </div>
@@ -343,7 +526,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                         <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                             <span class="text-danger">*</span> Tedarikçi Firma
                         </label>
-                        <div class="col-md-8 d-flex align-items-center">
+                        <div class="col-md-8 pricereq-customer-control">
                             <div class="w-100 mr-2">
                                 <?php echo customer::getCustomerSelect('customers', $purchase->companyID ?? 0); ?>
                             </div>
@@ -374,7 +557,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                     </div>
 
                     <!-- Açıklama -->
-                    <div class="form-group row">
+                    <div class="form-group row pricereq-notes-field">
                         <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
                             Talep Açıklaması
                         </label>
@@ -386,7 +569,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                 </div>
 
                 <!-- Sağ Kolon -->
-                <div class="col-md-6">
+                <div class="pricereq-details-column">
                     <!-- Durum -->
                     <div class="form-group row align-items-center">
                         <label class="col-form-label col-md-4 font-weight-600 text-slate" style="font-size: 13.5px;">
@@ -435,7 +618,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                     </div>
 
                     <!-- Özet KPI Kutuları -->
-                    <div class="row mt-3">
+                    <div class="pricereq-summary-row">
                         <div class="col-sm-6 mb-2">
                             <div class="summary-kpi-card kpi-subtotal">
                                 <div>
@@ -465,7 +648,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
         </div>
 
         <!-- Ürünler Tablo Kartı -->
-        <div class="form-card animate-fade-in mt-4 mb-4">
+        <div class="form-card pricereq-products-card animate-fade-in mt-4 mb-4">
             <div class="form-card-header d-flex justify-content-between align-items-center">
                 <div class="header-left-inner d-flex align-items-center">
                     <div class="card-icon card-icon-indigo" style="background: #e0e7ff; color: #4f46e5; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-right: 12px;">
@@ -485,20 +668,21 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                 </div>
             </div>
 
+            <div class="pricereq-products-body">
             <div class="pricereq-table-wrapper">
-                <table id="tProduct" class="table premium-table">
+                <table id="tProduct" class="table premium-table no-filter">
                     <thead>
                         <tr>
-                            <th style="width: 28px;"><i class="fa fa-arrows-alt text-muted"></i></th>
-                            <th style="width: 42px;">İşlem</th>
-                            <th style="width: 38px;">Sıra</th>
-                            <th style="width: 105px;">Stok Kodu</th>
-                            <th>Ürün Adı / Kalem Açıklaması</th>
-                            <th style="width: 65px;">Miktar</th>
-                            <th style="width: 85px;">Birim</th>
-                            <th style="width: 88px;">Alış Fiyat</th>
-                            <th style="width: 78px;">Para Birimi</th>
-                            <th class="attachments-cell">Ekler (Resim/Excel)</th>
+                            <th style="width: 35px; min-width: 35px;" class="text-center no-filter"><i class="fa fa-arrows-alt text-muted"></i></th>
+                            <th style="width: 80px; min-width: 80px;" class="text-center no-filter">İşlem</th>
+                            <th style="width: 45px; min-width: 45px;" class="text-center no-filter">Sıra</th>
+                            <th style="width: 120px; min-width: 105px;" class="no-filter">Stok Kodu</th>
+                            <th class="no-filter">Ürün Adı / Kalem Açıklaması</th>
+                            <th style="width: 75px; min-width: 65px;" class="text-center no-filter">Miktar</th>
+                            <th style="width: 95px; min-width: 85px;" class="no-filter">Birim</th>
+                            <th style="width: 95px; min-width: 88px;" class="text-right no-filter">Alış Fiyat</th>
+                            <th style="width: 85px; min-width: 78px;" class="no-filter">Para Birimi</th>
+                            <th class="attachments-cell no-filter">Ekler (Resim/Excel)</th>
                         </tr>
                     </thead>
 
@@ -520,9 +704,14 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                                 </td>
 
                                 <td class="text-center app-item-action" style="vertical-align: middle;">
-                                    <a type="button" class="sil btn btn-sm btn-outline-danger border-0" style="border-radius: 6px; padding: 2px 5px;" title="Satırı Sil">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a type="button" class="sil btn btn-sm btn-outline-danger border-0" style="border-radius: 6px; padding: 2px 5px;" title="Satırı Sil">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                        <a type="button" class="btn btn-sm btn-outline-primary border-0 btn-clone-row" style="border-radius: 6px; padding: 2px 5px;" title="Satırı Klonla (Kopyala)">
+                                            <i class="fa fa-clone"></i>
+                                        </a>
+                                    </div>
                                 </td>
 
                                 <!-- Sıra no -->
@@ -540,17 +729,10 @@ $genelToplam = $purchase->altToplam ?? "0.00";
 
                                 <!-- Ürün Adı / Açıklama -->
                                 <td class="app-item-name" style="vertical-align: middle;">
-                                    <div class="input-group mb-1">
-                                        <input type="text" class="urunAdi form-control" name="urunAdi[]"
+                                    <div class="product-autocomplete-wrap position-relative mb-1">
+                                        <input type="text" class="urunAdi form-control urunAdi-input" name="urunAdi[]"
                                             id="urunAdi<?php echo $i; ?>" value="<?php echo htmlspecialchars($item->product ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                            placeholder="Ürün adı" required style="border-radius: 6px 0 0 6px; border-color: #cbd5e1;">
-                                        <div class="input-group-append">
-                                            <button type="button" id="<?php echo $i; ?>"
-                                                class="btn btn-sm btn-info selectProduct text-white" data-bs-toggle="modal"
-                                                data-bs-target="#staticBackdrop" style="border-radius: 0 6px 6px 0; height: 30px; padding: 0 8px;" title="Ürün Listesinden Seç">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </div>
+                                            placeholder="Ürün adı yazarak arayın..." required style="border-radius: 6px; border-color: #cbd5e1;">
                                     </div>
                                     <input type="text" name="rowdescription[]" value="<?php echo htmlspecialchars($item->description ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                         class="form-control" placeholder="Kalem açıklaması..." style="border-radius: 6px; border-color: #cbd5e1; font-size: 11.5px !important; height: 26px !important;">
@@ -611,40 +793,26 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                     <tfoot>
                         <tr>
                             <td colspan="10" style="padding: 10px 12px !important; background: #f8fafc; border-top: 2px solid #e2e8f0;">
-                                <button type="button" id="addRowFooter" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 500;">
-                                    <i class="fa fa-plus"></i> Yeni Satır Ekle
-                                </button>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" id="addRowFooter" class="btn btn-sm btn-primary" style="border-radius: 8px; font-weight: 600; padding: 7px 18px;">
+                                        <i class="fa fa-plus-circle mr-1"></i> Yeni Satır Ekle
+                                    </button>
+                                    <button type="button" id="btnOpenMultiProductModal" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 600; padding: 7px 18px;">
+                                        <i class="fa fa-th-list mr-1"></i> Toplu Ürün Ekle
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </tfoot>
                 </table>
                 <input type="hidden" id="rowNumberId" value="<?php echo $i + 1 ?>">
             </div>
+            </div>
         </div>
     </div>
 </form>
 
-<!-- Modal: Ürün Seçimi -->
-<div class="modal fade" id="staticBackdrop" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 16px 20px;">
-                <h6 class="modal-title font-weight-600 text-slate" id="staticBackdropLabel">
-                    <i class="fa fa-cube text-primary mr-1"></i> Listeden Ürün Seçiniz
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-            </div>
-            <div class="modal-body" style="padding: 20px;">
-                <?php generateProductSelect("productName[]", '') ?>
-                <input type="hidden" id="rowID">
-            </div>
-            <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 12px 20px;">
-                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal" style="border-radius: 8px;">Kapat</button>
-                <button type="button" class="btn btn-sm btn-primary" onclick="getProductInfoPurchase()" style="border-radius: 8px;">Seç ve Ekle</button>
-            </div>
-        </div>
-    </div>
-</div>
+<?php include_once __DIR__ . '/../../../components/modals/multi-product-modal.php'; ?>
 
 <script src="pages/1/purchases/script.js"></script>
 <script>
@@ -798,34 +966,34 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                     <i class="fa fa-ellipsis-v text-muted" style="opacity: 0.6; margin-left: -2px;"></i>
                 </td>
                 <td class="text-center app-item-action" style="vertical-align: middle;">
-                    <a type="button" class="sil btn btn-sm btn-outline-danger border-0" style="border-radius: 6px; padding: 2px 5px;" title="Satırı Sil">
-                        <i class="fa fa-trash"></i>
-                    </a>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a type="button" class="sil btn btn-sm btn-outline-danger border-0" style="border-radius: 6px; padding: 2px 5px;" title="Satırı Sil">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                        <a type="button" class="btn btn-sm btn-outline-primary border-0 btn-clone-row" style="border-radius: 6px; padding: 2px 5px;" title="Satırı Klonla (Kopyala)">
+                            <i class="fa fa-clone"></i>
+                        </a>
+                    </div>
                 </td>
                 <td class="text-center app-item-number" style="vertical-align: middle;">
                     <span class="text-muted font-weight-bold row-index-label">${sayac}</span>
                     <input name="satirno[]" type="hidden" value="${sayac}">
                 </td>
                 <td class="app-item-stock" style="vertical-align: middle;">
-                    <input type="text" id="stokKodu${sayac}" name="stokKodu[]" class="form-control" placeholder="Kodu" style="border-radius: 6px; border-color: #cbd5e1;">
+                    <input type="text" id="stokKodu${sayac}" name="stokKodu[]" class="form-control stokKodu-input" placeholder="Kodu" style="border-radius: 6px; border-color: #cbd5e1;">
                 </td>
                 <td class="app-item-name" style="vertical-align: middle;">
-                    <div class="input-group mb-1">
-                        <input type="text" required name="urunAdi[]" id="urunAdi${sayac}" class="urunAdi form-control" placeholder="Ürün Adı" style="border-radius: 6px 0 0 6px; border-color: #cbd5e1;">
-                        <div class="input-group-append">
-                            <button type="button" id="${sayac}" class="btn btn-sm btn-info selectProduct text-white" data-bs-toggle="modal" data-bs-target="#staticBackdrop" style="border-radius: 0 6px 6px 0; height: 30px; padding: 0 8px;" title="Ürün Listesinden Seç">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </div>
+                    <div class="product-autocomplete-wrap position-relative mb-1">
+                        <input type="text" required name="urunAdi[]" id="urunAdi${sayac}" class="urunAdi form-control urunAdi-input" placeholder="Ürün Adı" style="border-radius: 6px; border-color: #cbd5e1;">
                     </div>
                     <input type="text" name="rowdescription[]" class="form-control" placeholder="Kalem açıklaması..." style="border-radius: 6px; border-color: #cbd5e1; font-size: 11.5px !important; height: 26px !important;">
                 </td>
                 <td class="app-item-amount" style="vertical-align: middle;">
-                    <input type="number" required id="amount${sayac}" name="amount[]" class="form-control text-center" style="border-radius: 6px; border-color: #cbd5e1;">
+                    <input type="number" required id="amount${sayac}" name="amount[]" class="form-control text-center amount-input" style="border-radius: 6px; border-color: #cbd5e1;">
                 </td>
                 <td class="app-item-unit" style="vertical-align: middle;">${selectUnit}</td>
                 <td class="app-item-price" style="vertical-align: middle;">
-                    <input type="number" step="0.01" required id="price${sayac}" name="price[]" class="form-control text-right" style="border-radius: 6px; border-color: #cbd5e1;">
+                    <input type="number" step="0.01" required id="price${sayac}" name="price[]" class="form-control text-right price-input" style="border-radius: 6px; border-color: #cbd5e1;">
                 </td>
                 <td class="app-item-cur" style="vertical-align: middle;">${selectmoneys}</td>
                 <td class="text-center align-middle attachments-cell">
@@ -861,6 +1029,23 @@ $genelToplam = $purchase->altToplam ?? "0.00";
     }
 
     $(document).ready(function() {
+        if (window.ProductPicker) {
+            ProductPicker.init({
+                tableSelector: '#tProduct',
+                fields: {
+                    title: 'input[name="urunAdi[]"]',
+                    stock: 'input[name="stokKodu[]"]',
+                    price: 'input[name="price[]"]',
+                    currency: 'select[name="currency[]"]',
+                    unit: 'select[name="unit[]"]',
+                    amount: 'input[name="amount[]"]',
+                    description: 'input[name="rowdescription[]"]'
+                },
+                onSelect: function($row, data) {
+                    updateToplamPurchase();
+                }
+            });
+        }
         // Initialize sortable for drag and drop reordering
         if (typeof Sortable !== 'undefined') {
             const el = document.getElementById('sortable');

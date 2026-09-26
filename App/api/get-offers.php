@@ -448,6 +448,8 @@ foreach ($results as $of) {
            Teklifi Kopyala</a>';
     }
 
+    $islem_butonlari .= '<a href="javascript:void(0);" class="dropdown-item btn-offer-logs" type="button" data-id="' . (int)$of["id"] . '" data-offer-no="' . htmlspecialchars($of["offerNumber"] ?? '', ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-history mr-2 text-info"></i> Log Kayıtları</a>';
+
     $islem_butonlari .='</div></div></div>';
     
     $canEditOffer = ($of["is_template"] == 1 && checkAuth("template_offer_edit")) || ($of["is_template"] == 0 && checkAuth("offeredit"));

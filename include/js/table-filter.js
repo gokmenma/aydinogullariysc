@@ -490,7 +490,15 @@ App.TableFilter = {
     },
 
     attachToTable: function (table) {
-        if (!table || table.classList.contains('no-filter') || table.classList.contains('table-modern') || table.classList.contains('dash-table')) return;
+        if (!table || 
+            table.classList.contains('no-filter') || 
+            table.classList.contains('table-modern') || 
+            table.classList.contains('dash-table') ||
+            table.id === 'tProduct' ||
+            table.id === 'tblAltToplam' ||
+            table.id === 'tblAltToplamTalep' ||
+            table.closest('.no-filter') ||
+            table.querySelector('tbody input[name$="[]"], tbody select[name$="[]"]')) return;
         App.TableFilter.relocateSearchInput(table);
         const tableId = table.id;
         if (!tableId) return;

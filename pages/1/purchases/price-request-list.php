@@ -768,7 +768,7 @@ try {
 
 <!-- Görüntüleme Modalı -->
 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 95%;">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 860px; width: 95%;">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
             <div class="modal-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">

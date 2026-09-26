@@ -306,14 +306,29 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
                     throw new RuntimeException("Geçersiz silme hedefi.");
                 }
 
+                $entitySummary = "Kayıt silindi";
+                $entityContext = [];
+                $entityType = $resolvedTable === 'projects' ? 'service' : $resolvedTable;
+
+                if ($resolvedTable === 'projects') {
+                    $stItem = $ac->prepare("SELECT service_number, pcid FROM projects WHERE id = ?");
+                    $stItem->execute([$id]);
+                    $itemData = $stItem->fetch(PDO::FETCH_ASSOC);
+                    if ($itemData) {
+                        $entitySummary = "Servis silindi: " . ($itemData['service_number'] ?? '#' . $id);
+                        $entityContext = ['service_number' => $itemData['service_number'] ?? null, 'customer_id' => $itemData['pcid'] ?? null];
+                    }
+                }
+
                 $pdq = $ac->prepare("DELETE FROM `" . $resolvedTable . "` WHERE id = ?");
                 $pdq->execute(array($id));
                 audit_log(
                     "delete",
                     $pageKey,
-                    "Kayıt silindi",
-                    $resolvedTable,
-                    $id
+                    $entitySummary,
+                    $entityType,
+                    $id,
+                    $entityContext
                 );
             }
 

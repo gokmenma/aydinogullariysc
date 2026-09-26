@@ -469,21 +469,18 @@ if ($demand == true) {
         <div class="hack1">
             <div class="hack2">
 
-                <table id="tProduct" class="table">
+                <table id="tProduct" class="table no-filter">
                     <thead>
                         <tr>
-                        <tr>
-                        <tr>
-                            <th>İşlem</th>
-                            <th>Sıra</th>
-                            <th>Stok Kodu</th>
-                            <th>Ürün Adı</th>
-                            <th>Miktar</th>
-                            <th>Birim</th>
-                            <th>Fiyat</th>
-                            <th>Para Birimi</th>
-                        </tr>
-                        </tr>
+                            <th style="width: 35px; min-width: 35px;" class="text-center no-filter">Taşı</th>
+                            <th style="width: 80px; min-width: 80px;" class="text-center no-filter">İşlem</th>
+                            <th style="width: 55px; min-width: 55px;" class="text-center no-filter">Sıra</th>
+                            <th style="width: 140px; min-width: 120px;" class="no-filter">Stok Kodu</th>
+                            <th style="min-width: 220px;" class="no-filter">Ürün Adı</th>
+                            <th style="width: 90px; min-width: 80px;" class="text-center no-filter">Miktar</th>
+                            <th style="width: 110px; min-width: 100px;" class="no-filter">Birim</th>
+                            <th style="width: 120px; min-width: 100px;" class="text-right no-filter">Fiyat</th>
+                            <th style="width: 100px; min-width: 90px;" class="no-filter">Para Birimi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -510,14 +507,12 @@ if ($demand == true) {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="8">
+                            <td colspan="9">
                                 <button type="button" id="addRow" class="btn float-left btn-sm btn-primary mt-3 mb-3">
                                     <i class="fa fa-plus"></i> Yeni Satır
                                 </button>
-
                             </td>
                         </tr>
-
                     </tfoot>
                 </table>
                 <input type="hidden" id="rowNumberId" value="<?php echo $satirNo + 1 ?>">
@@ -536,15 +531,15 @@ if ($demand == true) {
         </div>
         <div class="hack1">
             <div class="hack2">
-                <table id="tblAltToplam" class="table">
+                <table id="tblAltToplam" class="table no-filter">
                     <thead>
-                        <th style="min-width:120px">Göster</th>
-                        <th>Euro Toplam</th>
-                        <th>Dolar Toplam</th>
-                        <th>TL Toplam</th>
-                        <th>İskonto Toplam</th>
-                        <th>Kdv (%)</th>
-                        <th>Toplam Tutar(TL) </th>
+                        <th style="min-width:120px" class="no-filter">Göster</th>
+                        <th class="no-filter">Euro Toplam</th>
+                        <th class="no-filter">Dolar Toplam</th>
+                        <th class="no-filter">TL Toplam</th>
+                        <th class="no-filter">İskonto Toplam</th>
+                        <th class="no-filter">Kdv (%)</th>
+                        <th class="no-filter">Toplam Tutar(TL) </th>
                     </thead>
                     <tbody>
                         <tr>
