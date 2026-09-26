@@ -1312,3 +1312,130 @@ function get_configured_mailer($fromEmail = null, $fromName = null)
 	return $mail;
 }
 
+/**
+ * PDF içeriğini e-posta eki olarak gönderir ve veritabanı loglarını kaydeder.
+ *
+ * @param string $pdfContent       Dompdf çıktı baytları
+ * @param string $attachmentName   Ek dosya adı (örn: Rapor-123.pdf)
+ * @param string $redirectSuccess  Başarılı durumda yönlendirilecek URL
+ * @param string $redirectFail     Başarısız durumda yönlendirilecek URL
+ * @param string $defaultSubject   Varsayılan konu
+ * @param string $defaultBody      Varsayılan içerik
+ * @return void
+ */
+function send_pdf_email_attachment($pdfContent, $attachmentName, $redirectSuccess, $redirectFail, $defaultSubject = '', $defaultBody = '')
+{
+	global $ac;
+
+	if (function_exists('ob_get_level')) {
+		while (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+	}
+
+	$rawTo = $_POST['customer_mail_address'] ?? '';
+	$rawCc = $_POST['mail_address'] ?? [];
+	$subject = !empty($_POST['mailkonu']) ? trim($_POST['mailkonu']) : ($defaultSubject ?: 'Rapor Bilgilendirmesi');
+	$bodyText = !empty($_POST['mail_body']) ? trim($_POST['mail_body']) : ($defaultBody ?: 'Raporunuz ekte sunulmuştur.');
+	$bodyHtml = nl2br(htmlspecialchars($bodyText, ENT_QUOTES, 'UTF-8'));
+
+	// To adreslerini ayrıştır ve doğrula
+	$toAddresses = array_filter(array_map('trim', explode(',', $rawTo)));
+	$validTo = [];
+	foreach ($toAddresses as $email) {
+		if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			$validTo[] = $email;
+		}
+	}
+
+	if (empty($validTo)) {
+		$_SESSION['mail_last_error'] = 'Geçerli bir alıcı e-posta adresi belirtilmedi.';
+		header("Location: " . $redirectFail);
+		exit;
+	}
+
+	// CC adreslerini ayrıştır
+	$ccAddresses = is_array($rawCc) ? $rawCc : (is_string($rawCc) ? explode(',', $rawCc) : []);
+	$validCc = [];
+	foreach ($ccAddresses as $cc) {
+		$cc = trim($cc);
+		if (filter_var($cc, FILTER_VALIDATE_EMAIL) && !in_array($cc, $validTo)) {
+			$validCc[] = $cc;
+		}
+	}
+
+	try {
+		$mail = get_configured_mailer();
+
+		foreach ($validTo as $to) {
+			$mail->addAddress($to);
+		}
+
+		foreach ($validCc as $cc) {
+			$mail->addCC($cc);
+		}
+
+		$mail->Subject = $subject;
+		$mail->Body    = $bodyHtml;
+		$mail->AltBody = strip_tags($bodyText);
+
+		$safeAttachmentName = preg_replace('/[^\p{L}\p{N}_\-\. ]/u', '_', $attachmentName);
+		if (!preg_match('/\.pdf$/i', $safeAttachmentName)) {
+			$safeAttachmentName .= '.pdf';
+		}
+
+		$mail->addStringAttachment($pdfContent, $safeAttachmentName, 'base64', 'application/pdf');
+
+		if ($mail->send()) {
+			$allTo = implode(', ', $validTo);
+			$fromMail = $mail->From ?? (string)set('mail_username');
+			$senderId = (int)sesset("id");
+
+			try {
+				$stmtLog = $ac->prepare("INSERT INTO mail_logs (tomail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, 1, ?)");
+				$stmtLog->execute([$allTo, $fromMail, $safeAttachmentName, $bodyHtml, $senderId]);
+			} catch (\Throwable $logEx) {
+				error_log("Mail log db error: " . $logEx->getMessage());
+			}
+
+			if (function_exists('audit_log')) {
+				audit_log(
+					'send',
+					'mail',
+					"Rapor e-posta ile başarıyla gönderildi. (Alıcılar: {$allTo}, Konu: {$subject})",
+					'reports',
+					'0',
+					[
+						'recipients' => $validTo,
+						'cc' => $validCc,
+						'subject' => $subject,
+						'attachment' => $safeAttachmentName
+					]
+				);
+			}
+
+			header("Location: " . $redirectSuccess);
+			exit;
+		} else {
+			$_SESSION['mail_last_error'] = $mail->ErrorInfo ?: 'Bilinmeyen SMTP iletim hatası.';
+			header("Location: " . $redirectFail);
+			exit;
+		}
+	} catch (\Throwable $e) {
+		error_log("Report Mail Send Error: " . $e->getMessage());
+		$_SESSION['mail_last_error'] = $e->getMessage();
+
+		$allTo = implode(', ', $validTo);
+		$fromMail = (string)set('mail_username');
+		$senderId = (int)sesset("id");
+		try {
+			$stmtLog = $ac->prepare("INSERT INTO mail_logs (tomail, from_mail, mail_file, mail_body, statu, sender) VALUES (?, ?, ?, ?, 0, ?)");
+			$stmtLog->execute([$allTo, $fromMail, $safeAttachmentName ?? $attachmentName, $bodyHtml, $senderId]);
+		} catch (\Throwable $ignored) {}
+
+		header("Location: " . $redirectFail);
+		exit;
+	}
+}
+
+

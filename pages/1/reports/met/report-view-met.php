@@ -1,12 +1,18 @@
 <?php
 require 'vendor/autoload.php';
 
-function toBase64($image)
-{
-
-    $data = base64_encode(file_get_contents($image));
-    return 'data:' . mime_content_type($image) . ';base64,' . $data;
+if (!function_exists('toBase64')) {
+    function toBase64($image)
+    {
+        if (empty($image) || !file_exists($image)) {
+            return '';
+        }
+        $data = base64_encode(file_get_contents($image));
+        $mime = @mime_content_type($image) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . $data;
+    }
 }
+
 
 
 $id = $_GET["id"];
@@ -715,38 +721,19 @@ while ($attach = $attach_query->fetch(PDO::FETCH_ASSOC)) {
 
 $html .= '</body>
 
-</html>'
-
-
-;
-echo $html;
-
-
-// reference the Dompdf namespace
-use Dompdf\Dompdf;
-use Dompdf\Options;
+</html>';
 
 // instantiate and use the dompdf class
-$options = new Options();
+$options = new \Dompdf\Options();
 $options->set('isPhpEnabled', true); // PHP kodlarının çalıştırılmasını etkinleştir
-$dompdf = new Dompdf($options);
+$dompdf = new \Dompdf\Dompdf($options);
 
-//RAPOR TAMAMLANDIĞINDA BURASI AKTİF ALTTAKİ İKİ SATIR PASİF OLACAK
+
 $dompdf->loadHtml($html);
 
-//$htmlfile = file_get_contents("pages/1/print.php");
-//$dompdf->loadHtml($htmlfile);
-
-
-
-// (Optional) Setup the paper size and orientation
-// $dompdf->setPaper('A4', "L");
-
-
-// Render the HTML as PDF
 // PDF'yi oluştur
 $dompdf->render();
-ob_end_clean();
+
 // add pagination
 $canvas = $dompdf->getCanvas(); // get the canvas
 // add the page number and total number of pages
@@ -755,8 +742,20 @@ $canvas->page_script('
     $pdf->text(535, 791.89, $text, \'Helvetica\', 8, array(0,0,0));
 ');
 
-//Dosyayı indir
-//$dompdf->stream("document.pdf", array("Attachment" => false));
+if (empty($_GET['send-mail']) || $_GET['send-mail'] !== 'true') {
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+    $dompdf->stream($document, array("Attachment" => false));
+} else {
+    $pdf_content = $dompdf->output();
+    send_pdf_email_attachment(
+        $pdf_content,
+        $document . '.pdf',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=met&st=success-mail',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=met&st=unsuccessful',
+        'Mekanik Tesisat Kontrol Raporu - ' . ($report['report_number'] ?? ''),
+        'Mekanik tesisat kontrol raporunuz ekte sunulmuştur.'
+    );
+}
 
-//Tarayıcıda göster
-$dompdf->stream($document, array("Attachment" => false));

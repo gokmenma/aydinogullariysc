@@ -1,12 +1,18 @@
 <?php
 require 'vendor/autoload.php';
 
-function toBase64($image)
-{
-
-    $data = base64_encode(file_get_contents($image));
-    return 'data:' . mime_content_type($image) . ';base64,' . $data;
+if (!function_exists('toBase64')) {
+    function toBase64($image)
+    {
+        if (empty($image) || !file_exists($image)) {
+            return '';
+        }
+        $data = base64_encode(file_get_contents($image));
+        $mime = @mime_content_type($image) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . $data;
+    }
 }
+
 
 
 $id = $_GET["id"];
@@ -247,15 +253,13 @@ $cihazSayisi = 1 ;
             $cihazSayisi += 1;
             }
 
-          $html .= '<tr>
+            $notes = str_replace('{cihazSayisi}', ($cihazSayisi - 1) . " Adet", $report["notes"] ?? '');
+            $html .= '<tr>
 
                 <td colspan="48">
                     <div style="margin-bottom:30px">
-                    '. 
-                    $notes = str_replace('{cihazSayisi}', $cihazSayisi - 1 . " Adet", $report["notes"]);
-                    echo $cihazSayisi ;
-     $html .= '
-                  </div>
+                    ' . $notes . '
+                    </div>
                 </td>
             </tr>
 
@@ -280,10 +284,6 @@ $cihazSayisi = 1 ;
 </html>';
 
 
-// İÇERİK BURAYA GELECEK
-echo $html;
-
-
 // reference the Dompdf namespace
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -293,24 +293,26 @@ $options = new Options();
 $options->set('isPhpEnabled', true); // PHP kodlarının çalıştırılmasını etkinleştir
 $dompdf = new Dompdf($options);
 
-
 $dompdf->loadHtml($html);
-
-
-// $htmlfile=file_get_contents("pages/1/print.php");
-// $dompdf->loadHtml($htmlfile);
-
-// (Optional) Setup the paper size and orientation
 $dompdf->setPaper('A4', 'landscape');
 
-// Render the HTML as PDF
 // PDF'yi oluştur
 $dompdf->render();
-ob_end_clean();
 
+if (empty($_GET['send-mail']) || $_GET['send-mail'] !== 'true') {
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+    $dompdf->stream($document, array("Attachment" => false));
+} else {
+    $pdf_content = $dompdf->output();
+    send_pdf_email_attachment(
+        $pdf_content,
+        $document . '.pdf',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=hst&st=success-mail',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=hst&st=unsuccessful',
+        'Hidrostatik Test Raporu - ' . ($report['report_number'] ?? ''),
+        'Hidrostatik test raporunuz ekte sunulmuştur.'
+    );
+}
 
-//Dosyayı indir
-//$dompdf->stream("document.pdf", array("Attachment" => false));
-
-//Tarayıcıda göster
-$dompdf->stream($document , array("Attachment" => false));

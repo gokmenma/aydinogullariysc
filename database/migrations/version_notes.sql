@@ -360,6 +360,27 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.0', 'Sol Menü (Sidebar) Aktif Sayfa Eşleştirme İyileştirmesi', 'improvement', '- Satın alma fiyat talebi yönetimi ve menüde doğrudan yer almayan alt/detay sayfalarında sol menünün ve ilgili alt sekmelerin otomatik olarak açık ve aktif gelmesi sağlandı.', 'Antigravity AI', '2026-09-26 19:10:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.0');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.1', 'Belge ve Rapor Mail Gönderme Modernizasyonu', 'improvement', '- Mail gönderme ekranı premium tema ile yenilendi; sol menü aktifliği sağlandı, gönderilen belge türüne göre (Teklif, Satın Alma Siparişi, Kontrol Raporları) sayfa başlığı, breadcrumb ve rozetlerin dinamikleşmesi sağlandı ve PDF mail altyapısı entegre edildi.', 'Antigravity AI', '2026-09-26 20:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.1');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.2', 'Rapor Yönetimi Hızlı Menü ve Tablo Arama İyileştirmesi', 'improvement', '- Rapor listesinde yeni rapor ve içerik listesi için açılır liste (dropdown) genişletilerek ferahlatıldı; tablo arama kutusunun simge ve placeholder metin boşluğu (padding) düzeltildi.', 'Antigravity AI', '2026-09-26 20:36:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.2');
+
+UPDATE `version_notes`
+SET `title` = 'Rapor Yönetimi Hızlı Menü ve Tablo Arama İyileştirmesi',
+    `description` = '- Rapor listesinde yeni rapor ve içerik listesi için açılır liste (dropdown) genişletilerek ferahlatıldı; tablo arama kutusunun simge ve placeholder metin boşluğu (padding) düzeltildi.',
+    `created_at` = '2026-09-26 20:36:00'
+WHERE `version_tag` = 'v2.8.2';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.3', 'Teklif Listesi Kolon ve Yerleşim İyileştirmesi', 'improvement', '- Teklif listesinde konu alanı genişletilerek ferahlatıldı; sıra no, oluşturma tarihi (tarih/saat alt alta), teklif no (kompakt rozet), onay tarihi, ödeme vadesi ve teklif veren kolonları daraltılıp başlıkları çok satırlı düzenlendi.', 'Antigravity AI', '2026-09-26 20:46:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.3');
+
+
+
+
 
 
 

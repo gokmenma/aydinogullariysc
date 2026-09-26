@@ -395,8 +395,10 @@ $dompdf->render();
 
 // PDF'yi oluştur
 $dompdf->render();
-if (!$_GET['send-mail']) {
-    ob_end_clean();
+if (empty($_GET['send-mail']) || $_GET['send-mail'] !== 'true') {
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
     // add pagination
     $canvas = $dompdf->getCanvas();  // get the canvas
     // add the page number and total number of pages
@@ -414,60 +416,15 @@ if (!$_GET['send-mail']) {
     ');
 
     $pdf_content = $dompdf->output();
+    $pdf_attachment_name = ($report['siparisNo'] ?? 'Siparis') . ' numaralı Sipariş.pdf';
 
-    // MAİL GÖNDERİMİ
-    // PDF dosyasını sunucuda geçici olarak saklayın
-    $pdf_file = $report['siparisNo'] . ' numaralı Sipariş.pdf';
-
-    // send_mail($pdf_file, $pdf_content, $customer, $creator);
-
-    file_put_contents($pdf_file, $pdf_content);
-    // // E-posta ekini tanımlayın
-    $attachment = chunk_split(base64_encode(file_get_contents($pdf_file)));
-
-    try {
-        $mail = new PHPMailer();
-        $mail->IsSMTP();
-        $mail->SMTPDebug = 2;
-        $mail->SMTPAuth = true;
-
-        $mail->SMTPSecure = 'tls';  // Güvenli bağlantı için tls kullanıyoruz
-        $mail->Host = set('mail_host');  // Mail sunucusunun adresi (IP de olabilir)
-        $mail->Port = set('mail_port');
-        $mail->IsHTML(true);
-        $mail->SetLanguage('tr', 'phpmailer/language');
-        $mail->Encoding = 'base64';
-
-        $mail->Username = set('mail_username');  // Gönderici adresiniz (e-posta adresiniz)
-        $mail->Password = set('mail_password');  // Mail adresimizin sifresi
-        $mail->SetFrom('mbeyazilim@gmail.com', set('company_name'));
-
-        // E-posta adreslerini virgül ile ayır ve boş olmayanları filtrele
-        //************************************************************** */
-        $sending_mail_adres = array_filter(array_map('trim', explode(',', $sending_mail_address)));
-        
-        foreach ($sending_mail_adres as $email) {
-            $mail->addAddress($email);  // E-posta adreslerini ekleyin
-        }
-        //************************************************************** */
-
-        $mail->AddAttachment($pdf_file);  // Yüklenen dosyayı ekle
-        $mail->Subject = 'Sipariş Maili';
-        $mail->Body = $mail_body;
-        $mail->CharSet = 'utf-8';
-
-        if ($mail->Send()) {
-            //  $sql = $ac->prepare('INSERT INTO mail_logs SET tomail = ?, from_mail = ? , mail_body= ?, statu = ? ,mail_file =?, sender = ?');
-            //  $sql->execute(array($sending_mail_adres, sesset("email"), $mail->Body, 1, $pdf_file, $creator['id']));
-
-            header('Location: index.php?p=report-send-as-mail&id=' . $id . '&type=purchase&st=success-mail');
-        } else {
-            header('Location:index.php?p=purchases&st=unsuccessful');
-        }
-    } catch (phpmailerException $e) {
-        echo $e->errorMessage();
-    }
-
-    // PDF dosyasını sunucudan silin
-    unlink($pdf_file);
+    send_pdf_email_attachment(
+        $pdf_content,
+        $pdf_attachment_name,
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=purchase&st=success-mail',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=purchase&st=unsuccessful',
+        'Satın Alma Formu' . (!empty($report['siparisNo']) ? ' - ' . $report['siparisNo'] : ''),
+        'Satın alma sipariş formunuz ekte sunulmuştur.'
+    );
 }
+

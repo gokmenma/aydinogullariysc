@@ -453,26 +453,67 @@ foreach ($results as $of) {
     $islem_butonlari .='</div></div></div>';
     
     $canEditOffer = ($of["is_template"] == 1 && checkAuth("template_offer_edit")) || ($of["is_template"] == 0 && checkAuth("offeredit"));
-    $teklifNoCell = $canEditOffer
-        ? '<a href="index.php?p=offers/offer-manage&id=' . (int)$of["id"] . '" class="font-weight-bold text-primary" data-tooltip="Düzenle">' . htmlspecialchars($of['offerNumber']) . '</a>'
-        : htmlspecialchars($of['offerNumber']);
+    $rawOfferNo = (string)($of['offerNumber'] ?? '');
+    $cleanOfferNo = preg_replace('/^TK-?/i', '', trim($rawOfferNo));
+    if ($cleanOfferNo === '') {
+        $cleanOfferNo = $rawOfferNo;
+    }
+    $escapedRawNo = htmlspecialchars($rawOfferNo, ENT_QUOTES, 'UTF-8');
+    $escapedCleanNo = htmlspecialchars($cleanOfferNo, ENT_QUOTES, 'UTF-8');
+
+    if ($canEditOffer) {
+        $teklifNoCell = '<div class="text-center"><a href="index.php?p=offers/offer-manage&id=' . (int)$of["id"] . '" class="offer-no-badge" data-tooltip="Düzenle: ' . $escapedRawNo . '">' . $escapedCleanNo . '</a></div>';
+    } else {
+        $teklifNoCell = '<div class="text-center"><span class="offer-no-badge" data-tooltip="' . $escapedRawNo . '">' . $escapedCleanNo . '</span></div>';
+    }
 
     $customerName = htmlspecialchars(shorted($of["company_name"], 40));
     $customerCell = !empty($of["customer_deleted_at"])
         ? '<span class="text-muted">' . $customerName . ' <small class="badge badge-secondary">Silinmiş</small></span>'
-        : '<a href="index.php?p=customers/manage&id=' . $of["customer_id"] . '">' . $customerName . '</a>';
+        : '<a href="index.php?p=customers/manage&id=' . $of["customer_id"] . '" class="weight-500">' . $customerName . '</a>';
+
+    $islemTarihiHtml = '';
+    if (!empty($of["created_at"])) {
+        try {
+            $cdt = new DateTime($of["created_at"]);
+            $islemTarihiHtml = '<div class="offer-date-cell text-center"><span class="offer-date-d">' . $cdt->format('d.m.Y') . '</span><span class="offer-date-t">' . $cdt->format('H:i') . '</span></div>';
+        } catch (\Throwable $e) {
+            $islemTarihiHtml = '<div class="text-center font-12">' . htmlspecialchars($of["created_at"], ENT_QUOTES, 'UTF-8') . '</div>';
+        }
+    }
+
+    $onayTarihiHtml = '<div class="text-center text-muted font-12">-</div>';
+    if (!empty($of["onay_tarihi"]) && $of["onay_tarihi"] !== '0000-00-00 00:00:00' && $of["onay_tarihi"] !== '0000-00-00') {
+        try {
+            $odt = new DateTime($of["onay_tarihi"]);
+            $hasTime = ($odt->format('H:i') !== '00:00');
+            $onayTarihiHtml = '<div class="offer-date-cell text-center"><span class="offer-date-d">' . $odt->format('d.m.Y') . '</span>' . ($hasTime ? '<span class="offer-date-t">' . $odt->format('H:i') . '</span>' : '') . '</div>';
+        } catch (\Throwable $e) {
+            $onayTarihiHtml = '<div class="text-center font-12">' . htmlspecialchars($of["onay_tarihi"], ENT_QUOTES, 'UTF-8') . '</div>';
+        }
+    }
+
+    $paymentVal = trim((string)($of['payment_period'] ?? ''));
+    $paymentHtml = ($paymentVal !== '')
+        ? '<div class="offer-compact-text text-center font-12">' . htmlspecialchars($paymentVal, ENT_QUOTES, 'UTF-8') . '</div>'
+        : '<div class="text-center text-muted font-12">-</div>';
+
+    $creatorVal = trim((string)($of['creator_name'] ?? ''));
+    $creatorHtml = ($creatorVal !== '')
+        ? '<div class="offer-compact-text font-12 weight-500">' . htmlspecialchars($creatorVal, ENT_QUOTES, 'UTF-8') . '</div>'
+        : '<div class="text-muted font-12">-</div>';
 
     $data[] = [
-        "sira_no"       => $sirano,
-        "islem_tarihi"  => (!empty($of["created_at"]) ? (new DateTime($of["created_at"]))->format('d.m.Y H:i') : ''),
+        "sira_no"       => '<div class="text-center font-12 weight-600 text-muted">' . $sirano . '</div>',
+        "islem_tarihi"  => $islemTarihiHtml,
         "teklif_no"     => $teklifNoCell,
         "musteri"       => $customerCell,
-        "toplam_tutar"  => "₺ " . tlFormat($of["tl_toplam_karsilik"] ?? 0),
-        "durum"         => $durum_badge,
-        "onay_tarihi"   => $of["onay_tarihi"],
-        "konusu"        => htmlspecialchars($of['offer_subject']),
-        "odeme_vadesi"  => htmlspecialchars($of['payment_period']),
-        "teklif_veren"  => htmlspecialchars($of['creator_name']),
+        "toplam_tutar"  => '<div class="text-right font-13 weight-600 text-nowrap">₺ ' . tlFormat($of["tl_toplam_karsilik"] ?? 0) . '</div>',
+        "durum"         => '<div class="text-center">' . $durum_badge . '</div>',
+        "onay_tarihi"   => $onayTarihiHtml,
+        "konusu"        => '<div class="offer-subject-cell">' . htmlspecialchars($of['offer_subject'] ?? '', ENT_QUOTES, 'UTF-8') . '</div>',
+        "odeme_vadesi"  => $paymentHtml,
+        "teklif_veren"  => $creatorHtml,
         "islem"         => $islem_butonlari
     ];
 

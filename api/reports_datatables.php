@@ -123,6 +123,7 @@ $data_query = "
     SELECT 
         r.id,
         r.report_number,
+        r.customer_id,
         r.isemrino,
         r.control_date,
         r.validity_date,
@@ -130,6 +131,7 @@ $data_query = "
         rt.reportName,
         rt.page_link,
         c.company,
+        c.deleted_at as customer_deleted_at,
         u.username as creator_username
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}
@@ -161,17 +163,42 @@ $canViewOffer = permtrue("offerview");
 foreach ($reports_list as $row_data) {
     $row = [];
     $rid = $row_data['id'];
+    $pageLink = $row_data['page_link'] ?? '';
+
+    // Page links
+    $newpagelink = "index.php?p=reports/" . $pageLink . "/report-new-" . $pageLink;
+    $edit_file = ($pageLink == "yas") ? "report-new-" : "report-edit-";
+    $editpagelink = "index.php?p=reports/" . $pageLink . "/" . $edit_file . $pageLink . "&id=" . $rid;
+    $viewpagelink = "index.php?p=reports/" . $pageLink . "/report-view-" . $pageLink . "&id=" . $rid;
+    $send_mail_link = "index.php?p=report-send-as-mail&type=" . $pageLink . "&id=" . $rid;
 
     // 0: ID
     $row[] = htmlspecialchars($rid);
 
-    // 1: Rapor No
-    $row[] = htmlspecialchars($row_data['report_number'] ?? '');
+    // 1: Rapor No (Tıklanınca Raporu Gösterir)
+    $reportNo = htmlspecialchars($row_data['report_number'] ?? '');
+    if (!empty($pageLink) && $reportNo !== '') {
+        $row[] = '<a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="report-num-link font-weight-600 text-primary" data-toggle="tooltip" title="Raporu Göster">' . $reportNo . '</a>';
+    } else {
+        $row[] = $reportNo !== '' ? $reportNo : '-';
+    }
 
-    // 2: Firma
-    $fullName = htmlspecialchars($row_data['company'] ?? '');
-    $shortName = htmlspecialchars(shorted($row_data['company'] ?? '', 40));
-    $row[] = '<span class="text-nowrap" data-tooltip="' . $fullName . '">' . $shortName . '</span>';
+    // 2: Firma (Tıklanınca Firma Detayına Gider)
+    $customerId = (int)($row_data['customer_id'] ?? 0);
+    $companyName = (string)($row_data['company'] ?? '');
+    $fullName = htmlspecialchars($companyName);
+    $shortName = htmlspecialchars(shorted($companyName, 40));
+
+    if (!empty($row_data['customer_deleted_at'])) {
+        $row[] = '<span class="text-nowrap" data-toggle="tooltip" title="' . $fullName . '"><span class="text-muted">' . $shortName . '</span> <small class="crm-badge-soft soft-amber font-11">Silinmiş</small></span>';
+    } elseif ($customerId > 0 && $companyName !== '') {
+        $customerLink = "index.php?p=customers/manage&id=" . $customerId;
+        $row[] = '<span class="text-nowrap" data-toggle="tooltip" title="' . $fullName . '"><a href="' . htmlspecialchars($customerLink) . '" class="report-company-link font-weight-600 text-dark">' . $shortName . '</a></span>';
+    } elseif ($companyName !== '') {
+        $row[] = '<span class="text-nowrap" data-toggle="tooltip" title="' . $fullName . '">' . $shortName . '</span>';
+    } else {
+        $row[] = '<span class="text-muted text-center d-block">-</span>';
+    }
 
     // 3: Rapor Türü
     $row[] = htmlspecialchars($row_data['reportName'] ?? '');
@@ -205,12 +232,6 @@ foreach ($reports_list as $row_data) {
     }
 
     // 9: İşlem (Actions)
-    $newpagelink = "index.php?p=reports/" . $row_data["page_link"] . "/report-new-" . $row_data["page_link"];
-    $edit_file = ($row_data["page_link"] == "yas") ? "report-new-" : "report-edit-";
-    $editpagelink = "index.php?p=reports/" . $row_data["page_link"] . "/" . $edit_file . $row_data["page_link"] . "&id=" . $rid;
-    $viewpagelink = "index.php?p=reports/" . $row_data["page_link"] . "/report-view-" . $row_data["page_link"] . "&id=" . $rid;
-    $send_mail_link = "index.php?p=report-send-as-mail&type=" . $row_data['page_link'] . "&id=" . $rid;
-
     $actions = '<div class="action-btn-group text-center text-nowrap">';
     if ($canEdit) {
         $actions .= '<a type="button" href="' . htmlspecialchars($editpagelink) . '" class="btn btn-sm btn-outline-primary action-btn" data-tooltip="Düzenle">

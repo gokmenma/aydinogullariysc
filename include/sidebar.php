@@ -585,9 +585,14 @@ $pageMenuAliases = [
     // Tanımlamalar (Definitions)
     'edit-unit'                      => ['menu' => 'definitions', 'item' => 'define-units'],
 
+    // Mail & SMS
+    'report-send-as-mail'            => ['menu' => 'mail-sms', 'item' => 'send-mail'],
+
+
     // Sürüm Notları (Version Notes)
     'version-note-manage'            => ['menu' => 'version-notes', 'item' => 'version-notes'],
 ];
+
 
 // Aktif menü ve alt menü tespiti (sayfa yüklenmeden önce sunucu tarafında açık getirmek için)
 $currentP = (string)($_GET['p'] ?? 'home');

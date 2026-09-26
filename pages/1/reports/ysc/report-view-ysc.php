@@ -5,11 +5,18 @@ require 'vendor/autoload.php';
 use Dompdf\Dompdf;
 use App\Helper\Date;
 
-function toBase64($image)
-{
-    $data = base64_encode(file_get_contents($image));
-    return 'data:' . mime_content_type($image) . ';base64,' . $data;
+if (!function_exists('toBase64')) {
+    function toBase64($image)
+    {
+        if (empty($image) || !file_exists($image)) {
+            return '';
+        }
+        $data = base64_encode(file_get_contents($image));
+        $mime = @mime_content_type($image) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . $data;
+    }
 }
+
 
 $id = $_GET['id'];
 
@@ -32,33 +39,8 @@ $controller = $userquery->fetch(PDO::FETCH_ASSOC);
 $userquery->execute(array($report['company_official']));
 $company_offical = $userquery->fetch(PDO::FETCH_ASSOC);
 
-$document = $customer['company'] . '-' . $report['report_number'];
+$document = ($customer['company'] ?? '') . '-' . ($report['report_number'] ?? '');
 
-
-
-
-//Mail ile ilgili alanlar
-//******************************************************************** */
-$mail_body = $_POST['mail_body'] ?? 'Teklif formunuz ekte sunulmuştur.';
-$mail_body = str_replace("\n", '<br>', $mail_body);
-// mail body boş ise default değeri atıyoruz
-$mail_body = $mail_body == '' ? 'Teklif formunuz ekte sunulmuştur.' : $mail_body;
-
-// Kopya mail olarak gönderilecek kullanıcılar
-$mail_address_copy = $_POST['mail_address'];
-
-foreach ($mail_address_copy as $email) {
-    $sending_mail_address .= $email . ',';
-}
-
-// E-posta adreslerini virgül ile ayır ve boş olmayanları filtrele
-$customer_mail = explode(',', $_POST['customer_mail_address']);
-
-// Alıcıları ekleyin
-foreach ($customer_mail as $email) {
-    $sending_mail_address .= $email . ',';
-}
-//******************************************************************** */
 
 
 
@@ -480,25 +462,20 @@ $html .= '        </tbody>
 $html .= '</body>
 
 </html>';
-echo $html;
-
-// reference the Dompdf namespace
-use Dompdf\Options;
-
-use PHPMailer\PHPMailer\PHPMailer;
 
 // instantiate and use the dompdf class
-$options = new Options();
+$options = new \Dompdf\Options();
 $options->set('isPhpEnabled', true);  // PHP kodlarının çalıştırılmasını etkinleştir
-$dompdf = new Dompdf($options);
+$dompdf = new \Dompdf\Dompdf($options);
 $dompdf->loadHtml($html);
 
-// PDf oluştur
+// PDF oluştur
 $dompdf->render();
-// Sayfa sayısını alın
 
-if (!$_GET['send-mail'] == 'true') {
-    ob_end_clean();
+if (empty($_GET['send-mail']) || $_GET['send-mail'] !== 'true') {
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
     // add pagination
     $canvas = $dompdf->getCanvas();  // get the canvas
     $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
@@ -508,7 +485,7 @@ if (!$_GET['send-mail'] == 'true') {
         $width = $fontMetrics->getTextWidth($text, $font, $size);
         $canvas->text(400, 580, $text, $font, $size);
     });
-    $dompdf->stream($pdf_file, array('Attachment' => false));
+    $dompdf->stream($document . '.pdf', array('Attachment' => false));
 } else {
     $canvas = $dompdf->getCanvas();  // get the canvas
     // add the page number and total number of pages
@@ -519,61 +496,13 @@ if (!$_GET['send-mail'] == 'true') {
 
     $pdf_content = $dompdf->output();
 
-    // MAİL GÖNDERİMİ
-    // PDF dosyasını sunucuda geçici olarak saklayın
-    $document = $customer['company'] . '-' . $report['report_number'];
-    $pdf_file = $document . '.pdf';
-
-    // send_mail($pdf_file, $pdf_content, $customer, $creator);
-
-    file_put_contents($pdf_file, $pdf_content);
-    // // E-posta ekini tanımlayın
-    $attachment = chunk_split(base64_encode(file_get_contents($pdf_file)));
-
-    try {
-        $mail = new PHPMailer();
-        $mail->IsSMTP();
-        $mail->SMTPDebug = 2;
-        $mail->SMTPAuth = true;
-
-        $mail->SMTPSecure = 'tls';  // Güvenli bağlantı için tls kullanıyoruz
-        $mail->Host = set('mail_host');  // Mail sunucusunun adresi (IP de olabilir)
-        $mail->Port = set('mail_port');
-        $mail->IsHTML(true);
-        $mail->SetLanguage('tr', 'phpmailer/language');
-        $mail->Encoding = 'base64';
-
-        $mail->Username = set('mail_username');  // Gönderici adresiniz (e-posta adresiniz)
-        $mail->Password = set('mail_password');  // Mail adresimizin sifresi
-        $mail->SetFrom($sender_mail, set('company_name'));
-
-
-        // E-posta adreslerini virgül ile ayır ve boş olmayanları filtrele
-        //************************************************************** */
-        $sending_mail_adres = array_filter(array_map('trim', explode(',', $sending_mail_address)));
-
-        foreach ($sending_mail_adres as $email) {
-            $mail->addAddress($email);  // E-posta adreslerini ekleyin
-        }
-        //************************************************************** */
-
-        $mail->AddAttachment($pdf_file);  // Yüklenen dosyayı ekle
-        $mail->Subject = 'Yangın Söndürme Cihazı Raporu';
-        $mail->Body = 'Rapor ekte sunulmuştur';
-        $mail->CharSet = 'utf-8';
-
-        if ($mail->Send()) {
-            // $sql = $ac->prepare('INSERT INTO mail_logs SET tomail = ?, from_mail = ? , mail_body= ?, statu = ? ,mail_file =?, sender = ?');
-            // $sql->execute(array($sending_mail_adres, $sender_mail, $mail->Body, 1, $pdf_file, $creator['id']));
-
-            header('Location: index.php?p=report-send-as-mail&id=' . $id . '&type=ysc&st=success-mail');
-        } else {
-            header('Location:index.php?p=reports/reports&st=unsuccessful');
-        }
-    } catch (phpmailerException $e) {
-        echo $e->errorMessage();
-    }
-
-    // PDF dosyasını sunucudan silin
-    unlink($pdf_file);
+    send_pdf_email_attachment(
+        $pdf_content,
+        $document . '.pdf',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=ysc&st=success-mail',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)$id) . '&type=ysc&st=unsuccessful',
+        'Yangın Söndürme Tüpü Kontrol Raporu - ' . ($report['report_number'] ?? ''),
+        'Yangın söndürme tüpü kontrol raporunuz ekte sunulmuştur.'
+    );
 }
+

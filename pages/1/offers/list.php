@@ -636,17 +636,17 @@ if (@$_GET["st"] == "success-mail") {
             <table id="offerTable" class="data-table table-hover table-bordered" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>Sıra No</th>
-                        <th class="w-10">Oluşturma Tarihi</th>
-                        <th>Teklif No</th>
-                        <th>Müşteri</th>
-                        <th>Toplam Tl Tutar</th>
-                        <th>Durum</th>
-                        <th>Onay Tarihi</th>
-                        <th>Konusu</th>
-                        <th>Ödeme Vadesi</th>
-                        <th>Teklif Veren</th>
-                        <th class="no-export text-center" style="width: 1%; white-space: nowrap;">İşlem</th>
+                        <th style="width: 40px;">#</th>
+                        <th style="width: 90px;">TARİH</th>
+                        <th style="width: 65px;">T.NO</th>
+                        <th>MÜŞTERİ</th>
+                        <th style="width: 120px;" class="text-right">TOPLAM TL TUTAR</th>
+                        <th style="width: 80px;" class="text-center">DURUM</th>
+                        <th style="width: 90px;" class="text-center">ONAY TARİHİ</th>
+                        <th>KONUSU</th>
+                        <th style="width: 95px;" class="text-center">ÖDEME VADESİ</th>
+                        <th style="width: 110px;">TEKLİF VEREN</th>
+                        <th class="no-export text-center" style="width: 1%; white-space: nowrap;">İŞLEM</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -863,7 +863,88 @@ if (@$_GET["st"] == "success-mail") {
     color: #cbd5e1;
     text-shadow: none;
 }
-    /* DataTables'ın sabit genişliklerini ezmek için */
+/* Teklif Tablosu Optimize Hücre Stilleri */
+#offerTable {
+    width: 100% !important;
+}
+
+#offerTable tbody td {
+    vertical-align: middle !important;
+    padding: 7px 8px !important;
+}
+
+/* Hücre Formatları */
+.offer-date-cell {
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+}
+.offer-date-d {
+    font-weight: 600;
+    font-size: 11.5px;
+    color: #1e293b;
+    display: block;
+}
+.offer-date-t {
+    font-size: 10.5px;
+    color: #64748b;
+    display: block;
+    margin-top: 1px;
+}
+.dark-mode .offer-date-d {
+    color: #f1f5f9;
+}
+.dark-mode .offer-date-t {
+    color: #94a3b8;
+}
+
+.offer-no-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #0369a1 !important;
+    background: #e0f2fe;
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    text-decoration: none !important;
+    letter-spacing: 0.3px;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+.offer-no-badge:hover {
+    background: #0284c7;
+    color: #ffffff !important;
+    border-color: #0284c7;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+.dark-mode .offer-no-badge {
+    background: #1e3a5f;
+    border-color: #0369a1;
+    color: #38bdf8 !important;
+}
+.dark-mode .offer-no-badge:hover {
+    background: #0284c7;
+    color: #ffffff !important;
+}
+
+.offer-compact-text {
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+.offer-subject-cell {
+    line-height: 1.35;
+    word-break: break-word;
+    font-size: 12px;
+    font-weight: 500;
+    color: #334155;
+}
+.dark-mode .offer-subject-cell {
+    color: #cbd5e1;
+}
+
+/* DataTables'ın sabit genişliklerini ezmek için */
 table.dataTable {
     width: 100% !important;
 }
@@ -1079,17 +1160,17 @@ $(document).ready(function() {
             }
         },
         "columns": [
-            { "data": "sira_no", "name": "sira_no", "orderable": false, "searchable": false },
-            { "data": "islem_tarihi", "name": "created_at" }, 
-            { "data": "teklif_no", "name": "offerNumber" },
-            { "data": "musteri", "name": "company" },
-            { "data": "toplam_tutar", "name": "total_price" },
-            { "data": "durum", "name": "durum" },
-            { "data": "onay_tarihi", "name": "onay_tarihi" },
-            { "data": "konusu", "name": "offer_subject" },
-            { "data": "odeme_vadesi", "name": "payment_period" },
-            { "data": "teklif_veren", "name": "creator_name" },
-            { "data": "islem", "orderable": false, "searchable": false, "className": "text-center text-nowrap" }
+            { "data": "sira_no", "name": "sira_no", "orderable": false, "searchable": false, "className": "align-middle text-center" },
+            { "data": "islem_tarihi", "name": "created_at", "className": "align-middle text-center" }, 
+            { "data": "teklif_no", "name": "offerNumber", "className": "align-middle text-center" },
+            { "data": "musteri", "name": "company", "className": "align-middle" },
+            { "data": "toplam_tutar", "name": "total_price", "className": "align-middle text-right" },
+            { "data": "durum", "name": "durum", "className": "align-middle text-center" },
+            { "data": "onay_tarihi", "name": "onay_tarihi", "className": "align-middle text-center" },
+            { "data": "konusu", "name": "offer_subject", "className": "align-middle" },
+            { "data": "odeme_vadesi", "name": "payment_period", "className": "align-middle text-center" },
+            { "data": "teklif_veren", "name": "creator_name", "className": "align-middle" },
+            { "data": "islem", "orderable": false, "searchable": false, "className": "align-middle text-center text-nowrap" }
         ],
         "order": [[ 1, "desc" ]],
         "language": {

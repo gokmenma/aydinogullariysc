@@ -18,6 +18,16 @@ $hstReportsCount = (int)($summary->hst_count ?? 0);
 $otherReportsCount = (int)($summary->other_count ?? 0);
 $totalOtherHstCount = $hstReportsCount + $otherReportsCount;
 $uniqueControllers = (int)($summary->unique_controllers ?? 0);
+
+$reportTypesList = $reportsModel->getReportTypesList();
+$reportTypeMeta = [
+    'ysc' => ['icon' => 'fa fa-fire-extinguisher', 'color' => '#ef4444', 'bg' => '#fef2f2', 'code' => 'YSC', 'desc' => 'Yangın Söndürme Tüpleri'],
+    'hst' => ['icon' => 'fa fa-flask', 'color' => '#0284c7', 'bg' => '#f0f9ff', 'code' => 'HST', 'desc' => 'Hidrostatik Basınç Testi'],
+    'met' => ['icon' => 'fa fa-cogs', 'color' => '#8b5cf6', 'bg' => '#f5f3ff', 'code' => 'MET', 'desc' => 'Mekanik Tesisat Sistemleri'],
+    'yas' => ['icon' => 'fa fa-bell-o', 'color' => '#f59e0b', 'bg' => '#fffbeb', 'code' => 'YAS', 'desc' => 'Yangın Algılama & İhbar'],
+    'oys' => ['icon' => 'fa fa-snowflake-o', 'color' => '#06b6d4', 'bg' => '#ecfeff', 'code' => 'OYS', 'desc' => 'Otomatik Söndürme Sistemleri'],
+    'aas' => ['icon' => 'fa fa-lightbulb-o', 'color' => '#10b981', 'bg' => '#ecfdf5', 'code' => 'AAS', 'desc' => 'Acil Aydınlatma Sistemleri'],
+];
 ?>
 
 <style>
@@ -203,8 +213,8 @@ $uniqueControllers = (int)($summary->unique_controllers ?? 0);
     .dt-header-filter-box .dataTables_filter input {
         border-radius: 8px !important;
         height: 36px !important;
-        width: 220px !important;
-        padding: 6px 12px !important;
+        width: 240px !important;
+        padding: 6px 34px 6px 36px !important;
         border: 1px solid #cbd5e1 !important;
         font-size: 13px !important;
         background: #fafafa;
@@ -362,6 +372,136 @@ $uniqueControllers = (int)($summary->unique_controllers ?? 0);
         color: #e2e8f0 !important;
         border-color: #383838 !important;
     }
+
+    /* Rapor No ve Firma Link Stilleri */
+    #reportTable a.report-num-link {
+        color: #0284c7;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.15s ease, text-decoration 0.15s ease;
+    }
+    #reportTable a.report-num-link:hover {
+        color: #0369a1;
+        text-decoration: underline;
+    }
+    #reportTable a.report-company-link {
+        color: #1e293b;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.15s ease, text-decoration 0.15s ease;
+    }
+    #reportTable a.report-company-link:hover {
+        color: #0284c7;
+        text-decoration: underline;
+    }
+    .dark-mode #reportTable a.report-num-link {
+        color: #38bdf8 !important;
+    }
+    .dark-mode #reportTable a.report-num-link:hover {
+        color: #7dd3fc !important;
+    }
+    .dark-mode #reportTable a.report-company-link {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #reportTable a.report-company-link:hover {
+        color: #38bdf8 !important;
+    }
+
+    /* Report Action Dropdowns */
+    .report-action-dropdown {
+        min-width: 480px;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+        margin-top: 6px;
+        z-index: 1050;
+    }
+    .report-action-dropdown .dropdown-header {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #64748b;
+        padding: 8px 12px 6px 12px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+    }
+    .report-action-dropdown .report-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: #1e293b;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        margin-bottom: 2px;
+    }
+    .report-action-dropdown .report-dropdown-item:last-child {
+        margin-bottom: 0;
+    }
+    .report-action-dropdown .report-dropdown-item:hover {
+        background-color: #f1f5f9;
+        transform: translateX(3px);
+    }
+    .report-dropdown-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+    }
+    .report-action-dropdown .report-dropdown-item:hover .report-dropdown-icon {
+        transform: scale(1.08);
+    }
+    .report-dropdown-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .report-dropdown-title {
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.25;
+        color: #1e293b;
+        white-space: normal;
+    }
+    .report-dropdown-sub {
+        font-size: 11px;
+        color: #64748b;
+        line-height: 1.2;
+        margin-top: 2px;
+    }
+
+    /* Dark Mode Dropdown Overrides */
+    .dark-mode .report-action-dropdown {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+    .dark-mode .report-action-dropdown .dropdown-header {
+        color: #94a3b8 !important;
+        border-bottom-color: #334155 !important;
+    }
+    .dark-mode .report-action-dropdown .report-dropdown-item {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .report-action-dropdown .report-dropdown-item:hover {
+        background-color: #334155 !important;
+    }
+    .dark-mode .report-action-dropdown .report-dropdown-title {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .report-action-dropdown .report-dropdown-sub {
+        color: #94a3b8 !important;
+    }
 </style>
 
 <div class="pd-ltr-20 xs-pd-20-10">
@@ -386,12 +526,54 @@ $uniqueControllers = (int)($summary->unique_controllers ?? 0);
                 <button type="button" class="btn btn-outline-secondary btn-action-outline" id="btnRefreshReports" title="Tabloyu Yenile">
                     <i class="fa fa-refresh"></i> <span class="d-none d-sm-inline">Yenile</span>
                 </button>
-                <a href="#" id="content-view" class="btn btn-outline-success btn-action-outline" data-type="content" data-toggle="modal" data-target="#reporttypeModal" title="İçerik Listesi">
-                    <i class="fa fa-folder-open-o"></i> <span class="d-none d-sm-inline">İçerik Listesi</span>
-                </a>
-                <a href="#" class="btn btn-action-primary" id="report-new" data-type="new" data-toggle="modal" data-target="#reporttypeModal">
-                    <i class="fa fa-plus-circle"></i> <span>Yeni Rapor Oluştur</span>
-                </a>
+                <div class="dropdown d-inline-block">
+                    <button type="button" class="btn btn-outline-success btn-action-outline dropdown-toggle" id="dropdownContentView" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="İçerik Listesi">
+                        <i class="fa fa-folder-open-o"></i> <span class="d-none d-sm-inline">İçerik Listesi</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right report-action-dropdown shadow border-0" aria-labelledby="dropdownContentView">
+                        <div class="dropdown-header">
+                            <i class="fa fa-folder-open mr-1"></i> İçerik Listesi Seçiniz
+                        </div>
+                        <?php foreach ($reportTypesList as $type) : 
+                            $meta = $reportTypeMeta[$type->page_link] ?? ['icon' => 'fa fa-folder-o', 'color' => '#059669', 'bg' => '#ecfdf5', 'code' => strtoupper($type->page_link), 'desc' => ''];
+                            $contentLink = "index.php?p=reports/" . htmlspecialchars($type->page_link, ENT_QUOTES, 'UTF-8') . "/report-content-" . htmlspecialchars($type->page_link, ENT_QUOTES, 'UTF-8') . "&type=" . (int)$type->id;
+                        ?>
+                            <a class="dropdown-item report-dropdown-item" href="<?php echo $contentLink; ?>">
+                                <div class="report-dropdown-icon" style="background-color: <?php echo $meta['bg']; ?>; color: <?php echo $meta['color']; ?>;">
+                                    <i class="<?php echo $meta['icon']; ?>"></i>
+                                </div>
+                                <div class="report-dropdown-text">
+                                    <span class="report-dropdown-title"><?php echo htmlspecialchars($type->reportName, ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="report-dropdown-sub"><?php echo htmlspecialchars($meta['desc'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="dropdown d-inline-block">
+                    <button type="button" class="btn btn-action-primary dropdown-toggle" id="dropdownNewReport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-plus-circle"></i> <span>Yeni Rapor Oluştur</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right report-action-dropdown shadow border-0" aria-labelledby="dropdownNewReport">
+                        <div class="dropdown-header">
+                            <i class="fa fa-plus-square mr-1"></i> Rapor Türü Seçiniz
+                        </div>
+                        <?php foreach ($reportTypesList as $type) : 
+                            $meta = $reportTypeMeta[$type->page_link] ?? ['icon' => 'fa fa-file-text-o', 'color' => '#0284c7', 'bg' => '#f0f9ff', 'code' => strtoupper($type->page_link), 'desc' => ''];
+                            $newLink = "index.php?p=reports/" . htmlspecialchars($type->page_link, ENT_QUOTES, 'UTF-8') . "/report-new-" . htmlspecialchars($type->page_link, ENT_QUOTES, 'UTF-8') . "&type=" . (int)$type->id;
+                        ?>
+                            <a class="dropdown-item report-dropdown-item" href="<?php echo $newLink; ?>">
+                                <div class="report-dropdown-icon" style="background-color: <?php echo $meta['bg']; ?>; color: <?php echo $meta['color']; ?>;">
+                                    <i class="<?php echo $meta['icon']; ?>"></i>
+                                </div>
+                                <div class="report-dropdown-text">
+                                    <span class="report-dropdown-title"><?php echo htmlspecialchars($type->reportName, ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="report-dropdown-sub"><?php echo htmlspecialchars($meta['desc'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -554,39 +736,6 @@ $uniqueControllers = (int)($summary->unique_controllers ?? 0);
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="reporttypeModal" tabindex="-1" role="dialog" aria-labelledby="reporttypeModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reporttypeModalLongTitle">Rapor Türü Seçiniz</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <select name="reporttype" id="reporttype" class="form-control selectpicker" data-style="bg-white border">
-                    <?php
-                    $sql = $ac->prepare("SELECT * FROM report_types ");
-                    $sql->execute();
-
-                    while ($type = $sql->fetch(PDO::FETCH_ASSOC)) {
-                        $newpagelink = "reports/" . $type["page_link"] . "/report-new-" . $type["page_link"];
-                        $content_pagelink = "reports/" . $type["page_link"] . "/report-content-" . $type["page_link"];
-                        ?>
-                        <option value="<?php echo $type["id"] ?>" data-new="<?php echo $newpagelink ?>" data-view="<?php echo $content_pagelink ?>">
-                            <?php echo $type["reportName"] ?>
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
-                <button type="button" id="forwardtoreport" data-type="" class="btn btn-primary">Devam Et</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style>
 /* Sağ Tık (Context Menu) Stilleri */

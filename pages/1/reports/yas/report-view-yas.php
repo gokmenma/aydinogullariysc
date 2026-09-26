@@ -3,15 +3,21 @@ require 'vendor/autoload.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-function toBase64($image) {
-    if(!file_exists($image)) return "";
-    $data = base64_encode(file_get_contents($image));
-    return 'data:' . mime_content_type($image) . ';base64,' . $data;
+if (!function_exists('toBase64')) {
+    function toBase64($image) {
+        if(empty($image) || !file_exists($image)) return "";
+        $data = base64_encode(file_get_contents($image));
+        $mime = @mime_content_type($image) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . $data;
+    }
 }
 
-function drawBox($checked) {
-    return $checked ? '<span style="font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#000;">&#9745;</span>' : '<span style="font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#000;">&#9744;</span>';
+if (!function_exists('drawBox')) {
+    function drawBox($checked) {
+        return $checked ? '<span style="font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#000;">&#9745;</span>' : '<span style="font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#000;">&#9744;</span>';
+    }
 }
+
 
 if (isset($_POST["report_number"]) || isset($_GET["preview"])) {
     $report = array("report_number" => $_POST["report_number"] ?? "TASLAK", "control_date" => $_POST["control_date"] ?? date("d.m.Y"), "next_control_date" => $_POST["next_control_date"] ?? "", "isemrino" => $_POST["isemrino"] ?? "", "customer_id" => $_POST["customer"] ?? 0, "photos" => $_POST["photos_json"] ?? "[]");
@@ -32,14 +38,21 @@ if (isset($_POST["report_number"]) || isset($_GET["preview"])) {
 } else {
     $id = $_GET["id"];
     $query = $ac->prepare("SELECT * from reports where id = ?"); $query->execute(array($id)); $report = $query->fetch(PDO::FETCH_ASSOC);
-    $matters = json_decode($report["report_matters"], true);
-    $dedectors = json_decode($report["dedektor_info"], true);
-    $controller_peak = json_decode($report["controller_peak_info"], true);
-    $cust_id = $report["customer_id"];
+    $matters = is_array($report) && !empty($report["report_matters"]) ? json_decode($report["report_matters"], true) : [];
+    if (!is_array($matters)) { $matters = []; }
+    $dedectors = is_array($report) && !empty($report["dedektor_info"]) ? json_decode($report["dedektor_info"], true) : [];
+    if (!is_array($dedectors)) { $dedectors = []; }
+    $controller_peak = is_array($report) && !empty($report["controller_peak_info"]) ? json_decode($report["controller_peak_info"], true) : [];
+    if (!is_array($controller_peak)) { $controller_peak = []; }
+    $cust_id = $report["customer_id"] ?? 0;
 }
 
 $custquery = $ac->prepare("SELECT * FROM customers WHERE id = ?"); $custquery->execute(array($cust_id)); $customer = $custquery->fetch(PDO::FETCH_ASSOC);
-$header_extra = $matters["header_extra"] ?? array(); $tesis_detay = $matters["tesis_detay"] ?? array(); $bina_tespitleri = $matters["bina_tespitleri"] ?? array(); $olcum_cihazlari = $matters["olcum_cihazlari"] ?? array();
+$header_extra = is_array($matters) ? ($matters["header_extra"] ?? array()) : array();
+$tesis_detay = is_array($matters) ? ($matters["tesis_detay"] ?? array()) : array();
+$bina_tespitleri = is_array($matters) ? ($matters["bina_tespitleri"] ?? array()) : array();
+$olcum_cihazlari = is_array($matters) ? ($matters["olcum_cihazlari"] ?? array()) : array();
+
 
 $html = '<!DOCTYPE html>
 <html lang="tr"><head><meta charset="UTF-8"><style>
@@ -107,38 +120,70 @@ th, td { border: 0.5pt solid #000; padding: 2px 4px; vertical-align: middle; }
 <table>
 <tr class="bg-grey text-center"><td width="40%">Muayene Kriteri</td><td width="10%">Sonuç</td><td width="40%">Muayene Kriteri</td><td width="10%">Sonuç</td></tr>';
 $m_items = ["Yetkili personel var mı?","Acil durum anons sistemi","Bakım kayıtları tutuluyor mu?","Panel çalışma durumu","Dedektör uygunluğu","Buton yerleşimi","Kablo tesisatı","Akülerin durumu","Sesli uyarı yeterliliği","Işıklı uyarı yeterliliği","Duman damperleri izleme","Havalandırma sinyal kontrolü","Söndürme sistemleri entegrasyonu","Akış anahtarları izlenebilirliği","Bina otomasyonu bağlantısı","Basınçlandırma kontrolleri","Asansörlerin davranış kontrolü","Yangın kapıları tutucuları","Gaz dağıtım sistemleri kontrolü","Geçiş kontrol sistemleri","Kablo uygunluğu","Güvenlik devre ayrılması","Acil aydınlatma armatürleri","Panel önü aydınlatma (Lux)","Çıkış yönlendirme işaretleri","Aydınlatma süreleri","Otomatik devreye girme testi","Sistem kütüğü belgesi","Kullanma talimatı var mı?","Adresleme/Harita durumu","Paralel ihbar lambaları","Kısa/Açık devre koruması","Gaz kesme valfleri","Yedek enerji kaynağı","Sistem temizliği","Genel değerlendirme"];
+$inspectionsArr = is_array($matters["inspections"] ?? null) ? $matters["inspections"] : [];
 for($i=0; $i<count($m_items); $i+=2){
-    $html .= '<tr><td>'.($i+1).'. '.$m_items[$i].'</td><td class="text-center"><b>'.($matters["inspections"]["madde".($i+1)] ?? "UYGUN").'</b></td>';
-    if(isset($m_items[$i+1])){ $html .= '<td>'.($i+2).'. '.$m_items[$i+1].'</td><td class="text-center"><b>'.($matters["inspections"]["madde".($i+2)] ?? "UYGUN").'</b></td></tr>'; } else { $html .= '<td></td><td></td></tr>'; }
+    $val1 = $inspectionsArr["madde".($i+1)] ?? "UYGUN";
+    $val2 = $inspectionsArr["madde".($i+2)] ?? "UYGUN";
+    $html .= '<tr><td>'.($i+1).'. '.$m_items[$i].'</td><td class="text-center"><b>'.$val1.'</b></td>';
+    if(isset($m_items[$i+1])){ $html .= '<td>'.($i+2).'. '.$m_items[$i+1].'</td><td class="text-center"><b>'.$val2.'</b></td></tr>'; } else { $html .= '<td></td><td></td></tr>'; }
 }
 $html .= '</table>
+
 <div style="background:#f2f2f2; font-weight:bold; border:0.5pt solid #000; padding:2px; margin-top:5px;">5.2. ÜRÜN LİSTESİ</div>
 <table style="font-size:6.5px;"><tr class="bg-grey text-center"><td>Kod</td><td>Bölüm</td><td>Ekipman</td><td>Yer</td><td>Eriş.</td><td>Mont.</td><td>Test</td><td>Sesli</td><td>Işıklı</td><td>Adr.</td></tr>';
-foreach(($dedectors ?? []) as $d){ $html .= '<tr class="text-center"><td>'.$d["kod"].'</td><td>'.$d["bolum"].'</td><td>'.$d["ekipman"].'</td><td>'.$d["yer"].'</td><td>'.$d["erisim"].'</td><td>'.$d["montaj"].'</td><td>'.$d["test"].'</td><td>'.$d["sesli"].'</td><td>'.$d["isikli"].'</td><td>'.$d["adresleme"].'</td></tr>'; }
+if (is_array($dedectors)) {
+    foreach($dedectors as $d){
+        if (!is_array($d)) continue;
+        $html .= '<tr class="text-center"><td>'.($d["kod"] ?? '').'</td><td>'.($d["bolum"] ?? '').'</td><td>'.($d["ekipman"] ?? '').'</td><td>'.($d["yer"] ?? '').'</td><td>'.($d["erisim"] ?? '').'</td><td>'.($d["montaj"] ?? '').'</td><td>'.($d["test"] ?? '').'</td><td>'.($d["sesli"] ?? '').'</td><td>'.($d["isikli"] ?? '').'</td><td>'.($d["adresleme"] ?? '').'</td></tr>';
+    }
+}
 $html .= '</table>
 
 <div class="page-break"></div>
 <div class="section-header">6. KUSUR AÇIKLAMALARI</div>
-<div class="rich-content" style="height:60px;">'.nl2br($header_extra["kusur_aciklamalari"]).'</div>
+<div class="rich-content" style="height:60px;">'.nl2br($header_extra["kusur_aciklamalari"] ?? '').'</div>
 <div style="font-size:6px; margin:2px;">Kusur derecesi; (*) hafif kusurlu ve (**) ağır kusurlu anlamında kullanılmaktadır.</div>
 
 <div class="section-header">FOTOĞRAFLAR</div>
 <div class="rich-content" style="min-height:80px; text-align:center;">';
 $photos = json_decode($report["photos"] ?? "[]", true);
-if(count($photos) > 0){
+if(is_array($photos) && count($photos) > 0){
     foreach($photos as $p){ $html .= '<img src="'.toBase64($p).'" style="max-width:180px; max-height:120px; margin:5px; border:0.5pt solid #ccc;">'; }
 } else { $html .= '<div style="color:#ccc; padding-top:30px;">Fotoğraf eklenmedi</div>'; }
 $html .= '</div>
 
 <div class="section-header">7. NOTLAR</div>
-<div class="rich-content" style="height:50px;">'.nl2br($header_extra["notlar"]).'</div>
+<div class="rich-content" style="height:50px;">'.nl2br($header_extra["notlar"] ?? '').'</div>
 <div class="section-header">8. SONUÇ VE KANAAT</div>
-<div class="rich-content" style="min-height:120px; font-size:7.5px;">'.nl2br($header_extra["sonuc_kanaat"]).'</div>
+<div class="rich-content" style="min-height:120px; font-size:7.5px;">'.nl2br($header_extra["sonuc_kanaat"] ?? '').'</div>
 <div class="section-header">9. ONAY</div>
-<table><tr><td class="bg-grey" width="30%">Adı Soyadı</td><td width="40%" class="text-center"><b>'.$controller_peak["name"].'</b></td><td width="30%" class="text-center" rowspan="3" style="vertical-align:top;">İmza / Mühür</td></tr><tr><td class="bg-grey">Mesleği</td><td class="text-center">ELEKTRONİK VE HABERLEŞME MÜHENDİSİ</td></tr><tr><td class="bg-grey">Yetki Numarası</td><td class="text-center" style="font-size:6.5px;">Diploma No: '.$controller_peak["diploma"].'<br>EMO Sicil No: '.$controller_peak["emo"].'<br>Ekipnet No: '.$controller_peak["ekipnet"].'</td></tr></table>
+<table><tr><td class="bg-grey" width="30%">Adı Soyadı</td><td width="40%" class="text-center"><b>'.($controller_peak["name"] ?? '').'</b></td><td width="30%" class="text-center" rowspan="3" style="vertical-align:top;">İmza / Mühür</td></tr><tr><td class="bg-grey">Mesleği</td><td class="text-center">ELEKTRONİK VE HABERLEŞME MÜHENDİSİ</td></tr><tr><td class="bg-grey">Yetki Numarası</td><td class="text-center" style="font-size:6.5px;">Diploma No: '.($controller_peak["diploma"] ?? '').'<br>EMO Sicil No: '.($controller_peak["emo"] ?? '').'<br>Ekipnet No: '.($controller_peak["ekipnet"] ?? '').'</td></tr></table>
 </body></html>';
 
-$options = new Options(); $options->set('isPhpEnabled', true); $options->set('isRemoteEnabled', true);
-$dompdf = new Dompdf($options); $dompdf->loadHtml($html); $dompdf->setPaper('A4', 'portrait'); $dompdf->render();
-ob_end_clean(); $dompdf->stream($report["report_number"].".pdf", array("Attachment" => false));
+
+$options = new Options();
+$options->set('isPhpEnabled', true);
+$options->set('isRemoteEnabled', true);
+$dompdf = new Dompdf($options);
+$dompdf->loadHtml($html);
+$dompdf->setPaper('A4', 'portrait');
+$dompdf->render();
+
+if (empty($_GET['send-mail']) || $_GET['send-mail'] !== 'true') {
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+    $dompdf->stream($report["report_number"] . ".pdf", array("Attachment" => false));
+} else {
+    $pdf_content = $dompdf->output();
+    send_pdf_email_attachment(
+        $pdf_content,
+        $report["report_number"] . '.pdf',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)($report['id'] ?? $id)) . '&type=yas&st=success-mail',
+        'index.php?p=report-send-as-mail&id=' . urlencode((string)($report['id'] ?? $id)) . '&type=yas&st=unsuccessful',
+        'Yangın Algılama Sistemi Kontrol Raporu - ' . ($report['report_number'] ?? ''),
+        'Yangın algılama sistemi kontrol raporunuz ekte sunulmuştur.'
+    );
+}
 ?>
+
