@@ -88,14 +88,16 @@ $module_icons = [
 
 // ─── Aktif Tab Belirleme (Varsayılan: 'dashboard') ───
 $active_tab = $_GET['tab'] ?? 'dashboard';
-if (!in_array($active_tab, ['dashboard', 'logs'], true)) {
+if (!in_array($active_tab, ['dashboard', 'logs', 'archive'], true)) {
     $active_tab = 'dashboard';
 }
+$list_table = $active_tab === 'archive' ? 'logs_archive' : 'logs';
+$list_tab = $active_tab === 'archive' ? 'archive' : 'logs';
 
 // ─── İstatistikleri ve Dashboard Verilerini Hesapla ───
 try {
     // 1. Temel KPI'lar
-    $total_logs = (int)$ac->query("SELECT COUNT(*) FROM logs")->fetchColumn();
+    $total_logs = (int)$ac->query("SELECT (SELECT COUNT(*) FROM logs) + (SELECT COUNT(*) FROM logs_archive)")->fetchColumn();
     $total_today = (int)$ac->query("SELECT COUNT(*) FROM logs WHERE event_type IS NOT NULL AND event_type <> 'view' AND DATE(COALESCE(created_at, STR_TO_DATE(dates, '%d-%m-%Y'))) = CURDATE()")->fetchColumn();
     $logins_today = (int)$ac->query("SELECT COUNT(*) FROM logs WHERE (event_type = 'login' OR action LIKE '%giriş yaptı%' OR message LIKE '%giriş yaptı%' OR summary LIKE '%giriş yaptı%') AND DATE(COALESCE(created_at, STR_TO_DATE(dates, '%d-%m-%Y'))) = CURDATE()")->fetchColumn();
     $errors_today = (int)$ac->query("SELECT COUNT(*) FROM logs WHERE level IN ('ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY') AND DATE(COALESCE(created_at, STR_TO_DATE(dates, '%d-%m-%Y'))) = CURDATE()")->fetchColumn();
@@ -315,20 +317,20 @@ $where_sql = count($where) > 0 ? "WHERE " . implode(" AND ", $where) : "";
 
 try {
     // Toplam satır sayısı
-    $count_stmt = $ac->prepare("SELECT COUNT(*) FROM logs $where_sql");
+    $count_stmt = $ac->prepare("SELECT COUNT(*) FROM {$list_table} $where_sql");
     $count_stmt->execute($params);
     $total_rows = (int)$count_stmt->fetchColumn();
     $total_pages = ceil($total_rows / $limit);
 
     // Kayıtları çek
-    $logs_stmt = $ac->prepare("SELECT * FROM logs $where_sql ORDER BY id DESC LIMIT $limit OFFSET $offset");
+    $logs_stmt = $ac->prepare("SELECT * FROM {$list_table} $where_sql ORDER BY id DESC LIMIT $limit OFFSET $offset");
     $logs_stmt->execute($params);
     $logs = $logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Kullanıcı listesi
     $users_stmt = $ac->query("SELECT id, username FROM users ORDER BY username ASC");
     $all_users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
-    $modules_stmt = $ac->query("SELECT DISTINCT module FROM logs WHERE module IS NOT NULL AND module <> '' ORDER BY module");
+    $modules_stmt = $ac->query("SELECT DISTINCT module FROM {$list_table} WHERE module IS NOT NULL AND module <> '' ORDER BY module");
     $all_modules = $modules_stmt->fetchAll(PDO::FETCH_COLUMN);
 
     // Sütun filtre seçenek sayıları (Tüm veritabanı toplamları)
@@ -340,7 +342,7 @@ try {
     try {
         $stLogUsers = $ac->query("
             SELECT COALESCE(u.username, CONCAT('Kullanıcı #', l.author)) as uname, COUNT(*) as cnt 
-            FROM logs l 
+            FROM {$list_table} l
             LEFT JOIN users u ON u.id = COALESCE(NULLIF(l.user_id, 0), l.author)
             WHERE u.username IS NOT NULL AND u.username != ''
             GROUP BY uname ORDER BY cnt DESC
@@ -351,7 +353,7 @@ try {
 
         $stLogEvents = $ac->query("
             SELECT COALESCE(NULLIF(event_type, ''), 'view') as ev, COUNT(*) as cnt 
-            FROM logs 
+            FROM {$list_table}
             GROUP BY ev ORDER BY cnt DESC
         ");
         if ($stLogEvents) {
@@ -364,7 +366,7 @@ try {
 
         $stLogModules = $ac->query("
             SELECT module, COUNT(*) as cnt 
-            FROM logs 
+            FROM {$list_table}
             WHERE module IS NOT NULL AND module != '' 
             GROUP BY module ORDER BY cnt DESC
         ");
@@ -427,6 +429,9 @@ if (!function_exists('formatRelativeTime')) {
                         </a>
                         <a href="index.php?p=logs/index&tab=logs" class="logs-switch-btn <?php echo $active_tab === 'logs' ? 'active' : ''; ?>">
                             <i class="fa fa-list mr-1"></i> Aktivite Günlüğü
+                        </a>
+                        <a href="index.php?p=logs/index&tab=archive" class="logs-switch-btn <?php echo $active_tab === 'archive' ? 'active' : ''; ?>">
+                            <i class="fa fa-archive mr-1"></i> Arşiv
                         </a>
                     </div>
                 </div>
@@ -764,7 +769,7 @@ if (!function_exists('formatRelativeTime')) {
         <!-- ========================================================================= -->
         <!-- 4. AKTİVİTE GÜNLÜĞÜ VE GELİŞMİŞ FİLTRELEME (TAB = LOGS) -->
         <!-- ========================================================================= -->
-        <div class="logs-table-view <?php echo $active_tab !== 'logs' ? 'd-none' : ''; ?>">
+        <div class="logs-table-view <?php echo !in_array($active_tab, ['logs', 'archive'], true) ? 'd-none' : ''; ?>">
             
             <!-- Teklifler Tarzı Liste Card -->
             <div class="form-card animate-fade-in mx-1 mb-4">
@@ -774,15 +779,15 @@ if (!function_exists('formatRelativeTime')) {
                             <i class="fa fa-list"></i>
                         </div>
                         <div>
-                            <h5>Aktivite Listesi & Filtreleme</h5>
-                            <p>Anlık arama, sütun filtreleme ve sistem işlem kayıtları</p>
+                            <h5><?php echo $active_tab === 'archive' ? 'Arşivlenmiş Aktiviteler' : 'Aktivite Listesi & Filtreleme'; ?></h5>
+                            <p><?php echo $active_tab === 'archive' ? 'Saklama politikası kapsamında aktif tablodan taşınan geçmiş kayıtlar' : 'Anlık arama, sütun filtreleme ve sistem işlem kayıtları'; ?></p>
                         </div>
                     </div>
                     <div class="d-flex align-items-center" style="gap: 8px;">
                         <button type="button" id="btnToggleFilters" class="btn btn-outline-secondary btn-action-outline" style="height: 34px;">
                             <i class="fa fa-filter"></i> <span class="d-none d-sm-inline">Filtreleri Göster / Gizle</span>
                         </button>
-                        <a href="index.php?p=logs/index&tab=logs" class="btn btn-outline-secondary btn-action-outline" style="height: 34px;" title="Filtreleri Sıfırla">
+                        <a href="index.php?p=logs/index&tab=<?php echo $list_tab; ?>" class="btn btn-outline-secondary btn-action-outline" style="height: 34px;" title="Filtreleri Sıfırla">
                             <i class="fa fa-undo"></i> <span class="d-none d-sm-inline">Sıfırla</span>
                         </a>
                     </div>
@@ -792,7 +797,7 @@ if (!function_exists('formatRelativeTime')) {
                 <div id="filtersCollapse" class="filters-form p-3" style="display: none; border-bottom: 1px solid #e5e7eb;">
                     <form method="GET" action="index.php" id="activityFilterForm">
                         <input type="hidden" name="p" value="logs/index">
-                        <input type="hidden" name="tab" value="logs">
+                        <input type="hidden" name="tab" value="<?php echo $list_tab; ?>">
                         <div class="row">
                             <!-- Kullanıcı -->
                             <div class="col-md-3 mb-10">
@@ -1948,6 +1953,7 @@ $(document).ready(function() {
                         filter_end_date: $('input[name="filter_end_date"]').val(),
                         filter_search: $('input[name="filter_search"]').val()
                     };
+                    d.source = <?php echo json_encode($active_tab === 'archive' ? 'archive' : 'active'); ?>;
                 },
                 error: function(xhr, error, thrown) {
                     console.error("DataTables Logs AJAX Error:", xhr, error, thrown);

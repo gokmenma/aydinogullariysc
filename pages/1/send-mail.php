@@ -428,11 +428,11 @@ if ($statusParam === 'true' || $statusParam === 'success') {
     color: #64748b !important;
 }
 
-/* HOVER & HIGHLIGHTED DURUM: Yüksek Kontrastlı Koyu Mavi Arka Plan */
+/* HOVER & HIGHLIGHTED DURUM: Dinamik Tema Rengi */
 .select2-container--default .select2-results__option--highlighted[aria-selected],
 .select2-container--default .select2-results__option--highlighted,
 .select2-results__option:hover {
-    background: #1d4ed8 !important;
+    background: var(--topbar-color, var(--theme-primary, #1d4ed8)) !important;
     color: #ffffff !important;
 }
 
@@ -447,7 +447,7 @@ if ($statusParam === 'true' || $statusParam === 'success') {
 .select2-container--default .select2-results__option--highlighted .recipient-sub i,
 .select2-results__option:hover .recipient-sub,
 .select2-results__option:hover .recipient-sub i {
-    color: #dbeafe !important;
+    color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* Yeni Tag Ekleme Seçeneği */

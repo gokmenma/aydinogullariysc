@@ -17,6 +17,9 @@ if (!in_array(sesset("id"), [1, 12])) {
 
 global $ac;
 
+$source = ($_POST['source'] ?? 'active') === 'archive' ? 'archive' : 'active';
+$logTable = $source === 'archive' ? 'logs_archive' : 'logs';
+
 $event_labels = [
     'view' => 'Sayfa Ziyareti',
     'login' => 'Giriş',
@@ -338,10 +341,10 @@ foreach ($columns_post as $idx => $cData) {
 
 $where_sql = count($where) > 0 ? "WHERE " . implode(" AND ", $where) : "";
 
-$base_from = "FROM logs l LEFT JOIN users u ON u.id = COALESCE(NULLIF(l.user_id, 0), l.author)";
+$base_from = "FROM {$logTable} l LEFT JOIN users u ON u.id = COALESCE(NULLIF(l.user_id, 0), l.author)";
 
 // Total count
-$total_query = $ac->query("SELECT COUNT(*) FROM logs");
+$total_query = $ac->query("SELECT COUNT(*) FROM {$logTable}");
 $recordsTotal = (int)$total_query->fetchColumn();
 
 // Filtered count

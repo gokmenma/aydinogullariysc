@@ -401,8 +401,8 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
     .form-field .select2-container--default.select2-container--open .select2-selection--single,
     .form-field .select2-container--default.select2-container--focus .select2-selection--multiple,
     .form-field .select2-container--default.select2-container--open .select2-selection--multiple {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+        border-color: var(--topbar-color, var(--theme-primary, #3b82f6)) !important;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #3b82f6)) 18%, transparent) !important;
         background: #fff !important;
     }
 

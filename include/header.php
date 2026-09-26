@@ -527,6 +527,146 @@ $maintenanceHeaderJson = htmlspecialchars(
 					</div>
 					<div class="theme-preset-name">Titan Okyanus</div>
 				</div>
+
+				<!-- 26. Gradient Siber Mor (Sidebar Tonundan Royale Mora Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-mor" onclick="selectThemePreset('gradient-mor');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #1e1b4b 0%, #4338ca 45%, #7c3aed 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #1e1b4b;"></div>
+							<div class="theme-preview-content" style="background: #faf5ff;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #4338ca, #7c3aed);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Siber Mor</div>
+				</div>
+
+				<!-- 27. Gradient Safir Okyanus (Sidebar Tonundan Derin Maviye Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-safir" onclick="selectThemePreset('gradient-safir');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 45%, #0284c7 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #0f172a;"></div>
+							<div class="theme-preview-content" style="background: #f0f9ff;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #1e3a8a, #0284c7);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Safir Okyanus</div>
+				</div>
+
+				<!-- 28. Gradient Zümrüt Gece (Sidebar Tonundan Zümrüt Yeşiline Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-zumrut" onclick="selectThemePreset('gradient-zumrut');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #132a24 0%, #065f46 45%, #059669 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #132a24;"></div>
+							<div class="theme-preview-content" style="background: #f0fdf4;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #065f46, #059669);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Zümrüt Gece</div>
+				</div>
+
+				<!-- 29. Gradient Yakut Bordo (Sidebar Tonundan Ateş Yakuta Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-yakut" onclick="selectThemePreset('gradient-yakut');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #1e1117 0%, #881337 45%, #e11d48 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #1e1117;"></div>
+							<div class="theme-preview-content" style="background: #fff1f2;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #881337, #e11d48);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Yakut Bordo</div>
+				</div>
+
+				<!-- 30. Gradient Gün Batımı (Sidebar Tonundan Altın Ambere Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-amber" onclick="selectThemePreset('gradient-amber');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #1c1917 0%, #9a3412 45%, #ea580c 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #1c1917;"></div>
+							<div class="theme-preview-content" style="background: #fff7ed;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #9a3412, #ea580c);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Gün Batımı</div>
+				</div>
+
+				<!-- 31. Gradient Siber Petrol (Sidebar Tonundan Turkuaz Yeşiline Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-petrol" onclick="selectThemePreset('gradient-petrol');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #0d1f1e 0%, #115e59 45%, #0d9488 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #0d1f1e;"></div>
+							<div class="theme-preview-content" style="background: #f0fdfa;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #115e59, #0d9488);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Siber Petrol</div>
+				</div>
+
+				<!-- 32. Gradient Kozmik Lacivert (Sidebar Tonundan Elektrik Mavisine Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-lacivert" onclick="selectThemePreset('gradient-lacivert');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #0a0f1d 0%, #1e3a8a 45%, #3b82f6 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #0a0f1d;"></div>
+							<div class="theme-preview-content" style="background: #f0f9ff;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #1e3a8a, #3b82f6);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Kozmik Lacivert</div>
+				</div>
+
+				<!-- 33. Gradient Titanyum Çelik (Sidebar Tonundan Çelik Griye Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-titanyum" onclick="selectThemePreset('gradient-titanyum');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #18181b 0%, #334155 45%, #64748b 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #18181b;"></div>
+							<div class="theme-preview-content" style="background: #f8fafc;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #334155, #64748b);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Titanyum Çelik</div>
+				</div>
+
+				<!-- 34. Gradient Siber Fuşya (Sidebar Tonundan Neon Pembe-Mora Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-magenta" onclick="selectThemePreset('gradient-magenta');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #1f1124 0%, #831843 45%, #db2777 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #1f1124;"></div>
+							<div class="theme-preview-content" style="background: #fdf2f8;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #831843, #db2777);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Siber Fuşya</div>
+				</div>
+
+				<!-- 35. Gradient Lüks Altın (Sidebar Obsidyenden Parlayan Altına Akış) -->
+				<div class="theme-preset-card" data-preset="gradient-altin" onclick="selectThemePreset('gradient-altin');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: linear-gradient(90deg, #18181b 0%, #713f12 45%, #ca8a04 100%);"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #18181b;"></div>
+							<div class="theme-preview-content" style="background: #fefce8;">
+								<div class="theme-preview-pill" style="background: linear-gradient(90deg, #713f12, #ca8a04);"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Gradient Lüks Altın</div>
+				</div>
 			</div>
 		</div>
 
@@ -536,6 +676,7 @@ $maintenanceHeaderJson = htmlspecialchars(
 			<span class="theme-customizer-badge" style="background: #dbeafe; color: #2563eb;">Üst Bar</span>
 		</div>
 		<div class="theme-color-palette-grid">
+			<!-- Düz Renkler -->
 			<button type="button" class="theme-color-swatch-btn" data-topbar="mavi" onclick="selectTopbarTheme('mavi', true);">
 				<span class="theme-color-dot" style="background: #2563eb;"></span>
 				<span class="theme-color-label">Mavi</span>
@@ -600,6 +741,48 @@ $maintenanceHeaderJson = htmlspecialchars(
 				<span class="theme-color-dot" style="background: #f5f5f4; border: 1px solid #d6d3d1;"></span>
 				<span class="theme-color-label">Soft Vizon</span>
 			</button>
+
+			<!-- Gradient (Degrade) Topbar Seçenekleri -->
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-mor" onclick="selectTopbarTheme('gradient-mor', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #1e1b4b 0%, #7c3aed 100%);"></span>
+				<span class="theme-color-label">Grad. Mor</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-safir" onclick="selectTopbarTheme('gradient-safir', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #0f172a 0%, #0284c7 100%);"></span>
+				<span class="theme-color-label">Grad. Safir</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-zumrut" onclick="selectTopbarTheme('gradient-zumrut', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #132a24 0%, #059669 100%);"></span>
+				<span class="theme-color-label">Grad. Zümrüt</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-yakut" onclick="selectTopbarTheme('gradient-yakut', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #1e1117 0%, #e11d48 100%);"></span>
+				<span class="theme-color-label">Grad. Yakut</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-amber" onclick="selectTopbarTheme('gradient-amber', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #1c1917 0%, #ea580c 100%);"></span>
+				<span class="theme-color-label">Grad. Gün Batımı</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-petrol" onclick="selectTopbarTheme('gradient-petrol', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #0d1f1e 0%, #0d9488 100%);"></span>
+				<span class="theme-color-label">Grad. Petrol</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-lacivert" onclick="selectTopbarTheme('gradient-lacivert', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #0a0f1d 0%, #3b82f6 100%);"></span>
+				<span class="theme-color-label">Grad. Lacivert</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-titanyum" onclick="selectTopbarTheme('gradient-titanyum', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #18181b 0%, #64748b 100%);"></span>
+				<span class="theme-color-label">Grad. Çelik</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-magenta" onclick="selectTopbarTheme('gradient-magenta', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #1f1124 0%, #db2777 100%);"></span>
+				<span class="theme-color-label">Grad. Fuşya</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-topbar="gradient-altin" onclick="selectTopbarTheme('gradient-altin', true);">
+				<span class="theme-color-dot" style="background: linear-gradient(135deg, #18181b 0%, #ca8a04 100%);"></span>
+				<span class="theme-color-label">Grad. Altın</span>
+			</button>
 		</div>
 
 		<!-- 3. Bölüm: Sidebar (Sol Menü) Rengi -->
@@ -644,6 +827,26 @@ $maintenanceHeaderJson = htmlspecialchars(
 				<span class="theme-color-dot" style="background: #1e1117;"></span>
 				<span class="theme-color-label">Koyu Bordo</span>
 			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-okyanus" onclick="selectSidebarTheme('koyu-okyanus', true);">
+				<span class="theme-color-dot" style="background: #0f172a;"></span>
+				<span class="theme-color-label">Koyu Okyanus</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-volkan" onclick="selectSidebarTheme('koyu-volkan', true);">
+				<span class="theme-color-dot" style="background: #1c1917;"></span>
+				<span class="theme-color-label">Koyu Volkan</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-petrol" onclick="selectSidebarTheme('koyu-petrol', true);">
+				<span class="theme-color-dot" style="background: #0d1f1e;"></span>
+				<span class="theme-color-label">Koyu Petrol</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-nebula" onclick="selectSidebarTheme('koyu-nebula', true);">
+				<span class="theme-color-dot" style="background: #0a0f1d;"></span>
+				<span class="theme-color-label">Koyu Nebula</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-sidebar="koyu-magenta" onclick="selectSidebarTheme('koyu-magenta', true);">
+				<span class="theme-color-dot" style="background: #1f1124;"></span>
+				<span class="theme-color-label">Koyu Fuşya</span>
+			</button>
 			<button type="button" class="theme-color-swatch-btn" data-sidebar="platin-gri" onclick="selectSidebarTheme('platin-gri', true);">
 				<span class="theme-color-dot" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></span>
 				<span class="theme-color-label">Platin Gri</span>
@@ -654,7 +857,71 @@ $maintenanceHeaderJson = htmlspecialchars(
 			</button>
 		</div>
 
-		<!-- 4. Bölüm: Yazı Tipi (Font) Seçimi -->
+		<!-- 4. Bölüm: Vurgu & Birincil Renk (Primary Color) -->
+		<div class="theme-customizer-section-title-wrap mt-4">
+			<h6 class="theme-customizer-section-title">Vurgu & Birincil Renk (Primary)</h6>
+			<span class="theme-customizer-badge" style="background: #fef3c7; color: #b45309;">Buton & Focus</span>
+		</div>
+		<div class="theme-color-palette-grid">
+			<button type="button" class="theme-color-swatch-btn" data-primary="mavi" onclick="selectPrimaryTheme('#2563eb', 'mavi', true);">
+				<span class="theme-color-dot" style="background: #2563eb;"></span>
+				<span class="theme-color-label">Mavi</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="zumrut" onclick="selectPrimaryTheme('#059669', 'zumrut', true);">
+				<span class="theme-color-dot" style="background: #059669;"></span>
+				<span class="theme-color-label">Zümrüt</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="mor" onclick="selectPrimaryTheme('#7c3aed', 'mor', true);">
+				<span class="theme-color-dot" style="background: #7c3aed;"></span>
+				<span class="theme-color-label">Mor</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="rose" onclick="selectPrimaryTheme('#e11d48', 'rose', true);">
+				<span class="theme-color-dot" style="background: #e11d48;"></span>
+				<span class="theme-color-label">Rose</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="bordo" onclick="selectPrimaryTheme('#9f1239', 'bordo', true);">
+				<span class="theme-color-dot" style="background: #9f1239;"></span>
+				<span class="theme-color-label">Bordo</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="amber" onclick="selectPrimaryTheme('#ea580c', 'amber', true);">
+				<span class="theme-color-dot" style="background: #ea580c;"></span>
+				<span class="theme-color-label">Amber</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="altin" onclick="selectPrimaryTheme('#ca8a04', 'altin', true);">
+				<span class="theme-color-dot" style="background: #ca8a04;"></span>
+				<span class="theme-color-label">Altın</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="safir" onclick="selectPrimaryTheme('#0284c7', 'safir', true);">
+				<span class="theme-color-dot" style="background: #0284c7;"></span>
+				<span class="theme-color-label">Safir</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="petrol" onclick="selectPrimaryTheme('#0f766e', 'petrol', true);">
+				<span class="theme-color-dot" style="background: #0f766e;"></span>
+				<span class="theme-color-label">Petrol</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="indigo" onclick="selectPrimaryTheme('#4f46e5', 'indigo', true);">
+				<span class="theme-color-dot" style="background: #4f46e5;"></span>
+				<span class="theme-color-label">İndigo</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="magenta" onclick="selectPrimaryTheme('#db2777', 'magenta', true);">
+				<span class="theme-color-dot" style="background: #db2777;"></span>
+				<span class="theme-color-label">Fuşya</span>
+			</button>
+			<button type="button" class="theme-color-swatch-btn" data-primary="slate" onclick="selectPrimaryTheme('#475569', 'slate', true);">
+				<span class="theme-color-dot" style="background: #475569;"></span>
+				<span class="theme-color-label">Çelik Slate</span>
+			</button>
+			<!-- Özel Renk Seçici -->
+			<div class="theme-custom-color-picker-wrap" style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 6px 12px; border-radius: 8px; margin-top: 4px;">
+				<div style="display: flex; align-items: center; gap: 8px;">
+					<input type="color" id="customPrimaryColorPicker" style="width: 28px; height: 28px; border: none; border-radius: 6px; cursor: pointer; padding: 0; background: transparent;" value="#2563eb" oninput="selectPrimaryTheme(this.value, 'custom', true);">
+					<label for="customPrimaryColorPicker" style="margin: 0; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer;">Özel Renk Seç (HEX)</label>
+				</div>
+				<span id="customPrimaryHexLabel" style="font-size: 11px; font-family: monospace; color: #64748b; font-weight: 600;">#2563eb</span>
+			</div>
+		</div>
+
+		<!-- 5. Bölüm: Yazı Tipi (Font) Seçimi -->
 		<div class="theme-customizer-section-title-wrap mt-4">
 			<h6 class="theme-customizer-section-title">Yazı Tipi (Font)</h6>
 			<span class="theme-customizer-badge" style="background: #e0f2fe; color: #0284c7;">Tipografi</span>

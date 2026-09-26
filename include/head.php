@@ -163,6 +163,76 @@
 		window.syncWysihtml5Theme();
 	};
 
+	// Primary (Birincil / Vurgu) Rengi Değiştirme Fonksiyonu
+	window.selectPrimaryTheme = function(hexColor, nameKey, isManual) {
+		if (!hexColor) return;
+		try {
+			if (isManual) {
+				localStorage.setItem('app_primary_manual', 'true');
+			}
+			localStorage.setItem('app_primary_color', hexColor);
+			localStorage.setItem('app_primary_name', nameKey || 'custom');
+		} catch (err) {}
+
+		var html = document.documentElement;
+		html.style.setProperty('--theme-primary', hexColor);
+		html.style.setProperty('--theme-primary-hover', hexColor);
+		html.style.setProperty('--theme-primary-shadow', 'color-mix(in srgb, ' + hexColor + ' 30%, transparent)');
+		html.style.setProperty('--theme-primary-light', 'color-mix(in srgb, ' + hexColor + ' 12%, #ffffff)');
+		html.style.setProperty('--focus-color', hexColor);
+
+		if (document.body) {
+			document.body.style.setProperty('--theme-primary', hexColor);
+			document.body.style.setProperty('--theme-primary-hover', hexColor);
+			document.body.style.setProperty('--theme-primary-shadow', 'color-mix(in srgb, ' + hexColor + ' 30%, transparent)');
+			document.body.style.setProperty('--theme-primary-light', 'color-mix(in srgb, ' + hexColor + ' 12%, #ffffff)');
+			document.body.style.setProperty('--focus-color', hexColor);
+		}
+
+		var topbarTheme = html.getAttribute('data-topbar-theme') || 'mavi';
+		var isLightTopbar = ['beyaz', 'lavanta', 'adacayi', 'buz-mavisi', 'vizon'].indexOf(topbarTheme) !== -1;
+		if (isLightTopbar) {
+			html.style.setProperty('--focus-color', hexColor);
+			if (document.body) document.body.style.setProperty('--focus-color', hexColor);
+		}
+
+		var picker = document.getElementById('customPrimaryColorPicker');
+		var hexLabel = document.getElementById('customPrimaryHexLabel');
+		if (picker) picker.value = hexColor.startsWith('#') && hexColor.length === 7 ? hexColor : '#2563eb';
+		if (hexLabel) hexLabel.textContent = hexColor;
+
+		window.syncActivePrimaryButtons();
+	};
+
+	// Aktif Primary Butonunu Eşitleme
+	window.syncActivePrimaryButtons = function() {
+		var activeName = localStorage.getItem('app_primary_name') || '';
+		var activeColor = localStorage.getItem('app_primary_color') || '';
+		
+		document.querySelectorAll('[data-primary]').forEach(function(btn) {
+			if (btn.getAttribute('data-primary') === activeName) {
+				btn.classList.add('active');
+			} else {
+				btn.classList.remove('active');
+			}
+		});
+
+		var pickerWrap = document.querySelector('.theme-custom-color-picker-wrap');
+		if (pickerWrap) {
+			if (activeName === 'custom') {
+				pickerWrap.style.borderColor = '#2563eb';
+				pickerWrap.style.background = '#eff6ff';
+			} else {
+				pickerWrap.style.borderColor = '#cbd5e1';
+				pickerWrap.style.background = '#f8fafc';
+			}
+		}
+		var picker = document.getElementById('customPrimaryColorPicker');
+		var hexLabel = document.getElementById('customPrimaryHexLabel');
+		if (picker && activeColor && activeColor.startsWith('#') && activeColor.length === 7) picker.value = activeColor;
+		if (hexLabel && activeColor) hexLabel.textContent = activeColor;
+	};
+
 	// Tema Özelleştirici Aç / Kapat
 	window.openThemeCustomizer = function(e) {
 		if (e) {
@@ -176,6 +246,7 @@
 		window.syncActiveThemePresetCard();
 		window.syncActiveTopbarButtons();
 		window.syncActiveSidebarButtons();
+		window.syncActivePrimaryButtons();
 		window.syncActiveThemeFontButtons();
 		window.syncActiveThemeWeightButtons();
 	};
@@ -259,7 +330,17 @@
 		'kul-amber': 'urbanist',
 		'petrol-tas': 'plus-jakarta-sans',
 		'platin-mavi': 'sora',
-		'titan-okyanus': 'outfit'
+		'titan-okyanus': 'outfit',
+		'gradient-mor': 'outfit',
+		'gradient-safir': 'plus-jakarta-sans',
+		'gradient-zumrut': 'manrope',
+		'gradient-yakut': 'figtree',
+		'gradient-amber': 'urbanist',
+		'gradient-petrol': 'space-grotesk',
+		'gradient-lacivert': 'sora',
+		'gradient-titanyum': 'dm-sans',
+		'gradient-magenta': 'outfit',
+		'gradient-altin': 'montserrat'
 	};
 
 	// Hazır Tema -> Varsayılan Topbar & Sidebar Eşleştirme Haritası
@@ -288,7 +369,17 @@
 		'kul-amber': { topbar: 'amber', sidebar: 'slate-gri' },
 		'petrol-tas': { topbar: 'petrol', sidebar: 'antrasit-gri' },
 		'platin-mavi': { topbar: 'safir', sidebar: 'platin-gri' },
-		'titan-okyanus': { topbar: 'lacivert', sidebar: 'titan-gri' }
+		'titan-okyanus': { topbar: 'lacivert', sidebar: 'titan-gri' },
+		'gradient-mor': { topbar: 'gradient-mor', sidebar: 'koyu-mor' },
+		'gradient-safir': { topbar: 'gradient-safir', sidebar: 'koyu-okyanus' },
+		'gradient-zumrut': { topbar: 'gradient-zumrut', sidebar: 'koyu-zumrut' },
+		'gradient-yakut': { topbar: 'gradient-yakut', sidebar: 'koyu-bordo' },
+		'gradient-amber': { topbar: 'gradient-amber', sidebar: 'koyu-volkan' },
+		'gradient-petrol': { topbar: 'gradient-petrol', sidebar: 'koyu-petrol' },
+		'gradient-lacivert': { topbar: 'gradient-lacivert', sidebar: 'koyu-nebula' },
+		'gradient-titanyum': { topbar: 'gradient-titanyum', sidebar: 'grafit-gri' },
+		'gradient-magenta': { topbar: 'gradient-magenta', sidebar: 'koyu-magenta' },
+		'gradient-altin': { topbar: 'gradient-altin', sidebar: 'grafit-gri' }
 	};
 
 	// Topbar (Üst Menü) Rengi Değiştirme Fonksiyonu
@@ -364,10 +455,17 @@
 		if (!presetName) return;
 		try {
 			localStorage.setItem('app_theme_preset', presetName);
+			// Yeni hazır tema seçildiğinde manuel primary rengi temizle (temanın kendi primary rengi geçerli olsun)
+			localStorage.removeItem('app_primary_manual');
+			localStorage.removeItem('app_primary_color');
+			localStorage.removeItem('app_primary_name');
 		} catch (err) {}
 
-		document.documentElement.setAttribute('data-theme-preset', presetName);
+		var html = document.documentElement;
+		html.removeAttribute('style'); // Manuel inline renkleri sıfırla
+		html.setAttribute('data-theme-preset', presetName);
 		if (document.body) {
+			document.body.removeAttribute('style');
 			document.body.setAttribute('data-theme-preset', presetName);
 		}
 
@@ -381,7 +479,6 @@
 		window.selectThemeFont(suggestedFont, false);
 
 		// Koyu temalarda Dark Mode'u otomatik aktif et; açık temalarda dark mode kaldır
-		var html = document.documentElement;
 		var body = document.body;
 		var toggleBtn = document.getElementById('theme-toggle');
 
@@ -400,6 +497,7 @@
 		window.syncActiveThemePresetCard();
 		window.syncActiveTopbarButtons();
 		window.syncActiveSidebarButtons();
+		window.syncActivePrimaryButtons();
 		window.syncActiveThemeFontButtons();
 		window.syncActiveThemeWeightButtons();
 		window.syncWysihtml5Theme();
@@ -468,35 +566,48 @@
 	// Sayfa render edilmeden önce tema ve font durumunu ayarla (flicker önleme)
 	(function () {
 		try {
+			var html = document.documentElement;
+
 			// 1. Hazır Tema (Preset) Yükleme
 			var savedPreset = localStorage.getItem('app_theme_preset');
 			if (!savedPreset) {
 				savedPreset = 'kode'; // Varsayılan tema
 			}
-			document.documentElement.setAttribute('data-theme-preset', savedPreset);
+			html.setAttribute('data-theme-preset', savedPreset);
 
 			// 2. Topbar & Sidebar Ayrı Renk Yükleme
 			var defaultMap = presetTopbarSidebarMap[savedPreset] || { topbar: 'mavi', sidebar: 'klasik-koyu' };
 			var savedTopbar = localStorage.getItem('app_topbar_theme') || defaultMap.topbar;
 			var savedSidebar = localStorage.getItem('app_sidebar_theme') || defaultMap.sidebar;
-			document.documentElement.setAttribute('data-topbar-theme', savedTopbar);
-			document.documentElement.setAttribute('data-sidebar-theme', savedSidebar);
+			html.setAttribute('data-topbar-theme', savedTopbar);
+			html.setAttribute('data-sidebar-theme', savedSidebar);
 
-			// 3. Yazı Tipi Yükleme
+			// 3. Özel/Ayrı Primary Renk Yükleme
+			var savedPrimaryColor = localStorage.getItem('app_primary_color');
+			var savedPrimaryManual = localStorage.getItem('app_primary_manual');
+			if (savedPrimaryColor && savedPrimaryManual === 'true') {
+				html.style.setProperty('--theme-primary', savedPrimaryColor);
+				html.style.setProperty('--theme-primary-hover', savedPrimaryColor);
+				html.style.setProperty('--theme-primary-shadow', 'color-mix(in srgb, ' + savedPrimaryColor + ' 30%, transparent)');
+				html.style.setProperty('--theme-primary-light', 'color-mix(in srgb, ' + savedPrimaryColor + ' 12%, #ffffff)');
+				html.style.setProperty('--focus-color', savedPrimaryColor);
+			}
+
+			// 4. Yazı Tipi Yükleme
 			var savedFont = localStorage.getItem('app_theme_font');
 			if (!savedFont) {
 				savedFont = themePresetFonts[savedPreset] || 'inter';
 			}
-			document.documentElement.setAttribute('data-theme-font', savedFont);
+			html.setAttribute('data-theme-font', savedFont);
 
-			// 4. Yazı Tipi Kalınlığı Yükleme
+			// 5. Yazı Tipi Kalınlığı Yükleme
 			var savedWeight = localStorage.getItem('app_theme_weight') || '400';
-			document.documentElement.setAttribute('data-theme-weight', savedWeight);
+			html.setAttribute('data-theme-weight', savedWeight);
 
-			// 5. Dark/Light Mode Yükleme
+			// 6. Dark/Light Mode Yükleme
 			var theme = localStorage.getItem('theme');
 			if (theme === 'dark' || savedPreset === 'koyu-gece') {
-				document.documentElement.classList.add('dark-mode');
+				html.classList.add('dark-mode');
 				document.addEventListener('DOMContentLoaded', function () {
 					if (document.body) {
 						document.body.classList.add('dark-mode');
@@ -505,17 +616,23 @@
 						document.body.setAttribute('data-sidebar-theme', savedSidebar);
 						document.body.setAttribute('data-theme-font', savedFont);
 						document.body.setAttribute('data-theme-weight', savedWeight);
+						if (savedPrimaryColor && savedPrimaryManual === 'true') {
+							document.body.style.setProperty('--theme-primary', savedPrimaryColor);
+							document.body.style.setProperty('--theme-primary-hover', savedPrimaryColor);
+							document.body.style.setProperty('--focus-color', savedPrimaryColor);
+						}
 					}
 					window.syncActiveThemePresetCard();
 					window.syncActiveTopbarButtons();
 					window.syncActiveSidebarButtons();
+					window.syncActivePrimaryButtons();
 					window.syncActiveThemeFontButtons();
 					window.syncActiveThemeWeightButtons();
 					setTimeout(window.syncWysihtml5Theme, 300);
 					setTimeout(window.syncWysihtml5Theme, 1000);
 				});
 			} else {
-				document.documentElement.classList.remove('dark-mode');
+				html.classList.remove('dark-mode');
 				document.addEventListener('DOMContentLoaded', function () {
 					if (document.body) {
 						document.body.classList.remove('dark-mode');
@@ -524,10 +641,16 @@
 						document.body.setAttribute('data-sidebar-theme', savedSidebar);
 						document.body.setAttribute('data-theme-font', savedFont);
 						document.body.setAttribute('data-theme-weight', savedWeight);
+						if (savedPrimaryColor && savedPrimaryManual === 'true') {
+							document.body.style.setProperty('--theme-primary', savedPrimaryColor);
+							document.body.style.setProperty('--theme-primary-hover', savedPrimaryColor);
+							document.body.style.setProperty('--focus-color', savedPrimaryColor);
+						}
 					}
 					window.syncActiveThemePresetCard();
 					window.syncActiveTopbarButtons();
 					window.syncActiveSidebarButtons();
+					window.syncActivePrimaryButtons();
 					window.syncActiveThemeFontButtons();
 					window.syncActiveThemeWeightButtons();
 					setTimeout(window.syncWysihtml5Theme, 300);
@@ -538,7 +661,7 @@
 			// Sidebar collapse state
 			var sidebarCollapsed = localStorage.getItem('sidebar-collapsed');
 			if (sidebarCollapsed === 'true' && window.innerWidth > 1200) {
-				document.documentElement.classList.add('sidebar-collapsed');
+				html.classList.add('sidebar-collapsed');
 			}
 		} catch (e) {
 			console.error('Theme init error:', e);

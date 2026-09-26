@@ -10,6 +10,7 @@
     --theme-primary-hover: #1d4ed8;
     --theme-primary-shadow: rgba(37, 99, 235, 0.3);
     --theme-primary-light: #eff6ff;
+    --focus-color: var(--topbar-color, var(--theme-primary, #2563eb));
 }
 
 /* ==============================================================
@@ -20,6 +21,8 @@
     --theme-primary-hover: #1d4ed8;
     --theme-primary-shadow: rgba(37, 99, 235, 0.3);
     --theme-primary-light: #eff6ff;
+    --sidebar-bg: #1e1e2d;
+    --topbar-color: #2563eb;
 }
 
 [data-theme-preset="ersan-gold"] {
@@ -27,6 +30,8 @@
     --theme-primary-hover: #b45309;
     --theme-primary-shadow: rgba(217, 119, 6, 0.3);
     --theme-primary-light: #fef3c7;
+    --sidebar-bg: #1e1e2d;
+    --topbar-color: #ffffff;
 }
 
 [data-theme-preset="zumrut"] {
@@ -34,6 +39,8 @@
     --theme-primary-hover: #047857;
     --theme-primary-shadow: rgba(5, 150, 105, 0.3);
     --theme-primary-light: #d1fae5;
+    --sidebar-bg: #132a24;
+    --topbar-color: #059669;
 }
 
 [data-theme-preset="kraliyet-moru"] {
@@ -41,6 +48,8 @@
     --theme-primary-hover: #6d28d9;
     --theme-primary-shadow: rgba(124, 58, 237, 0.3);
     --theme-primary-light: #f3e8ff;
+    --sidebar-bg: #1e1b4b;
+    --topbar-color: #7c3aed;
 }
 
 [data-theme-preset="rose"] {
@@ -48,6 +57,8 @@
     --theme-primary-hover: #be123c;
     --theme-primary-shadow: rgba(225, 29, 72, 0.3);
     --theme-primary-light: #ffe4e6;
+    --sidebar-bg: #1e1e2d;
+    --topbar-color: #e11d48;
 }
 
 [data-theme-preset="sade-beyaz"] {
@@ -55,6 +66,8 @@
     --theme-primary-hover: #1e293b;
     --theme-primary-shadow: rgba(51, 65, 85, 0.3);
     --theme-primary-light: #f1f5f9;
+    --sidebar-bg: #ffffff;
+    --topbar-color: #ffffff;
 }
 
 [data-theme-preset="koyu-gece"] {
@@ -62,6 +75,8 @@
     --theme-primary-hover: #0369a1;
     --theme-primary-shadow: rgba(2, 132, 199, 0.3);
     --theme-primary-light: #082f49;
+    --sidebar-bg: #18181b;
+    --topbar-color: #18181b;
 }
 
 [data-theme-preset="safir-okyanus"] {
@@ -69,6 +84,8 @@
     --theme-primary-hover: #0369a1;
     --theme-primary-shadow: rgba(2, 132, 199, 0.3);
     --theme-primary-light: #e0f2fe;
+    --sidebar-bg: #0f172a;
+    --topbar-color: #0284c7;
 }
 
 [data-theme-preset="gun-batimi"] {
@@ -76,6 +93,8 @@
     --theme-primary-hover: #c2410c;
     --theme-primary-shadow: rgba(234, 88, 12, 0.3);
     --theme-primary-light: #ffedd5;
+    --sidebar-bg: #1c1917;
+    --topbar-color: #ea580c;
 }
 
 [data-theme-preset="gece-altini"] {
@@ -83,6 +102,8 @@
     --theme-primary-hover: #a16207;
     --theme-primary-shadow: rgba(202, 138, 4, 0.3);
     --theme-primary-light: #422006;
+    --sidebar-bg: #18181b;
+    --topbar-color: #ca8a04;
 }
 
 [data-theme-preset="mistik-bordo"] {
@@ -90,6 +111,8 @@
     --theme-primary-hover: #700f2b;
     --theme-primary-shadow: rgba(136, 19, 55, 0.3);
     --theme-primary-light: #ffe4e6;
+    --sidebar-bg: #1e1117;
+    --topbar-color: #9f1239;
 }
 
 [data-theme-preset="nordik-cam"] {
@@ -97,6 +120,8 @@
     --theme-primary-hover: #14532d;
     --theme-primary-shadow: rgba(21, 128, 61, 0.3);
     --theme-primary-light: #dcfce7;
+    --sidebar-bg: #132a24;
+    --topbar-color: #15803d;
 }
 
 [data-theme-preset="soft-lavanta"] {
@@ -104,6 +129,8 @@
     --theme-primary-hover: #6d28d9;
     --theme-primary-shadow: rgba(124, 58, 237, 0.3);
     --theme-primary-light: #ede9fe;
+    --sidebar-bg: #1e1b4b;
+    --topbar-color: #ede9fe;
 }
 
 [data-theme-preset="soft-adacayi"] {
@@ -111,6 +138,8 @@
     --theme-primary-hover: #0f766e;
     --theme-primary-shadow: rgba(13, 148, 136, 0.3);
     --theme-primary-light: #ccfbf1;
+    --sidebar-bg: #132a24;
+    --topbar-color: #ccfbf1;
 }
 
 [data-theme-preset="soft-seftali"] {
@@ -118,6 +147,8 @@
     --theme-primary-hover: #ea580c;
     --theme-primary-shadow: rgba(249, 115, 22, 0.3);
     --theme-primary-light: #ffedd5;
+    --sidebar-bg: #1c1917;
+    --topbar-color: #ea580c;
 }
 
 [data-theme-preset="soft-buz-mavisi"] {
@@ -125,6 +156,8 @@
     --theme-primary-hover: #0369a1;
     --theme-primary-shadow: rgba(2, 132, 199, 0.3);
     --theme-primary-light: #e0f2fe;
+    --sidebar-bg: #0f172a;
+    --topbar-color: #e0f2fe;
 }
 
 [data-theme-preset="soft-vizon"] {
@@ -132,6 +165,8 @@
     --theme-primary-hover: #57534e;
     --theme-primary-shadow: rgba(120, 113, 108, 0.3);
     --theme-primary-light: #f5f5f4;
+    --sidebar-bg: #334155;
+    --topbar-color: #fafaf9;
 }
 
 [data-theme-preset="modern-celik"] {
@@ -139,6 +174,8 @@
     --theme-primary-hover: #1d4ed8;
     --theme-primary-shadow: rgba(37, 99, 235, 0.3);
     --theme-primary-light: #eff6ff;
+    --sidebar-bg: #334155;
+    --topbar-color: #2563eb;
 }
 
 [data-theme-preset="antrasit-zumrut"] {
@@ -146,6 +183,8 @@
     --theme-primary-hover: #047857;
     --theme-primary-shadow: rgba(5, 150, 105, 0.3);
     --theme-primary-light: #ecfdf5;
+    --sidebar-bg: #374151;
+    --topbar-color: #059669;
 }
 
 [data-theme-preset="dumanli-bordo"] {
@@ -153,6 +192,8 @@
     --theme-primary-hover: #be123c;
     --theme-primary-shadow: rgba(225, 29, 72, 0.3);
     --theme-primary-light: #fff1f2;
+    --sidebar-bg: #3f3f46;
+    --topbar-color: #9f1239;
 }
 
 [data-theme-preset="grafiti-mor"] {
@@ -160,6 +201,8 @@
     --theme-primary-hover: #6d28d9;
     --theme-primary-shadow: rgba(124, 58, 237, 0.3);
     --theme-primary-light: #f5f3ff;
+    --sidebar-bg: #27272a;
+    --topbar-color: #7c3aed;
 }
 
 [data-theme-preset="kul-amber"] {
@@ -167,6 +210,8 @@
     --theme-primary-hover: #b45309;
     --theme-primary-shadow: rgba(217, 119, 6, 0.3);
     --theme-primary-light: #fef3c7;
+    --sidebar-bg: #334155;
+    --topbar-color: #ea580c;
 }
 
 [data-theme-preset="petrol-tas"] {
@@ -174,6 +219,8 @@
     --theme-primary-hover: #115e59;
     --theme-primary-shadow: rgba(15, 118, 110, 0.3);
     --theme-primary-light: #f0fdfa;
+    --sidebar-bg: #374151;
+    --topbar-color: #0f766e;
 }
 
 [data-theme-preset="platin-mavi"] {
@@ -181,6 +228,8 @@
     --theme-primary-hover: #0369a1;
     --theme-primary-shadow: rgba(2, 132, 199, 0.3);
     --theme-primary-light: #e0f2fe;
+    --sidebar-bg: #e2e8f0;
+    --topbar-color: #0284c7;
 }
 
 [data-theme-preset="titan-okyanus"] {
@@ -188,6 +237,98 @@
     --theme-primary-hover: #1d4ed8;
     --theme-primary-shadow: rgba(37, 99, 235, 0.3);
     --theme-primary-light: #eff6ff;
+    --sidebar-bg: #475569;
+    --topbar-color: #1e3a8a;
+}
+
+[data-theme-preset="gradient-mor"] {
+    --theme-primary: #7c3aed;
+    --theme-primary-hover: #6d28d9;
+    --theme-primary-shadow: rgba(124, 58, 237, 0.3);
+    --theme-primary-light: #faf5ff;
+    --sidebar-bg: #1e1b4b;
+    --topbar-color: #7c3aed;
+}
+
+[data-theme-preset="gradient-safir"] {
+    --theme-primary: #0284c7;
+    --theme-primary-hover: #0369a1;
+    --theme-primary-shadow: rgba(2, 132, 199, 0.3);
+    --theme-primary-light: #f0f9ff;
+    --sidebar-bg: #0f172a;
+    --topbar-color: #0284c7;
+}
+
+[data-theme-preset="gradient-zumrut"] {
+    --theme-primary: #059669;
+    --theme-primary-hover: #047857;
+    --theme-primary-shadow: rgba(5, 150, 105, 0.3);
+    --theme-primary-light: #f0fdf4;
+    --sidebar-bg: #132a24;
+    --topbar-color: #059669;
+}
+
+[data-theme-preset="gradient-yakut"] {
+    --theme-primary: #e11d48;
+    --theme-primary-hover: #be123c;
+    --theme-primary-shadow: rgba(225, 29, 72, 0.3);
+    --theme-primary-light: #fff1f2;
+    --sidebar-bg: #1e1117;
+    --topbar-color: #e11d48;
+}
+
+[data-theme-preset="gradient-amber"] {
+    --theme-primary: #ea580c;
+    --theme-primary-hover: #c2410c;
+    --theme-primary-shadow: rgba(234, 88, 12, 0.3);
+    --theme-primary-light: #fff7ed;
+    --sidebar-bg: #1c1917;
+    --topbar-color: #ea580c;
+}
+
+[data-theme-preset="gradient-petrol"] {
+    --theme-primary: #0d9488;
+    --theme-primary-hover: #0f766e;
+    --theme-primary-shadow: rgba(13, 148, 136, 0.3);
+    --theme-primary-light: #f0fdfa;
+    --sidebar-bg: #0d1f1e;
+    --topbar-color: #0d9488;
+}
+
+[data-theme-preset="gradient-lacivert"] {
+    --theme-primary: #3b82f6;
+    --theme-primary-hover: #2563eb;
+    --theme-primary-shadow: rgba(59, 130, 246, 0.3);
+    --theme-primary-light: #f0f9ff;
+    --sidebar-bg: #0a0f1d;
+    --topbar-color: #3b82f6;
+}
+
+[data-theme-preset="gradient-titanyum"] {
+    --theme-primary: #475569;
+    --theme-primary-hover: #334155;
+    --theme-primary-shadow: rgba(71, 85, 105, 0.3);
+    --theme-primary-light: #f8fafc;
+    --sidebar-bg: #18181b;
+    --topbar-color: #64748b;
+}
+
+[data-theme-preset="gradient-magenta"] {
+    --theme-primary: #db2777;
+    --theme-primary-hover: #be185d;
+    --theme-primary-shadow: rgba(219, 39, 119, 0.3);
+    --theme-primary-light: #fdf2f8;
+    --sidebar-bg: #1f1124;
+    --topbar-color: #db2777;
+}
+
+[data-theme-preset="gradient-altin"] {
+    --theme-primary: #ca8a04;
+    --theme-primary-hover: #a16207;
+    --theme-primary-shadow: rgba(202, 138, 4, 0.3);
+    --theme-primary-light: #fefce8;
+    --sidebar-bg: #18181b;
+    --topbar-color: #ca8a04;
 }
 
 /* ==============================================================
@@ -517,9 +658,9 @@ table.dataTable thead th,
 }
 
 .search-input-row th input:focus {
-    border-color: #6366f1 !important;
+    border-color: var(--topbar-color, var(--theme-primary, #2563eb)) !important;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #2563eb)) 16%, transparent) !important;
 }
 
 /* Datatable pagination and search container */
@@ -533,7 +674,8 @@ table.dataTable thead th,
 }
 
 .dataTables_wrapper .dataTables_length select:focus {
-    border-color: #6366f1 !important;
+    border-color: var(--topbar-color, var(--theme-primary, #2563eb)) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #2563eb)) 16%, transparent) !important;
 }
 
 /* ==============================================================
@@ -769,10 +911,10 @@ table.dataTable thead th,
 .bootstrap-select > .dropdown-toggle:hover,
 .bootstrap-select > .dropdown-toggle:focus,
 .bootstrap-select.show > .dropdown-toggle {
-    border-color: #6366f1 !important;
+    border-color: var(--topbar-color, var(--theme-primary, #2563eb)) !important;
     background-color: #ffffff !important;
     color: #1e293b !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #2563eb)) 16%, transparent) !important;
     outline: none !important;
 }
 
@@ -823,13 +965,13 @@ table.dataTable thead th,
 /* Selected State */
 .bootstrap-select .dropdown-menu li.selected a,
 .bootstrap-select.bs-container .dropdown-menu li.selected a {
-    background: #6366f1 !important;
+    background: var(--topbar-color, var(--theme-primary, #2563eb)) !important;
     color: #ffffff !important;
 }
 
 .bootstrap-select .dropdown-menu li.selected a:hover,
 .bootstrap-select.bs-container .dropdown-menu li.selected a:hover {
-    background: #4f46e5 !important;
+    background: var(--topbar-color, var(--theme-primary, #1d4ed8)) !important;
     color: #ffffff !important;
 }
 
@@ -864,9 +1006,9 @@ table.dataTable thead th,
 
 .bootstrap-select .bs-searchbox input:focus,
 .bootstrap-select.bs-container .bs-searchbox input:focus {
-    border-color: #6366f1 !important;
+    border-color: var(--topbar-color, var(--theme-primary, #2563eb)) !important;
     background-color: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #2563eb)) 16%, transparent) !important;
     outline: none !important;
 }
 
@@ -1162,9 +1304,17 @@ body > .select2-container.select2-container--open,
     right: 12px !important;
 }
 
-.select2-container--default.select2-container--open .select2-selection--single {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container.select2-container--open .select2-selection--single,
+.select2-container.select2-container--focus .select2-selection--single,
+span.select2-container--open .select2-selection--single,
+span.select2-container--focus .select2-selection--single,
+.form-field .select2-container--default.select2-container--open .select2-selection--single,
+.form-field .select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) 16%, transparent) !important;
+    outline: none !important;
 }
 
 /* Select2 Dropdown Menu */
@@ -1177,7 +1327,8 @@ body > .select2-container.select2-container--open,
     z-index: 99999 !important;
 }
 
-.select2-container--default .select2-search--dropdown .select2-search__field {
+.select2-container--default .select2-search--dropdown .select2-search__field,
+.select2-search--dropdown .select2-search__field {
     border-radius: 8px !important;
     border: 1px solid #cbd5e1 !important;
     padding: 8px 12px !important;
@@ -1185,10 +1336,14 @@ body > .select2-container.select2-container--open,
     background-color: #f8fafc !important;
 }
 
-.select2-container--default .select2-search--dropdown .select2-search__field:focus {
-    border-color: #6366f1 !important;
+.select2-container--default .select2-search--dropdown .select2-search__field:focus,
+.select2-search--dropdown .select2-search__field:focus,
+.select2-search__field:focus,
+.select2-container .select2-search--dropdown input:focus {
+    border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
     background-color: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) 16%, transparent) !important;
+    outline: none !important;
 }
 
 .select2-container--default .select2-results__option {
@@ -1199,14 +1354,21 @@ body > .select2-container.select2-container--open,
     font-weight: 500 !important;
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
+.select2-container--default .select2-results__option--highlighted,
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-results__option--highlighted,
+.select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option[aria-selected=true],
+.select2-results__option:hover {
+    background-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
+    background: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
+    color: #ffffff !important;
 }
 
-.select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: #6366f1 !important;
-    color: #ffffff !important;
+.select2-container--default .select2-results__option--highlighted *,
+.select2-results__option--highlighted *,
+.select2-results__option:hover * {
+    color: inherit;
 }
 
 /* Select2 Multiple Styles & Full-Width Placeholder Fix */
@@ -1219,9 +1381,17 @@ body > .select2-container.select2-container--open,
     transition: all 0.2s ease;
 }
 
-.select2-container--default.select2-container--focus .select2-selection--multiple {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+.select2-container--default.select2-container--focus .select2-selection--multiple,
+.select2-container--default.select2-container--open .select2-selection--multiple,
+.select2-container.select2-container--focus .select2-selection--multiple,
+.select2-container.select2-container--open .select2-selection--multiple,
+span.select2-container--focus .select2-selection--multiple,
+span.select2-container--open .select2-selection--multiple,
+.form-field .select2-container--default.select2-container--focus .select2-selection--multiple,
+.form-field .select2-container--default.select2-container--open .select2-selection--multiple {
+    border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) 16%, transparent) !important;
+    outline: none !important;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__rendered {
@@ -2002,10 +2172,22 @@ tr.context-menu-active {
 
 .form-field .form-control:not(.bootstrap-select):focus,
 .form-field .bootstrap-select > .btn:focus,
-.form-field .bootstrap-select.show > .btn {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+.form-field .bootstrap-select.show > .btn,
+.form-control:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+select.form-control:focus,
+textarea.form-control:focus,
+.custom-select:focus {
+    border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) 18%, transparent) !important;
     background: #fff !important;
+    outline: none !important;
 }
 
 .form-field textarea.form-control {
@@ -2130,10 +2312,20 @@ tr.context-menu-active {
     color: #f3f4f6 !important;
 }
 
-.dark-mode .form-field .form-control:focus {
-    border-color: #6366f1 !important;
+.dark-mode .form-field .form-control:focus,
+.dark-mode .form-control:focus,
+.dark-mode input[type="text"]:focus,
+.dark-mode input[type="number"]:focus,
+.dark-mode input[type="date"]:focus,
+.dark-mode input[type="email"]:focus,
+.dark-mode input[type="password"]:focus,
+.dark-mode input[type="search"]:focus,
+.dark-mode input[type="tel"]:focus,
+.dark-mode select.form-control:focus,
+.dark-mode textarea.form-control:focus {
+    border-color: var(--topbar-color, var(--theme-primary, #6366f1)) !important;
     background-color: #1a1a1a !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #6366f1)) 25%, transparent) !important;
 }
 
 .dark-mode .audit-trail-card {
@@ -2168,11 +2360,12 @@ tr.context-menu-active {
 
 .dark-mode .bootstrap-select > .dropdown-toggle:hover,
 .dark-mode .bootstrap-select > .dropdown-toggle:focus,
-.dark-mode .bootstrap-select.show > .dropdown-toggle {
-    border-color: #6366f1 !important;
+.dark-mode .bootstrap-select.show > .dropdown-toggle,
+.dark-mode .form-field .bootstrap-select .btn:focus {
+    border-color: var(--topbar-color, var(--theme-primary, #6366f1)) !important;
     background-color: #1a1a1a !important;
     color: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--topbar-color, var(--theme-primary, #6366f1)) 25%, transparent) !important;
 }
 
 .dark-mode .bootstrap-select .dropdown-menu,
@@ -7543,16 +7736,19 @@ table.dataTable td,
     color: #ffffff !important;
 }
 
-/* Açık veya Aktif Ana Menü */
+/* Açık veya Aktif Ana Menü - Sidebar ve Topbar Ortak Harmonik Rengi (Koyu & Asil Harman) */
 .sidebar-menu .dropdown.show > .dropdown-toggle,
 .sidebar-menu .dropdown.active > .dropdown-toggle,
 .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
 .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
 .sidebar-menu .dropdown-toggle.active {
-    background: #2b2b40 !important;
+    background: #252538 !important;
+    background: color-mix(in srgb, var(--sidebar-bg, #1e1e2d) 84%, var(--topbar-color, #2563eb) 16%) !important;
     color: #ffffff !important;
     font-weight: 600 !important;
     box-shadow: none !important;
+    border: none !important;
+    border-left: none !important;
 }
 
 .sidebar-menu .dropdown.show > .dropdown-toggle .fa,
@@ -7604,7 +7800,7 @@ table.dataTable td,
 /* Alt Menü (Submenu) Ağaç Yapısı */
 .sidebar-menu .submenu {
     position: relative !important;
-    margin: 4px 14px 6px 20px !important;
+    margin: 4px 18px 6px 20px !important;
     padding: 2px 0 2px 12px !important;
     border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
     background: transparent !important;
@@ -7638,7 +7834,7 @@ table.dataTable td,
     text-decoration: none !important;
     background: transparent !important;
     border: none !important;
-    margin: 0 !important;
+    margin: 0 4px 0 0 !important;
     transition: all 0.15s ease !important;
 }
 
@@ -7649,9 +7845,10 @@ table.dataTable td,
 
 .sidebar-menu .submenu li a.active {
     color: #ffffff !important;
-    background: #2b2b40 !important;
+    background: #252538 !important;
+    background: color-mix(in srgb, var(--sidebar-bg, #1e1e2d) 78%, var(--topbar-color, #2563eb) 22%) !important;
     font-weight: 600 !important;
-    margin: 0 !important;
+    margin: 0 4px 0 0 !important;
     padding: 0 12px !important;
     border-radius: 6px !important;
     box-shadow: none !important;
@@ -8439,7 +8636,6 @@ html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header-left .menu-icon sp
 /* --------------------------------------------------------------
    1. TEMA: KODE (Canlı Mavi & Koyu Antrasit)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="kode"] .header,
 html:not(.dark-mode) [data-theme-preset="kode"] .left-side-bar .brand-logo {
     background: #2563eb !important;
     border-bottom-color: #1d4ed8 !important;
@@ -8476,25 +8672,13 @@ html:not(.dark-mode) [data-theme-preset="kode"] .user-toggle-btn .user-avatar-ba
     background: #ffffff !important;
     color: #2563eb !important;
 }
-[data-theme-preset="kode"] [class*="-header-card"] .header-icon {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    border-color: #dbeafe !important;
-}
-[data-theme-preset="kode"] .btn-primary,
-[data-theme-preset="kode"] .crm-quick-btn.btn-primary-action {
-    background: #2563eb !important;
-    border-color: #1d4ed8 !important;
-}
-[data-theme-preset="kode"] .btn-primary:hover,
-[data-theme-preset="kode"] .crm-quick-btn.btn-primary-action:hover {
-    background: #1d4ed8 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    2. TEMA: ERSAN GOLD (Asil Gold Vurgu & Koyu Antrasit)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="ersan-gold"] .header,
 html:not(.dark-mode) [data-theme-preset="ersan-gold"] .left-side-bar .brand-logo {
     background: #ffffff !important;
     border-bottom-color: #e2e8f0 !important;
@@ -8504,25 +8688,13 @@ html:not(.dark-mode) [data-theme-preset="ersan-gold"] .left-side-bar .brand-logo
     filter: none !important;
     opacity: 1 !important;
 }
-[data-theme-preset="ersan-gold"] [class*="-header-card"] .header-icon {
-    background: #fef3c7 !important;
-    color: #d97706 !important;
-    border-color: #fde68a !important;
-}
-[data-theme-preset="ersan-gold"] .btn-primary,
-[data-theme-preset="ersan-gold"] .crm-quick-btn.btn-primary-action {
-    background: #d97706 !important;
-    border-color: #b45309 !important;
-}
-[data-theme-preset="ersan-gold"] .btn-primary:hover,
-[data-theme-preset="ersan-gold"] .crm-quick-btn.btn-primary-action:hover {
-    background: #b45309 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    3. TEMA: ZÜMRÜT (Doğal Zümrüt Yeşili)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="zumrut"] .header,
 html:not(.dark-mode) [data-theme-preset="zumrut"] .left-side-bar .brand-logo {
     background: #059669 !important;
     border-bottom-color: #047857 !important;
@@ -8559,25 +8731,13 @@ html:not(.dark-mode) [data-theme-preset="zumrut"] .user-toggle-btn .user-avatar-
     background: #ffffff !important;
     color: #059669 !important;
 }
-[data-theme-preset="zumrut"] [class*="-header-card"] .header-icon {
-    background: #d1fae5 !important;
-    color: #059669 !important;
-    border-color: #a7f3d0 !important;
-}
-[data-theme-preset="zumrut"] .btn-primary,
-[data-theme-preset="zumrut"] .crm-quick-btn.btn-primary-action {
-    background: #059669 !important;
-    border-color: #047857 !important;
-}
-[data-theme-preset="zumrut"] .btn-primary:hover,
-[data-theme-preset="zumrut"] .crm-quick-btn.btn-primary-action:hover {
-    background: #047857 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    4. TEMA: KRALİYET MORU (Royal Indigo / Asil Mor)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .header,
 html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .left-side-bar .brand-logo {
     background: #5b21b6 !important;
     border-bottom-color: #4c1d95 !important;
@@ -8614,25 +8774,13 @@ html:not(.dark-mode) [data-theme-preset="kraliyet-moru"] .user-toggle-btn .user-
     background: #ffffff !important;
     color: #6366f1 !important;
 }
-[data-theme-preset="kraliyet-moru"] [class*="-header-card"] .header-icon {
-    background: #f3e8ff !important;
-    color: #7c3aed !important;
-    border-color: #e9d5ff !important;
-}
-[data-theme-preset="kraliyet-moru"] .btn-primary,
-[data-theme-preset="kraliyet-moru"] .crm-quick-btn.btn-primary-action {
-    background: #7c3aed !important;
-    border-color: #6d28d9 !important;
-}
-[data-theme-preset="kraliyet-moru"] .btn-primary:hover,
-[data-theme-preset="kraliyet-moru"] .crm-quick-btn.btn-primary-action:hover {
-    background: #6d28d9 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    5. TEMA: ROSE (Canlı Gül / Magenta Kırmızı)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="rose"] .header,
 html:not(.dark-mode) [data-theme-preset="rose"] .left-side-bar .brand-logo {
     background: #e11d48 !important;
     border-bottom-color: #be123c !important;
@@ -8669,25 +8817,13 @@ html:not(.dark-mode) [data-theme-preset="rose"] .user-toggle-btn .user-avatar-ba
     background: #ffffff !important;
     color: #e11d48 !important;
 }
-[data-theme-preset="rose"] [class*="-header-card"] .header-icon {
-    background: #ffe4e6 !important;
-    color: #e11d48 !important;
-    border-color: #fecdd3 !important;
-}
-[data-theme-preset="rose"] .btn-primary,
-[data-theme-preset="rose"] .crm-quick-btn.btn-primary-action {
-    background: #e11d48 !important;
-    border-color: #be123c !important;
-}
-[data-theme-preset="rose"] .btn-primary:hover,
-[data-theme-preset="rose"] .crm-quick-btn.btn-primary-action:hover {
-    background: #be123c !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    6. TEMA: SADE BEYAZ (Minimalist Açık Gri & Beyaz)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .header,
 html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo {
     background: #ffffff !important;
     border-bottom-color: #e2e8f0 !important;
@@ -8772,16 +8908,11 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
     font-weight: 600 !important;
     box-shadow: none !important;
 }
-[data-theme-preset="sade-beyaz"] [class*="-header-card"] .header-icon {
-    background: #f1f5f9 !important;
-    color: #334155 !important;
-    border-color: #e2e8f0 !important;
-}
+
 
 /* --------------------------------------------------------------
    7. TEMA: KOYU GECE (Gerçek Dark Mode & Cyan Vurgu)
    -------------------------------------------------------------- */
-[data-theme-preset="koyu-gece"] .header,
 [data-theme-preset="koyu-gece"] .left-side-bar .brand-logo {
     background: #18181b !important;
     border-bottom-color: #27272a !important;
@@ -8796,25 +8927,13 @@ html:not(.dark-mode) [data-theme-preset="sade-beyaz"] .left-side-bar .brand-logo
     border: 1px solid #27272a !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
 }
-[data-theme-preset="koyu-gece"] [class*="-header-card"] .header-icon {
-    background: #27272a !important;
-    color: #38bdf8 !important;
-    border-color: #3f3f46 !important;
-}
-[data-theme-preset="koyu-gece"] .btn-primary,
-[data-theme-preset="koyu-gece"] .crm-quick-btn.btn-primary-action {
-    background: #0284c7 !important;
-    border-color: #0369a1 !important;
-}
-[data-theme-preset="koyu-gece"] .btn-primary:hover,
-[data-theme-preset="koyu-gece"] .crm-quick-btn.btn-primary-action:hover {
-    background: #0369a1 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    8. TEMA: SAFİR OKYANUS (Derin Okyanus Mavisi & Antrasit)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .header,
 html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .left-side-bar .brand-logo {
     background: #0284c7 !important;
     border-bottom-color: #0369a1 !important;
@@ -8851,25 +8970,13 @@ html:not(.dark-mode) [data-theme-preset="safir-okyanus"] .user-toggle-btn .user-
     background: #ffffff !important;
     color: #0284c7 !important;
 }
-[data-theme-preset="safir-okyanus"] [class*="-header-card"] .header-icon {
-    background: #e0f2fe !important;
-    color: #0284c7 !important;
-    border-color: #bae6fd !important;
-}
-[data-theme-preset="safir-okyanus"] .btn-primary,
-[data-theme-preset="safir-okyanus"] .crm-quick-btn.btn-primary-action {
-    background: #0284c7 !important;
-    border-color: #0369a1 !important;
-}
-[data-theme-preset="safir-okyanus"] .btn-primary:hover,
-[data-theme-preset="safir-okyanus"] .crm-quick-btn.btn-primary-action:hover {
-    background: #0369a1 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    9. TEMA: GÜN BATIMI (Sıcak Amber & Canlı Turuncu)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="gun-batimi"] .header,
 html:not(.dark-mode) [data-theme-preset="gun-batimi"] .left-side-bar .brand-logo {
     background: #ea580c !important;
     border-bottom-color: #c2410c !important;
@@ -8906,25 +9013,13 @@ html:not(.dark-mode) [data-theme-preset="gun-batimi"] .user-toggle-btn .user-ava
     background: #ffffff !important;
     color: #ea580c !important;
 }
-[data-theme-preset="gun-batimi"] [class*="-header-card"] .header-icon {
-    background: #ffedd5 !important;
-    color: #ea580c !important;
-    border-color: #fed7aa !important;
-}
-[data-theme-preset="gun-batimi"] .btn-primary,
-[data-theme-preset="gun-batimi"] .crm-quick-btn.btn-primary-action {
-    background: #ea580c !important;
-    border-color: #c2410c !important;
-}
-[data-theme-preset="gun-batimi"] .btn-primary:hover,
-[data-theme-preset="gun-batimi"] .crm-quick-btn.btn-primary-action:hover {
-    background: #c2410c !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    10. TEMA: GECE ALTINI (Lüks Koyu Oniks & Altın Vurgu)
    -------------------------------------------------------------- */
-[data-theme-preset="gece-altini"] .header,
 [data-theme-preset="gece-altini"] .left-side-bar .brand-logo {
     background: #18181b !important;
     border-bottom-color: #27272a !important;
@@ -8939,20 +9034,9 @@ html:not(.dark-mode) [data-theme-preset="gun-batimi"] .user-toggle-btn .user-ava
     border: 1px solid #27272a !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
 }
-[data-theme-preset="gece-altini"] [class*="-header-card"] .header-icon {
-    background: #27272a !important;
-    color: #eab308 !important;
-    border-color: #3f3f46 !important;
-}
-[data-theme-preset="gece-altini"] .btn-primary,
-[data-theme-preset="gece-altini"] .crm-quick-btn.btn-primary-action {
-    background: #ca8a04 !important;
-    border-color: #a16207 !important;
-}
-[data-theme-preset="gece-altini"] .btn-primary:hover,
-[data-theme-preset="gece-altini"] .crm-quick-btn.btn-primary-action:hover {
-    background: #a16207 !important;
-}
+
+
+
 [data-theme-preset="gece-altini"] .user-toggle-btn .user-avatar-badge {
     background: #eab308 !important;
     color: #18181b !important;
@@ -8961,7 +9045,6 @@ html:not(.dark-mode) [data-theme-preset="gun-batimi"] .user-toggle-btn .user-ava
 /* --------------------------------------------------------------
    11. TEMA: MİSTİK BORDO (Asil Mistik Bordo & Gül Ağacı)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .header,
 html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .left-side-bar .brand-logo {
     background: #881337 !important;
     border-bottom-color: #700f2b !important;
@@ -8998,25 +9081,13 @@ html:not(.dark-mode) [data-theme-preset="mistik-bordo"] .user-toggle-btn .user-a
     background: #ffffff !important;
     color: #881337 !important;
 }
-[data-theme-preset="mistik-bordo"] [class*="-header-card"] .header-icon {
-    background: #ffe4e6 !important;
-    color: #881337 !important;
-    border-color: #fecdd3 !important;
-}
-[data-theme-preset="mistik-bordo"] .btn-primary,
-[data-theme-preset="mistik-bordo"] .crm-quick-btn.btn-primary-action {
-    background: #881337 !important;
-    border-color: #700f2b !important;
-}
-[data-theme-preset="mistik-bordo"] .btn-primary:hover,
-[data-theme-preset="mistik-bordo"] .crm-quick-btn.btn-primary-action:hover {
-    background: #700f2b !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    12. TEMA: NORDİK ÇAM (İskandinav Orman Yeşili & Çam)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="nordik-cam"] .header,
 html:not(.dark-mode) [data-theme-preset="nordik-cam"] .left-side-bar .brand-logo {
     background: #14532d !important;
     border-bottom-color: #0f4022 !important;
@@ -9053,25 +9124,13 @@ html:not(.dark-mode) [data-theme-preset="nordik-cam"] .user-toggle-btn .user-ava
     background: #ffffff !important;
     color: #14532d !important;
 }
-[data-theme-preset="nordik-cam"] [class*="-header-card"] .header-icon {
-    background: #dcfce7 !important;
-    color: #15803d !important;
-    border-color: #bbf7d0 !important;
-}
-[data-theme-preset="nordik-cam"] .btn-primary,
-[data-theme-preset="nordik-cam"] .crm-quick-btn.btn-primary-action {
-    background: #15803d !important;
-    border-color: #14532d !important;
-}
-[data-theme-preset="nordik-cam"] .btn-primary:hover,
-[data-theme-preset="nordik-cam"] .crm-quick-btn.btn-primary-action:hover {
-    background: #14532d !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    13. TEMA: SOFT LAVANTA (Pastel Lavanta & Yumuşak İndigo)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .header,
 html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .left-side-bar .brand-logo {
     background: #f5f3ff !important;
     border-bottom-color: #e9d5ff !important;
@@ -9110,25 +9169,13 @@ html:not(.dark-mode) [data-theme-preset="soft-lavanta"] .user-toggle-btn .user-a
     background: #7c3aed !important;
     color: #ffffff !important;
 }
-[data-theme-preset="soft-lavanta"] [class*="-header-card"] .header-icon {
-    background: #ede9fe !important;
-    color: #7c3aed !important;
-    border-color: #ddd6fe !important;
-}
-[data-theme-preset="soft-lavanta"] .btn-primary,
-[data-theme-preset="soft-lavanta"] .crm-quick-btn.btn-primary-action {
-    background: #7c3aed !important;
-    border-color: #6d28d9 !important;
-}
-[data-theme-preset="soft-lavanta"] .btn-primary:hover,
-[data-theme-preset="soft-lavanta"] .crm-quick-btn.btn-primary-action:hover {
-    background: #6d28d9 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    14. TEMA: SOFT ADAÇAYI (Yumuşak Adaçayı Yeşili & Pastel Mint)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .header,
 html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .left-side-bar .brand-logo {
     background: #f0fdfa !important;
     border-bottom-color: #ccfbf1 !important;
@@ -9167,25 +9214,13 @@ html:not(.dark-mode) [data-theme-preset="soft-adacayi"] .user-toggle-btn .user-a
     background: #0d9488 !important;
     color: #ffffff !important;
 }
-[data-theme-preset="soft-adacayi"] [class*="-header-card"] .header-icon {
-    background: #ccfbf1 !important;
-    color: #0d9488 !important;
-    border-color: #99f6e4 !important;
-}
-[data-theme-preset="soft-adacayi"] .btn-primary,
-[data-theme-preset="soft-adacayi"] .crm-quick-btn.btn-primary-action {
-    background: #0d9488 !important;
-    border-color: #0f766e !important;
-}
-[data-theme-preset="soft-adacayi"] .btn-primary:hover,
-[data-theme-preset="soft-adacayi"] .crm-quick-btn.btn-primary-action:hover {
-    background: #0f766e !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    15. TEMA: SOFT ŞEFTALİ (Yumuşak Şeftali & Pudra Sıcak)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="soft-seftali"] .header,
 html:not(.dark-mode) [data-theme-preset="soft-seftali"] .left-side-bar .brand-logo {
     background: #fff7ed !important;
     border-bottom-color: #ffedd5 !important;
@@ -9224,25 +9259,13 @@ html:not(.dark-mode) [data-theme-preset="soft-seftali"] .user-toggle-btn .user-a
     background: #ea580c !important;
     color: #ffffff !important;
 }
-[data-theme-preset="soft-seftali"] [class*="-header-card"] .header-icon {
-    background: #ffedd5 !important;
-    color: #ea580c !important;
-    border-color: #fed7aa !important;
-}
-[data-theme-preset="soft-seftali"] .btn-primary,
-[data-theme-preset="soft-seftali"] .crm-quick-btn.btn-primary-action {
-    background: #f97316 !important;
-    border-color: #ea580c !important;
-}
-[data-theme-preset="soft-seftali"] .btn-primary:hover,
-[data-theme-preset="soft-seftali"] .crm-quick-btn.btn-primary-action:hover {
-    background: #ea580c !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    16. TEMA: SOFT BUZ MAVİSİ (Açık Pastel Buz & Gök Mavisi)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .header,
 html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .left-side-bar .brand-logo {
     background: #f0f9ff !important;
     border-bottom-color: #e0f2fe !important;
@@ -9281,25 +9304,13 @@ html:not(.dark-mode) [data-theme-preset="soft-buz-mavisi"] .user-toggle-btn .use
     background: #0284c7 !important;
     color: #ffffff !important;
 }
-[data-theme-preset="soft-buz-mavisi"] [class*="-header-card"] .header-icon {
-    background: #e0f2fe !important;
-    color: #0284c7 !important;
-    border-color: #bae6fd !important;
-}
-[data-theme-preset="soft-buz-mavisi"] .btn-primary,
-[data-theme-preset="soft-buz-mavisi"] .crm-quick-btn.btn-primary-action {
-    background: #0284c7 !important;
-    border-color: #0369a1 !important;
-}
-[data-theme-preset="soft-buz-mavisi"] .btn-primary:hover,
-[data-theme-preset="soft-buz-mavisi"] .crm-quick-btn.btn-primary-action:hover {
-    background: #0369a1 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    17. TEMA: SOFT VİZON (Yumuşak Vizon / Kaşmir Taşı)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="soft-vizon"] .header,
 html:not(.dark-mode) [data-theme-preset="soft-vizon"] .left-side-bar .brand-logo {
     background: #fafaf9 !important;
     border-bottom-color: #e7e5e4 !important;
@@ -9338,28 +9349,14 @@ html:not(.dark-mode) [data-theme-preset="soft-vizon"] .user-toggle-btn .user-ava
     background: #78716c !important;
     color: #ffffff !important;
 }
-[data-theme-preset="soft-vizon"] [class*="-header-card"] .header-icon {
-    background: #f5f5f4 !important;
-    color: #78716c !important;
-    border-color: #e7e5e4 !important;
-}
-[data-theme-preset="soft-vizon"] .btn-primary,
-[data-theme-preset="soft-vizon"] .crm-quick-btn.btn-primary-action {
-    background: #78716c !important;
-    border-color: #57534e !important;
-}
-[data-theme-preset="soft-vizon"] .btn-primary:hover,
-[data-theme-preset="soft-vizon"] .crm-quick-btn.btn-primary-action:hover {
-    background: #57534e !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    18. TEMA: MODERN ÇELİK (Canlı Mavi Topbar + Çelik Slate Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="modern-celik"] .header {
-    background: #2563eb !important;
-    border-bottom-color: #1d4ed8 !important;
-}
+/* modern-celik header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="modern-celik"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -9437,28 +9434,14 @@ html:not(.dark-mode) [data-theme-preset="modern-celik"] .user-toggle-btn .user-a
     color: #ffffff !important;
     background: #2563eb !important;
 }
-[data-theme-preset="modern-celik"] [class*="-header-card"] .header-icon {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    border-color: #bfdbfe !important;
-}
-[data-theme-preset="modern-celik"] .btn-primary,
-[data-theme-preset="modern-celik"] .crm-quick-btn.btn-primary-action {
-    background: #2563eb !important;
-    border-color: #1d4ed8 !important;
-}
-[data-theme-preset="modern-celik"] .btn-primary:hover,
-[data-theme-preset="modern-celik"] .crm-quick-btn.btn-primary-action:hover {
-    background: #1d4ed8 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    19. TEMA: ANTRASİT ZÜMRÜT (Zümrüt Yeşil Topbar + Antrasit Kül Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header {
-    background: #059669 !important;
-    border-bottom-color: #047857 !important;
-}
+/* antrasit-zumrut header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -9536,28 +9519,14 @@ html:not(.dark-mode) [data-theme-preset="antrasit-zumrut"] .user-toggle-btn .use
     color: #ffffff !important;
     background: #059669 !important;
 }
-[data-theme-preset="antrasit-zumrut"] [class*="-header-card"] .header-icon {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-    border-color: #a7f3d0 !important;
-}
-[data-theme-preset="antrasit-zumrut"] .btn-primary,
-[data-theme-preset="antrasit-zumrut"] .crm-quick-btn.btn-primary-action {
-    background: #059669 !important;
-    border-color: #047857 !important;
-}
-[data-theme-preset="antrasit-zumrut"] .btn-primary:hover,
-[data-theme-preset="antrasit-zumrut"] .crm-quick-btn.btn-primary-action:hover {
-    background: #047857 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    20. TEMA: DUMANLI BORDO (Derin Bordo Topbar + Duman Nötr Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header {
-    background: #9f1239 !important;
-    border-bottom-color: #881337 !important;
-}
+/* dumanli-bordo header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -9635,28 +9604,14 @@ html:not(.dark-mode) [data-theme-preset="dumanli-bordo"] .user-toggle-btn .user-
     color: #ffffff !important;
     background: #9f1239 !important;
 }
-[data-theme-preset="dumanli-bordo"] [class*="-header-card"] .header-icon {
-    background: #fff1f2 !important;
-    color: #9f1239 !important;
-    border-color: #fecdd3 !important;
-}
-[data-theme-preset="dumanli-bordo"] .btn-primary,
-[data-theme-preset="dumanli-bordo"] .crm-quick-btn.btn-primary-action {
-    background: #9f1239 !important;
-    border-color: #881337 !important;
-}
-[data-theme-preset="dumanli-bordo"] .btn-primary:hover,
-[data-theme-preset="dumanli-bordo"] .crm-quick-btn.btn-primary-action:hover {
-    background: #881337 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    21. TEMA: GRAFİTİ MOR (Canlı Mor Topbar + Grafit Koyu Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header {
-    background: #7c3aed !important;
-    border-bottom-color: #6d28d9 !important;
-}
+/* grafiti-mor header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -9734,28 +9689,14 @@ html:not(.dark-mode) [data-theme-preset="grafiti-mor"] .user-toggle-btn .user-av
     color: #ffffff !important;
     background: #7c3aed !important;
 }
-[data-theme-preset="grafiti-mor"] [class*="-header-card"] .header-icon {
-    background: #f5f3ff !important;
-    color: #7c3aed !important;
-    border-color: #ddd6fe !important;
-}
-[data-theme-preset="grafiti-mor"] .btn-primary,
-[data-theme-preset="grafiti-mor"] .crm-quick-btn.btn-primary-action {
-    background: #7c3aed !important;
-    border-color: #6d28d9 !important;
-}
-[data-theme-preset="grafiti-mor"] .btn-primary:hover,
-[data-theme-preset="grafiti-mor"] .crm-quick-btn.btn-primary-action:hover {
-    background: #6d28d9 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    22. TEMA: KÜL AMBER (Sıcak Amber Topbar + Kül Slate Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="kul-amber"] .header {
-    background: #d97706 !important;
-    border-bottom-color: #b45309 !important;
-}
+/* kul-amber header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="kul-amber"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -9833,28 +9774,14 @@ html:not(.dark-mode) [data-theme-preset="kul-amber"] .user-toggle-btn .user-avat
     color: #ffffff !important;
     background: #d97706 !important;
 }
-[data-theme-preset="kul-amber"] [class*="-header-card"] .header-icon {
-    background: #fef3c7 !important;
-    color: #d97706 !important;
-    border-color: #fde68a !important;
-}
-[data-theme-preset="kul-amber"] .btn-primary,
-[data-theme-preset="kul-amber"] .crm-quick-btn.btn-primary-action {
-    background: #d97706 !important;
-    border-color: #b45309 !important;
-}
-[data-theme-preset="kul-amber"] .btn-primary:hover,
-[data-theme-preset="kul-amber"] .crm-quick-btn.btn-primary-action:hover {
-    background: #b45309 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    23. TEMA: PETROL TAŞ (Derin Teal Petrol Topbar + Taş Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header {
-    background: #0f766e !important;
-    border-bottom-color: #115e59 !important;
-}
+/* petrol-tas header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="petrol-tas"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -9932,28 +9859,14 @@ html:not(.dark-mode) [data-theme-preset="petrol-tas"] .user-toggle-btn .user-ava
     color: #ffffff !important;
     background: #0f766e !important;
 }
-[data-theme-preset="petrol-tas"] [class*="-header-card"] .header-icon {
-    background: #f0fdfa !important;
-    color: #0f766e !important;
-    border-color: #99f6e4 !important;
-}
-[data-theme-preset="petrol-tas"] .btn-primary,
-[data-theme-preset="petrol-tas"] .crm-quick-btn.btn-primary-action {
-    background: #0f766e !important;
-    border-color: #115e59 !important;
-}
-[data-theme-preset="petrol-tas"] .btn-primary:hover,
-[data-theme-preset="petrol-tas"] .crm-quick-btn.btn-primary-action:hover {
-    background: #115e59 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    24. TEMA: PLATİN MAVİ (Safir Topbar + Açık Platin Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header {
-    background: #0284c7 !important;
-    border-bottom-color: #0369a1 !important;
-}
+/* platin-mavi header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="platin-mavi"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -10031,28 +9944,14 @@ html:not(.dark-mode) [data-theme-preset="platin-mavi"] .user-toggle-btn .user-av
     color: #ffffff !important;
     background: #0284c7 !important;
 }
-[data-theme-preset="platin-mavi"] [class*="-header-card"] .header-icon {
-    background: #e0f2fe !important;
-    color: #0284c7 !important;
-    border-color: #bae6fd !important;
-}
-[data-theme-preset="platin-mavi"] .btn-primary,
-[data-theme-preset="platin-mavi"] .crm-quick-btn.btn-primary-action {
-    background: #0284c7 !important;
-    border-color: #0369a1 !important;
-}
-[data-theme-preset="platin-mavi"] .btn-primary:hover,
-[data-theme-preset="platin-mavi"] .crm-quick-btn.btn-primary-action:hover {
-    background: #0369a1 !important;
-}
+
+
+
 
 /* --------------------------------------------------------------
    25. TEMA: TİTAN OKYANUS (Gece Laciverti Topbar + Titan Çelik Gri Sidebar)
    -------------------------------------------------------------- */
-html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header {
-    background: #1e3a8a !important;
-    border-bottom-color: #172554 !important;
-}
+/* titan-okyanus header follows dynamic topbar theme */
 html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .breadcrumb-item,
 html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .breadcrumb-item.active,
 html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
@@ -10130,40 +10029,83 @@ html:not(.dark-mode) [data-theme-preset="titan-okyanus"] .user-toggle-btn .user-
     color: #ffffff !important;
     background: #2563eb !important;
 }
-[data-theme-preset="titan-okyanus"] [class*="-header-card"] .header-icon {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    border-color: #bfdbfe !important;
-}
-[data-theme-preset="titan-okyanus"] .btn-primary,
-[data-theme-preset="titan-okyanus"] .crm-quick-btn.btn-primary-action {
-    background: #2563eb !important;
-    border-color: #1d4ed8 !important;
-}
-[data-theme-preset="titan-okyanus"] .btn-primary:hover,
-[data-theme-preset="titan-okyanus"] .crm-quick-btn.btn-primary-action:hover {
-    background: #1d4ed8 !important;
-}
+
+
+
 
 /* ==============================================================
    TOPBAR (ÜST MENÜ) BAĞIMSIZ RENK TEMALARI
    ============================================================== */
-html:not(.dark-mode)[data-topbar-theme="mavi"] .header { background: #2563eb !important; border-bottom-color: #1d4ed8 !important; }
-html:not(.dark-mode)[data-topbar-theme="zumrut"] .header { background: #059669 !important; border-bottom-color: #047857 !important; }
-html:not(.dark-mode)[data-topbar-theme="mor"] .header { background: #7c3aed !important; border-bottom-color: #6d28d9 !important; }
-html:not(.dark-mode)[data-topbar-theme="rose"] .header { background: #e11d48 !important; border-bottom-color: #be123c !important; }
-html:not(.dark-mode)[data-topbar-theme="bordo"] .header { background: #9f1239 !important; border-bottom-color: #881337 !important; }
-html:not(.dark-mode)[data-topbar-theme="amber"] .header { background: #d97706 !important; border-bottom-color: #b45309 !important; }
-html:not(.dark-mode)[data-topbar-theme="safir"] .header { background: #0284c7 !important; border-bottom-color: #0369a1 !important; }
-html:not(.dark-mode)[data-topbar-theme="nordik"] .header { background: #15803d !important; border-bottom-color: #14532d !important; }
-html:not(.dark-mode)[data-topbar-theme="lacivert"] .header { background: #1e3a8a !important; border-bottom-color: #172554 !important; }
-html:not(.dark-mode)[data-topbar-theme="petrol"] .header { background: #0f766e !important; border-bottom-color: #115e59 !important; }
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header { background: #18181b !important; border-bottom-color: #27272a !important; }
-html:not(.dark-mode)[data-topbar-theme="beyaz"] .header { background: #ffffff !important; border-bottom-color: #e2e8f0 !important; }
-html:not(.dark-mode)[data-topbar-theme="lavanta"] .header { background: #f5f3ff !important; border-bottom-color: #e9d5ff !important; }
-html:not(.dark-mode)[data-topbar-theme="adacayi"] .header { background: #f0fdfa !important; border-bottom-color: #ccfbf1 !important; }
-html:not(.dark-mode)[data-topbar-theme="buz-mavisi"] .header { background: #f0f9ff !important; border-bottom-color: #e0f2fe !important; }
-html:not(.dark-mode)[data-topbar-theme="vizon"] .header { background: #fafaf9 !important; border-bottom-color: #e7e5e4 !important; }
+/* ==============================================================
+   TOPBAR (ÜST MENÜ) BAĞIMSIZ RENK TANIMLARI & DEĞİŞKENLERİ
+   ============================================================== */
+[data-topbar-theme="mavi"] { --topbar-color: #2563eb; --focus-color: #2563eb; }
+[data-topbar-theme="zumrut"] { --topbar-color: #059669; --focus-color: #059669; }
+[data-topbar-theme="mor"] { --topbar-color: #7c3aed; --focus-color: #7c3aed; }
+[data-topbar-theme="rose"] { --topbar-color: #e11d48; --focus-color: #e11d48; }
+[data-topbar-theme="bordo"] { --topbar-color: #9f1239; --focus-color: #9f1239; }
+[data-topbar-theme="amber"] { --topbar-color: #ea580c; --focus-color: #ea580c; }
+[data-topbar-theme="safir"] { --topbar-color: #0284c7; --focus-color: #0284c7; }
+[data-topbar-theme="nordik"] { --topbar-color: #15803d; --focus-color: #15803d; }
+[data-topbar-theme="lacivert"] { --topbar-color: #1e3a8a; --focus-color: #1e3a8a; }
+[data-topbar-theme="petrol"] { --topbar-color: #0f766e; --focus-color: #0f766e; }
+[data-topbar-theme="oniks"] { --topbar-color: #18181b; --focus-color: var(--theme-primary, #2563eb); }
+[data-topbar-theme="beyaz"] { --topbar-color: #ffffff; --focus-color: var(--theme-primary, #2563eb); }
+[data-topbar-theme="lavanta"] { --topbar-color: #ede9fe; --focus-color: var(--theme-primary, #7c3aed); }
+[data-topbar-theme="adacayi"] { --topbar-color: #ccfbf1; --focus-color: var(--theme-primary, #059669); }
+[data-topbar-theme="buz-mavisi"] { --topbar-color: #e0f2fe; --focus-color: var(--theme-primary, #0284c7); }
+[data-topbar-theme="vizon"] { --topbar-color: #fafaf9; --focus-color: var(--theme-primary, #ea580c); }
+
+[data-topbar-theme="gradient-mor"] { --topbar-color: #7c3aed; --focus-color: #7c3aed; }
+[data-topbar-theme="gradient-safir"] { --topbar-color: #0284c7; --focus-color: #0284c7; }
+[data-topbar-theme="gradient-zumrut"] { --topbar-color: #059669; --focus-color: #059669; }
+[data-topbar-theme="gradient-yakut"] { --topbar-color: #e11d48; --focus-color: #e11d48; }
+[data-topbar-theme="gradient-amber"] { --topbar-color: #ea580c; --focus-color: #ea580c; }
+[data-topbar-theme="gradient-petrol"] { --topbar-color: #0d9488; --focus-color: #0d9488; }
+[data-topbar-theme="gradient-lacivert"] { --topbar-color: #3b82f6; --focus-color: #3b82f6; }
+[data-topbar-theme="gradient-titanyum"] { --topbar-color: #64748b; --focus-color: #64748b; }
+[data-topbar-theme="gradient-magenta"] { --topbar-color: #db2777; --focus-color: #db2777; }
+[data-topbar-theme="gradient-altin"] { --topbar-color: #ca8a04; --focus-color: #ca8a04; }
+
+/* DÜZ (SOLİD) VE GRADİENT TOPBAR ARKA PLAN AYRIMI:
+   Düz renkler (Petrol, Mavi, Zümrüt vb.) seçildiğinde tek ve net renk uygulanır.
+   Yalnızca Gradient topbar temaları veya Gradient hazır temalar seçildiğinde sol menüden
+   kademeli, yayvan ve ipeksi bir şekilde eriyerek açılan lüks degrade geçiş uygulanır. */
+html:not(.dark-mode) .header {
+    background: var(--topbar-color, #2563eb) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* KUSURSUZ (SEAMLESS) VE GENİŞ GRADIENT TOPBAR GEÇİŞİ */
+html:not(.dark-mode)[data-topbar-theme^="gradient-"] .header,
+html:not(.dark-mode)[data-theme-preset^="gradient-"] .header {
+    background: linear-gradient(90deg, var(--sidebar-bg, #1e1e2d) 0%, var(--sidebar-bg, #1e1e2d) 260px, var(--topbar-color, #2563eb) 1050px, var(--topbar-color, #2563eb) 100%) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+html.sidebar-collapsed:not(.dark-mode)[data-topbar-theme^="gradient-"] .header,
+html.sidebar-collapsed:not(.dark-mode)[data-theme-preset^="gradient-"] .header {
+    background: linear-gradient(90deg, var(--sidebar-bg, #1e1e2d) 0%, var(--sidebar-bg, #1e1e2d) 80px, var(--topbar-color, #2563eb) 850px, var(--topbar-color, #2563eb) 100%) !important;
+}
+
+/* Açık / Soft Renk Topbar Özel Kenarlık İstisnası */
+html:not(.dark-mode)[data-topbar-theme="beyaz"] .header,
+html:not(.dark-mode)[data-topbar-theme="lavanta"] .header,
+html:not(.dark-mode)[data-topbar-theme="adacayi"] .header,
+html:not(.dark-mode)[data-topbar-theme="buz-mavisi"] .header,
+html:not(.dark-mode)[data-topbar-theme="vizon"] .header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Mobil Cihazlarda Header Görünümü */
+@media (max-width: 1200px) {
+    html:not(.dark-mode) .header {
+        background: var(--topbar-color, #2563eb) !important;
+    }
+}
 
 /* Koyu & Canlı Renk Topbar Eleman Kontrastı */
 html:not(.dark-mode)[data-topbar-theme="mavi"] .header-left .menu-icon,
@@ -10176,7 +10118,17 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .header-left .menu-icon,
 html:not(.dark-mode)[data-topbar-theme="nordik"] .header-left .menu-icon,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-left .menu-icon,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .header-left .menu-icon,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header-left .menu-icon {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header-left .menu-icon,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header-left .menu-icon {
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1px solid rgba(255, 255, 255, 0.35) !important;
 }
@@ -10190,7 +10142,17 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .header-left .menu-icon span,
 html:not(.dark-mode)[data-topbar-theme="nordik"] .header-left .menu-icon span,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-left .menu-icon span,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .header-left .menu-icon span,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header-left .menu-icon span {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header-left .menu-icon span,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header-left .menu-icon span {
     background: #ffffff !important;
 }
 html:not(.dark-mode)[data-topbar-theme="mavi"] .header .breadcrumb-item,
@@ -10225,7 +10187,37 @@ html:not(.dark-mode)[data-topbar-theme="petrol"] .header .breadcrumb-item.active
 html:not(.dark-mode)[data-topbar-theme="petrol"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
 html:not(.dark-mode)[data-topbar-theme="oniks"] .header .breadcrumb-item,
 html:not(.dark-mode)[data-topbar-theme="oniks"] .header .breadcrumb-item.active,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header .breadcrumb-item,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header .breadcrumb-item.active,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header .header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
     color: #ffffff !important;
 }
 html:not(.dark-mode)[data-topbar-theme="mavi"] .header .header-breadcrumb .breadcrumb-item a,
@@ -10238,7 +10230,17 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .header .header-breadcrumb .brea
 html:not(.dark-mode)[data-topbar-theme="nordik"] .header .header-breadcrumb .breadcrumb-item a,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .header .header-breadcrumb .breadcrumb-item a,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .header .header-breadcrumb .breadcrumb-item a,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header .header-breadcrumb .breadcrumb-item a {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header .header-breadcrumb .breadcrumb-item a,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header .header-breadcrumb .breadcrumb-item a {
     color: rgba(255, 255, 255, 0.85) !important;
 }
 html:not(.dark-mode)[data-topbar-theme="mavi"] .header-action-btn,
@@ -10251,7 +10253,17 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .header-action-btn,
 html:not(.dark-mode)[data-topbar-theme="nordik"] .header-action-btn,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-action-btn,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .header-action-btn,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header-action-btn {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header-action-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header-action-btn {
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -10266,7 +10278,17 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .header-action-btn:hover,
 html:not(.dark-mode)[data-topbar-theme="nordik"] .header-action-btn:hover,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .header-action-btn:hover,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .header-action-btn:hover,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .header-action-btn:hover {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .header-action-btn:hover,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .header-action-btn:hover {
     background: rgba(255, 255, 255, 0.28) !important;
     border-color: rgba(255, 255, 255, 0.45) !important;
     color: #ffffff !important;
@@ -10281,7 +10303,17 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .user-toggle-btn,
 html:not(.dark-mode)[data-topbar-theme="nordik"] .user-toggle-btn,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .user-toggle-btn,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .user-toggle-btn,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .user-toggle-btn,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .user-toggle-btn {
     background: rgba(255, 255, 255, 0.15) !important;
     border-color: rgba(255, 255, 255, 0.25) !important;
     color: #ffffff !important;
@@ -10296,14 +10328,25 @@ html:not(.dark-mode)[data-topbar-theme="safir"] .user-toggle-btn .user-name,
 html:not(.dark-mode)[data-topbar-theme="nordik"] .user-toggle-btn .user-name,
 html:not(.dark-mode)[data-topbar-theme="lacivert"] .user-toggle-btn .user-name,
 html:not(.dark-mode)[data-topbar-theme="petrol"] .user-toggle-btn .user-name,
-html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
+html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-mor"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-safir"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-zumrut"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-yakut"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-amber"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-petrol"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-lacivert"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-titanyum"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-magenta"] .user-toggle-btn .user-name,
+html:not(.dark-mode)[data-topbar-theme="gradient-altin"] .user-toggle-btn .user-name {
     color: #ffffff !important;
 }
 
 /* ==============================================================
-   SIDEBAR (SOL MENÜ) BAĞIMSIZ RENK TEMALARI
+   SIDEBAR (SOL MENÜ) BAĞIMSIZ RENK TEMALARI & DEĞİŞKENLERİ
    ============================================================== */
 /* 1. Klasik Koyu */
+[data-sidebar-theme="klasik-koyu"] { --sidebar-bg: #1e1e2d; }
 [data-sidebar-theme="klasik-koyu"] .left-side-bar,
 [data-sidebar-theme="klasik-koyu"] .left-side-bar .menu-block {
     background: #1e1e2d !important;
@@ -10311,6 +10354,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 }
 
 /* 2. Slate Çelik Gri */
+[data-sidebar-theme="slate-gri"] { --sidebar-bg: #334155; }
 [data-sidebar-theme="slate-gri"] .left-side-bar,
 [data-sidebar-theme="slate-gri"] .left-side-bar .menu-block {
     background: #334155 !important;
@@ -10334,6 +10378,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 [data-sidebar-theme="slate-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #475569 !important; }
 
 /* 3. Antrasit Kül Gri */
+[data-sidebar-theme="antrasit-gri"] { --sidebar-bg: #374151; }
 [data-sidebar-theme="antrasit-gri"] .left-side-bar,
 [data-sidebar-theme="antrasit-gri"] .left-side-bar .menu-block {
     background: #374151 !important;
@@ -10357,6 +10402,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 [data-sidebar-theme="antrasit-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #4b5563 !important; }
 
 /* 4. Duman Nötr Gri */
+[data-sidebar-theme="duman-gri"] { --sidebar-bg: #3f3f46; }
 [data-sidebar-theme="duman-gri"] .left-side-bar,
 [data-sidebar-theme="duman-gri"] .left-side-bar .menu-block {
     background: #3f3f46 !important;
@@ -10380,6 +10426,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 [data-sidebar-theme="duman-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #52525b !important; }
 
 /* 5. Grafit Koyu Gri */
+[data-sidebar-theme="grafit-gri"] { --sidebar-bg: #27272a; }
 [data-sidebar-theme="grafit-gri"] .left-side-bar,
 [data-sidebar-theme="grafit-gri"] .left-side-bar .menu-block {
     background: #27272a !important;
@@ -10403,6 +10450,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 [data-sidebar-theme="grafit-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #3f3f46 !important; }
 
 /* 6. Titan Çelik Gri */
+[data-sidebar-theme="titan-gri"] { --sidebar-bg: #475569; }
 [data-sidebar-theme="titan-gri"] .left-side-bar,
 [data-sidebar-theme="titan-gri"] .left-side-bar .menu-block {
     background: #475569 !important;
@@ -10426,6 +10474,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 [data-sidebar-theme="titan-gri"] .sidebar-menu .submenu li a:hover { color: #ffffff !important; background: #64748b !important; }
 
 /* 7. Koyu Zümrüt */
+[data-sidebar-theme="koyu-zumrut"] { --sidebar-bg: #132a24; }
 [data-sidebar-theme="koyu-zumrut"] .left-side-bar,
 [data-sidebar-theme="koyu-zumrut"] .left-side-bar .menu-block {
     background: #132a24 !important;
@@ -10433,6 +10482,7 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 }
 
 /* 8. Koyu Gece Moru */
+[data-sidebar-theme="koyu-mor"] { --sidebar-bg: #1e1b4b; }
 [data-sidebar-theme="koyu-mor"] .left-side-bar,
 [data-sidebar-theme="koyu-mor"] .left-side-bar .menu-block {
     background: #1e1b4b !important;
@@ -10440,13 +10490,55 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 }
 
 /* 9. Koyu Gece Bordo */
+[data-sidebar-theme="koyu-bordo"] { --sidebar-bg: #1e1117; }
 [data-sidebar-theme="koyu-bordo"] .left-side-bar,
 [data-sidebar-theme="koyu-bordo"] .left-side-bar .menu-block {
     background: #1e1117 !important;
     border-right-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-/* 10. Açık Platin Gri */
+/* 10. Koyu Okyanus */
+[data-sidebar-theme="koyu-okyanus"] { --sidebar-bg: #0f172a; }
+[data-sidebar-theme="koyu-okyanus"] .left-side-bar,
+[data-sidebar-theme="koyu-okyanus"] .left-side-bar .menu-block {
+    background: #0f172a !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 11. Koyu Volkan */
+[data-sidebar-theme="koyu-volkan"] { --sidebar-bg: #1c1917; }
+[data-sidebar-theme="koyu-volkan"] .left-side-bar,
+[data-sidebar-theme="koyu-volkan"] .left-side-bar .menu-block {
+    background: #1c1917 !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 12. Koyu Petrol */
+[data-sidebar-theme="koyu-petrol"] { --sidebar-bg: #0d1f1e; }
+[data-sidebar-theme="koyu-petrol"] .left-side-bar,
+[data-sidebar-theme="koyu-petrol"] .left-side-bar .menu-block {
+    background: #0d1f1e !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 13. Koyu Nebula */
+[data-sidebar-theme="koyu-nebula"] { --sidebar-bg: #0a0f1d; }
+[data-sidebar-theme="koyu-nebula"] .left-side-bar,
+[data-sidebar-theme="koyu-nebula"] .left-side-bar .menu-block {
+    background: #0a0f1d !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 14. Koyu Fuşya / Magenta */
+[data-sidebar-theme="koyu-magenta"] { --sidebar-bg: #1f1124; }
+[data-sidebar-theme="koyu-magenta"] .left-side-bar,
+[data-sidebar-theme="koyu-magenta"] .left-side-bar .menu-block {
+    background: #1f1124 !important;
+    border-right-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 15. Açık Platin Gri */
+[data-sidebar-theme="platin-gri"] { --sidebar-bg: #e2e8f0; }
 [data-sidebar-theme="platin-gri"] .left-side-bar,
 [data-sidebar-theme="platin-gri"] .left-side-bar .menu-block {
     background: #e2e8f0 !important;
@@ -10469,7 +10561,8 @@ html:not(.dark-mode)[data-topbar-theme="oniks"] .user-toggle-btn .user-name {
 [data-sidebar-theme="platin-gri"] .sidebar-menu .submenu li a { color: #475569 !important; }
 [data-sidebar-theme="platin-gri"] .sidebar-menu .submenu li a:hover { color: #0f172a !important; background: #cbd5e1 !important; }
 
-/* 11. Sade Beyaz */
+/* 16. Sade Beyaz */
+[data-sidebar-theme="sade-beyaz"] { --sidebar-bg: #ffffff; }
 [data-sidebar-theme="sade-beyaz"] .left-side-bar,
 [data-sidebar-theme="sade-beyaz"] .left-side-bar .menu-block {
     background: #ffffff !important;
@@ -10917,432 +11010,110 @@ body, button, input, optgroup, select, textarea, .form-control, .btn, .table, .m
 }
 
 /* ==============================================================
-   MODÜL SAYFALARI (TEKLİF, SERVİS, MÜŞTERİ VB.) GENEL TEMA UYUMU
-   (Page Title Box, Aksiyon Butonları, Alt Menü Aktifliği)
+   UNIVERSAL DINAMIK BIRINCIL (PRIMARY) & VURGU BILESENLERI
    ============================================================== */
-
-/* 1. KODE */
-[data-theme-preset="kode"] .page-title-icon {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    border: 1px solid #bfdbfe !important;
-}
-[data-theme-preset="kode"] .btn-action-primary {
-    background: #2563eb !important;
-    border-color: #1d4ed8 !important;
+.btn-primary,
+.btn-action-primary,
+.crm-quick-btn.btn-primary-action,
+button.btn-primary,
+a.btn-primary {
+    background: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary-hover, #1d4ed8) !important;
     color: #ffffff !important;
-}
-[data-theme-preset="kode"] .btn-action-primary:hover {
-    background: #1d4ed8 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kode"] .btn-action-outline.btn-outline-primary {
-    color: #2563eb !important;
-    border-color: #93c5fd !important;
-}
-[data-theme-preset="kode"] .btn-action-outline.btn-outline-primary:hover {
-    background: #2563eb !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kode"] .sidebar-menu .submenu li a.active {
-    background: #2b2b40 !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    border-radius: 6px !important;
+    box-shadow: 0 2px 4px var(--theme-primary-shadow, rgba(37, 99, 235, 0.2)) !important;
 }
 
-/* 2. ERSAN GOLD */
-[data-theme-preset="ersan-gold"] .page-title-icon {
-    background: #fef3c7 !important;
-    color: #d97706 !important;
-    border: 1px solid #fde68a !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-primary {
-    background: #d97706 !important;
-    border-color: #b45309 !important;
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-action-primary:hover,
+.crm-quick-btn.btn-primary-action:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
+    background: var(--theme-primary-hover, #1d4ed8) !important;
+    border-color: var(--theme-primary-hover, #1d4ed8) !important;
     color: #ffffff !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-primary:hover {
-    background: #b45309 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-outline.btn-outline-primary {
-    color: #d97706 !important;
-    border-color: #fde68a !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-outline.btn-outline-primary:hover {
-    background: #d97706 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="ersan-gold"] .sidebar-menu .submenu li a.active {
-    background: #2b2b40 !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    border-radius: 6px !important;
+    box-shadow: 0 4px 8px var(--theme-primary-shadow, rgba(37, 99, 235, 0.3)) !important;
 }
 
-/* ==============================================================
-   MODÜL SAYFALARI (TEKLİF, SERVİS, MÜŞTERİ VB.) GENEL TEMA UYUMU
-   (Başlıklar, Kart İkonları, Tablo Başlıkları, Tutar Metinleri, Rozetler)
-   ============================================================== */
-
-/* 1. KODE (Mavi) */
-[data-theme-preset="kode"] .page-title-icon,
-[data-theme-preset="kode"] .form-card-header .card-icon {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    border: 1px solid #bfdbfe !important;
-}
-.dark-mode[data-theme-preset="kode"] .page-title-icon,
-.dark-mode[data-theme-preset="kode"] .form-card-header .card-icon {
-    background: rgba(37, 99, 235, 0.2) !important;
-    color: #93c5fd !important;
-    border-color: rgba(37, 99, 235, 0.4) !important;
-}
-[data-theme-preset="kode"] .form-card-header h5,
-[data-theme-preset="kode"] .text-primary,
-[data-theme-preset="kode"] a.text-primary,
-[data-theme-preset="kode"] .text-blue {
-    color: #2563eb !important;
-}
-.dark-mode[data-theme-preset="kode"] .form-card-header h5,
-.dark-mode[data-theme-preset="kode"] .text-primary,
-.dark-mode[data-theme-preset="kode"] a.text-primary {
-    color: #93c5fd !important;
-}
-[data-theme-preset="kode"] .btn-action-primary,
-[data-theme-preset="kode"] .btn-primary {
-    background: #2563eb !important;
-    border-color: #1d4ed8 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kode"] .btn-action-primary:hover,
-[data-theme-preset="kode"] .btn-primary:hover {
-    background: #1d4ed8 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kode"] .btn-action-outline.btn-outline-primary {
-    color: #2563eb !important;
-    border-color: #93c5fd !important;
-}
-[data-theme-preset="kode"] .btn-action-outline.btn-outline-primary:hover {
-    background: #2563eb !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kode"] .icon-primary,
-[data-theme-preset="kode"] .soft-primary {
-    background: #eff6ff !important;
-    color: #2563eb !important;
-}
-.dark-mode[data-theme-preset="kode"] .icon-primary,
-.dark-mode[data-theme-preset="kode"] .soft-primary {
-    background: rgba(37, 99, 235, 0.2) !important;
-    color: #93c5fd !important;
+.btn-outline-primary,
+.btn-action-outline.btn-outline-primary,
+button.btn-outline-primary,
+a.btn-outline-primary {
+    color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary, #2563eb) !important;
+    background-color: transparent !important;
 }
 
-/* 2. ERSAN GOLD (Altın / Sarı) */
-[data-theme-preset="ersan-gold"] .page-title-icon,
-[data-theme-preset="ersan-gold"] .form-card-header .card-icon {
-    background: #fef3c7 !important;
-    color: #d97706 !important;
-    border: 1px solid #fde68a !important;
-}
-.dark-mode[data-theme-preset="ersan-gold"] .page-title-icon,
-.dark-mode[data-theme-preset="ersan-gold"] .form-card-header .card-icon {
-    background: rgba(217, 119, 6, 0.2) !important;
-    color: #fde68a !important;
-    border-color: rgba(217, 119, 6, 0.4) !important;
-}
-[data-theme-preset="ersan-gold"] .form-card-header h5,
-[data-theme-preset="ersan-gold"] .text-primary,
-[data-theme-preset="ersan-gold"] a.text-primary,
-[data-theme-preset="ersan-gold"] .text-blue {
-    color: #d97706 !important;
-}
-.dark-mode[data-theme-preset="ersan-gold"] .form-card-header h5,
-.dark-mode[data-theme-preset="ersan-gold"] .text-primary,
-.dark-mode[data-theme-preset="ersan-gold"] a.text-primary {
-    color: #fde68a !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-primary,
-[data-theme-preset="ersan-gold"] .btn-primary {
-    background: #d97706 !important;
-    border-color: #b45309 !important;
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-action-outline.btn-outline-primary:hover,
+button.btn-outline-primary:hover,
+a.btn-outline-primary:hover {
     color: #ffffff !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-primary:hover,
-[data-theme-preset="ersan-gold"] .btn-primary:hover {
-    background: #b45309 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-outline.btn-outline-primary {
-    color: #d97706 !important;
-    border-color: #fde68a !important;
-}
-[data-theme-preset="ersan-gold"] .btn-action-outline.btn-outline-primary:hover {
-    background: #d97706 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="ersan-gold"] .icon-primary,
-[data-theme-preset="ersan-gold"] .soft-primary {
-    background: #fef3c7 !important;
-    color: #d97706 !important;
-}
-.dark-mode[data-theme-preset="ersan-gold"] .icon-primary,
-.dark-mode[data-theme-preset="ersan-gold"] .soft-primary {
-    background: rgba(217, 119, 6, 0.2) !important;
-    color: #fde68a !important;
+    background-color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary, #2563eb) !important;
 }
 
-/* 3. ZÜMRÜT (Zümrüt Yeşili) */
-[data-theme-preset="zumrut"] .page-title-icon,
-[data-theme-preset="zumrut"] .form-card-header .card-icon {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-    border: 1px solid #a7f3d0 !important;
-}
-.dark-mode[data-theme-preset="zumrut"] .page-title-icon,
-.dark-mode[data-theme-preset="zumrut"] .form-card-header .card-icon {
-    background: rgba(5, 150, 105, 0.2) !important;
-    color: #6ee7b7 !important;
-    border-color: rgba(5, 150, 105, 0.4) !important;
-}
-[data-theme-preset="zumrut"] .form-card-header h5,
-[data-theme-preset="zumrut"] .text-primary,
-[data-theme-preset="zumrut"] a.text-primary,
-[data-theme-preset="zumrut"] .text-blue {
-    color: #059669 !important;
-}
-.dark-mode[data-theme-preset="zumrut"] .form-card-header h5,
-.dark-mode[data-theme-preset="zumrut"] .text-primary,
-.dark-mode[data-theme-preset="zumrut"] a.text-primary {
-    color: #6ee7b7 !important;
-}
-[data-theme-preset="zumrut"] .btn-action-primary,
-[data-theme-preset="zumrut"] .btn-primary {
-    background: #059669 !important;
-    border-color: #047857 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="zumrut"] .btn-action-primary:hover,
-[data-theme-preset="zumrut"] .btn-primary:hover {
-    background: #047857 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="zumrut"] .btn-action-outline.btn-outline-primary {
-    color: #059669 !important;
-    border-color: #a7f3d0 !important;
-}
-[data-theme-preset="zumrut"] .btn-action-outline.btn-outline-primary:hover {
-    background: #059669 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="zumrut"] .icon-primary,
-[data-theme-preset="zumrut"] .soft-primary {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
-}
-.dark-mode[data-theme-preset="zumrut"] .icon-primary,
-.dark-mode[data-theme-preset="zumrut"] .soft-primary {
-    background: rgba(5, 150, 105, 0.2) !important;
-    color: #6ee7b7 !important;
+[class*="-header-card"] .header-icon,
+.page-title-icon,
+.form-card-header .card-icon,
+.icon-primary,
+.soft-primary {
+    background: var(--theme-primary-light, #eff6ff) !important;
+    color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary-shadow, rgba(37, 99, 235, 0.25)) !important;
 }
 
-/* 4. KRALİYET MORU (Asil Mor) */
-[data-theme-preset="kraliyet-moru"] .page-title-icon,
-[data-theme-preset="kraliyet-moru"] .form-card-header .card-icon {
-    background: #f5f3ff !important;
-    color: #7c3aed !important;
-    border: 1px solid #ddd6fe !important;
-}
-.dark-mode[data-theme-preset="kraliyet-moru"] .page-title-icon,
-.dark-mode[data-theme-preset="kraliyet-moru"] .form-card-header .card-icon {
-    background: rgba(124, 58, 237, 0.2) !important;
-    color: #c4b5fd !important;
-    border-color: rgba(124, 58, 237, 0.4) !important;
-}
-[data-theme-preset="kraliyet-moru"] .form-card-header h5,
-[data-theme-preset="kraliyet-moru"] .text-primary,
-[data-theme-preset="kraliyet-moru"] a.text-primary,
-[data-theme-preset="kraliyet-moru"] .text-blue {
-    color: #7c3aed !important;
-}
-.dark-mode[data-theme-preset="kraliyet-moru"] .form-card-header h5,
-.dark-mode[data-theme-preset="kraliyet-moru"] .text-primary,
-.dark-mode[data-theme-preset="kraliyet-moru"] a.text-primary {
-    color: #c4b5fd !important;
-}
-[data-theme-preset="kraliyet-moru"] .btn-action-primary,
-[data-theme-preset="kraliyet-moru"] .btn-primary {
-    background: #7c3aed !important;
-    border-color: #6d28d9 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kraliyet-moru"] .btn-action-primary:hover,
-[data-theme-preset="kraliyet-moru"] .btn-primary:hover {
-    background: #6d28d9 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kraliyet-moru"] .btn-action-outline.btn-outline-primary {
-    color: #7c3aed !important;
-    border-color: #ddd6fe !important;
-}
-[data-theme-preset="kraliyet-moru"] .btn-action-outline.btn-outline-primary:hover {
-    background: #7c3aed !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="kraliyet-moru"] .icon-primary,
-[data-theme-preset="kraliyet-moru"] .soft-primary {
-    background: #f5f3ff !important;
-    color: #7c3aed !important;
-}
-.dark-mode[data-theme-preset="kraliyet-moru"] .icon-primary,
-.dark-mode[data-theme-preset="kraliyet-moru"] .soft-primary {
-    background: rgba(124, 58, 237, 0.2) !important;
-    color: #c4b5fd !important;
+.dark-mode [class*="-header-card"] .header-icon,
+.dark-mode .page-title-icon,
+.dark-mode .form-card-header .card-icon,
+.dark-mode .icon-primary,
+.dark-mode .soft-primary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--theme-primary, #93c5fd) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 5. ROSE (Gül Kırmızısı) */
-[data-theme-preset="rose"] .page-title-icon,
-[data-theme-preset="rose"] .form-card-header .card-icon {
-    background: #fff1f2 !important;
-    color: #e11d48 !important;
-    border: 1px solid #fecdd3 !important;
-}
-.dark-mode[data-theme-preset="rose"] .page-title-icon,
-.dark-mode[data-theme-preset="rose"] .form-card-header .card-icon {
-    background: rgba(225, 29, 72, 0.2) !important;
-    color: #fecdd3 !important;
-    border-color: rgba(225, 29, 72, 0.4) !important;
-}
-[data-theme-preset="rose"] .form-card-header h5,
-[data-theme-preset="rose"] .text-primary,
-[data-theme-preset="rose"] a.text-primary,
-[data-theme-preset="rose"] .text-blue {
-    color: #e11d48 !important;
-}
-.dark-mode[data-theme-preset="rose"] .form-card-header h5,
-.dark-mode[data-theme-preset="rose"] .text-primary,
-.dark-mode[data-theme-preset="rose"] a.text-primary {
-    color: #fecdd3 !important;
-}
-[data-theme-preset="rose"] .btn-action-primary,
-[data-theme-preset="rose"] .btn-primary {
-    background: #e11d48 !important;
-    border-color: #be123c !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="rose"] .btn-action-primary:hover,
-[data-theme-preset="rose"] .btn-primary:hover {
-    background: #be123c !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="rose"] .btn-action-outline.btn-outline-primary {
-    color: #e11d48 !important;
-    border-color: #fecdd3 !important;
-}
-[data-theme-preset="rose"] .btn-action-outline.btn-outline-primary:hover {
-    background: #e11d48 !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="rose"] .icon-primary,
-[data-theme-preset="rose"] .soft-primary {
-    background: #fff1f2 !important;
-    color: #e11d48 !important;
-}
-.dark-mode[data-theme-preset="rose"] .icon-primary,
-.dark-mode[data-theme-preset="rose"] .soft-primary {
-    background: rgba(225, 29, 72, 0.2) !important;
-    color: #fecdd3 !important;
+.form-card-header h5,
+.text-primary,
+a.text-primary {
+    color: var(--theme-primary, #2563eb) !important;
 }
 
-/* 6. SADE BEYAZ (Minimalist Antrasit) */
-[data-theme-preset="sade-beyaz"] .page-title-icon,
-[data-theme-preset="sade-beyaz"] .form-card-header .card-icon {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-    border: 1px solid #e2e8f0 !important;
-}
-.dark-mode[data-theme-preset="sade-beyaz"] .page-title-icon,
-.dark-mode[data-theme-preset="sade-beyaz"] .form-card-header .card-icon {
-    background: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: #334155 !important;
-}
-[data-theme-preset="sade-beyaz"] .form-card-header h5,
-[data-theme-preset="sade-beyaz"] .text-primary,
-[data-theme-preset="sade-beyaz"] a.text-primary,
-[data-theme-preset="sade-beyaz"] .text-blue {
-    color: #0f172a !important;
-}
-.dark-mode[data-theme-preset="sade-beyaz"] .form-card-header h5,
-.dark-mode[data-theme-preset="sade-beyaz"] .text-primary,
-.dark-mode[data-theme-preset="sade-beyaz"] a.text-primary {
-    color: #f8fafc !important;
-}
-[data-theme-preset="sade-beyaz"] .btn-action-primary,
-[data-theme-preset="sade-beyaz"] .btn-primary {
-    background: #0f172a !important;
-    border-color: #020617 !important;
+.badge-primary {
+    background-color: var(--theme-primary, #2563eb) !important;
     color: #ffffff !important;
-}
-[data-theme-preset="sade-beyaz"] .btn-action-primary:hover,
-[data-theme-preset="sade-beyaz"] .btn-primary:hover {
-    background: #1e293b !important;
-    color: #ffffff !important;
-}
-[data-theme-preset="sade-beyaz"] .icon-primary,
-[data-theme-preset="sade-beyaz"] .soft-primary {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
-}
-[data-theme-preset="sade-beyaz"] .sidebar-menu .submenu li a.active {
-    background: #e2e8f0 !important;
-    color: #0f172a !important;
-    font-weight: 600 !important;
-    border-radius: 6px !important;
 }
 
-/* 7. KOYU GECE (Cyan) */
-[data-theme-preset="koyu-gece"] .page-title-icon,
-[data-theme-preset="koyu-gece"] .form-card-header .card-icon {
-    background: #1e293b !important;
-    color: #38bdf8 !important;
-    border: 1px solid #334155 !important;
+.bg-primary {
+    background-color: var(--theme-primary, #2563eb) !important;
 }
-.dark-mode[data-theme-preset="koyu-gece"] .page-title-icon,
-.dark-mode[data-theme-preset="koyu-gece"] .form-card-header .card-icon {
-    background: rgba(6, 182, 212, 0.2) !important;
-    color: #38bdf8 !important;
-    border-color: rgba(6, 182, 212, 0.4) !important;
+
+.border-primary {
+    border-color: var(--theme-primary, #2563eb) !important;
 }
-[data-theme-preset="koyu-gece"] .form-card-header h5,
-[data-theme-preset="koyu-gece"] .text-primary,
-[data-theme-preset="koyu-gece"] a.text-primary,
-[data-theme-preset="koyu-gece"] .text-blue {
-    color: #38bdf8 !important;
-}
-.dark-mode[data-theme-preset="koyu-gece"] .form-card-header h5,
-.dark-mode[data-theme-preset="koyu-gece"] .text-primary,
-.dark-mode[data-theme-preset="koyu-gece"] a.text-primary {
-    color: #38bdf8 !important;
-}
-[data-theme-preset="koyu-gece"] .btn-action-primary,
-[data-theme-preset="koyu-gece"] .btn-primary {
-    background: #0284c7 !important;
-    border-color: #0369a1 !important;
+
+.page-item.active .page-link {
+    background-color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary, #2563eb) !important;
     color: #ffffff !important;
 }
-[data-theme-preset="koyu-gece"] .btn-action-primary:hover,
-[data-theme-preset="koyu-gece"] .btn-primary:hover {
-    background: #0369a1 !important;
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--theme-primary, #2563eb) !important;
     color: #ffffff !important;
 }
-[data-theme-preset="koyu-gece"] .icon-primary,
-[data-theme-preset="koyu-gece"] .soft-primary {
-    background: rgba(6, 182, 212, 0.2) !important;
-    color: #38bdf8 !important;
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: var(--theme-primary, #2563eb) !important;
+    border-color: var(--theme-primary, #2563eb) !important;
 }
+
 
 /* ==============================================================
    GLOBAL TOPBAR SEARCH (TEKLİF, ÜRÜN, FİRMA, SERVİS, KEŞİF, RAPOR)

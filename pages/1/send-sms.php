@@ -513,7 +513,7 @@ $customerList = $customerModel->getActiveCustomersWithPhone();
 }
 
 .select2-results__option--highlighted[aria-selected] {
-    background-color: #4f46e5 !important;
+    background-color: var(--topbar-color, var(--theme-primary, #4f46e5)) !important;
     color: #ffffff !important;
 }
 

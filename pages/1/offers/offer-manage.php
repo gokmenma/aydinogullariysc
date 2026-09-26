@@ -513,8 +513,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .form-field .form-control:focus,
             .form-field .select2-container--default.select2-container--focus .select2-selection--single,
             .form-field .select2-container--default.select2-container--open .select2-selection--single {
-                border-color: #3b82f6 !important;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+                border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) !important;
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) 18%, transparent) !important;
                 background: #fff !important;
             }
 
@@ -613,8 +613,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
             .customer-select-box .select2-container--default.select2-container--focus .select2-selection--single,
             .customer-select-box .select2-container--default.select2-container--open .select2-selection--single {
-                border-color: #3b82f6 !important;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+                border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) !important;
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) 18%, transparent) !important;
             }
 
             .customer-select-box .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -667,7 +667,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             }
 
             .customer-title i {
-                color: #2563eb !important;
+                color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
             }
 
             .customer-sub {
@@ -683,11 +683,11 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 color: #64748b !important;
             }
 
-            /* HOVER & HIGHLIGHTED DURUM: Yüksek Kontrastlı Koyu Mavi Arka Plan */
+            /* HOVER & HIGHLIGHTED DURUM: Dinamik Tema Rengi */
             .select2-container--default .select2-results__option--highlighted[aria-selected],
             .select2-container--default .select2-results__option--highlighted,
             .select2-results__option:hover {
-                background: #1d4ed8 !important;
+                background: var(--focus-color, var(--topbar-color, var(--theme-primary, #1d4ed8))) !important;
                 color: #ffffff !important;
             }
 
@@ -702,7 +702,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .select2-container--default .select2-results__option--highlighted .customer-sub i,
             .select2-results__option:hover .customer-sub,
             .select2-results__option:hover .customer-sub i {
-                color: #dbeafe !important;
+                color: rgba(255, 255, 255, 0.85) !important;
             }
 
             /* Satır İçi Ürün Otomatik Tamamlama (Inline Autocomplete) */

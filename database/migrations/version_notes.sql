@@ -309,3 +309,16 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.0');
 UPDATE `version_notes`
 SET `description` = '- Ana sayfa kartları hizalı biçimde sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime döviz kurları, bugünkü işler, geciken/yaklaşan işler ve satın alma/onay kartları eklendi.'
 WHERE `version_tag` = 'v2.7.0';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.1', 'Sistem Aktivite Logları Arşivleme ve Saklama Politikası', 'improvement', '- Sistem aktivite kayıtları önem ve yaşlarına göre güvenli biçimde arşivlenip temizlenecek, geçmiş kayıtlar ayrı ekrandan erişilebilir kalacak şekilde düzenlendi.', 'Antigravity AI', '2026-09-26 15:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.1');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.2', 'Sidebar Uyumlu Gradient (Degrade) Temalar', 'feature', '- Üst menü renginin sol menü tonundan başlayıp canlı tema rengine doğru yumuşak degrade (gradient) ile aktığı 10 yeni modern tema ve bağımsız renk seçeneği eklendi.', 'Antigravity AI', '2026-09-26 15:20:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.2');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.3', 'Tema Özelleştiricide Dinamik Primary (Birincil) Renk Seçimi', 'feature', '- Tema özelleştiriciye 12 hazır palet ve özel HEX renk seçici eklendi; butonlar, formlar, aktif menüler ve Select2 odaklanma renkleri anında seçilen renkle senkronize edildi.', 'Antigravity AI', '2026-09-26 16:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.3');
+
