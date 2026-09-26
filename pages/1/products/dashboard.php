@@ -8,11 +8,6 @@ if (!permtrue('product_dashboard') && !permtrue('productcategory') && !permtrue(
     return;
 }
 
-// Loglama
-if (function_exists('audit_log')) {
-    audit_log("view", "products", "Ürün & Hizmet Dashboard sayfası görüntülendi", "dashboard", 0);
-}
-
 $productModel = new ProductModel();
 
 // Tarih / Dönem Filtresi

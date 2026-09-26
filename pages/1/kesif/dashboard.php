@@ -6,10 +6,6 @@ if (!permtrue('kesif_dashboard') && !permtrue('kesifView')) {
     return;
 }
 
-if (function_exists('audit_log')) {
-    audit_log('view', 'kesif', 'Keşif Dashboard sayfası görüntülendi', 'dashboard', 0);
-}
-
 $period = $_GET['period'] ?? 'all';
 $startDate = $_GET['start_date'] ?? null;
 $endDate = $_GET['end_date'] ?? null;

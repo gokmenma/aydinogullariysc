@@ -7,11 +7,6 @@ if (!permtrue('offer_dashboard') && !permtrue('offerview')) {
     return;
 }
 
-// Loglama
-if (function_exists('audit_log')) {
-    audit_log("view", "offers", "Teklifler Dashboard sayfası görüntülendi", "dashboard", 0);
-}
-
 $offerModel = new OfferModel();
 
 // Tarih / Dönem Filtresi

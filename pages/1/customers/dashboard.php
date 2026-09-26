@@ -7,11 +7,6 @@ if (!permtrue('customer_dashboard') && !permtrue('customerview')) {
     return;
 }
 
-// Loglama
-if (function_exists('audit_log')) {
-    audit_log("view", "customers", "Firma & Müşteri Dashboard sayfası görüntülendi", "dashboard", 0);
-}
-
 $customerModel = new CustomerModel();
 
 // Tarih / Dönem Filtresi

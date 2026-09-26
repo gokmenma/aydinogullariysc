@@ -8,11 +8,6 @@ if (!permtrue('service_dashboard') && !permtrue('serviceView')) {
     return;
 }
 
-// Loglama
-if (function_exists('audit_log')) {
-    audit_log("view", "service", "Servis Dashboard sayfası görüntülendi", "dashboard", 0);
-}
-
 $serviceModel = new ServiceModel();
 
 // Tarih / Dönem Filtresi

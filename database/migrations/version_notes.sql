@@ -302,8 +302,10 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.6.0', 'Sürüm Notları Sayfası Erişim Yetkisi Düzeltmesi', 'bugfix', '- Sürüm notları API uç noktasındaki okuma yetkisi kısıtı düzeltilerek tüm oturum açmış kullanıcıların ve rollerin sürüm notlarını eksiksiz görüntüleyebilmesi sağlandı.', 'Antigravity AI', '2026-09-26 12:15:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.6.0');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.7.0', 'Özelleştirilebilir ve Boyutlandırılabilir Pano (Dashboard) Kartları', 'feature', '- Ana sayfa kartları hizalı biçimde sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime döviz kurları, bugünkü işler, geciken/yaklaşan işler ve satın alma/onay kartları eklendi.', 'Antigravity AI', '2026-09-26 13:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.7.0');
 
-
-
-
-
+UPDATE `version_notes`
+SET `description` = '- Ana sayfa kartları hizalı biçimde sürüklenebilir, boyutlandırılabilir ve gizlenebilir hale getirildi; cihazlar arasında korunan yerleşime döviz kurları, bugünkü işler, geciken/yaklaşan işler ve satın alma/onay kartları eklendi.'
+WHERE `version_tag` = 'v2.7.0';

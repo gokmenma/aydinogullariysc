@@ -30,6 +30,7 @@ final class ApiSecurity
         'App/api/version-notes.php' => [],
         'api/customers_datatables.php' => ['customer_dashboard', 'customeradd', 'customeredit', 'customerdelete'],
         'api/customers_export.php' => ['customerexport'],
+        'api/dashboard-layout.php' => [],
         'api/global_search.php' => [],
         'api/mail_templates.php' => ['mailandsmssend'],
         'api/menu_order.php' => [],

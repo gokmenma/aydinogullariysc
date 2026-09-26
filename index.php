@@ -19,6 +19,7 @@ if ($plink) {
     $ttlinks = $plink;
 } else {
     header("Location:index.php?p=home");
+    exit;
 }
 
 try {
@@ -26,7 +27,7 @@ try {
     $pquery->execute(array($plink));
     $pdat = $pquery->fetch(PDO::FETCH_ASSOC);
 
-    if (isset($_SESSION['login'])) {
+    if (isset($_SESSION['login']) && !empty($plink)) {
         $p_title = $pdat['p_title'] ?? $plink;
         audit_log(
             "view",
@@ -79,6 +80,7 @@ try {
             }
         } else {
             header("Location:index.php?p=home&code=0121");
+            exit;
         }
     } else {
         include "pages/" . $skid . "/home.php";

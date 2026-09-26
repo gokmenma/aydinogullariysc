@@ -7,11 +7,6 @@ if (!permtrue('purchase_dashboard') && !permtrue('purchaseadd')) {
     return;
 }
 
-// Loglama
-if (function_exists('audit_log')) {
-    audit_log("view", "purchases", "Satın Alma Dashboard sayfası görüntülendi", "dashboard", 0);
-}
-
 $purchaseModel = new PurchaseModel();
 
 // Tarih / Dönem Filtresi

@@ -7,11 +7,6 @@ if (!permtrue('report_dashboard') && !permtrue('reportview')) {
     return;
 }
 
-// Loglama
-if (function_exists('audit_log')) {
-    audit_log("view", "reports", "Raporlar Dashboard sayfası görüntülendi", "dashboard", 0);
-}
-
 $reportsModel = new ReportsModel();
 
 // Tarih / Dönem Filtresi
