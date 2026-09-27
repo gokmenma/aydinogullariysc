@@ -6,7 +6,7 @@ use App\Helper\Date;
 use App\Model\OfferModel;
 
 
-$ois = @$_GET["id"];
+$ois = $_GET["id"] ?? null;
 $cid = @$_GET["cid"];
 $sablonlari_goster = isset($_GET["sablon"]) ? true : false;
 if($sablonlari_goster){
@@ -1640,4 +1640,3 @@ $(document).ready(function() {
     }
 </script>
 <!-- <script src="include/js/data-table.js"></script> -->
-

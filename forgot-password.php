@@ -192,6 +192,17 @@ flInputs.forEach(function(input){
     if(Date.now() - started > 4000) clearInterval(timer);
   }, 400);
 });
+
+var forgotForm = document.querySelector('form');
+var submitBtn = document.querySelector('.btn-login');
+if (forgotForm && submitBtn) {
+  forgotForm.addEventListener('submit', function () {
+    if (!forgotForm.checkValidity()) return;
+    submitBtn.classList.add('loading');
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin btn-spinner"></i> Gönderiliyor...';
+    setTimeout(function() { submitBtn.setAttribute('disabled', 'disabled'); }, 10);
+  });
+}
 </script>
 </body>
 </html>

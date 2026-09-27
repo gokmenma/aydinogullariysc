@@ -2,6 +2,16 @@
 
 require_once "bootstrap.php";
 
+use App\Routing\PilotRouter;
+
+try {
+    $pilotRoute = PilotRouter::resolve((string) ($_SERVER['REQUEST_URI'] ?? ''));
+} catch (InvalidArgumentException $exception) {
+    http_response_code(404);
+    echo htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8');
+    exit;
+}
+
 if (set("system_statu") == 1) {
     if (!isset($_SESSION["login"])) {
         $returnUrl = urlencode($_SERVER["REQUEST_URI"]);
@@ -9,6 +19,12 @@ if (set("system_statu") == 1) {
         exit;
     }
 } else {
+    exit;
+}
+
+if ($pilotRoute !== null && !PilotRouter::isAuthorized($pilotRoute['permissions'])) {
+    http_response_code(403);
+    echo 'Bu sayfayı görüntüleme yetkiniz bulunmuyor.';
     exit;
 }
 

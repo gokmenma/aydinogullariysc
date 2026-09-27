@@ -78,7 +78,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="index.php?p=offers/list" class="btn-header btn-header-list">
+                    <a href="teklifler" class="btn-header btn-header-list">
                         <i class="fa fa-list"></i> Listeye Dön
                     </a>
                     <button type="button" id="btn_save_offer" class="btn-header btn-header-save">

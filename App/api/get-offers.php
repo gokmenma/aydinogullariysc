@@ -2,6 +2,8 @@
 // Hata raporlamayı açmak geliştirme aşamasında faydalıdır.
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
+use App\Helper\Security;
+
 // --- 1. DataTables Parametreleri ---
 $draw = $_POST['draw'] ?? 0;
 $start = $_POST['start'] ?? 0;
@@ -396,6 +398,7 @@ $data = [];
 $sirano = $start + 1;
 
 foreach ($results as $of) {
+    $encryptedOfferId = Security::encrypt((string) $of['id']);
     // Durum Badge'i
     if ($of["statu"] == 2) {
         $durum_badge = "<span class='badge badge-success' data-tooltip='".$of['durum']."'>".$of['durum']."</span>";
@@ -409,7 +412,7 @@ foreach ($results as $of) {
     // İşlem Butonları
     $islem_butonlari = '<div class="text-nowrap" style="display:inline-flex; flex-wrap:nowrap; gap:4px">';
     if(($of["is_template"] == 1 && checkAuth("template_offer_edit")) || ($of["is_template"] == 0 && checkAuth("offeredit"))) {
-        $islem_butonlari .= '<a type="button" href="index.php?p=offers/offer-manage&id=' . $of["id"] . '" class="btn btn-sm btn-outline-primary" data-tooltip="Düzenle"><i class="fa fa-pencil"></i></a>';
+        $islem_butonlari .= '<a type="button" href="teklif-duzenle?id=' . $encryptedOfferId . '" class="btn btn-sm btn-outline-primary" data-tooltip="Düzenle"><i class="fa fa-pencil"></i></a>';
     }
 
     if(($of["is_template"] == 1 && checkAuth("offertemplatedel")) || ($of["is_template"] == 0 && checkAuth("offerdelete"))) {
@@ -462,7 +465,7 @@ foreach ($results as $of) {
     $escapedCleanNo = htmlspecialchars($cleanOfferNo, ENT_QUOTES, 'UTF-8');
 
     if ($canEditOffer) {
-        $teklifNoCell = '<div class="text-center"><a href="index.php?p=offers/offer-manage&id=' . (int)$of["id"] . '" class="offer-no-badge" data-tooltip="Düzenle: ' . $escapedRawNo . '">' . $escapedCleanNo . '</a></div>';
+        $teklifNoCell = '<div class="text-center"><a href="teklif-duzenle?id=' . $encryptedOfferId . '" class="offer-no-badge" data-tooltip="Düzenle: ' . $escapedRawNo . '">' . $escapedCleanNo . '</a></div>';
     } else {
         $teklifNoCell = '<div class="text-center"><span class="offer-no-badge" data-tooltip="' . $escapedRawNo . '">' . $escapedCleanNo . '</span></div>';
     }

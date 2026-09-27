@@ -395,7 +395,7 @@ SELECT 'v2.8.7', 'Ekip Listesine Durum Sekme Filtreleri Eklendi', 'feature', '- 
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.7');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.8.8', 'Giriş Ekranı Otomatik Doldurma (Autofill) Düzeltmesi', 'bugfix', '- Giriş ve şifre sıfırlama ekranlarında tarayıcı otomatik doldurma (autofill) yapıldığında etiketlerin metinle çakışması giderildi; arkaplan ve koyu mod uyumu sağlandı.', 'Antigravity AI', '2026-09-27 08:24:00'
+SELECT 'v2.8.8', 'Giriş Ekranı Otomatik Doldurma ve Giriş Yapılıyor Spinner İyileştirmesi', 'improvement', '- Giriş ve şifre sıfırlama ekranlarında tarayıcı otomatik doldurma (autofill) çakışması giderildi; form gönderildiğinde sayfa yönlenene kadar spinner ile \"Giriş Yapılıyor...\" bildirim durumu eklendi.', 'Antigravity AI', '2026-09-27 08:28:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.8');
 
 

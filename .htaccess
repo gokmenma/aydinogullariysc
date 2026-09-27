@@ -1,5 +1,9 @@
 RewriteEngine On
 
+# Pilot temiz URL rotalari. Mevcut index.php?p=... adresleri geriye donuk
+# uyumluluk icin calismaya devam eder.
+RewriteRule ^(teklifler|satin-almalar|teklif-duzenle)/?$ index.php [L,QSA]
+
 # HTTPS yoksa HTTPS'ye yönlendir
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

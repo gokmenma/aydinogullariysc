@@ -320,6 +320,22 @@ flInputs.forEach(function(input){
   }, 400);
 });
 
+// Giriş Butonu Yükleniyor Durumu
+var loginForm = document.querySelector('form');
+var submitBtn = document.querySelector('.btn-login');
+if (loginForm && submitBtn) {
+  loginForm.addEventListener('submit', function () {
+    if (!loginForm.checkValidity()) {
+      return;
+    }
+    submitBtn.classList.add('loading');
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin btn-spinner"></i> Giriş Yapılıyor...';
+    setTimeout(function() {
+      submitBtn.setAttribute('disabled', 'disabled');
+    }, 10);
+  });
+}
+
 // Tema Seçici & Eşitleme
 (function () {
     var themePresetFonts = {

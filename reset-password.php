@@ -122,6 +122,17 @@ flInputs.forEach(function(input){
     if(Date.now() - started > 4000) clearInterval(timer);
   }, 400);
 });
+
+var resetForm = document.querySelector('form');
+var submitBtn = document.querySelector('.btn-login');
+if (resetForm && submitBtn) {
+  resetForm.addEventListener('submit', function () {
+    if (!resetForm.checkValidity()) return;
+    submitBtn.classList.add('loading');
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin btn-spinner"></i> Parola Güncelleniyor...';
+    setTimeout(function() { submitBtn.setAttribute('disabled', 'disabled'); }, 10);
+  });
+}
 </script>
 </body>
 </html>

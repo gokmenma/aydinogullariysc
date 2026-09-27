@@ -38,7 +38,7 @@ $menuDefinitions = [
             ],
             'offers/list' => [
                 'title' => 'Teklifleri Görüntüle',
-                'link' => 'index.php?p=offers/list',
+                'link' => 'teklifler',
                 'visible' => true
             ],
             'offers/items-list' => [
@@ -117,7 +117,7 @@ $menuDefinitions = [
             ],
             'purchases' => [
                 'title' => 'Tümünü Görüntüle',
-                'link' => 'index.php?p=purchases',
+                'link' => 'satin-almalar',
                 'visible' => true
             ]
         ]
@@ -622,6 +622,14 @@ $isMenuLinkActive = function($link, $itemKey = null, $menuKey = null) use ($curr
     if (empty($link)) return false;
     
     $parsed = parse_url($link);
+    $cleanRoutePages = [
+        'teklifler' => 'offers/list',
+        'satin-almalar' => 'purchases',
+    ];
+    $cleanPath = trim((string)($parsed['path'] ?? ''), '/');
+    if (isset($cleanRoutePages[$cleanPath]) && $cleanRoutePages[$cleanPath] === $currentP) {
+        return true;
+    }
     if (!empty($parsed['query'])) {
         parse_str($parsed['query'], $params);
         if (isset($params['p'])) {

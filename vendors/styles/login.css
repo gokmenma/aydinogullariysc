@@ -1018,6 +1018,20 @@ html.dark-mode .toggle-password:hover {
     transform: translateY(0);
 }
 
+.btn-login:disabled,
+.btn-login.loading {
+    opacity: 0.88;
+    cursor: not-allowed;
+    transform: none !important;
+    filter: none !important;
+    pointer-events: none;
+}
+
+.btn-login .btn-spinner {
+    display: inline-block;
+    margin-right: 8px;
+}
+
 .btn-login::after {
     content: '';
     position: absolute;
