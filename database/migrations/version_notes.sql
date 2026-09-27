@@ -528,6 +528,11 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.32', 'Servis Listesinde Satır İçi PDF Önizleme Modalı', 'feature', '- Servis listesinde Servis No sütunundaki numaranın önüne PDF ikonu eklendi; tıklandığında sayfadan ayrılmadan açılan modal penceresinde (iframe) servis formu önizleme, yazdırma ve yeni sekmede açma özellikleri sağlandı.', 'Antigravity AI', '2026-09-27 23:05:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.32');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.33', 'Teklif Sayfasında Teklif Konusu Otomatik Tamamlama (Datalist) Desteği', 'feature', '- Yeni teklif ve teklif düzenleme sayfalarında (offer-manage) Teklif Konusu alanı için sistemde kayıtlı tüm benzersiz teklif konularını alfabetik getiren otomatik tamamlama (datalist) özelliği eklendi.', 'Antigravity AI', '2026-09-27 23:13:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.33');
+
+
 
 
 

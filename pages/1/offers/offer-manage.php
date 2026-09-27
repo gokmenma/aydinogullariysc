@@ -9,6 +9,7 @@ use App\Helper\Security;
 use App\Model\OfferModel;
 
 $offerObj = new OfferModel();
+$offer_subjects = $offerObj->getDistinctOfferSubjects();
 
 $oid = $_GET['id'] ?? 0;
 $offer = $offerObj->find($oid);
@@ -1097,7 +1098,12 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                         <!-- Teklif Konusu -->
                         <div class="form-field">
                             <label for="offer_subject">Teklif Konusu</label>
-                            <input type="text" id="offer_subject" name="offer_subject" class="form-control" value="<?php echo $offer->offer_subject ?? '' ?>" placeholder="Örn: Yeni Teklif">
+                            <input type="text" id="offer_subject" name="offer_subject" class="form-control" value="<?php echo htmlspecialchars($offer->offer_subject ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Örn: Yeni Teklif" list="offer_subject_list" autocomplete="off">
+                            <datalist id="offer_subject_list">
+                                <?php foreach ($offer_subjects as $subject): ?>
+                                    <option value="<?php echo htmlspecialchars($subject, ENT_QUOTES, 'UTF-8'); ?>">
+                                <?php endforeach; ?>
+                            </datalist>
                         </div>
 
                         <div class="offer-inline-fields">

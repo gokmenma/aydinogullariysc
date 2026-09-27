@@ -1064,5 +1064,31 @@ class OfferModel extends BaseModel
 
         return $result;
     }
+
+    /**
+     * Önceden kaydedilmiş benzersiz teklif konularını getirir (Otomatik tamamlama için)
+     *
+     * @return array
+     */
+    public function getDistinctOfferSubjects(): array
+    {
+        $subjects = [];
+        $sql = "SELECT DISTINCT TRIM(offer_subject) as subject FROM {$this->table} WHERE offer_subject IS NOT NULL AND TRIM(offer_subject) != ''";
+        $stmt = $this->db->query($sql);
+        if ($stmt) {
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $subject = trim($row['subject'] ?? '');
+                if ($subject !== '') {
+                    $key = mb_strtolower($subject, 'UTF-8');
+                    if (!isset($subjects[$key])) {
+                        $subjects[$key] = $subject;
+                    }
+                }
+            }
+        }
+        $result = array_values($subjects);
+        natcasesort($result);
+        return array_values($result);
+    }
 }
 
