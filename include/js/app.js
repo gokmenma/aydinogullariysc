@@ -279,10 +279,37 @@ function deleteRecord(msg, ID, pLink, table=null, redirectLink=null) {
             text: res.message, 
             icon: "success",
           }).then(() => {
-            // Açıkça verilen temiz rotayı doğrudan kullan; eski çağrılar için geriye uyumluluğu koru.
-            window.location.href = redirectLink && redirectLink.charAt(0) === "/"
-              ? redirectLink
-              : "index.php?p=" + (redirectLink || pLink);
+            // Açıkça verilen temiz rotayı doğrudan kullan; eski çağrılar için route haritasını ve geriye uyumluluğu koru.
+            var targetRoute = redirectLink || pLink;
+            if (targetRoute && targetRoute.charAt(0) === "/") {
+              window.location.href = targetRoute;
+              return;
+            }
+            var routeMap = {
+              'service-type': '/servis-konulari',
+              'service-status': '/servis-durumlari',
+              'service-region': '/servis-bolgeleri',
+              'paytype': '/tahsilat-turleri',
+              'define-units': '/birimler',
+              'offer-templates': '/teklif-sablon-tanimlari',
+              'file-categories': '/dosya-kategorileri',
+              'indocument-categories': '/evrak-kategorileri',
+              'note-categories': '/not-kategorileri',
+              'view-indocument': '/gelen-evraklar',
+              'view-outdocument': '/giden-evraklar',
+              'users': '/ekip-uyeleri',
+              'purchases': '/satin-almalar',
+              'price-request-list': '/fiyat-talepleri',
+              'all-files': '/dosyalar',
+              'all-notes': '/notlar',
+              'offers/list': '/teklifler',
+              'service/list': '/servisler'
+            };
+            if (routeMap[targetRoute]) {
+              window.location.href = routeMap[targetRoute];
+            } else {
+              window.location.href = "index.php?p=" + targetRoute;
+            }
           });
        
         }else{

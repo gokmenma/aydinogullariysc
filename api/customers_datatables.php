@@ -173,7 +173,7 @@ foreach ($customers as $row_data) {
     $link = $canEdit ? "firma-duzenle?id=" . $encryptedCustomerId : "#";
     $company_name = htmlspecialchars($row_data['company']);
     $short_company = htmlspecialchars(shorted($row_data['company'], 45));
-    $row[] = '<div class="customer-title-cell"><a href="' . $link . '" class="font-weight-600 text-primary-hover" data-toggle="tooltip" data-tooltip="' . $company_name . '">' . $short_company . '</a></div>';
+    $row[] = '<div class="customer-title-cell"><a href="' . $link . '" class="font-weight-600 text-primary-hover btn-customer-dashboard" data-id="' . $cid . '" data-enc-id="' . $encryptedCustomerId . '" data-toggle="tooltip" data-tooltip="' . $company_name . '">' . $short_company . '</a></div>';
 
     // Column 2: Grup (group_title)
     $group_title = trim($row_data['group_title'] ?? '');

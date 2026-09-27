@@ -140,7 +140,7 @@ function addType(page, messagecontent) {
             timer: 1500,
             showConfirmButton: false
         }).then(function () {
-            window.location.href = "index.php?p=" + page;
+            window.location.href = (page === "offer-templates" || page === "teklif-sablon-tanimlari") ? "/teklif-sablon-tanimlari" : (page.charAt(0) === "/" ? page : "index.php?p=" + page);
         });
 
         var modal = $("#exampleModalCenter");
@@ -159,7 +159,7 @@ function addType(page, messagecontent) {
                 timer: 1500,
                 showConfirmButton: false
             }).then(function () {
-                window.location.href = "index.php?p=" + page;
+                window.location.href = (page === "offer-templates" || page === "teklif-sablon-tanimlari") ? "/teklif-sablon-tanimlari" : (page.charAt(0) === "/" ? page : "index.php?p=" + page);
             });
         } else {
             btn.prop('disabled', false).html(originalBtnHtml);

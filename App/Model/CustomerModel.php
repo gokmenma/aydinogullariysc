@@ -631,6 +631,298 @@ class CustomerModel extends BaseModel
             'companies' => $companies
         ];
     }
+
+    /**
+     * Belirli bir müşteriye ait detaylı özet dashboard verilerini getirir.
+     *
+     * @param int $customerId
+     * @return array|null
+     */
+    public function getCustomerDashboardData(int $customerId): ?array
+    {
+        if ($customerId <= 0) {
+            return null;
+        }
+
+        // 1. Müşteri temel bilgileri
+        $stmtCust = $this->db->prepare("
+            SELECT 
+                c.*,
+                cg.title as group_title,
+                u.username as creator_name
+            FROM customers c
+            LEFT JOIN cgroups cg ON cg.id = c.grp
+            LEFT JOIN users u ON u.id = c.creativer
+            WHERE c.id = ? AND c.deleted_at IS NULL
+            LIMIT 1
+        ");
+        $stmtCust->execute([$customerId]);
+        $customer = $stmtCust->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$customer) {
+            return null;
+        }
+
+        // 2. Teklif istatistikleri
+        $stmtOffersStats = $this->db->prepare("
+            SELECT 
+                COUNT(*) as total_count,
+                SUM(CASE WHEN statu = 2 THEN 1 ELSE 0 END) as won_count,
+                SUM(CASE WHEN statu = 1 OR statu = 0 THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN statu = 3 THEN 1 ELSE 0 END) as rejected_count,
+                COALESCE(SUM(COALESCE(tl_toplam_karsilik, total_price, 0)), 0) as total_amount,
+                COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_amount,
+                COALESCE(SUM(CASE WHEN statu = 1 OR statu = 0 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as pending_amount
+            FROM offers
+            WHERE cid = ? AND is_template = 0
+        ");
+        $stmtOffersStats->execute([$customerId]);
+        $offerStats = $stmtOffersStats->fetch(\PDO::FETCH_ASSOC);
+
+        $totalOffers = (int)($offerStats['total_count'] ?? 0);
+        $wonOffers = (int)($offerStats['won_count'] ?? 0);
+        $pendingOffers = (int)($offerStats['pending_count'] ?? 0);
+        $rejectedOffers = (int)($offerStats['rejected_count'] ?? 0);
+        $totalOffersAmount = (float)($offerStats['total_amount'] ?? 0);
+        $wonOffersAmount = (float)($offerStats['won_amount'] ?? 0);
+        $pendingOffersAmount = (float)($offerStats['pending_amount'] ?? 0);
+
+        $winRate = $totalOffers > 0 ? round(($wonOffers / $totalOffers) * 100, 1) : 0;
+
+        // 3. Servis / Proje istatistikleri
+        $stmtProjectsStats = $this->db->prepare("
+            SELECT 
+                COUNT(*) as total_count,
+                SUM(CASE WHEN pstatu = 17 THEN 1 ELSE 0 END) as completed_count,
+                SUM(CASE WHEN pstatu IN (15, 16, 80, 85, 90, 113) THEN 1 ELSE 0 END) as active_count,
+                SUM(CASE WHEN pstatu = 34 THEN 1 ELSE 0 END) as invoiced_count,
+                SUM(CASE WHEN pstatu = 18 THEN 1 ELSE 0 END) as cancelled_count,
+                COALESCE(SUM(price), 0) as total_price
+            FROM projects
+            WHERE pcid = ?
+        ");
+        $stmtProjectsStats->execute([$customerId]);
+        $projectStats = $stmtProjectsStats->fetch(\PDO::FETCH_ASSOC);
+
+        $totalProjects = (int)($projectStats['total_count'] ?? 0);
+        $completedProjects = (int)($projectStats['completed_count'] ?? 0);
+        $activeProjects = (int)($projectStats['active_count'] ?? 0);
+        $invoicedProjects = (int)($projectStats['invoiced_count'] ?? 0);
+        $totalProjectsPrice = (float)($projectStats['total_price'] ?? 0);
+
+        // 4. Rapor ve Keşif istatistikleri
+        $stmtReportStats = $this->db->prepare("
+            SELECT COUNT(*) as count 
+            FROM reports 
+            WHERE customer_id = ?
+        ");
+        $stmtReportStats->execute([$customerId]);
+        $totalReports = (int)($stmtReportStats->fetchColumn() ?? 0);
+
+        // Keşifler (company eşleşmesi)
+        $companyNameTrim = trim($customer['company']);
+        $stmtKesifStats = $this->db->prepare("
+            SELECT COUNT(*) as count 
+            FROM kesifler 
+            WHERE silinme_tarihi IS NULL 
+              AND (LOWER(TRIM(firma)) = LOWER(?) OR firma LIKE ?)
+        ");
+        $stmtKesifStats->execute([$companyNameTrim, '%' . $companyNameTrim . '%']);
+        $totalKesif = (int)($stmtKesifStats->fetchColumn() ?? 0);
+
+        // 5. Son 6 Aylık Finansal & Faaliyet Akışı
+        $monthlyFlow = [];
+        $turkishMonths = [
+            '01' => 'Oca', '02' => 'Şub', '03' => 'Mar', '04' => 'Nis',
+            '05' => 'May', '06' => 'Haz', '07' => 'Tem', '08' => 'Ağu',
+            '09' => 'Eyl', '10' => 'Eki', '11' => 'Kas', '12' => 'Ara'
+        ];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $monthDate = date('Y-m-01', strtotime("-{$i} months"));
+            $yearMonth = date('Y-m', strtotime($monthDate));
+            $mNum = date('m', strtotime($monthDate));
+            $yNum = date('Y', strtotime($monthDate));
+            $mLabel = ($turkishMonths[$mNum] ?? $mNum) . ' ' . $yNum;
+
+            $mStart = date('Y-m-01', strtotime($monthDate));
+            $mEnd = date('Y-m-t', strtotime($monthDate));
+
+            $stmtM = $this->db->prepare("
+                SELECT 
+                    COUNT(id) as offer_count,
+                    COALESCE(SUM(COALESCE(tl_toplam_karsilik, total_price, 0)), 0) as total_volume,
+                    COALESCE(SUM(CASE WHEN statu = 2 THEN COALESCE(tl_toplam_karsilik, total_price, 0) ELSE 0 END), 0) as won_volume
+                FROM offers
+                WHERE cid = ? AND is_template = 0 AND DATE(created_at) BETWEEN ? AND ?
+            ");
+            $stmtM->execute([$customerId, $mStart, $mEnd]);
+            $mData = $stmtM->fetch(\PDO::FETCH_ASSOC);
+
+            $monthlyFlow[] = [
+                'period' => $yearMonth,
+                'label' => $mLabel,
+                'offer_count' => (int)($mData['offer_count'] ?? 0),
+                'total_volume' => (float)($mData['total_volume'] ?? 0),
+                'won_volume' => (float)($mData['won_volume'] ?? 0)
+            ];
+        }
+
+        // 6. Son Teklifler Listesi
+        $stmtOffers = $this->db->prepare("
+            SELECT 
+                o.id,
+                o.offerNumber,
+                o.offer_subject,
+                o.offer_date,
+                o.created_at,
+                o.statu,
+                o.total_price,
+                o.currency,
+                o.tl_toplam_karsilik
+            FROM offers o
+            WHERE o.cid = ? AND o.is_template = 0
+            ORDER BY o.id DESC
+            LIMIT 15
+        ");
+        $stmtOffers->execute([$customerId]);
+        $offersList = $stmtOffers->fetchAll(\PDO::FETCH_ASSOC);
+
+        // 7. Son Servisler Listesi
+        $stmtProjects = $this->db->prepare("
+            SELECT 
+                p.id,
+                p.service_number,
+                p.pstart_date,
+                p.psecond_date,
+                p.price,
+                p.pstatu,
+                p.pdesc,
+                COALESCE(ms.stitle, 'Genel Servis') as service_title
+            FROM projects p
+            LEFT JOIN mainservices ms ON ms.id = p.servicestype
+            WHERE p.pcid = ?
+            ORDER BY p.id DESC
+            LIMIT 15
+        ");
+        $stmtProjects->execute([$customerId]);
+        $projectsList = $stmtProjects->fetchAll(\PDO::FETCH_ASSOC);
+
+        // 8. Son Raporlar Listesi
+        $stmtReports = $this->db->prepare("
+            SELECT 
+                r.id,
+                r.report_number,
+                r.control_date,
+                r.last_control_date,
+                r.next_control_date,
+                COALESCE(rt.reportName, 'Periyodik Kontrol') as report_type_name
+            FROM reports r
+            LEFT JOIN report_types rt ON rt.id = r.report_type
+            WHERE r.customer_id = ?
+            ORDER BY r.id DESC
+            LIMIT 15
+        ");
+        $stmtReports->execute([$customerId]);
+        $reportsList = $stmtReports->fetchAll(\PDO::FETCH_ASSOC);
+
+        // 9. Son Keşifler Listesi
+        $stmtKesifler = $this->db->prepare("
+            SELECT 
+                k.id,
+                k.kesif_tarihi,
+                k.yapilacak_is,
+                k.kesif_sonu_notu,
+                k.gidecek_kisi,
+                k.durum
+            FROM kesifler k
+            WHERE k.silinme_tarihi IS NULL 
+              AND (LOWER(TRIM(k.firma)) = LOWER(?) OR k.firma LIKE ?)
+            ORDER BY k.id DESC
+            LIMIT 10
+        ");
+        $stmtKesifler->execute([$companyNameTrim, '%' . $companyNameTrim . '%']);
+        $kesifList = $stmtKesifler->fetchAll(\PDO::FETCH_ASSOC);
+
+        // 10. Birleşik Son Hareketler (Son 10 Eylem)
+        $recentActivities = [];
+        foreach ($offersList as $off) {
+            $recentActivities[] = [
+                'type' => 'offer',
+                'type_label' => 'Teklif',
+                'id' => $off['id'],
+                'number' => $off['offerNumber'] ?: ('#' . $off['id']),
+                'title' => $off['offer_subject'] ?: 'Teklif #' . $off['offerNumber'],
+                'date' => !empty($off['created_at']) ? date('d.m.Y', strtotime($off['created_at'])) : '-',
+                'raw_date' => $off['created_at'] ?? '',
+                'amount' => (float)($off['tl_toplam_karsilik'] ?: $off['total_price']),
+                'currency' => $off['currency'] ?: 'TL',
+                'status' => (int)$off['statu']
+            ];
+        }
+        foreach ($projectsList as $prj) {
+            $recentActivities[] = [
+                'type' => 'service',
+                'type_label' => 'Servis',
+                'id' => $prj['id'],
+                'number' => $prj['service_number'] ?: ('#' . $prj['id']),
+                'title' => $prj['service_title'],
+                'date' => !empty($prj['pstart_date']) ? date('d.m.Y', strtotime($prj['pstart_date'])) : '-',
+                'raw_date' => $prj['pstart_date'] ?? '',
+                'amount' => (float)($prj['price'] ?? 0),
+                'currency' => 'TL',
+                'status' => (int)$prj['pstatu']
+            ];
+        }
+        foreach ($reportsList as $rep) {
+            $recentActivities[] = [
+                'type' => 'report',
+                'type_label' => 'Rapor',
+                'id' => $rep['id'],
+                'number' => $rep['report_number'] ?: ('#' . $rep['id']),
+                'title' => $rep['report_type_name'],
+                'date' => !empty($rep['control_date']) ? date('d.m.Y', strtotime($rep['control_date'])) : '-',
+                'raw_date' => $rep['control_date'] ?? '',
+                'amount' => null,
+                'currency' => null,
+                'status' => 1
+            ];
+        }
+
+        // Tarihe göre azalan sırala
+        usort($recentActivities, function($a, $b) {
+            return strcmp($b['raw_date'], $a['raw_date']);
+        });
+        $recentActivities = array_slice($recentActivities, 0, 8);
+
+        return [
+            'customer' => $customer,
+            'kpi' => [
+                'total_offers' => $totalOffers,
+                'won_offers' => $wonOffers,
+                'pending_offers' => $pendingOffers,
+                'rejected_offers' => $rejectedOffers,
+                'total_offers_amount' => $totalOffersAmount,
+                'won_offers_amount' => $wonOffersAmount,
+                'pending_offers_amount' => $pendingOffersAmount,
+                'win_rate' => $winRate,
+                'total_projects' => $totalProjects,
+                'completed_projects' => $completedProjects,
+                'active_projects' => $activeProjects,
+                'invoiced_projects' => $invoicedProjects,
+                'total_projects_price' => $totalProjectsPrice,
+                'total_reports' => $totalReports,
+                'total_kesif' => $totalKesif
+            ],
+            'monthly_flow' => $monthlyFlow,
+            'recent_activities' => $recentActivities,
+            'offers' => $offersList,
+            'projects' => $projectsList,
+            'reports' => $reportsList,
+            'kesifler' => $kesifList
+        ];
+    }
 }
+
 
 

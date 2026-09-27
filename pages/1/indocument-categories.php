@@ -10,7 +10,8 @@ if($_POST && $_GET["mode"] == "new")
 	dstatu = ?");
 
 	$ekle->execute(array($title,$type));
-	header("Location:index.php?p=indocument-categories&st=newsuccess");
+	header("Location: /evrak-kategorileri?st=newsuccess");
+	exit;
 }
 
 	$id = @$_GET["id"];
@@ -18,7 +19,8 @@ if($_POST && $_GET["mode"] == "new")
 	{	
 			$pdq = $ac->prepare("DELETE FROM indocument_categories WHERE id = ?");
 			$pdq->execute(array($id));
-			header("Location: index.php?p=indocument-categories&type=delete&code=0882md25&pid=$id");
+			header("Location: /evrak-kategorileri?type=delete&code=0882md25&pid=$id");
+			exit;
 		}
 
 	?>
@@ -34,7 +36,7 @@ if($_POST && $_GET["mode"] == "new")
 	
 	?>
 
-	<form method="POST" action="index.php?p=indocument-categories&mode=new&code=38&cc=087s3">
+	<form method="POST" action="/evrak-kategorileri?mode=new&code=38&cc=087s3">
 	
 	<div class="clearfix mb-20">
 		<div class="pull-left">
@@ -85,7 +87,7 @@ if($_POST && $_GET["mode"] == "new")
       <td>
       	&nbsp;&nbsp; 
 		  <button type="button" class="btn btn-sm btn-danger" data-tooltip="Sil" 
-          onClick="deleteRecord('Kaydı silmek istediğinize emin misiniz?',<?php echo $as["id"]; ?>,'indocument-categories')"
+          onClick="deleteRecord('Kaydı silmek istediğinize emin misiniz?',<?php echo $as["id"]; ?>,'indocument-categories','indocument_categories','/evrak-kategorileri')"
           ><i class="fa fa-trash"></i></button>
 
 	  </td>

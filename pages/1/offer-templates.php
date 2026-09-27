@@ -252,7 +252,7 @@ try {
                                         <button type="button" class="btn btn-outline-primary edit btn-edit-template" data-id="<?php echo $row["id"]; ?>" data-title="<?php echo htmlspecialchars($row["Title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-state="<?php echo $row["State"]; ?>" data-toggle="modal" data-target="#exampleModalCenter" title="Düzenle">
                                             <i class="fa fa-pencil"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-danger btn-delete-template" data-id="<?php echo $row["id"]; ?>" data-title="<?php echo htmlspecialchars($row["Title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>" title="Sil" onClick="deleteRecord('<?php echo htmlspecialchars($row["Title"] ?? '', ENT_QUOTES, 'UTF-8'); ?> başlıklı şablonu silmek istediğinize emin misiniz?','<?php echo $row["id"]; ?>','offer-templates','offertemplate')">
+                                        <button type="button" class="btn btn-outline-danger btn-delete-template" data-id="<?php echo $row["id"]; ?>" data-title="<?php echo htmlspecialchars($row["Title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>" title="Sil" onClick="deleteRecord('<?php echo htmlspecialchars($row["Title"] ?? '', ENT_QUOTES, 'UTF-8'); ?> başlıklı şablonu silmek istediğinize emin misiniz?','<?php echo $row["id"]; ?>','offer-templates','offertemplate','/teklif-sablon-tanimlari')">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </div>

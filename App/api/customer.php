@@ -4,6 +4,7 @@ require_once dirname(__DIR__, 2) . "/bootstrap.php";
 
 
 use App\Helper\Helper;
+use App\Helper\Security;
 use App\Model\CustomerModel;
 
 
@@ -14,6 +15,54 @@ $Customer = new CustomerModel();
 header('Content-Type: application/json; charset=utf-8');
 
 // Şablon / Tekrarlanan E-Posta Kontrolü
+if (($_REQUEST['action'] ?? '') === 'get_dashboard_summary') {
+    $userId = (int)($_SESSION['lid'] ?? 0);
+    if ($userId <= 0 || (!permtrue('customerview') && !permtrue('customeredit') && !permtrue('customers') && !permtrue('customer_dashboard') && !permtrue('customeradd'))) {
+        http_response_code(403);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Bu işlem için yetkiniz bulunmuyor.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $rawId = $_REQUEST['id'] ?? 0;
+    $customerId = is_numeric($rawId) ? (int)$rawId : (int)Security::decrypt((string)$rawId);
+
+    if ($customerId <= 0) {
+        http_response_code(400);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Geçersiz müşteri ID.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $data = $Customer->getCustomerDashboardData($customerId);
+    if (!$data) {
+        http_response_code(404);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Müşteri kaydı bulunamadı veya silinmiş.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $encryptedId = Security::encrypt((string)$customerId);
+    $data['encrypted_id'] = $encryptedId;
+    $data['edit_url'] = 'firma-duzenle?id=' . $encryptedId;
+    $data['new_offer_url'] = 'index.php?p=offer-new&customer=' . $encryptedId;
+    $data['new_service_url'] = 'index.php?p=service-new&customer=' . $encryptedId;
+    $data['label_url'] = 'index.php?p=customer-label&id=' . $customerId;
+    $data['mail_url'] = 'index.php?p=send-mail&customer=' . encrypt($customerId);
+
+    echo json_encode([
+        'status' => 'success',
+        'data' => $data
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (($_REQUEST['action'] ?? '') === 'check_email') {
     $userId = (int)($_SESSION['lid'] ?? 0);
     if ($userId <= 0 || (!permtrue('customeradd') && !permtrue('customeredit') && !permtrue('customers'))) {

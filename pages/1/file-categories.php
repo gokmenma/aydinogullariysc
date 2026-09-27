@@ -22,7 +22,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $checkQ = $ac->prepare("SELECT id FROM upfile_categories WHERE LOWER(title) = LOWER(?)");
             $checkQ->execute([$title]);
             if ($checkQ->fetch()) {
-                header("Location: index.php?p=file-categories&st=exists");
+                header("Location: /dosya-kategorileri?st=exists");
                 exit;
             }
 
@@ -33,7 +33,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             if (function_exists('audit_log')) {
                 audit_log("insert", "file-categories", "Yeni dosya kategorisi eklendi: " . $title, "upfile_categories", $newId);
             }
-            header("Location: index.php?p=file-categories&st=created");
+            header("Location: /dosya-kategorileri?st=created");
             exit;
         }
     } elseif ($action === 'edit' && $canAdd) {
@@ -51,7 +51,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 if (function_exists('audit_log')) {
                     audit_log("update", "file-categories", "Dosya kategorisi güncellendi: " . $oldData['title'] . " -> " . $title, "upfile_categories", $id, $oldData);
                 }
-                header("Location: index.php?p=file-categories&st=updated");
+                header("Location: /dosya-kategorileri?st=updated");
                 exit;
             }
         }
@@ -645,7 +645,7 @@ $st = $_GET['st'] ?? '';
 
                                         <?php if ($canDelete): ?>
                                         <button type="button" class="btn btn-table-action btn-outline-danger" 
-                                                onclick="deleteRecord('Bu kategoriyi silmek istediğinize emin misiniz?','<?php echo (int)$cat['id']; ?>','file-categories')"
+                                                onclick="deleteRecord('Bu kategoriyi silmek istediğinize emin misiniz?','<?php echo (int)$cat['id']; ?>','file-categories','upfile_categories','/dosya-kategorileri')"
                                                 title="Kategoriyi Sil">
                                             <i class="fa fa-trash"></i>
                                         </button>
@@ -799,7 +799,7 @@ $st = $_GET['st'] ?? '';
                     showConfirmButton: false
                 });
             }
-            window.history.pushState({}, '', 'index.php?p=file-categories');
+            window.history.pushState({}, '', '/dosya-kategorileri');
         } else if (st === 'updated') {
             if (typeof swal !== 'undefined') {
                 swal({
@@ -810,7 +810,7 @@ $st = $_GET['st'] ?? '';
                     showConfirmButton: false
                 });
             }
-            window.history.pushState({}, '', 'index.php?p=file-categories');
+            window.history.pushState({}, '', '/dosya-kategorileri');
         } else if (st === 'exists') {
             if (typeof swal !== 'undefined') {
                 swal({
@@ -820,7 +820,7 @@ $st = $_GET['st'] ?? '';
                     confirmButtonClass: "btn btn-warning"
                 });
             }
-            window.history.pushState({}, '', 'index.php?p=file-categories');
+            window.history.pushState({}, '', '/dosya-kategorileri');
         }
     });
 </script>

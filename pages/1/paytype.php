@@ -250,7 +250,7 @@ try {
                                             data-id="<?php echo $as["id"]; ?>" 
                                             data-title="<?php echo htmlspecialchars($as["title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                             title="Sil" 
-                                            onClick="deleteRecord('\'<?php echo htmlspecialchars($as["title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>\' tahsilat türünü silmek istediğinize emin misiniz?','<?php echo $as["id"]; ?>','paytype','units')">
+                                            onClick="deleteRecord('\'<?php echo htmlspecialchars($as["title"] ?? '', ENT_QUOTES, 'UTF-8'); ?>\' tahsilat türünü silmek istediğinize emin misiniz?','<?php echo $as["id"]; ?>','paytype','units','/tahsilat-turleri')">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </div>
@@ -738,7 +738,7 @@ $(document).ready(function() {
         $("#customContextMenu").hide();
         var id = $(this).data("id");
         var title = $(this).data("title");
-        deleteRecord("'" + title + "' " + entityLabel.toLowerCase() + " kaydını silmek istediğinize emin misiniz?", id, pageSlug, 'units');
+        deleteRecord("'" + title + "' " + entityLabel.toLowerCase() + " kaydını silmek istediğinize emin misiniz?", id, pageSlug, 'units', '/tahsilat-turleri');
     });
 
     // AJAX ile Kaydetme / Güncelleme

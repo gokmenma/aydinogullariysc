@@ -490,6 +490,16 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.24', 'Tanımlama Sayfalarına Hızlı Ekleme (+) Butonları ve Merkezden Açılan Modal Standardı', 'feature', '- Servis konusu, servis durumu, servis bölgesi, tahsilat türü, birim, teklif şablonu ve dosya kategorileri sayfalarında kart başlığı yanına minik (+) ekleme butonu eklendi; açılan tüm pencereler (modallar) yukarıdan kayma yerine doğrudan ekranda merkezlenip yumuşak zoom/fade efektiyle açılacak şekilde modernize edildi.', 'Antigravity AI', '2026-09-27 13:44:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.24');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.25', 'Tanımlama Sayfalarında Silme ve İşlem Sonrası Temiz URL Yönlendirmeleri', 'improvement', '- Servis konuları, servis durumları, servis bölgeleri, tahsilat türleri, birimler, teklif şablonları, dosya/evrak/not kategorileri sayfalarında silme ve form işlemlerinden sonra eski parametreli adresler yerine route üzerinden temiz URL yapısına yönlendirme sağlandı.', 'Antigravity AI', '2026-09-27 14:34:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.25');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.26', 'Müşteri Listesinde Firma Adına Tıklayınca Özet Dashboard Modalı', 'feature', '- Müşteri ve cari listesinde firma adına veya sağ tık menüsüne tıklandığında firmanın teklif, servis, rapor, keşif, aylık finansal akış grafiği ve iletişim künyesini gösteren interaktif özet dashboard modalı eklendi.', 'Antigravity AI', '2026-09-27 14:45:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.26');
+
+
+
 
 
 

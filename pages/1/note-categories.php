@@ -5,7 +5,7 @@ if ($_POST && $_GET["mode"] == "new") {
 	$title = trim($_POST["title"]);
 
 	if (empty($title)) {
-		header("Location:index.php?p=note-categories&st=empty");
+		header("Location: /not-kategorileri?st=empty");
 		exit;
 	}
 
@@ -13,7 +13,7 @@ if ($_POST && $_GET["mode"] == "new") {
 	title = ?,
 	regdate = ?");
 	$ekle->execute(array($title, TODAY));
-	header("Location:index.php?p=note-categories&st=newsuccess");
+	header("Location: /not-kategorileri?st=newsuccess");
 	exit;
 }
 
@@ -25,7 +25,7 @@ if ($xid && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 	$pdq->execute(array($xid));
 
 
-	header("Location: index.php?p=note-categories&type=delete&code=0882md25");
+	header("Location: /not-kategorileri?type=delete&code=0882md25");
 	exit;
 }
 
@@ -97,7 +97,7 @@ if ($xid && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 					</div>
 				</div>
 				
-				<form method="POST" action="index.php?p=note-categories&mode=new&code=38&cc=087s3">
+				<form method="POST" action="/not-kategorileri?mode=new&code=38&cc=087s3">
 					<div class="form-group">
 						<label class="font-weight-500"><font color="red">(*)</font> Yeni Kategori Adı:</label>
 						<input name="title" placeholder="örn: Telefon Görüşmesi" class="form-control" type="text" required style="border-radius: 8px; padding: 12px 14px; font-size: 14px; border: 1px solid #cbd5e1;">
@@ -147,7 +147,7 @@ if ($xid && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 									<td style="vertical-align: middle; color: #4b5563;"><?php echo $as["regdate"]; ?></td>
 									<td class="text-center" style="vertical-align: middle;">
 										<a onClick="return confirm('Silmek istediğinize emin misiniz?')"
-											href="index.php?p=note-categories&mode=delete&code=04md177&md=active&xid=<?php echo $as["id"]; ?>"
+											href="/not-kategorileri?mode=delete&code=04md177&md=active&xid=<?php echo $as["id"]; ?>"
 											class="btn btn-outline-danger btn-sm">
 											<i class="fa fa-trash"></i> Sil
 										</a>
