@@ -452,7 +452,7 @@ if ($statusParam === 'true' || $statusParam === 'success') {
 .select2-container--default .select2-results__option--highlighted[aria-selected],
 .select2-container--default .select2-results__option--highlighted,
 .select2-results__option:hover {
-    background: var(--topbar-color, var(--theme-primary, #1d4ed8)) !important;
+    background: var(--focus-color, var(--theme-primary, #1d4ed8)) !important;
     color: #ffffff !important;
 }
 

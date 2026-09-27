@@ -513,8 +513,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .form-field .form-control:focus,
             .form-field .select2-container--default.select2-container--focus .select2-selection--single,
             .form-field .select2-container--default.select2-container--open .select2-selection--single {
-                border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) !important;
-                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) 18%, transparent) !important;
+                border-color: var(--focus-color, var(--theme-primary, #3b82f6)) !important;
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--theme-primary, #3b82f6)) 18%, transparent) !important;
                 background: #fff !important;
             }
 
@@ -613,8 +613,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
             .customer-select-box .select2-container--default.select2-container--focus .select2-selection--single,
             .customer-select-box .select2-container--default.select2-container--open .select2-selection--single {
-                border-color: var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) !important;
-                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--topbar-color, var(--theme-primary, #3b82f6))) 18%, transparent) !important;
+                border-color: var(--focus-color, var(--theme-primary, #3b82f6)) !important;
+                box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-color, var(--theme-primary, #3b82f6)) 18%, transparent) !important;
             }
 
             .customer-select-box .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -667,7 +667,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             }
 
             .customer-title i {
-                color: var(--focus-color, var(--topbar-color, var(--theme-primary, #2563eb))) !important;
+                color: var(--focus-color, var(--theme-primary, #2563eb)) !important;
             }
 
             .customer-sub {
@@ -687,7 +687,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .select2-container--default .select2-results__option--highlighted[aria-selected],
             .select2-container--default .select2-results__option--highlighted,
             .select2-results__option:hover {
-                background: var(--focus-color, var(--topbar-color, var(--theme-primary, #1d4ed8))) !important;
+                background: var(--focus-color, var(--theme-primary, #1d4ed8)) !important;
                 color: #ffffff !important;
             }
 

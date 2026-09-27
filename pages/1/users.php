@@ -283,6 +283,135 @@ try {
         transition: all 0.2s ease;
     }
 
+    /* Status Filter Segmented Tabs */
+    .user-status-tabs {
+        display: inline-flex !important;
+        align-items: center !important;
+        background: #f1f5f9;
+        padding: 3px;
+        border-radius: 9px;
+        border: 1px solid #cbd5e1;
+        gap: 3px;
+        height: 36px !important;
+        box-sizing: border-box;
+        user-select: none;
+        margin: 0 !important;
+        vertical-align: middle;
+    }
+    .user-status-tab {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px;
+        padding: 0 10px;
+        height: 28px !important;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        white-space: nowrap;
+        line-height: 1;
+        margin: 0 !important;
+    }
+    .user-status-tab:hover {
+        color: #1e293b;
+        background: rgba(255, 255, 255, 0.6);
+    }
+    .user-status-tab.active {
+        background: #ffffff;
+        color: #0f172a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .user-tab-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #e2e8f0;
+        color: #475569;
+        transition: all 0.15s ease;
+        line-height: 1;
+    }
+    .user-status-tab.active .user-tab-badge {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+    .user-status-tab.active[data-status="1"] .user-tab-badge {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    .user-status-tab.active[data-status="0"] .user-tab-badge {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    .user-status-tab.active[data-status="all"] .user-tab-badge {
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+    .status-indicator {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    .indicator-active {
+        background-color: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    .indicator-passive {
+        background-color: #94a3b8;
+    }
+
+    /* Header Filter & Search Box Perfect Vertical Alignment */
+    .form-card-header .dt-header-filter-box {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 36px !important;
+    }
+    .form-card-header .dt-header-filter-box .dataTables_filter {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 36px !important;
+    }
+    .form-card-header .dt-header-filter-box .dataTables_filter label {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 36px !important;
+        position: relative !important;
+    }
+    .form-card-header .dt-header-filter-box .dataTables_filter input {
+        display: inline-flex !important;
+        align-items: center !important;
+        height: 36px !important;
+        margin: 0 !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        font-size: 13px !important;
+        line-height: normal !important;
+    }
+    .form-card-header #toggleKpiSummary {
+        height: 36px !important;
+        width: 36px !important;
+        margin: 0 !important;
+        flex-shrink: 0;
+    }
+
     /* DataTables Container & Reset Spacing */
     .form-card .table-responsive {
         padding: 0 !important;
@@ -614,6 +743,43 @@ try {
         color: #f87171 !important;
     }
     .dark-mode .custom-context-menu .cm-divider { background: #334155 !important; }
+
+    .dark-mode .user-status-tabs {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .user-status-tab {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .user-status-tab:hover {
+        color: #f8fafc !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    .dark-mode .user-status-tab.active {
+        background: #1e293b !important;
+        color: #f8fafc !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+    }
+    .dark-mode .user-tab-badge {
+        background: #334155 !important;
+        color: #94a3b8 !important;
+    }
+    .dark-mode .user-status-tab.active .user-tab-badge {
+        background: rgba(79, 70, 229, 0.3) !important;
+        color: #c7d2fe !important;
+    }
+    .dark-mode .user-status-tab.active[data-status="1"] .user-tab-badge {
+        background: rgba(16, 185, 129, 0.25) !important;
+        color: #6ee7b7 !important;
+    }
+    .dark-mode .user-status-tab.active[data-status="0"] .user-tab-badge {
+        background: rgba(239, 68, 68, 0.25) !important;
+        color: #fca5a5 !important;
+    }
+    .dark-mode .user-status-tab.active[data-status="all"] .user-tab-badge {
+        background: rgba(79, 70, 229, 0.3) !important;
+        color: #c7d2fe !important;
+    }
 </style>
 
 <div class="users-list-page-container">
@@ -754,7 +920,25 @@ try {
                         <p>Kullanıcı profilleri, iletişim ve yetki yönetimi</p>
                     </div>
                 </div>
-                <div class="d-flex align-items-center" style="gap: 8px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <!-- Kullanıcı Durum Filtresi (Sekme Butonları) -->
+                    <div class="user-status-tabs" id="userStatusFilterTabs" role="tablist">
+                        <button type="button" class="user-status-tab" data-status="all" title="Tüm Ekip Üyelerini Göster">
+                            <span>Tümü</span>
+                            <span class="user-tab-badge"><?php echo number_format($totalUsers, 0, ',', '.'); ?></span>
+                        </button>
+                        <button type="button" class="user-status-tab active" data-status="1" title="Sadece Aktif Üyeleri Göster">
+                            <span class="status-indicator indicator-active"></span>
+                            <span>Aktif</span>
+                            <span class="user-tab-badge"><?php echo number_format($activeUsers, 0, ',', '.'); ?></span>
+                        </button>
+                        <button type="button" class="user-status-tab" data-status="0" title="Sadece Pasif Üyeleri Göster">
+                            <span class="status-indicator indicator-passive"></span>
+                            <span>Pasif</span>
+                            <span class="user-tab-badge"><?php echo number_format($passiveUsers, 0, ',', '.'); ?></span>
+                        </button>
+                    </div>
+
                     <div class="dt-header-filter-box d-flex align-items-center"></div>
                     <button type="button" id="toggleKpiSummary" class="btn btn-outline-secondary btn-sm" title="Özet Kartlarını Gizle / Göster" style="border-radius: 8px; width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
                         <i class="fa fa-chevron-up"></i>
@@ -798,7 +982,7 @@ try {
                             $statu = (int)($as["statu"] ?? 0);
                             $initials = mb_strtoupper(mb_substr($as["username"] ?? 'U', 0, 1, 'UTF-8'), 'UTF-8');
                         ?>
-                        <tr data-user-id="<?php echo $uid; ?>" data-username="<?php echo $username; ?>">
+                        <tr data-user-id="<?php echo $uid; ?>" data-username="<?php echo $username; ?>" data-status="<?php echo $statu; ?>">
                             <td class="text-center">
                                 <span class="row-index-badge"><?php echo $sirano; ?></span>
                             </td>
@@ -920,6 +1104,23 @@ try {
             updateKpiToggleState(newState, true);
         });
 
+        // DataTables Durum Filtreleme (Varsayılan: Aktif)
+        var currentStatusFilter = '1';
+
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'tblUsers') {
+                    return true;
+                }
+                if (!currentStatusFilter || currentStatusFilter === 'all') {
+                    return true;
+                }
+                var rowNode = settings.aoData[dataIndex].nTr;
+                var rowStatus = $(rowNode).attr('data-status');
+                return rowStatus === currentStatusFilter;
+            }
+        );
+
         // DataTables Kurulumu
         var userTable = $('#tblUsers').DataTable({
             responsive: false,
@@ -933,6 +1134,14 @@ try {
             },
             order: [[0, 'asc']],
             orderCellsTop: true,
+            drawCallback: function () {
+                // Dinamik sıra numarası güncelleme
+                var api = this.api();
+                var start = api.page.info().start;
+                api.column(0, { page: 'current' }).nodes().each(function (cell, i) {
+                    $(cell).find('.row-index-badge').text(start + i + 1);
+                });
+            },
             initComplete: function () {
                 var api = this.api();
                 
@@ -941,11 +1150,24 @@ try {
                 var $searchBox = $('#tblUsers_filter');
                 if ($filterContainer.length && $searchBox.length) {
                     $searchBox.detach().appendTo($filterContainer);
+                    $searchBox.css({
+                        'margin': '0',
+                        'padding': '0',
+                        'display': 'inline-flex',
+                        'align-items': 'center'
+                    });
+                    $searchBox.find('label').css({
+                        'margin': '0',
+                        'padding': '0',
+                        'display': 'inline-flex',
+                        'align-items': 'center'
+                    });
                     $searchBox.find('input').addClass('form-control form-control-sm').css({
                         'border-radius': '8px',
                         'height': '36px',
                         'width': '220px',
-                        'padding': '6px 12px'
+                        'padding': '6px 12px',
+                        'margin': '0'
                     });
                 }
 
@@ -953,6 +1175,15 @@ try {
                     App.TableFilter.attachToTable(api.table().node());
                 }
             }
+        });
+
+        // Durum Sekme Butonları Tıklama Olayı
+        $('#userStatusFilterTabs .user-status-tab').on('click', function () {
+            var status = $(this).attr('data-status');
+            $('#userStatusFilterTabs .user-status-tab').removeClass('active');
+            $(this).addClass('active');
+            currentStatusFilter = status;
+            userTable.draw();
         });
 
         // Yenile Butonu

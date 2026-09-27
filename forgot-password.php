@@ -163,11 +163,34 @@ flInputs.forEach(function(input){
   function update(){
     var group = input.closest('.floating-group');
     if(!group) return;
-    if(input.value && input.value.trim() !== '') group.classList.add('filled');
-    else group.classList.remove('filled');
+    var isAutofilled = false;
+    try {
+      isAutofilled = input.matches(':-webkit-autofill') || input.matches(':autofill');
+    } catch(e) {}
+    if((input.value && input.value.trim() !== '') || isAutofilled) {
+      group.classList.add('filled');
+    } else {
+      group.classList.remove('filled');
+    }
   }
   ['input','change','blur','focus'].forEach(function(ev){ input.addEventListener(ev, update); });
+  input.addEventListener('animationstart', function(e) {
+    if (e.animationName === 'onAutoFillStart') {
+      var group = input.closest('.floating-group');
+      if(group) group.classList.add('filled');
+    } else if (e.animationName === 'onAutoFillCancel') {
+      update();
+    }
+  });
   setTimeout(update, 0);
+  setTimeout(update, 50);
+  setTimeout(update, 300);
+  setTimeout(update, 1000);
+  var started = Date.now();
+  var timer = setInterval(function(){
+    update();
+    if(Date.now() - started > 4000) clearInterval(timer);
+  }, 400);
 });
 </script>
 </body>

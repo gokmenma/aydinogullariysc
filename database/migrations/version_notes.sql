@@ -386,6 +386,20 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.5', 'Teklif Listesi Ödeme Vadesi Kolon Filtresi Metin Türüne Güncellendi', 'improvement', '- Teklif listesi tablosundaki Ödeme Vadesi kolon filtresi tarih yerine metin (string) filtreleme türüne güncellenerek vade türlerine (Peşin, Nakit, Gün vb.) göre arama yapılması sağlandı.', 'Antigravity AI', '2026-09-26 23:28:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.5');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.6', 'Ersan Gold ve Açık Temalarda Select Çerçevesi Düzeltmesi', 'bugfix', '- Ersan Gold ve beyaz üst menülü temalarda form seçim kutuları ve Select2 bileşenlerinin odaklanma rengi değişkeni düzeltilerek çerçevelerin kaybolması sorunu giderildi.', 'Antigravity AI', '2026-09-27 00:03:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.6');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.7', 'Ekip Listesine Durum Sekme Filtreleri Eklendi', 'feature', '- Ekip üyeleri sayfasına Tümü, Aktif ve Pasif durum sekme butonları eklendi; varsayılan filtreleme Aktif üyelere ayarlandı, arama kutusu ve özet daraltma butonuyla dikey hizalamaları eşitlendi.', 'Antigravity AI', '2026-09-27 00:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.7');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.8', 'Giriş Ekranı Otomatik Doldurma (Autofill) Düzeltmesi', 'bugfix', '- Giriş ve şifre sıfırlama ekranlarında tarayıcı otomatik doldurma (autofill) yapıldığında etiketlerin metinle çakışması giderildi; arkaplan ve koyu mod uyumu sağlandı.', 'Antigravity AI', '2026-09-27 08:24:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.8');
+
+
+
 
 
 
