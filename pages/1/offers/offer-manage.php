@@ -170,6 +170,30 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             .dark-mode .offer-kpi-value { color: #f1f5f9; }
             .dark-mode .offer-kpi-sub { color: #64748b; }
 
+            .offer-products-card {
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            .offer-products-card .form-card-header {
+                margin: 0 !important;
+                padding: 22px 28px 18px !important;
+                border-bottom: 1px solid #e8eef5 !important;
+                border-radius: 16px 16px 0 0;
+                background: linear-gradient(135deg, #fff 0%, #f8fbff 100%);
+            }
+            .offer-products-card .header-left-inner {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .offer-products-body {
+                padding: 20px 24px 24px;
+            }
+            .dark-mode .offer-products-card .form-card-header {
+                border-color: #334155 !important;
+                background: linear-gradient(135deg, #111827 0%, #172033 100%);
+            }
+
             @media (max-width: 1199.98px) {
                 .offer-summary-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             }
@@ -527,6 +551,160 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
             @media (prefers-reduced-motion: reduce) {
                 .offer-totals-drawer,
                 .offer-totals-toggle i { transition: none; }
+            }
+
+            /* Floating Action Buttons (Kaydet & Listeye Dön) */
+            .offer-floating-actions {
+                position: fixed;
+                right: 22px;
+                bottom: 30px;
+                z-index: 1055;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(16px) scale(0.92);
+                transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                            transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                            visibility 0.28s ease;
+                pointer-events: none;
+            }
+
+            .offer-floating-actions.is-visible {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0) scale(1);
+                pointer-events: auto;
+            }
+
+            .btn-fab {
+                position: relative;
+                display: flex;
+                width: 48px;
+                height: 48px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                text-decoration: none !important;
+                transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                            box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                            background 0.2s ease,
+                            color 0.2s ease;
+            }
+
+            .btn-fab i {
+                font-size: 19px;
+                line-height: 1;
+            }
+
+            .btn-fab-save {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: #ffffff !important;
+                box-shadow: 0 6px 18px rgba(16, 185, 129, 0.42);
+            }
+
+            .btn-fab-save:hover {
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                color: #ffffff !important;
+                transform: translateY(-3px) scale(1.06);
+                box-shadow: 0 10px 24px rgba(16, 185, 129, 0.52);
+            }
+
+            .btn-fab-save:active {
+                transform: translateY(0) scale(0.98);
+            }
+
+            .btn-fab-list {
+                background: #ffffff;
+                color: #334155 !important;
+                border: 1px solid #cbd5e1;
+                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+            }
+
+            .btn-fab-list:hover {
+                background: #f8fafc;
+                color: #2563eb !important;
+                border-color: #94a3b8;
+                transform: translateY(-3px) scale(1.06);
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+            }
+
+            .btn-fab-list:active {
+                transform: translateY(0) scale(0.98);
+            }
+
+            /* Sola doğru açılan tooltip */
+            .btn-fab .fab-tooltip {
+                position: absolute;
+                right: calc(100% + 12px);
+                top: 50%;
+                transform: translateY(-50%) translateX(8px);
+                background: rgba(15, 23, 42, 0.92);
+                color: #ffffff;
+                font-size: 12.5px;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+                padding: 6px 13px;
+                border-radius: 8px;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                            transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                            visibility 0.2s ease;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+
+            .btn-fab .fab-tooltip::after {
+                content: '';
+                position: absolute;
+                left: 100%;
+                top: 50%;
+                transform: translateY(-50%);
+                border-width: 5px;
+                border-style: solid;
+                border-color: transparent transparent transparent rgba(15, 23, 42, 0.92);
+            }
+
+            .btn-fab:hover .fab-tooltip {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(-50%) translateX(0);
+            }
+
+            /* Dark mode uyumluluğu */
+            .dark-mode .btn-fab-list {
+                background: #1e293b;
+                color: #e2e8f0 !important;
+                border-color: #475569;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+            }
+
+            .dark-mode .btn-fab-list:hover {
+                background: #334155;
+                color: #60a5fa !important;
+                border-color: #64748b;
+            }
+
+            .dark-mode .btn-fab-save {
+                box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+            }
+
+            .dark-mode .btn-fab .fab-tooltip {
+                background: rgba(30, 41, 59, 0.96);
+                color: #f1f5f9;
+                border: 1px solid rgba(148, 163, 184, 0.2);
+            }
+
+            .dark-mode .btn-fab .fab-tooltip::after {
+                border-color: transparent transparent transparent rgba(30, 41, 59, 0.96);
             }
 
             .form-field .form-control,
@@ -1064,16 +1242,20 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
     <!-- TEKLİF KALEMLERİ ÖZET BİLGİ -->
         <!-- TEKLİF KALEMLERİ CARD -->
-        <div class="form-card animate-fade-in mt-4">
+        <div class="form-card offer-products-card animate-fade-in mt-4">
             <div class="form-card-header">
-                <div class="card-icon">
-                    <i class="fa fa-list"></i>
-                </div>
-                <div>
-                    <h5>Teklif Kalemleri</h5>
-                    <p>Teklifteki ürün ve hizmetlerin detaylarını ve miktarlarını buradan düzenleyebilirsiniz.</p>
+                <div class="header-left-inner">
+                    <div class="card-icon">
+                        <i class="fa fa-list"></i>
+                    </div>
+                    <div>
+                        <h5>Teklif Kalemleri</h5>
+                        <p>Teklifteki ürün ve hizmetlerin detaylarını ve miktarlarını buradan düzenleyebilirsiniz.</p>
+                    </div>
                 </div>
             </div>
+
+            <div class="offer-products-body">
             <?php
 
             $alisToplam = $offer->tl_alis_toplam ?? 0;
@@ -1525,6 +1707,7 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                     </table>
                 </div>
             </div>
+            </div>
         </div>
         <input type="hidden" id="rowNumberId" value="<?php echo $satirNo + 1 ?>">
 
@@ -1746,6 +1929,18 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
     </aside>
     <div id="offerTotalsBackdrop" class="offer-totals-backdrop" aria-hidden="true"></div>
 
+    <!-- Yüzen Hızlı İşlem Butonları (Kaydet & Listeye Dön) -->
+    <div id="offerFloatingActions" class="offer-floating-actions" aria-label="Hızlı İşlemler">
+        <a href="teklifler" class="btn-fab btn-fab-list" aria-label="Listeye Dön">
+            <i class="fa fa-list"></i>
+            <span class="fab-tooltip">Listeye Dön</span>
+        </a>
+        <button type="button" id="btn_floating_save" class="btn-fab btn-fab-save" aria-label="Kaydet">
+            <i class="fa fa-save"></i>
+            <span class="fab-tooltip">Kaydet</span>
+        </button>
+    </div>
+
 </form>
 
 <!-- Modallar (HTML standartlarına uygun şekilde form dışında tanımlanır) -->
@@ -1759,6 +1954,33 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 <script>
 $(document).ready(function() {
     updateAltToplam();
+
+    // -------------------------------------------------------------
+    // Yüzen Butonlar Scroll ve Tıklama Yönetimi
+    // -------------------------------------------------------------
+    var $fabContainer = $('#offerFloatingActions');
+    var $headerCard = $('.offer-header-card');
+
+    function checkFloatingActions() {
+        if ($headerCard.length) {
+            var rect = $headerCard[0].getBoundingClientRect();
+            if (rect.bottom < 0 || $(window).scrollTop() > 180) {
+                $fabContainer.addClass('is-visible');
+            } else {
+                $fabContainer.removeClass('is-visible');
+            }
+        } else {
+            $fabContainer.toggleClass('is-visible', $(window).scrollTop() > 180);
+        }
+    }
+
+    $(window).on('scroll resize', checkFloatingActions);
+    checkFloatingActions();
+
+    $('#btn_floating_save').on('click', function(e) {
+        e.preventDefault();
+        $('#btn_save_offer').trigger('click');
+    });
 
     var $totalsDrawer = $('#offerTotalsDrawer');
     var $totalsToggle = $('#offerTotalsToggle');

@@ -512,6 +512,25 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.28', 'Teklif Sayfası Özet Kartları Tasarım Yenilemesi', 'improvement', '- Yeni teklif ve teklif düzenleme sayfasındaki özet KPI kartları (Alış TL, Satış TL, Kâr TL, Kâr Oranı), yeni sipariş sayfasıyla tam uyumlu modern kart ve rozet tasarımına geçirildi.', 'Antigravity AI', '2026-09-27 19:24:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.28');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.29', 'Teklif Sayfası Yüzen Hızlı İşlem Butonları (Kaydet ve Listeye Dön)', 'feature', '- Teklif sayfasında aşağı kaydırıldığında görünen, sadece ikon içeren ve üzerine gelindiğinde sola doğru açılan tooltip başlıklarına sahip yüzen Kaydet ve Listeye Dön butonları eklendi.', 'Antigravity AI', '2026-09-27 20:06:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.29');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.30', 'Servis Yönetim Sayfası Tam Genişlik Düzeni', 'improvement', '- Yeni servis ve servis düzenleme sayfasındaki (service/manage) form kartları %100 tam genişliğe (full width) uyarlandı.', 'Antigravity AI', '2026-09-27 20:12:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.30');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.31', 'Teklif Listesinde Satır İçi PDF Önizleme Modalı', 'feature', '- Teklif listesinde T.NO sütununa PDF ikonu eklendi; tıklandığında yeni sayfaya yönlenmeden iframe içeren modern modal penceresinde PDF önizleme, yazdırma ve yeni sekmede açma özellikleri sağlandı.', 'Antigravity AI', '2026-09-27 20:33:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.31');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.32', 'Servis Listesinde Satır İçi PDF Önizleme Modalı', 'feature', '- Servis listesinde Servis No sütunundaki numaranın önüne PDF ikonu eklendi; tıklandığında sayfadan ayrılmadan açılan modal penceresinde (iframe) servis formu önizleme, yazdırma ve yeni sekmede açma özellikleri sağlandı.', 'Antigravity AI', '2026-09-27 23:05:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.32');
+
+
+
+
 
 
 

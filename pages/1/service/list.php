@@ -521,6 +521,115 @@ if ($cid || $sid) {
         line-height: 1.25;
     }
 
+    /* PDF Butonu Stilleri */
+    .offer-pdf-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626 !important;
+        font-size: 12px;
+        line-height: 1;
+        transition: all 0.15s ease;
+        text-decoration: none !important;
+        cursor: pointer;
+        flex-shrink: 0;
+        padding: 0;
+        box-shadow: 0 1px 2px rgba(220, 38, 38, 0.08);
+    }
+    .offer-pdf-btn:hover {
+        background: #dc2626;
+        color: #ffffff !important;
+        border-color: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(220, 38, 38, 0.28);
+    }
+    .offer-pdf-btn:active {
+        transform: translateY(0);
+    }
+    .dark-mode .offer-pdf-btn {
+        background: rgba(220, 38, 38, 0.15);
+        border-color: rgba(220, 38, 38, 0.4);
+        color: #f87171 !important;
+    }
+    .dark-mode .offer-pdf-btn:hover {
+        background: #dc2626;
+        color: #ffffff !important;
+        border-color: #dc2626;
+    }
+
+    /* PDF Modal Stilleri */
+    #servicePdfModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+    #servicePdfModal .modal-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 14px 20px;
+    }
+    #servicePdfModal .modal-icon-badge.pdf-modal-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: rgba(239, 68, 68, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+    }
+    #servicePdfModal .modal-body {
+        background: #525659;
+        height: 78vh;
+        min-height: 520px;
+    }
+    #servicePdfModal .pdf-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(248, 250, 252, 0.95);
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    #servicePdfModal .pdf-loading-overlay.d-none {
+        display: none !important;
+    }
+    .dark-mode #servicePdfModal .modal-content {
+        background: #1e293b;
+        color: #f1f5f9;
+    }
+    .dark-mode #servicePdfModal .modal-header,
+    .dark-mode #servicePdfModal .modal-footer {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode #servicePdfModal .modal-title {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #servicePdfModal .close {
+        color: #cbd5e1;
+        text-shadow: none;
+    }
+    .dark-mode #pdfModalLoading {
+        background: rgba(15, 23, 42, 0.95) !important;
+    }
+    .dark-mode #pdfModalLoading .text-dark {
+        color: #f8fafc !important;
+    }
+
     /* Dropdown Menü Stilleri */
     .action-dropdown-btn {
         padding: 3px 8px !important;
@@ -1042,7 +1151,7 @@ if ($cid || $sid) {
                     <thead>
                         <tr>
                             <th style="width: 36px; min-width: 36px; max-width: 36px; text-align: center;" class="no-sort" data-filter="false">SIRA</th>
-                            <th style="width: 80px; text-align: center;" data-filter-type="text">Servis No</th>
+                            <th style="width: 100px; text-align: center;" data-filter-type="text">Servis No</th>
                             <th style="width: 135px;" data-filter-type="text">Firma Adı</th>
                             <th style="width: 75px;" data-filter-type="select">Bölge</th>
                             <th style="width: 100px;" data-filter-type="text">Servis Konusu</th>
@@ -1071,7 +1180,12 @@ if ($cid || $sid) {
                                 ?>
                                 <tr>
                                     <td class="text-center align-middle"><?php echo $sirano; ?></td>
-                                    <td class="text-center"><span class="badge-sku"><i class="fa fa-wrench mr-1 text-primary"></i><?php echo htmlspecialchars($purc["service_number"]); ?></span></td>
+                                    <td class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center text-nowrap" style="gap: 5px;">
+                                            <button type="button" class="btn-service-pdf offer-pdf-btn" data-id="<?php echo Security::encrypt((string)$pid); ?>" data-service-number="<?php echo htmlspecialchars($purc["service_number"]); ?>" data-customer="<?php echo htmlspecialchars($purc['company_name']); ?>" data-tooltip="PDF Önizle"><i class="fa fa-file-pdf-o"></i></button>
+                                            <span class="badge-sku"><i class="fa fa-wrench mr-1 text-primary"></i><?php echo htmlspecialchars($purc["service_number"]); ?></span>
+                                        </div>
+                                    </td>
                                     <td>
                                         <div class="service-company-cell" data-toggle="tooltip" title="<?php echo htmlspecialchars($purc['company_name']); ?>">
                                             <?php if (!empty($purc['customer_deleted_at'])): ?>
@@ -1172,6 +1286,59 @@ if ($cid || $sid) {
             </div>
         </div>
 
+<!-- Servis PDF Önizleme Modalı -->
+<div class="modal fade" id="servicePdfModal" tabindex="-1" role="dialog" aria-labelledby="servicePdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 1100px; width: 95vw;">
+        <div class="modal-content custom-pdf-modal-content">
+            <div class="modal-header custom-pdf-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 12px; min-width: 0;">
+                    <div class="modal-icon-badge pdf-modal-icon">
+                        <i class="fa fa-file-pdf-o text-danger font-18"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                            <h5 class="modal-title font-16 weight-700 mb-0" id="servicePdfModalLabel">
+                                Servis Formu Önizleme
+                            </h5>
+                            <span class="badge-sku font-13 font-weight-bold" id="pdfModalServiceBadge">-</span>
+                        </div>
+                        <small class="text-muted text-truncate d-block" id="pdfModalCustomerTitle">-</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <a id="btnPdfOpenExternal" href="#" target="_blank" class="btn btn-outline-secondary btn-sm" title="Yeni Sekmede Aç" data-toggle="tooltip">
+                        <i class="fa fa-external-link"></i> <span class="d-none d-sm-inline ml-1">Yeni Sekme</span>
+                    </a>
+                    <button type="button" id="btnPdfPrintModal" class="btn btn-outline-primary btn-sm" title="Yazdır" data-toggle="tooltip">
+                        <i class="fa fa-print"></i> <span class="d-none d-sm-inline ml-1">Yazdır</span>
+                    </button>
+                    <button type="button" class="close btn-pdf-modal-close ml-2" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body p-0 position-relative" style="height: 78vh; min-height: 520px; background: #525659;">
+                <!-- Loading State -->
+                <div id="pdfModalLoading" class="pdf-loading-overlay text-center d-none">
+                    <div class="spinner-border text-danger mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <div class="text-dark font-14 font-weight-600">Servis PDF Hazırlanıyor...</div>
+                    <small class="text-muted mt-1">Lütfen bekleyiniz, belge yükleniyor.</small>
+                </div>
+
+                <!-- PDF Iframe -->
+                <iframe id="servicePdfIframe" src="about:blank" style="width: 100%; height: 100%; border: none; display: block;" allowfullscreen></iframe>
+            </div>
+
+            <div class="modal-footer custom-pdf-modal-footer d-flex justify-content-between align-items-center px-4 py-2 bg-light">
+                <div class="text-muted font-12" id="pdfModalFooterInfo">Servis Formu Raporu</div>
+                <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal">
+                    Kapat
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1904,7 +2071,7 @@ if ($cid || $sid) {
             $('#service-table tbody tr').removeClass('context-menu-active');
             $tr.addClass('context-menu-active');
 
-            var serviceNo = $tr.find('td:nth-child(2)').text().trim() || 'Servis İşlemleri';
+            var serviceNo = $tr.find('.badge-sku').text().trim() || $tr.find('td:nth-child(2)').text().trim() || 'Servis İşlemleri';
             var companyName = $tr.find('td:nth-child(3)').text().trim() || '';
             var $actionTd = $tr.find('td:last-child');
             
@@ -1914,6 +2081,12 @@ if ($cid || $sid) {
                 menuHtml += '<div style="font-size:11px; font-weight:normal; color:#64748b; margin-top:2px; text-transform:none;" class="text-truncate">' + $('<div>').text(compShort).html() + '</div>';
             }
             menuHtml += '</div>';
+
+            // PDF Önizle Butonu
+            var $pdfBtn = $tr.find('.btn-service-pdf');
+            if ($pdfBtn.length) {
+                menuHtml += '<button type="button" class="btn-context-service-pdf" data-id="' + $pdfBtn.data('id') + '" data-service-number="' + ($pdfBtn.data('service-number') || '') + '" data-customer="' + ($pdfBtn.data('customer') || '') + '"><i class="fa fa-file-pdf-o text-danger mr-2"></i> PDF Önizle</button>';
+            }
 
             var $dropdownItems = $actionTd.find('.dropdown-menu .dropdown-item, .dropdown-menu .dropdown-divider');
             if ($dropdownItems.length) {
@@ -1994,6 +2167,110 @@ if ($cid || $sid) {
             if (e.key === 'Escape') {
                 $('#customContextMenu').hide();
                 $('#service-table tbody tr').removeClass('context-menu-active');
+            }
+        });
+
+        // ==========================================
+        // Servis PDF Önizleme Modalı İşlemleri
+        // ==========================================
+        var servicePdfLoadTimer = null;
+
+        function hideServicePdfLoader() {
+            if (servicePdfLoadTimer) {
+                clearTimeout(servicePdfLoadTimer);
+                servicePdfLoadTimer = null;
+            }
+            $('#servicePdfModal #pdfModalLoading').addClass('d-none');
+        }
+
+        function showServicePdfLoader() {
+            if (servicePdfLoadTimer) {
+                clearTimeout(servicePdfLoadTimer);
+                servicePdfLoadTimer = null;
+            }
+            $('#servicePdfModal #pdfModalLoading').removeClass('d-none');
+        }
+
+        function openServicePdfModal(serviceId, serviceNumber, customer) {
+            if (!serviceId) return;
+
+            var pdfUrl = 'index.php?p=service-view&id=' + encodeURIComponent(serviceId);
+
+            $('#pdfModalServiceBadge').text(serviceNumber || ('#' + serviceId));
+            $('#servicePdfModal #pdfModalCustomerTitle').text(customer || 'Müşteri Belirtilmemiş');
+            $('#servicePdfModal #btnPdfOpenExternal').attr('href', pdfUrl);
+            $('#servicePdfModal #pdfModalFooterInfo').text('Servis No: ' + (serviceNumber || ('#' + serviceId)) + (customer ? ' | ' + customer : ''));
+
+            showServicePdfLoader();
+
+            var iframeEl = document.getElementById('servicePdfIframe');
+            if (iframeEl) {
+                iframeEl.onload = function() {
+                    hideServicePdfLoader();
+                };
+            }
+
+            var $iframe = $('#servicePdfIframe');
+            $iframe.off('load').on('load', function() {
+                hideServicePdfLoader();
+            });
+
+            // 400ms sonra her koşulda yükleyiciyi gizle
+            servicePdfLoadTimer = setTimeout(function() {
+                hideServicePdfLoader();
+            }, 400);
+
+            $iframe.attr('src', pdfUrl);
+            $('#servicePdfModal').modal('show');
+        }
+
+        $(document).on('click', '.btn-service-pdf', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var serviceId = $(this).data('id') || $(this).attr('data-id');
+            var serviceNumber = $(this).data('service-number') || $(this).attr('data-service-number') || '';
+            var customer = $(this).data('customer') || $(this).attr('data-customer') || '';
+
+            openServicePdfModal(serviceId, serviceNumber, customer);
+        });
+
+        $(document).on('click', '.btn-context-service-pdf', function(e) {
+            e.preventDefault();
+            var serviceId = $(this).data('id');
+            var serviceNumber = $(this).data('service-number') || '';
+            var customer = $(this).data('customer') || '';
+            openServicePdfModal(serviceId, serviceNumber, customer);
+        });
+
+        $('#servicePdfModal').on('shown.bs.modal', function() {
+            setTimeout(function() {
+                hideServicePdfLoader();
+            }, 250);
+        });
+
+        // Modal kapandığında iframe içeriğini temizle
+        $('#servicePdfModal').on('hidden.bs.modal', function() {
+            hideServicePdfLoader();
+            $('#servicePdfIframe').attr('src', 'about:blank');
+        });
+
+        // Yazdır butonu
+        $('#servicePdfModal #btnPdfPrintModal').on('click', function() {
+            var iframeEl = document.getElementById('servicePdfIframe');
+            if (iframeEl && iframeEl.contentWindow) {
+                try {
+                    iframeEl.contentWindow.focus();
+                    iframeEl.contentWindow.print();
+                } catch (err) {
+                    var url = $('#servicePdfModal #btnPdfOpenExternal').attr('href');
+                    if (url && url !== '#') {
+                        var win = window.open(url, '_blank');
+                        if (win) {
+                            win.onload = function() { win.print(); };
+                        }
+                    }
+                }
             }
         });
     });

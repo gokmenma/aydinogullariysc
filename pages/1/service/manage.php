@@ -119,8 +119,9 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
 
     /* Ana container */
     .service-manage-wrapper {
-        max-width: 1400px;
-        margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
     }
 
 

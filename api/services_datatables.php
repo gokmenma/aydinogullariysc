@@ -457,9 +457,13 @@ foreach ($projects as $project) {
     // 0: Row number
     $row[] = '';
 
-    // 1: Servis Numarası
+    // 1: Servis Numarası & PDF Butonu
     $servisNo = htmlspecialchars($project['service_number'] ?? '');
-    $row[] = '<span class="badge-sku"><i class="fa fa-wrench mr-1 text-primary"></i>' . $servisNo . '</span>';
+    $encryptedServiceId = Security::encrypt((string)$pid);
+    $companyNameEsc = htmlspecialchars($project['company_name'] ?? '', ENT_QUOTES, 'UTF-8');
+    $pdfBtnHtml = '<button type="button" class="btn-service-pdf offer-pdf-btn" data-id="' . $encryptedServiceId . '" data-service-number="' . $servisNo . '" data-customer="' . $companyNameEsc . '" data-tooltip="PDF Önizle"><i class="fa fa-file-pdf-o"></i></button>';
+    $badgeHtml = '<span class="badge-sku"><i class="fa fa-wrench mr-1 text-primary"></i>' . $servisNo . '</span>';
+    $row[] = '<div class="d-flex align-items-center justify-content-center text-nowrap" style="gap: 5px;">' . $pdfBtnHtml . $badgeHtml . '</div>';
 
     // 2: Firma Adı
     $fullCompanyName = htmlspecialchars($project['company_name'] ?? '');

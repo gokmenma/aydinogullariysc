@@ -464,11 +464,16 @@ foreach ($results as $of) {
     $escapedRawNo = htmlspecialchars($rawOfferNo, ENT_QUOTES, 'UTF-8');
     $escapedCleanNo = htmlspecialchars($cleanOfferNo, ENT_QUOTES, 'UTF-8');
 
+    $escapedCustomer = htmlspecialchars($of["company_name"] ?? '', ENT_QUOTES, 'UTF-8');
+    $pdfBtnHtml = '<button type="button" class="btn-offer-pdf offer-pdf-btn" data-id="' . (int)$of['id'] . '" data-offer-no="' . $escapedRawNo . '" data-customer="' . $escapedCustomer . '" data-tooltip="PDF Önizle"><i class="fa fa-file-pdf-o"></i></button>';
+
     if ($canEditOffer) {
-        $teklifNoCell = '<div class="text-center"><a href="teklif-duzenle?id=' . $encryptedOfferId . '" class="offer-no-badge" data-tooltip="Düzenle: ' . $escapedRawNo . '">' . $escapedCleanNo . '</a></div>';
+        $badgeHtml = '<a href="teklif-duzenle?id=' . $encryptedOfferId . '" class="offer-no-badge" data-tooltip="Düzenle: ' . $escapedRawNo . '">' . $escapedCleanNo . '</a>';
     } else {
-        $teklifNoCell = '<div class="text-center"><span class="offer-no-badge" data-tooltip="' . $escapedRawNo . '">' . $escapedCleanNo . '</span></div>';
+        $badgeHtml = '<span class="offer-no-badge" data-tooltip="' . $escapedRawNo . '">' . $escapedCleanNo . '</span>';
     }
+
+    $teklifNoCell = '<div class="d-flex align-items-center justify-content-center text-nowrap" style="gap: 5px;">' . $pdfBtnHtml . $badgeHtml . '</div>';
 
     $customerName = htmlspecialchars(shorted($of["company_name"], 40));
     $customerCell = !empty($of["customer_deleted_at"])

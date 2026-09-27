@@ -4,7 +4,11 @@
 
 use App\Helper\Security;
 
-$id = Security::decrypt($_GET["id"]);
+$rawId = $_GET["id"] ?? '';
+$id = Security::decrypt($rawId);
+if (!$id && is_numeric($rawId)) {
+    $id = (int)$rawId;
+}
 
 
 function toBase64($image)

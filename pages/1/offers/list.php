@@ -644,7 +644,7 @@ if (@$_GET["st"] == "success-mail") {
                     <tr>
                         <th style="width: 40px;">#</th>
                         <th style="width: 90px;">TARİH</th>
-                        <th style="width: 65px;">T.NO</th>
+                        <th style="width: 85px;" class="text-center">T.NO</th>
                         <th>MÜŞTERİ</th>
                         <th style="width: 120px;" class="text-right">TOPLAM TL TUTAR</th>
                         <th style="width: 80px;" class="text-center">DURUM</th>
@@ -663,6 +663,62 @@ if (@$_GET["st"] == "success-mail") {
             </table>
     </div>
 </div>
+</div>
+
+<!-- Teklif PDF Önizleme Modalı -->
+<div class="modal fade" id="offerPdfModal" tabindex="-1" role="dialog" aria-labelledby="offerPdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 1100px; width: 95vw;">
+        <div class="modal-content custom-pdf-modal-content">
+            <div class="modal-header custom-pdf-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 12px; min-width: 0;">
+                    <div class="modal-icon-badge pdf-modal-icon">
+                        <i class="fa fa-file-pdf-o text-danger"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                            <h5 class="modal-title font-16 weight-700 mb-0" id="offerPdfModalLabel">
+                                Teklif Formu Önizleme
+                            </h5>
+                            <span class="offer-badge-no font-13 font-weight-bold" id="pdfModalOfferBadge">-</span>
+                        </div>
+                        <small class="text-muted text-truncate d-block" id="pdfModalCustomerTitle">-</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <a id="btnPdfOpenExternal" href="#" target="_blank" class="btn btn-outline-secondary btn-sm" title="Yeni Sekmede Aç" data-toggle="tooltip">
+                        <i class="fa fa-external-link"></i> <span class="d-none d-sm-inline ml-1">Yeni Sekme</span>
+                    </a>
+                    <button type="button" id="btnPdfPrintModal" class="btn btn-outline-primary btn-sm" title="Yazdır" data-toggle="tooltip">
+                        <i class="fa fa-print"></i> <span class="d-none d-sm-inline ml-1">Yazdır</span>
+                    </button>
+                    <button type="button" class="close btn-pdf-modal-close ml-2" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body p-0 position-relative" style="height: 78vh; min-height: 520px; background: #525659;">
+                <!-- Loading State -->
+                <div id="pdfModalLoading" class="pdf-loading-overlay text-center d-none">
+                    <div class="spinner-border text-danger mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <div class="text-dark font-14 font-weight-600">Teklif PDF Hazırlanıyor...</div>
+                    <small class="text-muted mt-1">Lütfen bekleyiniz, belge yükleniyor.</small>
+                </div>
+
+                <!-- PDF Iframe -->
+                <iframe id="offerPdfIframe" src="about:blank" style="width: 100%; height: 100%; border: none; display: block;" allowfullscreen></iframe>
+            </div>
+
+            <div class="modal-footer custom-pdf-modal-footer d-flex justify-content-between align-items-center px-4 py-2 bg-light">
+                <div class="text-muted font-12" id="pdfModalFooterInfo">Fiyat Teklif Formu</div>
+                <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal">
+                    Kapat
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Teklif Log Kayıtları Modalı -->
@@ -932,6 +988,115 @@ if (@$_GET["st"] == "success-mail") {
 .dark-mode .offer-no-badge:hover {
     background: #0284c7;
     color: #ffffff !important;
+}
+
+/* PDF Butonu Stilleri */
+.offer-pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626 !important;
+    font-size: 12px;
+    line-height: 1;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.08);
+}
+.offer-pdf-btn:hover {
+    background: #dc2626;
+    color: #ffffff !important;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.28);
+}
+.offer-pdf-btn:active {
+    transform: translateY(0);
+}
+.dark-mode .offer-pdf-btn {
+    background: rgba(220, 38, 38, 0.15);
+    border-color: rgba(220, 38, 38, 0.4);
+    color: #f87171 !important;
+}
+.dark-mode .offer-pdf-btn:hover {
+    background: #dc2626;
+    color: #ffffff !important;
+    border-color: #dc2626;
+}
+
+/* PDF Modal Stilleri */
+#offerPdfModal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+#offerPdfModal .modal-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 20px;
+}
+#offerPdfModal .modal-icon-badge.pdf-modal-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+#offerPdfModal .modal-body {
+    background: #525659;
+    height: 78vh;
+    min-height: 520px;
+}
+#offerPdfModal .pdf-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(248, 250, 252, 0.95);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+#offerPdfModal .pdf-loading-overlay.d-none {
+    display: none !important;
+}
+.dark-mode #offerPdfModal .modal-content {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+.dark-mode #offerPdfModal .modal-header,
+.dark-mode #offerPdfModal .modal-footer {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+.dark-mode #offerPdfModal .modal-title {
+    color: #f1f5f9 !important;
+}
+.dark-mode #offerPdfModal .close {
+    color: #cbd5e1;
+    text-shadow: none;
+}
+.dark-mode #pdfModalLoading {
+    background: rgba(15, 23, 42, 0.95) !important;
+}
+.dark-mode #pdfModalLoading .text-dark {
+    color: #f8fafc !important;
 }
 
 .offer-compact-text {
@@ -1380,10 +1545,16 @@ $(document).ready(function() {
         $('#offerTable tbody tr').removeClass('context-menu-active');
         $tr.addClass('context-menu-active');
 
-        var offerNo = $tr.find('td:nth-child(3)').text().trim() || 'Teklif İşlemleri';
+        var offerNo = $tr.find('.offer-no-badge').text().trim() || $tr.find('td:nth-child(3)').text().trim() || 'Teklif İşlemleri';
         var $actionTd = $tr.find('td:last-child');
         
         var menuHtml = '<div class="cm-header"><i class="fa fa-file-text-o mr-1"></i> ' + $('<div>').text(offerNo).html() + '</div>';
+
+        // 0. PDF Önizle Butonu
+        var $pdfBtn = $tr.find('.btn-offer-pdf');
+        if ($pdfBtn.length) {
+            menuHtml += '<button type="button" class="btn-context-pdf-preview" data-id="' + $pdfBtn.data('id') + '" data-offer-no="' + ($pdfBtn.data('offer-no') || '') + '" data-customer="' + ($pdfBtn.data('customer') || '') + '"><i class="fa fa-file-pdf-o text-danger mr-2"></i> PDF Önizle</button>';
+        }
 
         // 1. Düzenle Butonu Varsa
         var $editBtn = $actionTd.find('a[data-tooltip="Düzenle"], a.btn-outline-primary');
@@ -1465,6 +1636,110 @@ $(document).ready(function() {
         if (e.key === 'Escape') {
             $('#customContextMenu').hide();
             $('#offerTable tbody tr').removeClass('context-menu-active');
+        }
+    });
+
+    // ==========================================
+    // Teklif PDF Önizleme Modalı İşlemleri
+    // ==========================================
+    var pdfLoadTimer = null;
+
+    function hidePdfLoader() {
+        if (pdfLoadTimer) {
+            clearTimeout(pdfLoadTimer);
+            pdfLoadTimer = null;
+        }
+        $('#pdfModalLoading').addClass('d-none');
+    }
+
+    function showPdfLoader() {
+        if (pdfLoadTimer) {
+            clearTimeout(pdfLoadTimer);
+            pdfLoadTimer = null;
+        }
+        $('#pdfModalLoading').removeClass('d-none');
+    }
+
+    function openOfferPdfModal(offerId, offerNo, customer) {
+        if (!offerId) return;
+
+        var pdfUrl = 'index.php?p=offer-view&id=' + encodeURIComponent(offerId);
+
+        $('#pdfModalOfferBadge').text(offerNo || ('#' + offerId));
+        $('#pdfModalCustomerTitle').text(customer || 'Müşteri Belirtilmemiş');
+        $('#btnPdfOpenExternal').attr('href', pdfUrl);
+        $('#pdfModalFooterInfo').text('Teklif No: ' + (offerNo || ('#' + offerId)) + (customer ? ' | ' + customer : ''));
+
+        showPdfLoader();
+
+        var iframeEl = document.getElementById('offerPdfIframe');
+        if (iframeEl) {
+            iframeEl.onload = function() {
+                hidePdfLoader();
+            };
+        }
+
+        var $iframe = $('#offerPdfIframe');
+        $iframe.off('load').on('load', function() {
+            hidePdfLoader();
+        });
+
+        // 400ms sonra her koşulda yükleyiciyi gizle
+        pdfLoadTimer = setTimeout(function() {
+            hidePdfLoader();
+        }, 400);
+
+        $iframe.attr('src', pdfUrl);
+        $('#offerPdfModal').modal('show');
+    }
+
+    $(document).on('click', '.btn-offer-pdf', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var offerId = $(this).data('id') || $(this).attr('data-id');
+        var offerNo = $(this).data('offer-no') || $(this).attr('data-offer-no') || '';
+        var customer = $(this).data('customer') || $(this).attr('data-customer') || '';
+
+        openOfferPdfModal(offerId, offerNo, customer);
+    });
+
+    $(document).on('click', '.btn-context-pdf-preview', function(e) {
+        e.preventDefault();
+        var offerId = $(this).data('id');
+        var offerNo = $(this).data('offer-no') || '';
+        var customer = $(this).data('customer') || '';
+        openOfferPdfModal(offerId, offerNo, customer);
+    });
+
+    $('#offerPdfModal').on('shown.bs.modal', function() {
+        setTimeout(function() {
+            hidePdfLoader();
+        }, 250);
+    });
+
+    // Modal kapandığında iframe içeriğini temizle
+    $('#offerPdfModal').on('hidden.bs.modal', function() {
+        hidePdfLoader();
+        $('#offerPdfIframe').attr('src', 'about:blank');
+    });
+
+    // Yazdır butonu
+    $('#btnPdfPrintModal').on('click', function() {
+        var iframeEl = document.getElementById('offerPdfIframe');
+        if (iframeEl && iframeEl.contentWindow) {
+            try {
+                iframeEl.contentWindow.focus();
+                iframeEl.contentWindow.print();
+            } catch (err) {
+                var url = $('#btnPdfOpenExternal').attr('href');
+                if (url && url !== '#') {
+                    var win = window.open(url, '_blank');
+                    if (win) {
+                        win.onload = function() { win.print(); };
+                    }
+                }
+            }
         }
     });
 
