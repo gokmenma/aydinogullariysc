@@ -481,7 +481,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                             <i class="fa fa-print"></i> Yazdır / PDF
                         </a>
                     <?php endif; ?>
-                    <a href="index.php?p=purchases/price-request-list" class="btn-header btn-header-list">
+                    <a href="fiyat-talepleri" class="btn-header btn-header-list">
                         <i class="fa fa-list"></i> Listeye Dön
                     </a>
                     <button type="button" id="savePriceRequestButton" class="btn-header btn-header-save">
@@ -1147,7 +1147,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                         icon: "success",
                         confirmButtonText: "Tamam"
                     }).then((result) => {
-                        window.location.href = "index.php?p=purchases/price-request-list";
+                        window.location.href = "fiyat-talepleri";
                     });
                 } else {
                     Swal.fire({

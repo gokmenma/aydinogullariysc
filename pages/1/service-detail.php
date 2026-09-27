@@ -30,7 +30,7 @@ $person = $sql->fetch(PDO::FETCH_ASSOC);
                 <div class="float-right">
                     <button href="javascript" onclick="printContent()" class="btn btn-secondary btn-sm"><i
                             class="fa fa-print"></i> Yazdır</button>
-                    <a href="index.php?p=service/list" class="btn btn-info btn-sm"> <i class="fa fa-list m-1"></i> Listeye
+                    <a href="servisler" class="btn btn-info btn-sm"> <i class="fa fa-list m-1"></i> Listeye
                         Dön</a>
                     <a href="index.php?p=generate_pdf" class="btn btn-danger btn-sm "> <i
                             class="fa fa-download m-1"></i>

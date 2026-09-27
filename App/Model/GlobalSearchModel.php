@@ -103,6 +103,7 @@ class GlobalSearchModel extends BaseModel
                     $formattedPrice = number_format((float)$row['total_price'], 2, ',', '.') . ' ' . $curr;
                 }
 
+                $encryptedOfferId = Security::encrypt((string)$row['id']);
                 $results['offers'][] = [
                     'id'          => (int)$row['id'],
                     'type'        => 'offer',
@@ -113,9 +114,9 @@ class GlobalSearchModel extends BaseModel
                     'badge_class' => $statusClass,
                     'extra_info'  => $formattedPrice,
                     'date'        => !empty($row['offer_date']) ? date('d.m.Y', strtotime($row['offer_date'])) : (!empty($row['reg_date']) ? date('d.m.Y', strtotime($row['reg_date'])) : ''),
-                    'url'         => 'index.php?p=offers/offer-manage&id=' . (int)$row['id'],
+                    'url'         => 'teklif-duzenle?id=' . $encryptedOfferId,
                     'view_url'    => 'index.php?p=offer-view&id=' . (int)$row['id'],
-                    'edit_url'    => 'index.php?p=offers/offer-manage&id=' . (int)$row['id'],
+                    'edit_url'    => 'teklif-duzenle?id=' . $encryptedOfferId,
                     'icon'        => 'fa-file-text-o',
                     'initial'     => 'TK',
                     'color_theme' => 'purple'
@@ -193,8 +194,8 @@ class GlobalSearchModel extends BaseModel
                     'badge_class' => $statusClass,
                     'extra_info'  => $priceStr,
                     'date'        => '',
-                    'url'         => 'index.php?p=products/manage&id=' . $encId,
-                    'edit_url'    => 'index.php?p=products/manage&id=' . $encId,
+                    'url'         => 'urun-hizmet-duzenle?id=' . $encId,
+                    'edit_url'    => 'urun-hizmet-duzenle?id=' . $encId,
                     'icon'        => 'fa-cube',
                     'initial'     => 'ÜR',
                     'color_theme' => 'amber'
@@ -260,6 +261,7 @@ class GlobalSearchModel extends BaseModel
                     $details[] = $row['gsm'];
                 }
 
+                $encryptedCustomerId = Security::encrypt((string)$row['id']);
                 $results['customers'][] = [
                     'id'          => (int)$row['id'],
                     'type'        => 'customer',
@@ -270,8 +272,8 @@ class GlobalSearchModel extends BaseModel
                     'badge_class' => 'badge-info',
                     'extra_info'  => !empty($row['email']) ? $row['email'] : '',
                     'date'        => !empty($row['regdate']) ? date('d.m.Y', strtotime($row['regdate'])) : '',
-                    'url'         => 'index.php?p=customers/manage&id=' . (int)$row['id'],
-                    'edit_url'    => 'index.php?p=customers/manage&id=' . (int)$row['id'],
+                    'url'         => 'firma-duzenle?id=' . $encryptedCustomerId,
+                    'edit_url'    => 'firma-duzenle?id=' . $encryptedCustomerId,
                     'icon'        => 'fa-building-o',
                     'initial'     => 'Fİ',
                     'color_theme' => 'blue'
@@ -339,6 +341,7 @@ class GlobalSearchModel extends BaseModel
                     $details[] = $row['region'];
                 }
 
+                $encryptedServiceId = Security::encrypt((string)$row['id']);
                 $results['services'][] = [
                     'id'          => (int)$row['id'],
                     'type'        => 'service',
@@ -349,8 +352,8 @@ class GlobalSearchModel extends BaseModel
                     'badge_class' => $statusClass,
                     'extra_info'  => !empty($row['service_type']) ? $row['service_type'] : '',
                     'date'        => !empty($row['pstart_date']) ? $row['pstart_date'] : '',
-                    'url'         => 'index.php?p=service/manage&id=' . (int)$row['id'],
-                    'edit_url'    => 'index.php?p=service/manage&id=' . (int)$row['id'],
+                    'url'         => 'servis-duzenle?id=' . $encryptedServiceId,
+                    'edit_url'    => 'servis-duzenle?id=' . $encryptedServiceId,
                     'icon'        => 'fa-wrench',
                     'initial'     => 'SE',
                     'color_theme' => 'emerald'

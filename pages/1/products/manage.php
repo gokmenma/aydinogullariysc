@@ -1,15 +1,13 @@
 <?php
 
-permcontrol("productedit");
-
-
 use App\Model\ProductModel;
 use App\Helper\Security;
 
 $Products = new ProductModel();
 
 $enc_id = $_GET["id"] ?? 0;
-$id = isset($_GET["id"]) ? Security::decrypt($_GET["id"]) : 0;
+$id = is_numeric($enc_id) ? (int)$enc_id : (int)Security::decrypt($enc_id);
+permcontrol($id > 0 ? 'productedit' : 'productadd');
 
 $product = $Products->find($id);
 
@@ -19,6 +17,17 @@ if (!$product && $id != 0) {
 }
 
 ?>
+
+<style>
+.products-general-grid {
+    grid-template-columns: 4fr 4fr 2fr !important;
+}
+@media (max-width: 991px) {
+    .products-general-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
 
 <div class="products-manage-wrapper">
     <!-- Header Card -->
@@ -62,7 +71,7 @@ if (!$product && $id != 0) {
                     <p>Ürün veya hizmetin temel kimlik bilgileri</p>
                 </div>
             </div>
-            <div class="form-grid">
+            <div class="form-grid products-general-grid">
                 <div class="form-field">
                     <label for="urunAdi"><font color="red">(*)</font> Ürün/Hizmet Adı</label>
                     <input required id="urunAdi" name="urunAdi" value="<?php echo htmlspecialchars($product->Adi ?? '', ENT_QUOTES) ?>" class="form-control" type="text" placeholder="Ürün veya hizmet adı giriniz">
@@ -71,11 +80,9 @@ if (!$product && $id != 0) {
                     <label for="StokKodu">Stok Kodu</label>
                     <input id="StokKodu" name="StokKodu" value="<?php echo htmlspecialchars($product->StokKodu ?? '', ENT_QUOTES) ?>" class="form-control" type="text" placeholder="Stok kodu giriniz">
                 </div>
-                <div class="form-field full-width">
+                <div class="form-field">
                     <label for="Birimi"><font color="red">(*)</font> Birimi</label>
-                    <div style="max-width: 400px;">
-                        <?php OlcuBirimleriValID('Birimi', $product->Birimi ?? 0) ?>
-                    </div>
+                    <?php OlcuBirimleriValID('Birimi', $product->Birimi ?? 0) ?>
                 </div>
             </div>
         </div>

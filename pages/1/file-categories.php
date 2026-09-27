@@ -574,7 +574,14 @@ $st = $_GET['st'] ?? '';
                         <i class="fa fa-list"></i>
                     </div>
                     <div>
-                        <h5>Kategori Listesi</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <h5>Kategori Listesi</h5>
+                            <?php if ($canAdd): ?>
+                                <button type="button" class="btn-card-header-add" data-toggle="modal" data-target="#modalNewCategory" title="Yeni Kategori Ekle">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            <?php endif; ?>
+                        </div>
                         <p>Anlık arama ve kategori düzenleme</p>
                     </div>
                 </div>
@@ -600,13 +607,7 @@ $st = $_GET['st'] ?? '';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($categories)): ?>
-                        <tr class="odd data-row text-center">
-                            <td colspan="5" class="py-4 text-muted">
-                                <i class="fa fa-info-circle mr-1"></i> Henüz tanımlanmış bir dosya kategorisi bulunmuyor.
-                            </td>
-                        </tr>
-                        <?php else: ?>
+                        <?php if (!empty($categories)): ?>
                             <?php $rowNum = 1; foreach ($categories as $cat): ?>
                             <tr>
                                 <td class="text-center text-muted font-weight-bold"><?php echo $rowNum++; ?></td>
@@ -733,6 +734,7 @@ $st = $_GET['st'] ?? '';
     </div>
 </div>
 
+<script src="include/js/data-table.js"></script>
 <script>
     // Edit Modal Doldurma
     $('#modalEditCategory').on('show.bs.modal', function(event) {

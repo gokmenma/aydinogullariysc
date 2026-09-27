@@ -7,6 +7,8 @@ require_once dirname(__DIR__) . '/bootstrap.php';
 require_once __DIR__ . '/../configs/functions.php';
 global $ac;
 
+use App\Helper\Security;
+
 // Permission check
 if (!permtrue("reportview")) {
     http_response_code(403);
@@ -60,17 +62,25 @@ $params = [];
 // Global search
 if ($search_value !== '') {
     $where_conditions[] = "(
-        r.id LIKE :search OR
-        r.report_number LIKE :search OR
-        c.company LIKE :search OR
-        rt.reportName LIKE :search OR
-        r.isemrino LIKE :search OR
-        r.control_date LIKE :search OR
-        r.validity_date LIKE :search OR
-        r.create_time LIKE :search OR
-        u.username LIKE :search
+        r.id LIKE :search_0 OR
+        r.report_number LIKE :search_1 OR
+        c.company LIKE :search_2 OR
+        rt.reportName LIKE :search_3 OR
+        r.isemrino LIKE :search_4 OR
+        r.control_date LIKE :search_5 OR
+        r.validity_date LIKE :search_6 OR
+        r.create_time LIKE :search_7 OR
+        u.username LIKE :search_8
     )";
-    $params[':search'] = "%{$search_value}%";
+    $params[':search_0'] = "%{$search_value}%";
+    $params[':search_1'] = "%{$search_value}%";
+    $params[':search_2'] = "%{$search_value}%";
+    $params[':search_3'] = "%{$search_value}%";
+    $params[':search_4'] = "%{$search_value}%";
+    $params[':search_5'] = "%{$search_value}%";
+    $params[':search_6'] = "%{$search_value}%";
+    $params[':search_7'] = "%{$search_value}%";
+    $params[':search_8'] = "%{$search_value}%";
 }
 
 use App\Helper\DataTableFilter;
@@ -192,7 +202,7 @@ foreach ($reports_list as $row_data) {
     if (!empty($row_data['customer_deleted_at'])) {
         $row[] = '<span class="text-nowrap" data-toggle="tooltip" title="' . $fullName . '"><span class="text-muted">' . $shortName . '</span> <small class="crm-badge-soft soft-amber font-11">Silinmiş</small></span>';
     } elseif ($customerId > 0 && $companyName !== '') {
-        $customerLink = "index.php?p=customers/manage&id=" . $customerId;
+        $customerLink = "firma-duzenle?id=" . Security::encrypt((string)$customerId);
         $row[] = '<span class="text-nowrap" data-toggle="tooltip" title="' . $fullName . '"><a href="' . htmlspecialchars($customerLink) . '" class="report-company-link font-weight-600 text-dark">' . $shortName . '</a></span>';
     } elseif ($companyName !== '') {
         $row[] = '<span class="text-nowrap" data-toggle="tooltip" title="' . $fullName . '">' . $shortName . '</span>';
@@ -263,8 +273,16 @@ foreach ($reports_list as $row_data) {
 
     $actions .= ' <a href="' . htmlspecialchars($send_mail_link) . '" target="_blank" class="dropdown-item">
         <i class="fa fa-paper-plane-o text-success mr-2"></i> Mail Gönder
-    </a>
-    <div class="dropdown-divider"></div>
+    </a>';
+
+    if ($customerId > 0) {
+        $encryptedCid = Security::encrypt((string)$customerId);
+        $actions .= ' <a href="firma-duzenle?id=' . $encryptedCid . '#customerReportsIcmalCard" target="_blank" class="dropdown-item text-danger font-weight-500">
+            <i class="fa fa-file-text-o mr-2"></i> Firma Rapor İcmali
+        </a>';
+    }
+
+    $actions .= ' <div class="dropdown-divider"></div>
     <a class="btn-report-detail btn dropdown-item" data-id="' . $rid . '" type="button">
         <i class="fa fa-info-circle text-secondary mr-2"></i> Detay Bilgisi
     </a>';

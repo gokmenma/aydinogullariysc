@@ -428,7 +428,7 @@ foreach ($results as $of) {
                 <a href="index.php?p=offer-view&id=' . $of["id"] . '&proforma=true" target="_blank" class="dropdown-item" type="button"><i class="fa fa-copy mr-2"></i> Proforma Göster</a>';
 
     if (!empty($of["customer_id"])) {
-        $islem_butonlari .= '<a href="index.php?p=customers/manage&id=' . (int)$of["customer_id"] . '#customerOffersIcmalCard" target="_blank" class="dropdown-item text-primary font-weight-500" type="button"><i class="fa fa-calculator mr-2"></i> Firma Teklif İcmali</a>';
+        $islem_butonlari .= '<a href="firma-duzenle?id=' . Security::encrypt((string)$of["customer_id"]) . '#customerOffersIcmalCard" target="_blank" class="dropdown-item text-primary font-weight-500" type="button"><i class="fa fa-calculator mr-2"></i> Firma Teklif İcmali</a>';
     }
        
     if (checkAuth("mailandsmssend")) { 
@@ -473,7 +473,7 @@ foreach ($results as $of) {
     $customerName = htmlspecialchars(shorted($of["company_name"], 40));
     $customerCell = !empty($of["customer_deleted_at"])
         ? '<span class="text-muted">' . $customerName . ' <small class="badge badge-secondary">Silinmiş</small></span>'
-        : '<a href="index.php?p=customers/manage&id=' . $of["customer_id"] . '" class="weight-500">' . $customerName . '</a>';
+        : '<a href="firma-duzenle?id=' . Security::encrypt((string)$of["customer_id"]) . '" class="weight-500">' . $customerName . '</a>';
 
     $islemTarihiHtml = '';
     if (!empty($of["created_at"])) {

@@ -62,14 +62,17 @@ function format_company_header_title($companyName)
 
 function sesset($vars)
 {
-	$sid = $_SESSION['lid'];
+	$sid = (int)($_SESSION['lid'] ?? ($_SESSION['id'] ?? 0));
+	if ($sid <= 0) {
+		return null;
+	}
 	global $ac;
 
 	$setques = $ac->prepare('SELECT * FROM users WHERE id = ?');
 	$setques->execute(array($sid));
 	$datas = $setques->fetch(PDO::FETCH_ASSOC);
 
-	return $datas[$vars];
+	return $datas[$vars] ?? null;
 }
 
 function pfail()
@@ -435,20 +438,30 @@ function permcontrol($var)
 {
 	global $ac;
 	$authid = authid($var);
-	$pcheck = $ac->prepare('SELECT * FROM userauths WHERE roleId = ? and authID = ?');
+	$pcheck = $ac->prepare('SELECT 1 FROM userauths WHERE roleId = ? and authID = ? LIMIT 1');
 	$pcheck->execute(array(sesset('permission'), $authid));
-	$auth = $pcheck->fetchAll(PDO::FETCH_ASSOC);
-	$pin = @$_GET['p'];
+	$hasPermission = (bool) $pcheck->fetchColumn();
+	$pin = $_GET['p'] ?? null;
 	if ($pin) {
-		if (count($auth) > 0) {
+		if ($hasPermission) {
 			return true;
 		} else {
-			header('Location:index.php?error=nopermission');
+			audit_log(
+				'error',
+				'authorization',
+				'Yetkisiz sayfa erişimi engellendi: ' . $pin,
+				'page',
+				(string) $pin,
+				['required_permission' => (string) $var],
+				'warning'
+			);
+			$_SESSION['flash_error'] = 'Bu sayfayı görüntüleme yetkiniz bulunmuyor.';
+			header('Location: anasayfa?error=nopermission');
 			exit;
 		}
-	} else {
-		true;
 	}
+
+	return true;
 }
 
 // functions.php dosyasındaki eski fonksiyonun YERİNE bunu koyun.
@@ -551,9 +564,30 @@ function showAlert($type, $message, $link = '')
 	}
 	?>
 	<script>
-		showMessage('<?php echo $message ?>', '<?php echo $type ?>', '<?php echo $routelink ?>');
+		(function() {
+			function runAlert() {
+				if (typeof showMessage === 'function') {
+					showMessage(<?php echo json_encode((string)$message, JSON_UNESCAPED_UNICODE); ?>, <?php echo json_encode((string)$type); ?>, <?php echo json_encode((string)$routelink); ?>);
+				} else if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+					var icon = <?php echo json_encode($type === 'success' ? 'success' : ($type === 'error' ? 'error' : 'warning')); ?>;
+					var title = <?php echo json_encode($type === 'success' ? 'Başarılı!' : ($type === 'error' ? 'Hata!' : 'Uyarı!')); ?>;
+					Swal.fire({
+						icon: icon,
+						title: title,
+						html: <?php echo json_encode((string)$message, JSON_UNESCAPED_UNICODE); ?>,
+						confirmButtonText: 'Tamam',
+						confirmButtonColor: icon === 'success' ? '#10b981' : '#2563eb',
+						customClass: { popup: 'swal2-border-radius-16' }
+					});
+				}
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', runAlert);
+			} else {
+				runAlert();
+			}
+		})();
 	</script>
-
 	<?php
 }
 
@@ -1439,5 +1473,4 @@ function send_pdf_email_attachment($pdfContent, $attachmentName, $redirectSucces
 		exit;
 	}
 }
-
 

@@ -10,14 +10,20 @@ $page = $_GET['p'] ?? '';
 
 <?php
 
-//Sayfa purchases/manage ise
-if ($page == 'purchases/manage') {
-	echo '<script src="include/js/purchase.js" defer></script>';
-	echo '<script src="pages/1/purchases/script.js" defer></script>';
+// Sayfa purchases form/manage ise
+$purchaseFormPages = [
+    'purchases/manage', 'yeni-siparis', 'siparis-duzenle', 'purchase-new', 'purchase-edit',
+    'purchase-demand-new', 'purchase-demand-edit', 'purchases/price-request-manage'
+];
+if (in_array($page, $purchaseFormPages, true)) {
+    $purchaseJsVer = file_exists('include/js/purchase.js') ? filemtime('include/js/purchase.js') : time();
+    $purchasesScriptJsVer = file_exists('pages/1/purchases/script.js') ? filemtime('pages/1/purchases/script.js') : time();
+	echo '<script src="include/js/purchase.js?v=' . $purchaseJsVer . '"></script>';
+	echo '<script src="pages/1/purchases/script.js?v=' . $purchasesScriptJsVer . '"></script>';
 }
 
 //Sayfa products/manage ise
-if ($page == 'products/manage' || $page == 'products/list' || $page == 'products') {
+if ($page == 'products/manage' || $page == 'products/list' || $page == 'products' || $page == 'yeni-urun' || $page == 'urun-duzenle') {
     $jsVer = file_exists('pages/1/products/products.js') ? filemtime('pages/1/products/products.js') : time();
 	echo '<script src="pages/1/products/products.js?v=' . $jsVer . '" defer></script>';
 }

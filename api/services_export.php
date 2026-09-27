@@ -89,8 +89,24 @@ if ($sid) {
 }
 
 if ($search_value !== '') {
-    $where_conditions[] = "(p.service_number LIKE :search OR c.company LIKE :search OR r.title LIKE :search OR s.title LIKE :search OR u.username LIKE :search OR uu.username LIKE :search OR (CASE WHEN ar.action = 'received' THEN 'Teslim Alındı' ELSE 'Teslim Bekliyor' END) LIKE :search OR p.pregdate LIKE :search)";
-    $params[':search'] = "%{$search_value}%";
+    $where_conditions[] = "(
+        p.service_number LIKE :search_0 OR
+        c.company LIKE :search_1 OR
+        r.title LIKE :search_2 OR
+        s.title LIKE :search_3 OR
+        u.username LIKE :search_4 OR
+        uu.username LIKE :search_5 OR
+        (CASE WHEN ar.action = 'received' THEN 'Teslim Alındı' ELSE 'Teslim Bekliyor' END) LIKE :search_6 OR
+        p.pregdate LIKE :search_7
+    )";
+    $params[':search_0'] = "%{$search_value}%";
+    $params[':search_1'] = "%{$search_value}%";
+    $params[':search_2'] = "%{$search_value}%";
+    $params[':search_3'] = "%{$search_value}%";
+    $params[':search_4'] = "%{$search_value}%";
+    $params[':search_5'] = "%{$search_value}%";
+    $params[':search_6'] = "%{$search_value}%";
+    $params[':search_7'] = "%{$search_value}%";
 }
 if (!empty($requested_columns) && is_array($requested_columns)) {
     foreach ($requested_columns as $idx => $col) {

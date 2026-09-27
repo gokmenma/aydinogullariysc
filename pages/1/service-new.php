@@ -134,7 +134,7 @@ if ($_POST) {
         $upquery->execute(array($getNumber));
         header("Location:index.php?p=service-new&st=newsuccess");
     } else {
-        header("Location: index.php?p=service/list&st=newerror&code=acmd008");
+        header("Location: servisler?st=newerror&code=acmd008");
     }
 }
 if (@$_GET["st"] == "newsuccess") {
@@ -193,7 +193,7 @@ $last_sno = $result['id'] + 1;
                             class="fa fa-save"></i> Kaydet </button>
 
                     <?php if (permtrue("serviceView")) { ?>
-                    <a type="submit" href="index.php?p=service/list" class="btn btn-sm btn-secondary"><i
+                    <a type="submit" href="servisler" class="btn btn-sm btn-secondary"><i
                             class="fa fa-list"></i> Listeye Dön </a>
                     <?php } ?>
                 </div>

@@ -575,6 +575,49 @@ class PurchaseModel extends BaseModel
     }
 
     /**
+     * Satın alma listesi KPI istatistiklerini getirir
+     *
+     * @return array
+     */
+    public function getListKPIStats()
+    {
+        $sql = "SELECT 
+                    COUNT(*) as total_count,
+                    SUM(CASE WHEN state = 0 THEN 1 ELSE 0 END) as pending_count,
+                    SUM(CASE WHEN state = 1 THEN 1 ELSE 0 END) as approved_count,
+                    SUM(CASE WHEN state = 2 THEN 1 ELSE 0 END) as completed_count,
+                    SUM(CASE WHEN type = 1 THEN 1 ELSE 0 END) as demand_count,
+                    SUM(CASE WHEN type = 2 THEN 1 ELSE 0 END) as price_req_count,
+                    SUM(CASE WHEN type = 0 OR (type != 1 AND type != 2) THEN 1 ELSE 0 END) as order_count
+                FROM {$this->table}";
+        $stmt = $this->db->query($sql);
+        return $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : [];
+    }
+
+    /**
+     * Satın alma ve talep listesini ilişkili tablolarla (müşteri, kullanıcılar) birlikte kayıt tarihine göre yeni en üstte olacak şekilde getirir
+     *
+     * @return array
+     */
+    public function getAllPurchasesWithRelations()
+    {
+        $sql = "SELECT 
+                    p.*,
+                    c.company AS customer_name,
+                    u_create.username AS creator_username,
+                    u_create.Unvan AS creator_title,
+                    u_update.username AS updater_username,
+                    u_update.Unvan AS updater_title
+                FROM {$this->table} p
+                LEFT JOIN customers c ON p.companyID = c.id
+                LEFT JOIN users u_create ON p.creator = u_create.id
+                LEFT JOIN users u_update ON p.updater = u_update.id
+                ORDER BY p.create_time DESC, p.id DESC";
+        $stmt = $this->db->query($sql);
+        return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+    }
+
+    /**
      * Son Eklenen Satın Alma / Talep Kayıtları
      *
      * @param int $limit
@@ -604,7 +647,7 @@ class PurchaseModel extends BaseModel
                 FROM {$this->table} p
                 LEFT JOIN customers c ON p.companyID = c.id
                 LEFT JOIN users u ON p.creator = u.id
-                ORDER BY p.id DESC
+                ORDER BY p.create_time DESC, p.id DESC
                 LIMIT {$limit}";
 
         $stmt = $this->db->prepare($sql);

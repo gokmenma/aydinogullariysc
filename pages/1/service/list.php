@@ -1018,7 +1018,14 @@ if ($cid || $sid) {
                         <i class="fa fa-list"></i>
                     </div>
                     <div>
-                        <h5>Oluşturulan Tüm Servisler</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <h5>Oluşturulan Tüm Servisler</h5>
+                            <?php if (permtrue("serviceAdd")) { ?>
+                                <a href="index.php?p=service/manage" class="btn-card-header-add" title="Yeni Servis Oluştur" data-toggle="tooltip">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            <?php } ?>
+                        </div>
                         <p>Anlık arama, sütun filtreleme ve iş emri yönetimi</p>
                     </div>
                 </div>

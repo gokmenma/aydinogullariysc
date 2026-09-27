@@ -494,7 +494,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                 <i class="fa fa-plus mr-1"></i> Yeni Servis Oluştur
                             </a>
                         <?php } ?>
-                        <a href="index.php?p=service/list" class="dashboard-action-secondary">
+                        <a href="servisler" class="dashboard-action-secondary">
                             <i class="fa fa-list mr-1"></i> Servis Listesi
                         </a>
                     </div></div>
@@ -761,7 +761,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                         <span class="rank-badge <?php echo $rankClass; ?>"><?php echo $rank; ?></span>
                                     </td>
                                     <td class="col-main">
-                                        <a href="index.php?p=service/list&cid=<?php echo (int)$cust->customer_id; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($cust->company, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <a href="servisler?cid=<?php echo (int)$cust->customer_id; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($cust->company, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($cust->company, ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
@@ -889,7 +889,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                         </a>
                                     </td>
                                     <td class="col-main">
-                                        <a href="index.php?p=service/list&cid=<?php echo (int)$ps->pcid; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($ps->company_name, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <a href="servisler?cid=<?php echo (int)$ps->pcid; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($ps->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($ps->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>
@@ -923,7 +923,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                     <h5 class="dash-card-title">
                         <i class="fa fa-history text-primary"></i> Son Eklenen Servis Kayıtları
                     </h5>
-                    <a href="index.php?p=service/list" class="btn btn-outline-primary btn-sm" style="border-radius: 6px; font-size: 11px; padding: 2px 7px;">
+                    <a href="servisler" class="btn btn-outline-primary btn-sm" style="border-radius: 6px; font-size: 11px; padding: 2px 7px;">
                         Tümünü Gör
                     </a>
                 </div>
@@ -954,7 +954,7 @@ $curDateFormatted = date('d') . ' ' . ($turkishMonths[(int)date('m')] ?? date('F
                                         </a>
                                     </td>
                                     <td class="col-main">
-                                        <a href="index.php?p=service/list&cid=<?php echo (int)$rs->pcid; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($rs->company_name, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <a href="servisler?cid=<?php echo (int)$rs->pcid; ?>" class="font-weight-600 text-dark table-text-truncate" title="<?php echo htmlspecialchars($rs->company_name, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php echo htmlspecialchars($rs->company_name, ENT_QUOTES, 'UTF-8'); ?>
                                         </a>
                                     </td>

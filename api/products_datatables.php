@@ -66,16 +66,23 @@ $params = [];
 // Global search
 if ($search_value !== '') {
     $where_conditions[] = "(
-        p.ID LIKE :search OR
-        p.StokKodu LIKE :search OR
-        p.Adi LIKE :search OR
-        u.title LIKE :search OR
-        p.AlisFiyati LIKE :search OR
-        p.SatisFiyati LIKE :search OR
-        p.Aciklama LIKE :search OR
-        p.OlusturmaTarihi LIKE :search
+        p.ID LIKE :search_0 OR
+        p.StokKodu LIKE :search_1 OR
+        p.Adi LIKE :search_2 OR
+        u.title LIKE :search_3 OR
+        p.AlisFiyati LIKE :search_4 OR
+        p.SatisFiyati LIKE :search_5 OR
+        p.Aciklama LIKE :search_6 OR
+        p.OlusturmaTarihi LIKE :search_7
     )";
-    $params[':search'] = "%{$search_value}%";
+    $params[':search_0'] = "%{$search_value}%";
+    $params[':search_1'] = "%{$search_value}%";
+    $params[':search_2'] = "%{$search_value}%";
+    $params[':search_3'] = "%{$search_value}%";
+    $params[':search_4'] = "%{$search_value}%";
+    $params[':search_5'] = "%{$search_value}%";
+    $params[':search_6'] = "%{$search_value}%";
+    $params[':search_7'] = "%{$search_value}%";
 }
 
 use App\Helper\DataTableFilter;
@@ -227,7 +234,7 @@ foreach ($products as $row_data) {
     // Column 8: İşlem
     $actions = '<div class="action-btn-group text-center text-nowrap">';
     if ($canEdit) {
-        $actions .= '<a class="btn btn-sm btn-outline-primary action-btn" data-tooltip="Düzenle" href="index.php?p=products/manage&id=' . $enc_id . '">
+        $actions .= '<a class="btn btn-sm btn-outline-primary action-btn" data-tooltip="Düzenle" href="urun-hizmet-duzenle?id=' . $enc_id . '">
             <i class="fa fa-pencil"></i>
         </a>';
     }
@@ -243,7 +250,7 @@ foreach ($products as $row_data) {
             <i class="fa fa-ellipsis-v"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail shadow-sm" aria-labelledby="dropdownMenu_' . $pid . '">
-            <a href="index.php?p=products/manage&id=' . $enc_id . '" class="dropdown-item">
+            <a href="urun-hizmet-duzenle?id=' . $enc_id . '" class="dropdown-item">
                 <i class="fa fa-info-circle mr-2 text-primary"></i> Detay & Düzenle
             </a>
             <div class="dropdown-divider"></div>

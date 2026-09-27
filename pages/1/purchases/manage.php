@@ -22,6 +22,8 @@ if ($demand) {
     $id = $talep_id;
 }
 
+permcontrol((int)$id > 0 && !$demand ? 'purchaseedit' : 'purchaseadd');
+
 //Güncelleme işlemi ise satın alma bilgilerini getirir.
 $purchase = $Purchases->find($id);
 
@@ -66,7 +68,7 @@ if ($demand == true || $id == 0) {
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="index.php?p=purchases" class="btn-header btn-header-list">
+                    <a href="satin-almalar" class="btn-header btn-header-list">
                         <i class="fa fa-list"></i> Listeye Dön
                     </a>
                     <button type="button" id="saveButton" class="btn-header btn-header-save">
@@ -445,9 +447,9 @@ if ($demand == true || $id == 0) {
                     <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-6 pr-1">
-                                <input type="text" required id="payPeriod" name="vadeGun" class="form-control"
+                                <input type="number" min="0" required id="payPeriod" name="vadeGun" class="form-control"
                                     autocomplete="off" placeholder="Gün giriniz" style="border-radius: 8px; border-color: #cbd5e1;"
-                                    value="<?php echo $purchase->vadeGun ?? date("d-m-Y") ?>">
+                                    value="<?php echo isset($purchase->vadeGun) ? htmlspecialchars((string)$purchase->vadeGun, ENT_QUOTES, 'UTF-8') : '0' ?>">
                             </div>
                             <div class="col-md-6 pl-1">
                                 <input type="text" readonly id="payment_date" name="payment_date" class="form-control bg-light" style="border-radius: 8px; border-color: #cbd5e1;"

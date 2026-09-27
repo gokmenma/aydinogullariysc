@@ -1,6 +1,7 @@
 <?php
 
 use App\Helper\Helper;
+use App\Helper\Security;
 
 $pids = @$_GET['id'];
 
@@ -226,9 +227,10 @@ try {
     .form-card {
         background: #ffffff;
         border-radius: 14px !important;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-        padding: 4px !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        padding: 0 !important;
+        overflow: hidden !important;
         margin-bottom: 25px;
     }
 
@@ -236,9 +238,9 @@ try {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 14px;
+        padding: 12px 14px 4px 14px;
         margin-bottom: 0;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: none !important;
         flex-wrap: wrap;
         gap: 12px;
     }
@@ -265,7 +267,7 @@ try {
     .pricereq-list-wrapper .table-responsive,
     .pricereq-list-page-container .table-responsive,
     .table-responsive {
-        padding: 0 !important;
+        padding: 4px 8px 10px 8px !important;
         margin: 0 !important;
         border: none !important;
         overflow-x: auto !important;
@@ -292,10 +294,26 @@ try {
         display: none !important;
     }
     .form-card .dataTables_wrapper .row:last-child {
-        padding: 10px 14px;
-        margin: 0;
-        border-top: 1px solid #f1f5f9;
-        background: #fafafa;
+        padding: 12px 0 0 0 !important;
+        margin: 0 !important;
+        border-top: none !important;
+        background: transparent !important;
+    }
+
+    /* Dark Mode Table Card Support */
+    .dark-mode .form-card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .form-card-header {
+        border-bottom: none !important;
+    }
+    .dark-mode .form-card-header h5 {
+        color: #f8fafc !important;
+    }
+    .dark-mode .form-card .dataTables_wrapper .row:last-child {
+        background: transparent !important;
+        border-top: none !important;
     }
 
     /* Search & Toggle Button */
@@ -342,10 +360,13 @@ try {
     /* Table Base Styling */
     #priceRequestTable {
         margin: 0 !important;
-        border-collapse: collapse !important;
+        border-collapse: separate !important;
         border-spacing: 0 !important;
+        border-radius: 10px !important;
+        border: 1px solid #cbd5e1 !important;
         width: 100% !important;
         table-layout: fixed !important;
+        overflow: hidden !important;
     }
     #priceRequestTable thead th {
         position: relative !important;
@@ -356,11 +377,20 @@ try {
         text-transform: uppercase;
         letter-spacing: 0.2px;
         padding: 9px 4px !important;
-        border-bottom: 2px solid #e2e8f0;
-        border-top: none;
+        border-bottom: 1px solid #cbd5e1 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: 1px solid #e2e8f0 !important;
         vertical-align: middle;
         white-space: nowrap;
         overflow: visible;
+    }
+    #priceRequestTable thead th:first-child {
+        border-top-left-radius: 9px !important;
+    }
+    #priceRequestTable thead th:last-child {
+        border-top-right-radius: 9px !important;
+        border-right: none !important;
     }
     #priceRequestTable thead th.tf-header-cell {
         padding-right: 24px !important;
@@ -383,10 +413,25 @@ try {
         vertical-align: middle;
         font-size: 12px;
         color: #334155;
-        border-top: 1px solid #f1f5f9;
+        border-top: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        border-left: none !important;
+        border-right: 1px solid #f1f5f9 !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    #priceRequestTable tbody td:last-child {
+        border-right: none !important;
+    }
+    #priceRequestTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+    #priceRequestTable tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 9px !important;
+    }
+    #priceRequestTable tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 9px !important;
     }
     #priceRequestTable tbody tr:hover {
         background-color: #f8fafc;
@@ -545,13 +590,13 @@ try {
             </div>
 
             <div class="page-title-actions">
-                <a href="index.php?p=purchases/dashboard" class="btn btn-outline-info shadow-sm">
+                <a href="satin-alma-paneli" class="btn btn-outline-info shadow-sm">
                     <i class="fa fa-dashboard"></i> Dashboard
                 </a>
-                <a href="index.php?p=purchases" class="btn btn-outline-secondary shadow-sm">
+                <a href="satin-almalar" class="btn btn-outline-secondary shadow-sm">
                     <i class="fa fa-shopping-cart"></i> Satın Almalar
                 </a>
-                <a href="index.php?p=purchases/price-request-manage" class="btn btn-primary shadow-sm" style="background: #7c3aed; border-color: #7c3aed;">
+                <a href="yeni-fiyat-talebi" class="btn btn-primary shadow-sm" style="background: #7c3aed; border-color: #7c3aed;">
                     <i class="fa fa-plus"></i> Yeni Fiyat Talebi
                 </a>
                 <button type="button" class="btn btn-outline-secondary shadow-sm" id="btnExportExcel">
@@ -682,6 +727,7 @@ try {
                         $sira = 1;
                         foreach ($priceRequests as $purc): 
                             $pid = (int)$purc['id'];
+                            $editUrl = 'fiyat-talebi-duzenle?id=' . Security::encrypt((string)$pid);
                             $companyName = !empty($purc['customer_name']) ? $purc['customer_name'] : (!empty($purc['companyID']) ? getCustomerName($purc['companyID']) : '-');
                             $siparisNo = htmlspecialchars($purc['siparisNo'] ?? '', ENT_QUOTES, 'UTF-8');
                             $rawCreateTime = $purc['create_time'] ?? '';
@@ -705,7 +751,8 @@ try {
                                 $statusBadge = Helper::getStateBadge($state);
                             }
                         ?>
-                            <tr data-id="<?php echo $pid; ?>" 
+                            <tr data-id="<?php echo $pid; ?>"
+                                data-edit-url="<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>"
                                 data-siparis-no="<?php echo $siparisNo; ?>" 
                                 data-company="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
                                 
@@ -745,12 +792,12 @@ try {
                                             <i class="fa fa-eye"></i>
                                         </button>
 
-                                        <a href="index.php?p=purchases/price-request-manage&id=<?php echo $pid; ?>" class="btn btn-sm btn-outline-info action-btn" title="Düzenle" data-tooltip="Düzenle">
+                                        <a href="<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-info action-btn" title="Düzenle" data-tooltip="Düzenle">
                                             <i class="fa fa-pencil"></i>
                                         </a>
 
                                         <?php if (permtrue("tum_fiyat_taleplerini_gor") || permtrue("purchasedelete") || ((int)($purc['creator'] ?? 0) === (int)sesset('id'))) { ?>
-                                            <button type="button" class="btn btn-sm btn-outline-danger action-btn" title="Sil" data-tooltip="Sil" onclick="deleteRecord('<?php echo $siparisNo; ?> nolu fiyat talebini silmek istediğinize emin misiniz?', <?php echo $pid; ?>, 'purchases')">
+                                            <button type="button" class="btn btn-sm btn-outline-danger action-btn" title="Sil" data-tooltip="Sil" onclick="deleteRecord('<?php echo $siparisNo; ?> nolu fiyat talebini silmek istediğinize emin misiniz?', <?php echo $pid; ?>, 'purchases', null, '/fiyat-talepleri')">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         <?php } ?>
@@ -833,9 +880,6 @@ try {
         </a>
     <?php } ?>
 </div>
-
-<!-- SheetJS / XLSX Kütüphanesi -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
 var activeDetailId = null;
@@ -920,8 +964,9 @@ $(document).ready(function() {
     // Detay Görüntüleme Modalı
     $(document).on('click', '.view-detail', function() {
         var id = $(this).data('id');
+        var editUrl = $(this).closest('tr').attr('data-edit-url');
         activeDetailId = id;
-        $('#btnEditModal').attr('href', 'index.php?p=purchases/price-request-manage&id=' + id);
+        $('#btnEditModal').attr('href', editUrl || 'fiyat-talepleri');
         $('#detailModal').modal('show');
         $('#detailBody').html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted font-13">Fiyat talebi verileri yükleniyor...</p></div>');
         
@@ -950,41 +995,52 @@ $(document).ready(function() {
         }
     });
 
-    // Excel Dışa Aktarma (SheetJS / XLSX)
+    // Excel Dışa Aktarma (SheetJS / XLSX - Lazy Loading)
     $('#btnExportExcel').on('click', function() {
-        var data = [];
-        data.push([
-            "Sıra",
-            "Talep No",
-            "Firma Adı",
-            "Kayıt Tarihi",
-            "Termin Tarihi",
-            "Toplam Fiyat",
-            "Durum",
-            "Oluşturan"
-        ]);
+        function exportPriceReqToExcel() {
+            var data = [];
+            data.push([
+                "Sıra",
+                "Talep No",
+                "Firma Adı",
+                "Kayıt Tarihi",
+                "Termin Tarihi",
+                "Toplam Fiyat",
+                "Durum",
+                "Oluşturan"
+            ]);
 
-        $('#priceRequestTable tbody tr').each(function(idx) {
-            var $row = $(this);
-            if ($row.find('td').length > 1) {
-                var cols = [];
-                cols.push(idx + 1);
-                cols.push($row.find('td').eq(1).text().trim());
-                cols.push($row.find('td').eq(2).text().trim());
-                cols.push($row.find('td').eq(3).text().trim());
-                cols.push($row.find('td').eq(4).text().trim());
-                cols.push($row.find('td').eq(5).text().trim());
-                cols.push($row.find('td').eq(6).text().trim());
-                cols.push($row.find('td').eq(7).text().trim());
-                data.push(cols);
-            }
-        });
+            $('#priceRequestTable tbody tr').each(function(idx) {
+                var $row = $(this);
+                if ($row.find('td').length > 1) {
+                    var cols = [];
+                    cols.push(idx + 1);
+                    cols.push($row.find('td').eq(1).text().trim());
+                    cols.push($row.find('td').eq(2).text().trim());
+                    cols.push($row.find('td').eq(3).text().trim());
+                    cols.push($row.find('td').eq(4).text().trim());
+                    cols.push($row.find('td').eq(5).text().trim());
+                    cols.push($row.find('td').eq(6).text().trim());
+                    cols.push($row.find('td').eq(7).text().trim());
+                    data.push(cols);
+                }
+            });
 
-        var ws = XLSX.utils.aoa_to_sheet(data);
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Fiyat Talepleri");
-        var filename = "Fiyat_Talepleri_" + new Date().toISOString().slice(0, 10) + ".xlsx";
-        XLSX.writeFile(wb, filename);
+            var ws = XLSX.utils.aoa_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Fiyat Talepleri");
+            var filename = "Fiyat_Talepleri_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+            XLSX.writeFile(wb, filename);
+        }
+
+        if (typeof XLSX === 'undefined') {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            script.onload = exportPriceReqToExcel;
+            document.head.appendChild(script);
+        } else {
+            exportPriceReqToExcel();
+        }
     });
 
     // ==========================================
@@ -998,6 +1054,7 @@ $(document).ready(function() {
 
         e.preventDefault();
         var pid = $row.data('id');
+        var editUrl = $row.attr('data-edit-url');
         var siparisNo = $row.data('siparis-no');
         activeDetailId = pid;
 
@@ -1008,7 +1065,7 @@ $(document).ready(function() {
             $('.view-detail[data-id="' + pid + '"]').trigger('click');
         });
 
-        $('#ctxEdit').attr('href', 'index.php?p=purchases/price-request-manage&id=' + pid);
+        $('#ctxEdit').attr('href', editUrl || 'fiyat-talepleri');
         $('#ctxPrint').attr('href', 'pages/1/purchases/price-request-print.php?id=' + pid);
         $('#ctxPdf').attr('href', 'pages/1/purchases/price-request-print.php?id=' + pid + '&pdf=1');
 
@@ -1016,7 +1073,7 @@ $(document).ready(function() {
         $('#ctxDelete').off('click').on('click', function(ev) {
             ev.preventDefault();
             $contextMenu.hide();
-            deleteRecord(siparisNo + ' nolu fiyat talebini silmek istediğinize emin misiniz?', pid, 'purchases');
+            deleteRecord(siparisNo + ' nolu fiyat talebini silmek istediğinize emin misiniz?', pid, 'purchases', null, '/fiyat-talepleri');
         });
 
         // Menü Konumlandırma

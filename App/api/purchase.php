@@ -2,15 +2,10 @@
 require_once dirname(__DIR__, 2) . "/bootstrap.php";
 
 use App\Helper\Helper;
+use App\Helper\Security;
 use App\Model\PurchaseModel;
 
 $Purchase = new PurchaseModel();
-
-// --- GLOBAL API ENTRY LOG ---
-$globalLogFile = dirname(__DIR__, 2) . "/API_ENTRY.log";
-file_put_contents($globalLogFile, "[" . date('Y-m-d H:i:s') . "] RECEIVED REQUEST. Method: " . $_SERVER['REQUEST_METHOD'] . " | ContentLen: " . ($_SERVER['CONTENT_LENGTH'] ?? 'UNKNOWN') . "\n", FILE_APPEND);
-file_put_contents($globalLogFile, "POST Keys: " . implode(", ", array_keys($_POST)) . "\n", FILE_APPEND);
-// ----------------------------
 
 if ($_POST['action'] == 'doneDemand') {
     $id = $_POST['id'];
@@ -79,19 +74,27 @@ if ($_POST['action'] == 'savePurchases') {
         $id = 0;
     }
 
-    // --- DEBUG LOG ---
-    $logFile = dirname(__DIR__, 2) . "/DEBUG_PURCHASE_SAVE.log";
-    file_put_contents($logFile, "--- START LOG [" . date('Y-m-d H:i:s') . "] ---\n");
-    file_put_contents($logFile, "FILES COUNT: " . count($_FILES) . "\n", FILE_APPEND);
-    file_put_contents($logFile, "POST DATA: " . json_encode($_POST) . "\n", FILE_APPEND);
-    if (count($_FILES) > 0) {
-        file_put_contents($logFile, "FILES INFO: " . print_r($_FILES, true) . "\n", FILE_APPEND);
-    }
-    // ------------------
-
     try {
-         file_put_contents($logFile, "Step 1: Beginning Transaction Data Preparation...\n", FILE_APPEND);
-         $data = [
+        $vadeGun = 0;
+        if (isset($_POST['vadeGun']) && is_numeric(trim((string)$_POST['vadeGun']))) {
+            $vadeGun = (int)trim((string)$_POST['vadeGun']);
+        }
+
+        $dollarRate = 0.0;
+        if (!empty($_POST['curDollar'])) {
+            $dollarRate = (float)str_replace(',', '.', (string)$_POST['curDollar']);
+        } elseif (!empty($_POST['Dollar'])) {
+            $dollarRate = (float)str_replace(',', '.', (string)$_POST['Dollar']);
+        }
+
+        $euroRate = 0.0;
+        if (!empty($_POST['curEuro'])) {
+            $euroRate = (float)str_replace(',', '.', (string)$_POST['curEuro']);
+        } elseif (!empty($_POST['Euro'])) {
+            $euroRate = (float)str_replace(',', '.', (string)$_POST['Euro']);
+        }
+
+        $data = [
             'id' => $id,
             'siparisNo' => $_POST['siparisNo'],
             'companyID' => $_POST['customers'],
@@ -102,9 +105,9 @@ if ($_POST['action'] == 'savePurchases') {
             'description1' => $_POST['description1'],
             'description2' => $_POST['description2'] ?? '',
             'altToplam' => $_POST['altToplam'],
-            'vadeGun' => $_POST['vadeGun'] ?? 0,
-            'Dollar' => $_POST['Dollar'] ?? 0,
-            'Euro' => $_POST['Euro'] ?? 0,
+            'vadeGun' => $vadeGun,
+            'Dollar' => $dollarRate,
+            'Euro' => $euroRate,
             'DolarTotal' => $_POST['DolarAlttoplam'] ?? 0,
             'EuroTotal' => $_POST['EuroAlttoplam'] ?? 0,
             'TLTotal' => $_POST['TLAlttoplam'] ?? 0,
@@ -116,7 +119,6 @@ if ($_POST['action'] == 'savePurchases') {
             'invoice_number' => $_POST['invoice_number'] ?? '',
             'emailState' => $_POST['emailState'] ?? '0',
             'type' => $_POST['type'] ?? 0
-            
         ];
         $purchaseAuditData = $data;
 
@@ -127,9 +129,7 @@ if ($_POST['action'] == 'savePurchases') {
             $data['updater'] = $_SESSION['lid'];
         }
 
-        file_put_contents($logFile, "Step 2: Saving main purchase record via PurchaseModel->save...\n", FILE_APPEND);
         $lastInsertId = $Purchase->save($data) ?? $id;
-        file_put_contents($logFile, "Step 2 SUCCESS: lastInsertId = $lastInsertId\n", FILE_APPEND);
 
         $talepSipariseDonuyor = $_POST['satinAlmaTalebiniKapat'] ?? 0;
         $talep_id = $_POST['talep_id'] ?? 0;
@@ -141,19 +141,15 @@ if ($_POST['action'] == 'savePurchases') {
                 'talep_id' => $talep_id,
             ];
             $Purchase->save($data);
-            file_put_contents($logFile, "Step 2.5: Closed related demand $talep_id\n", FILE_APPEND);
         }
 
-        $urunAdi = $_POST['urunAdi'];
-        if (isset($urunAdi)) {
-            file_put_contents($logFile, "Step 3: Deleting existing items for id $id...\n", FILE_APPEND);
+        $urunAdi = $_POST['urunAdi'] ?? [];
+        if (!empty($urunAdi) && is_array($urunAdi)) {
             //Satın alma'nın ürünlerini siler
             $Purchase->deletePurchaseItems($id);
-            file_put_contents($logFile, "Step 3 SUCCESS. Beginning Item Loop (Total Count: " . count($urunAdi) . ")\n", FILE_APPEND);
 
             //Satın alma'nın ürünlerini ekler
             for ($i = 0; $i < count($urunAdi); $i++) {
-                file_put_contents($logFile, "Processing Item Index $i...\n", FILE_APPEND);
                 $itemData = [
                     'purID' => $lastInsertId,
                     'product' => $urunAdi[$i],
@@ -283,18 +279,20 @@ if ($_POST['action'] == 'savePurchases') {
     } catch (Exception $ex) {
         $status = "error";
         $message = $ex->getMessage();
-        file_put_contents($logFile, "EXCEPTION CAUGHT: " . $message . "\n", FILE_APPEND);
+        error_log("Purchase save error: " . $message);
     }
+
+    $editUrl = $status === 'success' && (int)$id > 0
+        ? 'siparis-duzenle?id=' . Security::encrypt((string)$id)
+        : null;
 
     $res = [
         'status' => $status,
         'message' => $message,
-        'id' => $id
+        'edit_url' => $editUrl,
     ];
 
-    file_put_contents($logFile, "Step FINAL: Returning Response: " . json_encode($res) . "\n", FILE_APPEND);
     echo json_encode($res);
 
 }
-
 

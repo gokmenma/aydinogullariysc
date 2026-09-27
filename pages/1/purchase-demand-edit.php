@@ -110,7 +110,7 @@ if (@$_GET["st"] == "empties") {
 }
 if (@$_GET["st"] == "newsuccess") {
 
-    showAlert('success', "Bilgiler kaydedildi.");
+    showAlert('success', "Satın alma talebi başarıyla güncellendi.");
 
 }
 if (@$_GET["st"] == "numericerror") {

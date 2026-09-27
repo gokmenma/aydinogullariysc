@@ -16,20 +16,26 @@
     <script>
         (function () {
             try {
-                var savedPreset = localStorage.getItem('app_theme_preset') || 'kode';
+                var savedPreset = localStorage.getItem('app_theme_preset') || 'ersan-gold';
                 document.documentElement.setAttribute('data-theme-preset', savedPreset);
 
                 var themePresetFonts = {
                     'kode': 'inter',
-                    'ersan-gold': 'poppins',
+                    'ersan-gold': 'outfit',
                     'zumrut': 'plus-jakarta',
                     'kraliyet-moru': 'outfit',
                     'rose': 'poppins',
                     'sade-beyaz': 'inter',
                     'koyu-gece': 'geist'
                 };
-                var savedFont = localStorage.getItem('app_theme_font') || themePresetFonts[savedPreset] || 'inter';
+                var themePresetWeights = {
+                    'ersan-gold': '500'
+                };
+                var savedFont = localStorage.getItem('app_theme_font') || themePresetFonts[savedPreset] || 'outfit';
                 document.documentElement.setAttribute('data-theme-font', savedFont);
+
+                var savedWeight = localStorage.getItem('app_theme_weight') || themePresetWeights[savedPreset] || '500';
+                document.documentElement.setAttribute('data-theme-weight', savedWeight);
 
                 var theme = localStorage.getItem('theme');
                 if (theme === 'dark' || savedPreset === 'koyu-gece') {
@@ -42,6 +48,7 @@
                     if (document.body) {
                         document.body.setAttribute('data-theme-preset', savedPreset);
                         document.body.setAttribute('data-theme-font', savedFont);
+                        document.body.setAttribute('data-theme-weight', savedWeight);
                         if (theme === 'dark' || savedPreset === 'koyu-gece') {
                             document.body.classList.add('dark-mode');
                         } else {

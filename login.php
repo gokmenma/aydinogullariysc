@@ -71,7 +71,7 @@ if ($_POST) {
 			audit_log("login", "auth", "Sisteme giriş yaptı", "user", $conts['id']);
 
 			// returnUrl parametresini kontrol edin ve varsayılan değeri ayarlayın
-			$redirectUri = 'index.php?p=home';
+			$redirectUri = 'anasayfa';
 			if (!empty($_GET['returnUrl'])) {
 				$candidate = rawurldecode((string) $_GET['returnUrl']);
 				if ($candidate !== '' && $candidate[0] === '/' && substr($candidate, 0, 2) !== '//') {
@@ -112,22 +112,25 @@ if ($_POST) {
     <script>
         (function () {
             try {
-                var savedPreset = localStorage.getItem('app_theme_preset') || 'kode';
+                var savedPreset = localStorage.getItem('app_theme_preset') || 'ersan-gold';
                 document.documentElement.setAttribute('data-theme-preset', savedPreset);
 
                 var themePresetFonts = {
                     'kode': 'inter',
-                    'ersan-gold': 'poppins',
+                    'ersan-gold': 'outfit',
                     'zumrut': 'plus-jakarta',
                     'kraliyet-moru': 'outfit',
                     'rose': 'poppins',
                     'sade-beyaz': 'inter',
                     'koyu-gece': 'geist'
                 };
-                var savedFont = localStorage.getItem('app_theme_font') || themePresetFonts[savedPreset] || 'inter';
+                var themePresetWeights = {
+                    'ersan-gold': '500'
+                };
+                var savedFont = localStorage.getItem('app_theme_font') || themePresetFonts[savedPreset] || 'outfit';
                 document.documentElement.setAttribute('data-theme-font', savedFont);
 
-                var savedWeight = localStorage.getItem('app_theme_weight') || '400';
+                var savedWeight = localStorage.getItem('app_theme_weight') || themePresetWeights[savedPreset] || '500';
                 document.documentElement.setAttribute('data-theme-weight', savedWeight);
 
                 var theme = localStorage.getItem('theme');
@@ -168,8 +171,8 @@ if ($_POST) {
             <span class="theme-bar-current-color" id="themeActiveColorIndicator" title="Aktif Tema Rengi"></span>
         </div>
         <div class="theme-pills-list">
+            <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #d97706;" title="Ersan Gold (Varsayılan)"></button>
             <button type="button" class="theme-pill-btn" data-preset="kode" style="background: #2563eb;" title="Kode (Mavi)"></button>
-            <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #d97706;" title="Ersan Gold"></button>
             <button type="button" class="theme-pill-btn" data-preset="zumrut" style="background: #059669;" title="Zümrüt Yeşili"></button>
             <button type="button" class="theme-pill-btn" data-preset="kraliyet-moru" style="background: #6f42c1;" title="Kraliyet Moru"></button>
             <button type="button" class="theme-pill-btn" data-preset="rose" style="background: #e11d48;" title="Rose"></button>
@@ -340,7 +343,7 @@ if (loginForm && submitBtn) {
 (function () {
     var themePresetFonts = {
         'kode': 'inter',
-        'ersan-gold': 'montserrat',
+        'ersan-gold': 'outfit',
         'zumrut': 'plus-jakarta',
         'kraliyet-moru': 'outfit',
         'rose': 'poppins',
@@ -357,6 +360,9 @@ if (loginForm && submitBtn) {
         'soft-buz-mavisi': 'inter',
         'soft-vizon': 'montserrat'
     };
+    var themePresetWeights = {
+        'ersan-gold': '500'
+    };
 
     function applyPreset(presetName) {
         if (!presetName) return;
@@ -365,10 +371,15 @@ if (loginForm && submitBtn) {
         document.documentElement.setAttribute('data-theme-preset', presetName);
         if (document.body) document.body.setAttribute('data-theme-preset', presetName);
 
-        var font = themePresetFonts[presetName] || 'inter';
+        var font = themePresetFonts[presetName] || 'outfit';
         try { localStorage.setItem('app_theme_font', font); } catch(e){}
         document.documentElement.setAttribute('data-theme-font', font);
         if (document.body) document.body.setAttribute('data-theme-font', font);
+
+        var weight = themePresetWeights[presetName] || '400';
+        try { localStorage.setItem('app_theme_weight', weight); } catch(e){}
+        document.documentElement.setAttribute('data-theme-weight', weight);
+        if (document.body) document.body.setAttribute('data-theme-weight', weight);
 
         if (presetName === 'koyu-gece' || presetName === 'gece-altini') {
             setDarkMode(true);
@@ -404,7 +415,7 @@ if (loginForm && submitBtn) {
     }
 
     function syncPills() {
-        var activePreset = localStorage.getItem('app_theme_preset') || document.documentElement.getAttribute('data-theme-preset') || 'kode';
+        var activePreset = localStorage.getItem('app_theme_preset') || document.documentElement.getAttribute('data-theme-preset') || 'ersan-gold';
         document.querySelectorAll('.theme-pill-btn').forEach(function(pill) {
             if (pill.getAttribute('data-preset') === activePreset) {
                 pill.classList.add('active');

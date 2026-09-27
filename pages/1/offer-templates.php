@@ -145,7 +145,12 @@ try {
                     <i class="fa fa-th-list"></i>
                 </div>
                 <div>
-                    <h5 class="mb-0" style="font-size: 16px; font-weight: 700;">Tanımlı Şablon Listesi</h5>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <h5 class="mb-0" style="font-size: 16px; font-weight: 700;">Tanımlı Şablon Listesi</h5>
+                        <button type="button" class="btn-card-header-add" onclick="$('#btnOpenNewModal').trigger('click')" title="Yeni Şablon Ekle" data-toggle="tooltip">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
                     <p class="mb-0 text-muted" style="font-size: 12.5px;">Teklif formlarında kullanılabilecek üst ve alt metin bloklarını yönetin</p>
                 </div>
             </div>
@@ -168,7 +173,7 @@ try {
             <table id="offerTemplatesTable" class="data-table select-row table-bordered table-hover" style="width: 100%; margin: 0 !important;">
                 <thead>
                     <tr>
-                        <th class="text-center no-filter" style="width: 60px; max-width: 60px;">#Sıra</th>
+                        <th class="text-center no-filter" style="width: 85px; min-width: 80px; white-space: nowrap;"># Sıra</th>
                         <th style="min-width: 200px;">Şablon Başlığı</th>
                         <th class="text-center" style="width: 140px; min-width: 130px;">Şablon Türü</th>
                         <th>İçerik Önizleme</th>

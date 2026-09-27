@@ -1,5 +1,6 @@
 <?php
 use App\Model\MenuOrderModel;
+use App\Routing\Router;
 
 $userId = (int)(function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? ($_SESSION['lid'] ?? 0)));
 $userPerm = (int)(function_exists('sesset') ? sesset("permission") : ($_SESSION['permission'] ?? 0));
@@ -11,7 +12,7 @@ $menuDefinitions = [
         'title' => 'Ana Sayfa',
         'section' => 'Ana Sayfa',
         'icon' => 'fa fa-home',
-        'link' => 'index.php?p=home',
+        'link' => 'anasayfa',
         'visible' => true,
         'items' => []
     ],
@@ -23,17 +24,17 @@ $menuDefinitions = [
         'items' => [
             'offers/dashboard' => [
                 'title' => 'Teklif Dashboard',
-                'link' => 'index.php?p=offers/dashboard',
+                'link' => 'teklif-paneli',
                 'visible' => (permtrue("offer_dashboard") || permtrue("offerview"))
             ],
             'offers/offer-manage' => [
                 'title' => 'Yeni Teklif Oluştur',
-                'link' => 'index.php?p=offers/offer-manage',
+                'link' => 'yeni-teklif',
                 'visible' => permtrue("offeradd")
             ],
             'offers/list_sablon' => [
                 'title' => 'Şablon Teklifler',
-                'link' => 'index.php?p=offers/list&sablon=true',
+                'link' => 'teklif-sablonlari',
                 'visible' => true
             ],
             'offers/list' => [
@@ -43,7 +44,7 @@ $menuDefinitions = [
             ],
             'offers/items-list' => [
                 'title' => 'Teklif Kalemleri Listesi',
-                'link' => 'index.php?p=offers/items-list',
+                'link' => 'teklif-kalemleri',
                 'visible' => true
             ]
         ]
@@ -56,17 +57,17 @@ $menuDefinitions = [
         'items' => [
             'service/dashboard' => [
                 'title' => 'Servis Dashboard',
-                'link' => 'index.php?p=service/dashboard',
+                'link' => 'servis-paneli',
                 'visible' => (permtrue("service_dashboard") || permtrue("serviceView"))
             ],
             'service/manage' => [
                 'title' => 'Servis Oluştur',
-                'link' => 'index.php?p=service/manage',
+                'link' => 'yeni-servis',
                 'visible' => permtrue("serviceAdd")
             ],
             'service/list' => [
                 'title' => 'Servisleri Görüntüle',
-                'link' => 'index.php?p=service/list',
+                'link' => 'servisler',
                 'visible' => permtrue("serviceView")
             ]
         ]
@@ -79,12 +80,12 @@ $menuDefinitions = [
         'items' => [
             'kesif/dashboard' => [
                 'title' => 'Keşif Dashboard',
-                'link' => 'index.php?p=kesif/dashboard',
+                'link' => 'kesif-paneli',
                 'visible' => (permtrue("kesif_dashboard") || permtrue("kesifView"))
             ],
             'kesif/list' => [
                 'title' => 'Keşifleri Görüntüle',
-                'link' => 'index.php?p=kesif/list',
+                'link' => 'kesifler',
                 'visible' => permtrue("kesifView")
             ]
         ]
@@ -97,22 +98,22 @@ $menuDefinitions = [
         'items' => [
             'purchases/dashboard' => [
                 'title' => 'Satın Alma Dashboard',
-                'link' => 'index.php?p=purchases/dashboard',
+                'link' => 'satin-alma-paneli',
                 'visible' => (permtrue("purchase_dashboard") || permtrue("purchaseadd") || permtrue("purchases"))
             ],
             'purchase-demand-new' => [
                 'title' => 'Satın Alma Talebi Oluştur',
-                'link' => 'index.php?p=purchase-demand-new',
+                'link' => 'yeni-satin-alma-talebi',
                 'visible' => permtrue("purchase-demand-add")
             ],
             'purchases/manage' => [
                 'title' => 'Yeni Sipariş',
-                'link' => 'index.php?p=purchases/manage',
+                'link' => 'yeni-siparis',
                 'visible' => permtrue("purchaseadd")
             ],
             'purchases/price-request-list' => [
                 'title' => 'Fiyat Talepleri',
-                'link' => 'index.php?p=purchases/price-request-list',
+                'link' => 'fiyat-talepleri',
                 'visible' => true
             ],
             'purchases' => [
@@ -130,17 +131,17 @@ $menuDefinitions = [
         'items' => [
             'customers/dashboard' => [
                 'title' => 'Firma Dashboard',
-                'link' => 'index.php?p=customers/dashboard',
+                'link' => 'firma-paneli',
                 'visible' => (permtrue("customer_dashboard") || permtrue("customerview"))
             ],
             'customers/manage' => [
                 'title' => 'Yeni Firma',
-                'link' => 'index.php?p=customers/manage',
+                'link' => 'yeni-firma',
                 'visible' => permtrue("customeradd")
             ],
             'customers/list' => [
                 'title' => 'Firma Listesi',
-                'link' => 'index.php?p=customers/list',
+                'link' => 'firmalar',
                 'visible' => true
             ]
         ]
@@ -153,17 +154,17 @@ $menuDefinitions = [
         'items' => [
             'products/dashboard' => [
                 'title' => 'Ürün Dashboard',
-                'link' => 'index.php?p=products/dashboard',
+                'link' => 'urun-paneli',
                 'visible' => (permtrue("product_dashboard") || permtrue("productcategory") || permtrue("productadd"))
             ],
             'products/manage' => [
                 'title' => 'Yeni Ürün/Hizmet',
-                'link' => 'index.php?p=products/manage',
+                'link' => 'yeni-urun-hizmet',
                 'visible' => permtrue("productadd")
             ],
             'products/list' => [
                 'title' => 'Ürün&Hizmet Listesi',
-                'link' => 'index.php?p=products/list',
+                'link' => 'urun-hizmetler',
                 'visible' => (permtrue("product_dashboard") || permtrue("productcategory") || permtrue("productadd") || permtrue("productedit") || permtrue("productdelete"))
             ]
         ]
@@ -176,17 +177,17 @@ $menuDefinitions = [
         'items' => [
             'stock-activity/manage' => [
                 'title' => 'Stok Hareketi Ekle',
-                'link' => 'index.php?p=stock-activity/manage',
+                'link' => 'stok-hareketi-ekle',
                 'visible' => permtrue("stock-activity-manage")
             ],
             'stock-activity/list' => [
                 'title' => 'Stok Hareketleri',
-                'link' => 'index.php?p=stock-activity/list',
+                'link' => 'stok-hareketleri',
                 'visible' => true
             ],
             'stock-activity/order-list' => [
                 'title' => 'Sipariş Listesi',
-                'link' => 'index.php?p=stock-activity/order-list',
+                'link' => 'stok-siparisleri',
                 'visible' => permtrue("stock-activity-manage")
             ]
         ]
@@ -199,22 +200,22 @@ $menuDefinitions = [
         'items' => [
             'reports/dashboard' => [
                 'title' => 'Rapor Dashboard',
-                'link' => 'index.php?p=reports/dashboard',
+                'link' => 'rapor-paneli',
                 'visible' => (permtrue("report_dashboard") || permtrue("reportview"))
             ],
             'reports/reports' => [
                 'title' => 'Rapor Listesi',
-                'link' => 'index.php?p=reports/reports',
+                'link' => 'raporlar',
                 'visible' => permtrue("reportview")
             ],
             'reports/filling-list' => [
                 'title' => 'Dolum Listesi',
-                'link' => 'index.php?p=reports/filling-list',
+                'link' => 'dolum-listesi',
                 'visible' => permtrue("reportview")
             ],
             'reports/control-list' => [
                 'title' => 'Kontrol Listesi',
-                'link' => 'index.php?p=reports/control-list',
+                'link' => 'kontrol-listesi',
                 'visible' => permtrue("reportview")
             ]
         ]
@@ -227,22 +228,22 @@ $menuDefinitions = [
         'items' => [
             'new-indocument' => [
                 'title' => 'Evrak Ekle',
-                'link' => 'index.php?p=new-indocument',
+                'link' => 'evrak-ekle',
                 'visible' => permtrue("indocadd")
             ],
             'view-outdocument' => [
                 'title' => 'Giden Evrak Listesi',
-                'link' => 'index.php?p=view-outdocument',
+                'link' => 'giden-evraklar',
                 'visible' => permtrue("outdocview")
             ],
             'view-indocument' => [
                 'title' => 'Gelen Evrak Listesi',
-                'link' => 'index.php?p=view-indocument',
+                'link' => 'gelen-evraklar',
                 'visible' => permtrue("indocview")
             ],
             'indocument-categories' => [
                 'title' => 'Kategoriler',
-                'link' => 'index.php?p=indocument-categories',
+                'link' => 'evrak-kategorileri',
                 'visible' => permtrue("indoccategories")
             ]
         ]
@@ -255,12 +256,12 @@ $menuDefinitions = [
         'items' => [
             'all-files' => [
                 'title' => 'Tüm Dosyalar',
-                'link' => 'index.php?p=all-files',
+                'link' => 'dosyalar',
                 'visible' => (permtrue("fileview") || permtrue("fileadd"))
             ],
             'file-categories' => [
                 'title' => 'Dosya Kategorileri',
-                'link' => 'index.php?p=file-categories',
+                'link' => 'dosya-kategorileri',
                 'visible' => (permtrue("fileview") || permtrue("fileadd") || permtrue("filedelete"))
             ]
         ]
@@ -273,22 +274,22 @@ $menuDefinitions = [
         'items' => [
             'new-mission' => [
                 'title' => 'Görev Oluştur',
-                'link' => 'index.php?p=new-mission',
+                'link' => 'gorev-olustur',
                 'visible' => permtrue("missionadd")
             ],
             'mygmissions' => [
                 'title' => 'Verdiğim Görevler',
-                'link' => 'index.php?p=mygmissions',
+                'link' => 'verdigim-gorevler',
                 'visible' => permtrue("missionadd")
             ],
             'my-missions' => [
                 'title' => 'Görevlerim',
-                'link' => 'index.php?p=my-missions',
+                'link' => 'gorevlerim',
                 'visible' => permtrue("missiontake")
             ],
             'all-missions' => [
                 'title' => 'Sistemdeki Tüm Görevler',
-                'link' => 'index.php?p=all-missions',
+                'link' => 'tum-gorevler',
                 'visible' => permtrue("allmisview")
             ]
         ]
@@ -301,12 +302,12 @@ $menuDefinitions = [
         'items' => [
             'task-new' => [
                 'title' => 'Yeni Oluştur',
-                'link' => 'index.php?p=task-new',
+                'link' => 'yapilacak-ekle',
                 'visible' => permtrue("todoadd")
             ],
             'tasks' => [
                 'title' => 'Yapılacaklar Listesi',
-                'link' => 'index.php?p=tasks',
+                'link' => 'yapilacaklar',
                 'visible' => true
             ]
         ]
@@ -319,22 +320,22 @@ $menuDefinitions = [
         'items' => [
             'send-mail' => [
                 'title' => 'Mail Gönder',
-                'link' => 'index.php?p=send-mail',
+                'link' => 'mail-sms',
                 'visible' => (permtrue("mailandsmssend") || $isAdmin)
             ],
             'send-sms' => [
                 'title' => 'SMS Gönder',
-                'link' => 'index.php?p=send-sms',
+                'link' => 'sms-gonder',
                 'visible' => (permtrue("mailandsmssend") || $isAdmin)
             ],
             'mail-logs' => [
                 'title' => 'Mail Kayıtları',
-                'link' => 'index.php?p=mail-logs',
+                'link' => 'mail-kayitlari',
                 'visible' => (permtrue("mail-logs-view") || permtrue("mailandsmssend") || $isAdmin)
             ],
             'send-mail-accounts' => [
                 'title' => 'Mail Hesapları',
-                'link' => 'index.php?p=send-mail-accounts',
+                'link' => 'mail-hesaplari',
                 'visible' => (permtrue("mail-accounts-manage") || $isAdmin || in_array($userId, [1, 12]))
             ]
         ]
@@ -347,17 +348,17 @@ $menuDefinitions = [
         'items' => [
             'new-note' => [
                 'title' => 'Yeni Not',
-                'link' => 'index.php?p=new-note',
+                'link' => 'not-ekle',
                 'visible' => permtrue("noteadd")
             ],
             'all-notes' => [
                 'title' => 'Tümünü Görüntüle',
-                'link' => 'index.php?p=all-notes',
+                'link' => 'notlar',
                 'visible' => true
             ],
             'note-categories' => [
                 'title' => 'Not Kategorileri',
-                'link' => 'index.php?p=note-categories',
+                'link' => 'not-kategorileri',
                 'visible' => ($isAdmin || permtrue("noteedit"))
             ]
         ]
@@ -370,12 +371,12 @@ $menuDefinitions = [
         'items' => [
             'support-new' => [
                 'title' => 'Yeni Destek Talebi',
-                'link' => 'index.php?p=support-new',
+                'link' => 'destek-talebi-olustur',
                 'visible' => permtrue("support-request-add")
             ],
             'support-list' => [
                 'title' => 'Destek Talepleri',
-                'link' => 'index.php?p=support-list',
+                'link' => 'destek-talepleri',
                 'visible' => permtrue("support-request-view")
             ]
         ]
@@ -388,17 +389,17 @@ $menuDefinitions = [
         'items' => [
             'user-new' => [
                 'title' => 'Yeni Üye Oluştur',
-                'link' => 'index.php?p=user-new',
+                'link' => 'yeni-ekip-uyesi',
                 'visible' => permtrue("useradd")
             ],
             'users' => [
                 'title' => 'Ekip Üyeleri',
-                'link' => 'index.php?p=users',
+                'link' => 'ekip-uyeleri',
                 'visible' => true
             ],
             'permission-settings' => [
                 'title' => 'Pozisyon Ayarları',
-                'link' => 'index.php?p=permission-settings',
+                'link' => 'pozisyon-ayarlari',
                 'visible' => (permtrue("authdefine") || $isAdmin)
             ]
         ]
@@ -411,32 +412,32 @@ $menuDefinitions = [
         'items' => [
             'service-type' => [
                 'title' => 'Servis Konusu Tanımlama',
-                'link' => 'index.php?p=service-type',
+                'link' => 'servis-konulari',
                 'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("serviceAdd") || permtrue("serviceView"))
             ],
             'service-status' => [
                 'title' => 'Servis Durumu Tanımlama',
-                'link' => 'index.php?p=service-status',
+                'link' => 'servis-durumlari',
                 'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("serviceAdd") || permtrue("serviceView"))
             ],
             'service-region' => [
                 'title' => 'Servis Bölgesi Tanımlama',
-                'link' => 'index.php?p=service-region',
+                'link' => 'servis-bolgeleri',
                 'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("serviceAdd") || permtrue("serviceView"))
             ],
             'paytype' => [
                 'title' => 'Tahsilat Türü Tanımlama',
-                'link' => 'index.php?p=paytype',
+                'link' => 'tahsilat-turleri',
                 'visible' => ($isAdmin || permtrue("panelsettings") || permtrue("authdefine") || permtrue("offerview") || permtrue("serviceView"))
             ],
             'offer-templates' => [
                 'title' => 'Teklif Üst/Alt Bilgi Tanımlama',
-                'link' => 'index.php?p=offer-templates',
+                'link' => 'teklif-sablon-tanimlari',
                 'visible' => ($isAdmin || permtrue("offertemplateview") || permtrue("offertemplateadd") || permtrue("panelsettings") || permtrue("authdefine"))
             ],
             'define-units' => [
                 'title' => 'Birim Tanımlama',
-                'link' => 'index.php?p=define-units',
+                'link' => 'birimler',
                 'visible' => ($isAdmin || permtrue("productcategory") || permtrue("productadd") || permtrue("panelsettings") || permtrue("authdefine"))
             ]
         ]
@@ -445,7 +446,7 @@ $menuDefinitions = [
         'title' => 'Panel Ayarları',
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-cog',
-        'link' => 'index.php?p=settings',
+        'link' => 'panel-ayarlari',
         'visible' => (permtrue("panelsettings") || $isAdmin),
         'items' => []
     ],
@@ -453,7 +454,7 @@ $menuDefinitions = [
         'title' => 'Sistem Aktiviteleri',
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-history',
-        'link' => 'index.php?p=logs/index',
+        'link' => 'sistem-aktiviteleri',
         'visible' => ($isAdmin || in_array($userId, [1, 12])),
         'items' => []
     ],
@@ -461,7 +462,7 @@ $menuDefinitions = [
         'title' => 'Yedekleme & Kurtarma',
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-database',
-        'link' => 'index.php?p=backups',
+        'link' => 'yedekleme',
         'visible' => (permtrue("backupmanage") || $isAdmin),
         'items' => []
     ],
@@ -469,11 +470,42 @@ $menuDefinitions = [
         'title' => 'Sürüm Notları',
         'section' => 'Sistem & Yönetim',
         'icon' => 'fa fa-code-fork',
-        'link' => 'index.php?p=version-notes',
+        'link' => 'surum-notlari',
         'visible' => true,
         'items' => []
     ]
 ];
+
+// Eski menü adreslerini rota kataloğundaki temiz URL'lere merkezi olarak çevir.
+foreach ($menuDefinitions as &$menuDefinition) {
+    $linkDefinitions = !empty($menuDefinition['items'])
+        ? $menuDefinition['items']
+        : ['__main' => $menuDefinition];
+
+    foreach ($linkDefinitions as &$linkDefinition) {
+        $legacyLink = (string)($linkDefinition['link'] ?? '');
+        $parsedLink = parse_url($legacyLink);
+        if (($parsedLink['path'] ?? '') !== 'index.php' || empty($parsedLink['query'])) {
+            continue;
+        }
+
+        parse_str($parsedLink['query'], $linkParams);
+        $page = (string)($linkParams['p'] ?? '');
+        unset($linkParams['p']);
+        $cleanPath = Router::pathForPage($page, array_map('strval', $linkParams));
+        if ($cleanPath !== null) {
+            $linkDefinition['link'] = $cleanPath;
+        }
+    }
+    unset($linkDefinition);
+
+    if (isset($linkDefinitions['__main'])) {
+        $menuDefinition = $linkDefinitions['__main'];
+    } else {
+        $menuDefinition['items'] = $linkDefinitions;
+    }
+}
+unset($menuDefinition);
 
 // Kullanıcının kayıtlı menü sırasını al ve sırala
 $orderModel = new MenuOrderModel();
@@ -596,8 +628,7 @@ $pageMenuAliases = [
 
 // Aktif menü ve alt menü tespiti (sayfa yüklenmeden önce sunucu tarafında açık getirmek için)
 $currentP = (string)($_GET['p'] ?? 'home');
-$currentFullQuery = (string)($_SERVER['QUERY_STRING'] ?? ('p=' . $currentP));
-parse_str($currentFullQuery, $currentGetParams);
+$currentGetParams = $_GET;
 
 $targetMenuKey = null;
 $targetSubKey = null;
@@ -622,12 +653,8 @@ $isMenuLinkActive = function($link, $itemKey = null, $menuKey = null) use ($curr
     if (empty($link)) return false;
     
     $parsed = parse_url($link);
-    $cleanRoutePages = [
-        'teklifler' => 'offers/list',
-        'satin-almalar' => 'purchases',
-    ];
     $cleanPath = trim((string)($parsed['path'] ?? ''), '/');
-    if (isset($cleanRoutePages[$cleanPath]) && $cleanRoutePages[$cleanPath] === $currentP) {
+    if (Router::isPathActive($cleanPath, $currentP, $currentGetParams)) {
         return true;
     }
     if (!empty($parsed['query'])) {
@@ -652,7 +679,7 @@ $isMenuLinkActive = function($link, $itemKey = null, $menuKey = null) use ($curr
 ?>
 <div class="left-side-bar">
     <div class="brand-logo">
-        <a href="index.php">
+        <a href="anasayfa">
             <img src="<?php echo set("logo"); ?>"
                 alt="<?php echo set("site_title"); ?> Logo">
         </a>

@@ -1,7 +1,7 @@
 {
     "name": "Aydınogulları Yangın Söndürme Cihazları",
     "short_name": "Aydınogulları YSC",
-    "start_url": "/index.php?p=home",
+    "start_url": "/anasayfa",
     "display": "fullscreen",
     "background_color": "#ffffff",
     "theme_color": "#000000",

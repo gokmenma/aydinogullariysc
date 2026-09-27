@@ -397,6 +397,11 @@ try {
         color: #15803d;
         border: 1px solid #bbf7d0;
     }
+    .badge-stat-reports {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
     .badge-date {
         display: inline-flex;
         align-items: center;
@@ -747,7 +752,14 @@ try {
                         <i class="fa fa-list"></i>
                     </div>
                     <div>
-                        <h5>Müşteri ve Cari Listesi</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <h5>Müşteri ve Cari Listesi</h5>
+                            <?php if (permtrue("customeradd")) { ?>
+                                <a href="index.php?p=customers/manage" class="btn-card-header-add" title="Yeni Müşteri Ekle" data-toggle="tooltip">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            <?php } ?>
+                        </div>
                         <p>Anlık arama, sütun filtreleme ve müşteri yönetimi</p>
                     </div>
                 </div>
@@ -767,7 +779,7 @@ try {
                             <th style="min-width: 190px;">Firma Adı</th>
                             <th style="width: 105px;">Grup</th>
                             <th style="width: 120px;">Satış Temsilcisi</th>
-                            <th style="width: 120px;" class="no-sort text-center">Teklif / Servis</th>
+                            <th style="width: 135px;" class="no-sort text-center">Teklif / Servis / Rapor</th>
                             <th style="width: 140px;">E-Posta Adresi</th>
                             <th style="width: 110px;">GSM</th>
                             <th style="width: 95px;" class="text-center">Kayıt Tarihi</th>
@@ -782,7 +794,7 @@ try {
                             <th>Firma Adı</th>
                             <th>Grup</th>
                             <th>Satış Temsilcisi</th>
-                            <th class="text-center">Teklif / Servis</th>
+                            <th class="text-center">Teklif / Servis / Rapor</th>
                             <th>E-Posta Adresi</th>
                             <th>GSM</th>
                             <th class="text-center">Kayıt Tarihi</th>

@@ -1,6 +1,8 @@
 <?php
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
+use App\Helper\Security;
+
 // Server-side DataTable processing
 header('Content-Type: application/json');
 
@@ -26,9 +28,10 @@ try {
 
     // Build WHERE clause for search
     $whereClause = '';
+    $searchPattern = '';
     if (!empty($search)) {
-        $search = '%' . $search . '%';
-        $whereClause = " WHERE c.company LIKE :search OR c.email LIKE :search OR c.gsm LIKE :search OR cg.title LIKE :search";
+        $searchPattern = '%' . $search . '%';
+        $whereClause = " WHERE (c.company LIKE :search_0 OR c.email LIKE :search_1 OR c.gsm LIKE :search_2 OR cg.title LIKE :search_3)";
     }
 
     // Get total records count
@@ -42,8 +45,11 @@ try {
         LEFT JOIN cgroups cg ON c.grp = cg.id
         $whereClause
     ");
-    if (!empty($search)) {
-        $filteredQuery->bindParam(':search', $search);
+    if (!empty($searchPattern)) {
+        $filteredQuery->bindValue(':search_0', $searchPattern);
+        $filteredQuery->bindValue(':search_1', $searchPattern);
+        $filteredQuery->bindValue(':search_2', $searchPattern);
+        $filteredQuery->bindValue(':search_3', $searchPattern);
     }
     $filteredQuery->execute();
     $filteredRecords = $filteredQuery->fetch(PDO::FETCH_ASSOC)['total'];
@@ -69,8 +75,11 @@ try {
         LIMIT :start, :length
     ");
 
-    if (!empty($search)) {
-        $query->bindParam(':search', $search);
+    if (!empty($searchPattern)) {
+        $query->bindValue(':search_0', $searchPattern);
+        $query->bindValue(':search_1', $searchPattern);
+        $query->bindValue(':search_2', $searchPattern);
+        $query->bindValue(':search_3', $searchPattern);
     }
     $query->bindParam(':start', $start, PDO::PARAM_INT);
     $query->bindParam(':length', $length, PDO::PARAM_INT);
@@ -83,7 +92,8 @@ try {
         $tps = $row["offer_count"] . " / " . $row["project_count"];
         
         // Action buttons HTML - simplified without permission checks for API
-        $actions = '<a href="index.php?p=customers/manage&id=' . $row["id"] . '" data-tooltip="Görüntüle-Düzenle">
+        $encryptedCustomerId = Security::encrypt((string)$row['id']);
+        $actions = '<a href="firma-duzenle?id=' . $encryptedCustomerId . '" data-tooltip="Görüntüle-Düzenle">
             <span class="btn btn-sm btn-outline-info"><i class="fa fa-pencil"></i></span></a>
             <a href="#" data-tooltip="Sil"
                 onClick="deleteRecord(\'Devam ettiğiniz takdirde, müşteriye ait tüm bilgiler ve müşterinin adına düzenlenmiş olan teklif & projeler tamamen silinecektir. Devam etmek istiyor musunuz?\',\'' . $row['id'] . '\',\'customers\')">
@@ -91,7 +101,7 @@ try {
         
         $records[] = [
             $row["id"],
-            '<a href="index.php?p=customers/manage&id=' . $row["id"] . '" data-toggle="tooltip" data-tooltip="' . htmlspecialchars($row["company"]) . '">' . shorted($row["company"], 40) . '</a>',
+            '<a href="firma-duzenle?id=' . $encryptedCustomerId . '" data-toggle="tooltip" data-tooltip="' . htmlspecialchars($row["company"]) . '">' . shorted($row["company"], 40) . '</a>',
             htmlspecialchars($row["group_title"] ?? ''),
             htmlspecialchars($row["represant"]),
             $tps,

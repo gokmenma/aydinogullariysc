@@ -622,9 +622,11 @@ try {
                 <button type="button" class="btn btn-outline-success btn-action-outline" id="btnExportOutDocs" title="Excel Olarak İndir">
                     <i class="fa fa-file-excel-o"></i> <span class="d-none d-sm-inline">Excel'e Aktar</span>
                 </button>
-                <a href="index.php?p=new-outdocument" class="btn btn-action-primary">
-                    <i class="fa fa-plus-circle"></i> <span>Yeni Giden Evrak</span>
-                </a>
+                <?php if (permtrue("docoutadd") || permtrue("indocadd")) { ?>
+                    <a href="index.php?p=new-indocument&type=Giden" class="btn btn-action-primary">
+                        <i class="fa fa-plus-circle"></i> <span>Yeni Giden Evrak</span>
+                    </a>
+                <?php } ?>
             </div>
         </div>
 
@@ -715,7 +717,14 @@ try {
                         <i class="fa fa-list"></i>
                     </div>
                     <div>
-                        <h5>Giden Evrak Listesi</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <h5>Giden Evrak Listesi</h5>
+                            <?php if (permtrue("docoutadd") || permtrue("indocadd")) { ?>
+                                <a href="index.php?p=new-indocument&type=Giden" class="btn-card-header-add" title="Yeni Giden Evrak" data-toggle="tooltip">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            <?php } ?>
+                        </div>
                         <p>Evrak kayıtları, alıcı firma, teslim ve statü takibi</p>
                     </div>
                 </div>

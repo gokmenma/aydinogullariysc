@@ -5,7 +5,7 @@ require_once __DIR__ . '/bootstrap.php';
 use App\Helper\MaintenanceMode;
 
 if (!MaintenanceMode::isEnabled($ac) || MaintenanceMode::hasAccessPermission($ac)) {
-    header('Location: index.php?p=home');
+    header('Location: anasayfa');
     exit;
 }
 
@@ -173,7 +173,7 @@ header('Retry-After: 300');
                     return response.json();
                 }).then(function (status) {
                     if (status && (!status.active || status.has_access)) {
-                        window.location.replace('index.php?p=home');
+                        window.location.replace('anasayfa');
                     }
                 }).catch(function () {});
             }

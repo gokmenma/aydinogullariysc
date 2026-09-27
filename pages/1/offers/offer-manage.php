@@ -1,5 +1,6 @@
 <?php
-permcontrol('offeredit');
+$rawOfferId = $_GET['id'] ?? 0;
+permcontrol((int) $rawOfferId > 0 ? 'offeredit' : 'offeradd');
 
 use App\Helper\Date;
 use App\Helper\Helper;

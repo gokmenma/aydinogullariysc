@@ -1202,7 +1202,14 @@ try {
                     <i class="fa fa-map-marker"></i>
                 </div>
                 <div>
-                    <h5>Keşif Talep ve Saha Listesi</h5>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <h5>Keşif Talep ve Saha Listesi</h5>
+                        <?php if (permtrue('kesifCreate')) { ?>
+                            <button type="button" class="btn-card-header-add" data-toggle="modal" data-target="#kesifModal" title="Yeni Keşif Ekle">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        <?php } ?>
+                    </div>
                     <p>Saha keşifleri, görevli personel, form durumu ve görsel kayıtları</p>
                 </div>
             </div>

@@ -318,7 +318,14 @@ $sayfa_basligi = "Teklif Satır Listesi";
                     <i class="fa fa-list-alt"></i>
                 </div>
                 <div>
-                    <h5>Teklif Satırları</h5>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <h5>Teklif Satırları</h5>
+                        <?php if (permtrue("offerAdd")) { ?>
+                            <a href="index.php?p=offers/offer-manage" class="btn-card-header-add" title="Yeni Teklif Oluştur" data-toggle="tooltip">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        <?php } ?>
+                    </div>
                     <p>Anlık arama, kalem bazlı filtreleme ve satır yönetimi</p>
                 </div>
             </div>

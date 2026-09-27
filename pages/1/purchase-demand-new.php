@@ -63,7 +63,7 @@ if ($_POST) {
         );
         $lastid = $ac->lastInsertId();
         // Veritabanı işlemleri
-        if ($lastid != null) {
+        if ($lastid != null && !empty($urunAdi) && is_array($urunAdi)) {
             for ($i = 0; $i < count($urunAdi); $i++) {
                 $insq = $ac->prepare("INSERT INTO purchase_items SET purID = ?, 
 																stokKodu = ? ,
@@ -71,17 +71,41 @@ if ($_POST) {
 																amount = ? , 
 																unit = ? , 
 																price = ? ,
-																currency = ? ");
-                $insq->execute(array($lastid, $stokKodu[$i] ?? '', $urunAdi[$i] ?? '', $amounts[$i] ?? 0, $units[$i] ?? '', $buyprices[$i] ?? 0, $buycur[$i] ?? ''));
+																currency = ? ,
+																rowdescription = ? ");
+                $insq->execute(array(
+                    $lastid,
+                    $stokKodu[$i] ?? '',
+                    $urunAdi[$i] ?? '',
+                    $amounts[$i] ?? 0,
+                    $units[$i] ?? '',
+                    $buyprices[$i] ?? 0,
+                    $buycur[$i] ?? '',
+                    $_POST["rowdescription"][$i] ?? ''
+                ));
             }
         }
-        if ($insq) {
-            header("Location: index.php?p=purchase-demand-new&st=newsuccess");
-            exit();
-        };
+
         $getNumber += 1;
         $upquery = $ac->prepare("UPDATE define_numbers SET purchase_demand = ?");
         $upquery->execute(array($getNumber));
+
+        audit_log(
+            "create",
+            "purchases",
+            "Satın alma talebi oluşturuldu: " . $siparisNo,
+            "purchase_demand",
+            $lastid,
+            [
+                'order_number' => $siparisNo,
+                'customer_id' => (int) $customer,
+                'item_count' => is_array($urunAdi) ? count($urunAdi) : 0,
+                'type' => 1
+            ]
+        );
+
+        header("Location: yeni-siparis?st=newsuccess");
+        exit();
 
     } catch (PDOException $e) {
         error_log("Satın alma talebi ekleme hatası: " . $e->getMessage());
@@ -97,7 +121,7 @@ if (@$_GET["st"] == "empties") {
 }
 if (@$_GET["st"] == "newsuccess") {
 
-    showAlert('success', "Bilgiler kaydedildi.");
+    showAlert('success', "Satın alma talebi başarıyla kaydedildi.");
 
 }
 if (@$_GET["st"] == "numericerror") {

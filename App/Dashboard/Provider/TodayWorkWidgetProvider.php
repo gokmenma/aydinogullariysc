@@ -37,7 +37,7 @@ class TodayWorkWidgetProvider extends AbstractDashboardWidgetProvider
         $stmt = $this->db->prepare("SELECT p.id, p.service_number, c.company FROM projects p LEFT JOIN customers c ON c.id = p.pcid WHERE {$this->assignedExpression('p.pauthors')} AND {$serviceDate} = CURDATE() ORDER BY p.id DESC LIMIT 4");
         $stmt->execute([(string)$userId]);
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $items[] = ['type' => 'Servis', 'title' => trim(($row['service_number'] ?: 'Servis') . ' · ' . ($row['company'] ?: 'Firma belirtilmedi')), 'url' => 'index.php?p=service/list&id=' . (int)$row['id'], 'icon' => 'fa-wrench'];
+            $items[] = ['type' => 'Servis', 'title' => trim(($row['service_number'] ?: 'Servis') . ' · ' . ($row['company'] ?: 'Firma belirtilmedi')), 'url' => 'servisler?id=' . (int)$row['id'], 'icon' => 'fa-wrench'];
         }
 
         return ['items' => array_slice($items, 0, 6), 'mission_count' => $missionCount, 'service_count' => $serviceCount];

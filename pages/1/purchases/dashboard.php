@@ -398,7 +398,7 @@ foreach ($statusDistribution as $sd) {
                             <i class="fa fa-file-text-o mr-1"></i> Satın Alma Talebi
                         </a>
                     <?php endif; ?>
-                    <a href="index.php?p=purchases/price-request-list" class="dashboard-action-secondary">
+                    <a href="fiyat-talepleri" class="dashboard-action-secondary">
                         <i class="fa fa-tags mr-1"></i> Fiyat Talepleri
                     </a>
                     <a href="index.php?p=purchases" class="dashboard-action-secondary">

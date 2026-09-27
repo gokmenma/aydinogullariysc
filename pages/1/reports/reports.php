@@ -675,7 +675,33 @@ $reportTypeMeta = [
                         <i class="fa fa-table"></i>
                     </div>
                     <div>
-                        <h5>Rapor Kayıtları</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <h5>Rapor Kayıtları</h5>
+                            <div class="dropdown d-inline-block">
+                                <button type="button" class="btn-card-header-add dropdown-toggle" id="dropdownHeaderNewReport" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Yeni Rapor Oluştur">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-left report-action-dropdown shadow border-0" aria-labelledby="dropdownHeaderNewReport">
+                                    <div class="dropdown-header">
+                                        <i class="fa fa-plus-square mr-1"></i> Rapor Türü Seçiniz
+                                    </div>
+                                    <?php foreach ($reportTypesList as $type) : 
+                                        $meta = $reportTypeMeta[$type->page_link] ?? ['icon' => 'fa fa-file-text-o', 'color' => '#0284c7', 'bg' => '#f0f9ff', 'code' => strtoupper($type->page_link), 'desc' => ''];
+                                        $newLink = "index.php?p=reports/" . htmlspecialchars($type->page_link, ENT_QUOTES, 'UTF-8') . "/report-new-" . htmlspecialchars($type->page_link, ENT_QUOTES, 'UTF-8') . "&type=" . (int)$type->id;
+                                    ?>
+                                        <a class="dropdown-item report-dropdown-item" href="<?php echo $newLink; ?>">
+                                            <div class="report-dropdown-icon" style="background-color: <?php echo $meta['bg']; ?>; color: <?php echo $meta['color']; ?>;">
+                                                <i class="<?php echo $meta['icon']; ?>"></i>
+                                            </div>
+                                            <div class="report-dropdown-text">
+                                                <span class="report-dropdown-title"><?php echo htmlspecialchars($type->reportName, ENT_QUOTES, 'UTF-8'); ?></span>
+                                                <span class="report-dropdown-sub"><?php echo htmlspecialchars($meta['desc'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                            </div>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
                         <p>Sistemdeki tüm kayıtlı kontrol ve muayene raporları</p>
                     </div>
                 </div>

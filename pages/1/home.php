@@ -699,7 +699,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 									<span class="crm-badge-soft soft-amber">Bekleyen: <?php echo $waitingCount; ?></span>
 									<span class="crm-badge-soft soft-blue">Sahada: <?php echo $inProgressCount; ?></span>
 								</div>
-								<a href="index.php?p=service/list" class="crm-card-link">Tümü <i class="fa fa-angle-right"></i></a>
+								<a href="servisler" class="crm-card-link">Tümü <i class="fa fa-angle-right"></i></a>
 							</div>
 						</div>
 
@@ -828,7 +828,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 									<span class="crm-badge-soft soft-emerald"><i class="fa fa-circle"></i> Tamamlandı</span>
 								</div>
 
-								<a href="index.php?p=service/list" class="crm-card-link ml-1">Servis Listesi <i class="fa fa-arrow-right"></i></a>
+								<a href="servisler" class="crm-card-link ml-1">Servis Listesi <i class="fa fa-arrow-right"></i></a>
 
 								<div class="crm-widget-controls">
 									<button type="button" class="btn-widget-close" data-widget-id="widget_service_board" title="Bu kartı gizle">
@@ -882,7 +882,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 															$itemDateFormatted = !empty($item->psecond_date) ? (new DateTime($item->psecond_date))->format('Y-m-d') : null;
 															$isSecondary = ($itemDateFormatted === $currentDateStr);
 														?>
-															<a href="index.php?p=service/list&id=<?php echo $item->id; ?>" class="crm-service-item" style="background: <?php echo $statusBg; ?>; border-color: <?php echo $statusBorder; ?>; border-left: 4px solid <?php echo $statusColor; ?>; <?php echo $isSecondary ? 'box-shadow: 0 0 0 1px #8b5cf6;' : ''; ?>">
+													<a href="servisler?id=<?php echo $item->id; ?>" class="crm-service-item" style="background: <?php echo $statusBg; ?>; border-color: <?php echo $statusBorder; ?>; border-left: 4px solid <?php echo $statusColor; ?>; <?php echo $isSecondary ? 'box-shadow: 0 0 0 1px #8b5cf6;' : ''; ?>">
 																<div class="d-flex justify-content-between align-items-center">
 																	<span class="crm-service-num" style="color: <?php echo $statusColor; ?>;"><?php echo htmlspecialchars($item->service_number, ENT_QUOTES, 'UTF-8'); ?></span>
 																	<?php if (!empty($item->title)) : ?>
@@ -982,7 +982,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 																$statusBg = $statusColor . '15';
 																$statusBorder = $statusColor . '35';
 															?>
-																<a href="index.php?p=service/list&id=<?php echo $sItem->id; ?>" 
+														<a href="servisler?id=<?php echo $sItem->id; ?>" 
 																   class="crm-month-cal-service-badge" 
 																   style="background: <?php echo $statusBg; ?>; border-color: <?php echo $statusBorder; ?>; border-left: 3.5px solid <?php echo $statusColor; ?>;" 
 																   title="<?php echo htmlspecialchars($sItem->service_number . ' - ' . $sItem->firma_adi, ENT_QUOTES, 'UTF-8'); ?>">
@@ -1073,7 +1073,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 									</h3>
 								</div>
 								<div class="d-flex align-items-center" style="gap: 10px;">
-									<a href="index.php?p=offers/list" class="crm-card-link">Tüm Teklifler <i class="fa fa-arrow-right"></i></a>
+									<a href="teklifler" class="crm-card-link">Tüm Teklifler <i class="fa fa-arrow-right"></i></a>
 									<div class="crm-widget-controls">
 										<button type="button" class="btn-widget-close" data-widget-id="widget_recent_offers" title="Bu kartı gizle">
 											<i class="fa fa-times"></i>
@@ -1150,7 +1150,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 								</h3>
 							</div>
 							<div class="d-flex align-items-center" style="gap: 10px;">
-								<a href="index.php?p=service/list" class="crm-card-link">Tüm Servisler <i class="fa fa-arrow-right"></i></a>
+								<a href="servisler" class="crm-card-link">Tüm Servisler <i class="fa fa-arrow-right"></i></a>
 								<div class="crm-widget-controls">
 									<button type="button" class="btn-widget-close" data-widget-id="widget_recent_services" title="Bu kartı gizle">
 										<i class="fa fa-times"></i>
@@ -1173,7 +1173,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 									$hasProjects = true;
 									$stColour = !empty($proj['status_colour']) ? $proj['status_colour'] : '#3b82f6';
 									?>
-									<a href="index.php?p=service/list&id=<?php echo $proj['id']; ?>" class="crm-feed-item border-left-accent-blue">
+									<a href="servisler?id=<?php echo $proj['id']; ?>" class="crm-feed-item border-left-accent-blue">
 										<div style="flex: 1; min-width: 0; padding-right: 12px;">
 											<div class="crm-feed-title text-truncate">
 												<?php echo htmlspecialchars($proj['customer_company'] ?: 'Müşteri Belirtilmemiş', ENT_QUOTES, 'UTF-8'); ?>
@@ -1820,7 +1820,7 @@ document.addEventListener('DOMContentLoaded', function() {
 						var stCol = item.status_color || '#3b82f6';
 						listHtml += `
 							<div class="col-md-6 col-12 mb-3">
-								<a href="index.php?p=service/list&id=${item.id}" class="crm-modal-service-card" style="background: ${escapeHtml(stCol)}14; border-color: ${escapeHtml(stCol)}35; border-left: 4px solid ${escapeHtml(stCol)};">
+								<a href="servisler?id=${item.id}" class="crm-modal-service-card" style="background: ${escapeHtml(stCol)}14; border-color: ${escapeHtml(stCol)}35; border-left: 4px solid ${escapeHtml(stCol)};">
 									<div class="d-flex justify-content-between align-items-center mb-2">
 										<span class="crm-service-num" style="color: ${escapeHtml(stCol)}; font-weight: 700; font-size: 12px;">${escapeHtml(item.service_number)}</span>
 										<span class="crm-badge-soft" style="background: ${escapeHtml(stCol)}22; color: ${escapeHtml(stCol)}; border: 1px solid ${escapeHtml(stCol)}40; font-size: 10px; padding: 2px 7px;">

@@ -1,8 +1,10 @@
 RewriteEngine On
 
-# Pilot temiz URL rotalari. Mevcut index.php?p=... adresleri geriye donuk
-# uyumluluk icin calismaya devam eder.
-RewriteRule ^(teklifler|satin-almalar|teklif-duzenle)/?$ index.php [L,QSA]
+# Mevcut dosya ve dizinler disindaki temiz adresleri merkezi Router'a aktar.
+# Mevcut index.php?p=... adresleri geriye donuk uyumluluk icin calismaya devam eder.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
 
 # HTTPS yoksa HTTPS'ye yönlendir
 # RewriteCond %{HTTPS} off

@@ -19,6 +19,17 @@ $isAdmin = in_array($userId, [1, 12]) || in_array($userPerm, [1, 13]);
 
 // POST İşlemleri (Ekleme / Güncelleme)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Bu sayfanın kayıt/güncelleme POST sözleşmesi JSON cevabıdır.
+    $isAjaxRequest = true;
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    if (!\App\Helper\Security::checkCsrfToken()) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['status' => 'error', 'message' => 'Oturum doğrulaması başarısız oldu. Sayfayı yenileyip tekrar deneyin.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     $id = isset($_POST["id"]) ? (int)$_POST["id"] : 0;
     $title = trim($_POST["title"] ?? '');
     $type = $_GET["type"] ?? ($id > 0 ? 'update' : 'new');
@@ -26,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $creator = function_exists('sesset') ? sesset("id") : ($_SESSION['id'] ?? null);
 
     if (empty($title)) {
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        if ($isAjaxRequest) {
             header('Content-Type: application/json', true, 400);
             echo json_encode(['status' => 'error', 'message' => 'Lütfen servis durumu adını giriniz.']);
             exit;
@@ -34,22 +45,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         if ($type === "new" || $id === 0) {
             try {
-                $ekle = $ac->prepare("INSERT INTO units SET title = ?, regdate = ?, statu = ?, creator = ?, note = ?");
-                $ekle->execute([$title, $regdate, $statuCode, $creator, "Servis Durumu Tanımı"]);
+                $ekle = $ac->prepare("INSERT INTO units SET title = ?, colour = ?, regdate = ?, statu = ?, creator = ?, note = ?");
+                $ekle->execute([$title, '', $regdate, $statuCode, $creator, "Servis Durumu Tanımı"]);
                 $lastId = $ac->lastInsertId();
 
                 if (function_exists('audit_log')) {
                     audit_log("create", $pageSlug, "Yeni servis durumu eklendi: " . $title, "units", (string)$lastId);
                 }
 
-                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                if ($isAjaxRequest) {
                     header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'message' => 'Servis durumu başarıyla eklendi.', 'id' => $lastId]);
                     exit;
                 }
             } catch (PDOException $e) {
                 error_log("Service status insert error: " . $e->getMessage());
-                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                if ($isAjaxRequest) {
                     header('Content-Type: application/json', true, 500);
                     echo json_encode(['status' => 'error', 'message' => 'Kayıt sırasında veritabanı hatası oluştu.']);
                     exit;
@@ -64,14 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     audit_log("update", $pageSlug, "Servis durumu güncellendi: " . $title, "units", (string)$id);
                 }
 
-                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                if ($isAjaxRequest) {
                     header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'message' => 'Servis durumu başarıyla güncellendi.', 'id' => $id]);
                     exit;
                 }
             } catch (PDOException $e) {
                 error_log("Service status update error: " . $e->getMessage());
-                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                if ($isAjaxRequest) {
                     header('Content-Type: application/json', true, 500);
                     echo json_encode(['status' => 'error', 'message' => 'Güncelleme sırasında veritabanı hatası oluştu.']);
                     exit;
@@ -135,7 +146,7 @@ try {
                 </div>
             </div>
             <div class="header-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <a href="index.php?p=services" class="btn-header btn-header-secondary" title="Servisler Listesine Git">
+                <a href="servisler" class="btn-header btn-header-secondary" title="Servisler Listesine Git">
                     <i class="fa fa-cogs mr-1 text-primary"></i> Servisler
                 </a>
                 <button type="button" class="btn-header btn-header-save" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); box-shadow: 0 2px 6px rgba(124, 58, 237, 0.35);" id="btnOpenNewModal">
@@ -153,7 +164,12 @@ try {
                     <i class="fa fa-check-square-o"></i>
                 </div>
                 <div>
-                    <h5 class="mb-0" style="font-size: 16px; font-weight: 700;">Tanımlı Servis Durumları</h5>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <h5 class="mb-0" style="font-size: 16px; font-weight: 700;">Tanımlı Servis Durumları</h5>
+                        <button type="button" class="btn-card-header-add" onclick="openNewModal()" title="Yeni Servis Durumu Ekle" data-toggle="tooltip">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
                     <p class="mb-0 text-muted" style="font-size: 12.5px;">Teknik servis süreçlerinin takip edildiği durum aşamaları (Sağ tık menüsü desteklenir)</p>
                 </div>
             </div>
@@ -163,7 +179,7 @@ try {
             <table id="serviceStatusTable" class="data-table select-row table-bordered table-hover" style="width: 100%; margin: 0 !important;">
                 <thead>
                     <tr>
-                        <th class="text-center no-filter" style="width: 60px; max-width: 60px;">#Sıra</th>
+                        <th class="text-center no-filter" style="width: 85px; min-width: 80px; white-space: nowrap;"># Sıra</th>
                         <th style="min-width: 240px;">Servis Durumu</th>
                         <th style="min-width: 160px;">Ekleyen Kullanıcı</th>
                         <th class="text-center" style="width: 180px;">Eklenme Tarihi</th>
@@ -745,7 +761,7 @@ $(document).ready(function() {
         btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Kaydediliyor...');
 
         $.ajax({
-            url: "index.php?p=" + pageSlug + "&type=" + type,
+            url: "/servis-durumlari?type=" + type,
             type: "POST",
             data: {
                 id: id,
@@ -763,7 +779,7 @@ $(document).ready(function() {
                     timer: 1500,
                     showConfirmButton: false
                 }).then(function() {
-                    window.location.href = "index.php?p=" + pageSlug;
+                    window.location.href = "/servis-durumlari";
                 });
             },
             error: function(xhr) {

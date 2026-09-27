@@ -562,7 +562,14 @@ if (@$_GET["st"] == "success-mail") {
                     <i class="fa fa-list"></i>
                 </div>
                 <div>
-                    <h5><?php echo $sablonlari_goster ? 'Şablon Teklif Listesi' : 'Teklif Listesi'; ?></h5>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <h5><?php echo $sablonlari_goster ? 'Şablon Teklif Listesi' : 'Teklif Listesi'; ?></h5>
+                        <?php if (permtrue("offerAdd")) { ?>
+                            <a href="index.php?p=offers/offer-manage" class="btn-card-header-add" title="Yeni Teklif Oluştur" data-toggle="tooltip">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        <?php } ?>
+                    </div>
                     <p>Anlık arama, sütun filtreleme ve teklif yönetimi</p>
                 </div>
             </div>

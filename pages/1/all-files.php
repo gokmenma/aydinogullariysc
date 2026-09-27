@@ -794,13 +794,7 @@ $openUpload = isset($_GET['open_upload']) && $_GET['open_upload'] == 1;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($fileList)): ?>
-                        <tr class="odd data-row text-center">
-                            <td colspan="7" class="py-4 text-muted">
-                                <i class="fa fa-folder-open-o mr-1"></i> Kayıtlı dosya bulunamadı.
-                            </td>
-                        </tr>
-                        <?php else: ?>
+                        <?php if (!empty($fileList)): ?>
                             <?php $rowNum = 1; foreach ($fileList as $file): ?>
                             <?php 
                                 $badge = getFileTypeBadge($file['filename']);
@@ -945,6 +939,7 @@ $openUpload = isset($_GET['open_upload']) && $_GET['open_upload'] == 1;
     </div>
 </div>
 
+<script src="include/js/data-table.js"></script>
 <script>
     // KPI Summary Toggle (Teklifler Sayfasıyla Birebir)
     $('#toggleKpiSummary').on('click', function() {

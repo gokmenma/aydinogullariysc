@@ -26,7 +26,7 @@ use App\Helper\Helper;
             <?php }
             if (permtrue('purchaseadd')) { ?>
 
-                <a href="index.php?p=purchase-new"><button type="button" class="btn btn-success btn-sm"><i
+                <a href="yeni-siparis"><button type="button" class="btn btn-success btn-sm"><i
                             class="fa fa-plus"></i> Yeni Sipariş</button></a>
             <?php } ?>
         </div>

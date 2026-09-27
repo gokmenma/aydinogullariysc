@@ -3,13 +3,16 @@
     $(document).ready(function () {
         try {
             var theme = localStorage.getItem('theme');
-            var preset = localStorage.getItem('app_theme_preset') || 'kode';
-            var weight = localStorage.getItem('app_theme_weight') || '400';
+            var preset = localStorage.getItem('app_theme_preset') || 'ersan-gold';
+            var weight = localStorage.getItem('app_theme_weight') || (preset === 'ersan-gold' ? '500' : '400');
+            var font = localStorage.getItem('app_theme_font') || (preset === 'ersan-gold' ? 'outfit' : 'inter');
 
             $('html').attr('data-theme-preset', preset);
             $('body').attr('data-theme-preset', preset);
             $('html').attr('data-theme-weight', weight);
             $('body').attr('data-theme-weight', weight);
+            $('html').attr('data-theme-font', font);
+            $('body').attr('data-theme-font', font);
 
             if (theme === 'dark' || preset === 'koyu-gece') {
                 $('html').addClass('dark-mode');

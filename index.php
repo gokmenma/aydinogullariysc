@@ -2,15 +2,15 @@
 
 require_once "bootstrap.php";
 
-use App\Routing\PilotRouter;
+use App\Routing\Router;
 
-try {
-    $pilotRoute = PilotRouter::resolve((string) ($_SERVER['REQUEST_URI'] ?? ''));
-} catch (InvalidArgumentException $exception) {
-    http_response_code(404);
-    echo htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8');
-    exit;
-}
+$route = Router::resolve(
+    (string) ($_SERVER['REQUEST_URI'] ?? ''),
+    (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php')
+);
+
+// Sayfa içinde üretilen eski ve katalogda karşılığı bulunan kullanıcı bağlantılarını temiz URL'ye çevir.
+ob_start([Router::class, 'rewriteHtml']);
 
 if (set("system_statu") == 1) {
     if (!isset($_SESSION["login"])) {
@@ -22,19 +22,63 @@ if (set("system_statu") == 1) {
     exit;
 }
 
-if ($pilotRoute !== null && !PilotRouter::isAuthorized($pilotRoute['permissions'])) {
-    http_response_code(403);
-    echo 'Bu sayfayı görüntüleme yetkiniz bulunmuyor.';
+if ($route === null && empty($_GET['p']) && basename((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH)) !== 'index.php') {
+    http_response_code(404);
+    echo 'Sayfa bulunamadı.';
     exit;
 }
 
+if ($route !== null && !Router::isAuthorized($route['permissions'])) {
+    audit_log(
+        'error',
+        'authorization',
+        'Yetkisiz sayfa erişimi engellendi: ' . $route['path'],
+        'route',
+        $route['path'],
+        ['page' => $route['page']],
+        'warning'
+    );
+    $_SESSION['flash_error'] = 'Bu sayfayı görüntüleme yetkiniz bulunmuyor.';
+    header('Location: anasayfa?error=nopermission');
+    exit;
+}
+
+if ($route !== null) {
+    try {
+        Router::resolveParameters($route);
+    } catch (InvalidArgumentException $exception) {
+        http_response_code(404);
+        echo htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8');
+        exit;
+    }
+}
+
+if (($route['path'] ?? null) === 'teklif-duzenle') {
+    $offerExists = $ac->prepare('SELECT 1 FROM offers WHERE id = ? LIMIT 1');
+    $offerExists->execute([(int) $_GET['id']]);
+    if (!$offerExists->fetchColumn()) {
+        http_response_code(404);
+        echo 'Teklif bulunamadı.';
+        exit;
+    }
+}
+
 $skid = sesset("perm");
-$plink = @$_GET["p"];
+$isPermissionError = ($_GET['error'] ?? '') === 'nopermission';
+if ($isPermissionError && empty($_GET['p'])) {
+    $_GET['p'] = 'home';
+}
+$plink = $_GET['p'] ?? null;
+$flashError = trim((string) ($_SESSION['flash_error'] ?? ''));
+if ($flashError === '' && $isPermissionError) {
+    $flashError = 'Bu sayfayı görüntüleme yetkiniz bulunmuyor.';
+}
+unset($_SESSION['flash_error']);
 
 if ($plink) {
     $ttlinks = $plink;
 } else {
-    header("Location:index.php?p=home");
+    header("Location: anasayfa");
     exit;
 }
 
@@ -73,6 +117,18 @@ try {
 
     <?php include 'include/header.php'; ?>
     <?php include 'include/sidebar.php'; ?>
+    <?php if ($flashError !== ''): ?>
+        <div class="alert alert-warning alert-dismissible fade show shadow"
+             role="alert"
+             style="position:fixed;top:82px;right:24px;z-index:20000;max-width:440px;">
+            <i class="fa fa-exclamation-triangle mr-2" aria-hidden="true"></i>
+            <strong>Erişim Engellendi:</strong>
+            <?php echo htmlspecialchars($flashError, ENT_QUOTES, 'UTF-8'); ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Kapat">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
     <?php
     if (sesset("permission") != $_SESSION["perm"]) {
         header("Location: logout.php");
@@ -98,7 +154,7 @@ try {
                 echo $pln;
             }
         } else {
-            header("Location:index.php?p=home&code=0121");
+            header("Location: anasayfa?code=0121");
             exit;
         }
     } else {
@@ -112,7 +168,7 @@ try {
         <?php
     }
     ?>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <?php include 'include/script.php'; ?>
 
     <script src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.8/af-2.6.0/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.11.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.js"></script>
@@ -142,7 +198,6 @@ try {
     </script>
     <script src="include/js/table-filter.js?v=<?php echo file_exists('include/js/table-filter.js') ? filemtime('include/js/table-filter.js') : time(); ?>"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="include/js/apperance.js?v=<?php echo file_exists('include/js/apperance.js') ? filemtime('include/js/apperance.js') : time(); ?>"></script>
     <script src="include/js/global-search.js?v=<?php echo file_exists('include/js/global-search.js') ? filemtime('include/js/global-search.js') : time(); ?>"></script>
 

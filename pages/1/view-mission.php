@@ -6,7 +6,7 @@ use App\Model\MissionModel;
 permcontrol("missiontake");
 
 if (!@$_GET["mid"]) {
-	header("Location: index.php?p=home&errorcode=00254");
+	header("Location: anasayfa?errorcode=00254");
 	exit;
 }
 
@@ -17,7 +17,7 @@ $missionModel = new MissionModel();
 $as = $missionModel->getMissionById($mid);
 
 if (!$as) {
-	header("Location: index.php?p=home&errorcode=00784");
+	header("Location: anasayfa?errorcode=00784");
 	exit;
 }
 

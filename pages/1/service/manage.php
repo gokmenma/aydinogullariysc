@@ -39,7 +39,7 @@ if ($isEdit) {
     $cc = $cerq->fetch(PDO::FETCH_ASSOC);
 
     if (!$cc) {
-        header('Location: index.php?p=service/list&err=01735');
+        header('Location: servisler?err=01735');
         exit;
     }
 
@@ -901,7 +901,7 @@ $pageIcon = $isEdit ? 'fa-pencil-square-o' : 'fa-plus-circle';
                 </div>
             </div>
             <div class="header-actions">
-                <a href="index.php?p=service/list" class="btn-header btn-header-list">
+                <a href="servisler" class="btn-header btn-header-list">
                     <i class="fa fa-list"></i> Listeye Dön
                 </a>
                 <button type="button" id="submitButton" onclick="submitServiceForm()"

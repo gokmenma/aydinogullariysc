@@ -9,20 +9,12 @@ if ((@$_GET["st"] ?? "") == "success-mail") {
 }
 
 use App\Helper\Helper;
+use App\Model\PurchaseModel;
+
+$purchaseModel = new PurchaseModel();
 
 // KPI İstatistikleri
-$statsQuery = $ac->query("
-    SELECT 
-        COUNT(*) as total_count,
-        SUM(CASE WHEN state = 0 THEN 1 ELSE 0 END) as pending_count,
-        SUM(CASE WHEN state = 1 THEN 1 ELSE 0 END) as approved_count,
-        SUM(CASE WHEN state = 2 THEN 1 ELSE 0 END) as completed_count,
-        SUM(CASE WHEN type = 1 THEN 1 ELSE 0 END) as demand_count,
-        SUM(CASE WHEN type = 2 THEN 1 ELSE 0 END) as price_req_count,
-        SUM(CASE WHEN type = 0 OR (type != 1 AND type != 2) THEN 1 ELSE 0 END) as order_count
-    FROM purchases
-");
-$stats = $statsQuery ? $statsQuery->fetch(PDO::FETCH_ASSOC) : [];
+$stats = $purchaseModel->getListKPIStats();
 $totalCount = (int)($stats['total_count'] ?? 0);
 $pendingCount = (int)($stats['pending_count'] ?? 0);
 $approvedCount = (int)($stats['approved_count'] ?? 0);
@@ -31,23 +23,6 @@ $demandCount = (int)($stats['demand_count'] ?? 0);
 $priceReqCount = (int)($stats['price_req_count'] ?? 0);
 $orderCount = (int)($stats['order_count'] ?? 0);
 $completedRate = $totalCount > 0 ? round(($completedCount / $totalCount) * 100, 1) : 0;
-
-// Verileri tek seferde JOIN ile performanslı çekme
-$query = $ac->query("
-    SELECT 
-        p.*,
-        c.company AS customer_name,
-        u_create.username AS creator_username,
-        u_create.Unvan AS creator_title,
-        u_update.username AS updater_username,
-        u_update.Unvan AS updater_title
-    FROM purchases p
-    LEFT JOIN customers c ON p.companyID = c.id
-    LEFT JOIN users u_create ON p.creator = u_create.id
-    LEFT JOIN users u_update ON p.updater = u_update.id
-    ORDER BY p.id DESC
-");
-$purchases = $query ? $query->fetchAll(PDO::FETCH_ASSOC) : [];
 
 try {
     $logger = \getLogger("Satın Alma");
@@ -220,9 +195,10 @@ try {
     .form-card {
         background: #ffffff;
         border-radius: 14px !important;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-        padding: 4px !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        padding: 0 !important;
+        overflow: hidden !important;
         margin-bottom: 25px;
     }
 
@@ -230,9 +206,9 @@ try {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 14px;
+        padding: 12px 14px 4px 14px;
         margin-bottom: 0;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: none !important;
         flex-wrap: wrap;
         gap: 12px;
     }
@@ -259,7 +235,7 @@ try {
     .purchases-list-wrapper .table-responsive,
     .purchases-list-page-container .table-responsive,
     .table-responsive {
-        padding: 0 !important;
+        padding: 4px 8px 10px 8px !important;
         margin: 0 !important;
         border: none !important;
         overflow-x: auto !important;
@@ -286,10 +262,26 @@ try {
         display: none !important;
     }
     .form-card .dataTables_wrapper .row:last-child {
-        padding: 10px 14px;
-        margin: 0;
-        border-top: 1px solid #f1f5f9;
-        background: #fafafa;
+        padding: 12px 0 0 0 !important;
+        margin: 0 !important;
+        border-top: none !important;
+        background: transparent !important;
+    }
+
+    /* Dark Mode Table Card Support */
+    .dark-mode .form-card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .form-card-header {
+        border-bottom: none !important;
+    }
+    .dark-mode .form-card-header h5 {
+        color: #f8fafc !important;
+    }
+    .dark-mode .form-card .dataTables_wrapper .row:last-child {
+        background: transparent !important;
+        border-top: none !important;
     }
 
     /* Search & Toggle Button */
@@ -348,10 +340,13 @@ try {
     /* Table Base Styling */
     #purchasesTable {
         margin: 0 !important;
-        border-collapse: collapse !important;
+        border-collapse: separate !important;
         border-spacing: 0 !important;
+        border-radius: 10px !important;
+        border: 1px solid #cbd5e1 !important;
         width: 100% !important;
         table-layout: fixed !important;
+        overflow: hidden !important;
     }
     #purchasesTable thead th {
         position: relative !important;
@@ -362,11 +357,20 @@ try {
         text-transform: uppercase;
         letter-spacing: 0.2px;
         padding: 9px 4px !important;
-        border-bottom: 2px solid #e2e8f0;
-        border-top: none;
+        border-bottom: 1px solid #cbd5e1 !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: 1px solid #e2e8f0 !important;
         vertical-align: middle;
         white-space: nowrap;
         overflow: visible;
+    }
+    #purchasesTable thead th:first-child {
+        border-top-left-radius: 9px !important;
+    }
+    #purchasesTable thead th:last-child {
+        border-top-right-radius: 9px !important;
+        border-right: none !important;
     }
     #purchasesTable thead th.tf-header-cell {
         padding-right: 24px !important;
@@ -389,10 +393,25 @@ try {
         vertical-align: middle;
         font-size: 12px;
         color: #334155;
-        border-top: 1px solid #f1f5f9;
+        border-top: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        border-left: none !important;
+        border-right: 1px solid #f1f5f9 !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    #purchasesTable tbody td:last-child {
+        border-right: none !important;
+    }
+    #purchasesTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+    #purchasesTable tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 9px !important;
+    }
+    #purchasesTable tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 9px !important;
     }
     #purchasesTable tbody tr:hover {
         background-color: #f8fafc;
@@ -589,7 +608,7 @@ try {
                     </a>
                 <?php } ?>
                 <?php if (permtrue('purchaseadd')) { ?>
-                    <a href="index.php?p=purchases/manage" class="btn btn-success shadow-sm">
+                    <a href="yeni-siparis" class="btn btn-success shadow-sm">
                         <i class="fa fa-plus"></i> Yeni Sipariş
                     </a>
                 <?php } ?>
@@ -690,7 +709,7 @@ try {
             <div class="form-card-header">
                 <div class="header-left-inner">
                     <h5 class="m-0 font-weight-bold">Satın Alma & Talep Listesi</h5>
-                    <span class="badge badge-secondary"><?php echo count($purchases); ?> Kayıt</span>
+                    <span class="badge badge-secondary" id="purchasesCountBadge"><?php echo $totalCount; ?> Kayıt</span>
                     <button type="button" id="showdemand" class="btn btn-sm btn-outline-primary filter-demand-toggle ml-2" data-toggle="button" aria-pressed="false">
                         <i class="fa fa-filter mr-1"></i> <span>Sadece Bekleyenleri Göster</span>
                     </button>
@@ -724,174 +743,7 @@ try {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
-                        $sira = 1;
-                        foreach ($purchases as $purc): 
-                            $pid = (int)$purc['id'];
-                            $companyName = !empty($purc['customer_name']) ? $purc['customer_name'] : (!empty($purc['companyID']) ? getCustomerName($purc['companyID']) : '-');
-                            $siparisNo = htmlspecialchars($purc['siparisNo'] ?? '', ENT_QUOTES, 'UTF-8');
-                            $rawCreateTime = $purc['create_time'] ?? '';
-                            $createTimeFormatted = !empty($rawCreateTime) ? date('d.m.Y', strtotime($rawCreateTime)) : '-';
-                            $rawDeadline = $purc['deadline'] ?? '';
-                            $deadlineFormatted = !empty($rawDeadline) ? date('d.m.Y', strtotime($rawDeadline)) : '-';
-                            $altToplam = htmlspecialchars($purc['altToplam'] ?? '0,00', ENT_QUOTES, 'UTF-8');
-                            $state = (int)($purc['state'] ?? 0);
-                            $type = (int)($purc['type'] ?? 0);
-                            $paymentPeriod = htmlspecialchars($purc['payment_period'] ?? '', ENT_QUOTES, 'UTF-8');
-                            $invoiceNumber = htmlspecialchars($purc['invoice_number'] ?? '', ENT_QUOTES, 'UTF-8');
-                            $rawInvoiceDate = $purc['invoice_date'] ?? '';
-                            $invoiceDateFormatted = !empty($rawInvoiceDate) ? date('d.m.Y', strtotime($rawInvoiceDate)) : '-';
-                            
-                            $creator = !empty($purc['creator_username']) ? $purc['creator_username'] : (!empty($purc['creator']) ? getUserName($purc['creator']) : 'Sistem');
-                            $updater = !empty($purc['updater_username']) ? $purc['updater_username'] : (!empty($purc['updater']) ? getUserName($purc['updater']) : '');
-                            $updatedDate = $purc['updated_at'] ?? '';
-
-                            // Tip metni ve rozeti
-                            if ($type == 1) {
-                                $typeLabel = 'TALEP';
-                                $typeBadge = '<span class="badge-type-demand">TALEP</span>';
-                                $editLink = 'index.php?p=purchase-demand-edit&id=' . $pid;
-                                $detailLink = 'index.php?p=purchase-demand-detail&id=' . $pid;
-                            } else if ($type == 2) {
-                                $typeLabel = 'FİYAT TALEBİ';
-                                $typeBadge = '<span class="badge-type-price">FİYAT</span>';
-                                $editLink = 'index.php?p=purchases/manage&id=' . $pid;
-                                $detailLink = 'index.php?p=purchase-detail&id=' . $pid;
-                            } else {
-                                $typeLabel = 'SİPARİŞ';
-                                $typeBadge = '<span class="badge-type-order">SİPARİŞ</span>';
-                                $editLink = 'index.php?p=purchases/manage&id=' . $pid;
-                                $detailLink = 'index.php?p=purchase-detail&id=' . $pid;
-                            }
-
-                            // Durum rozeti
-                            if ($state == 0) {
-                                $statusBadge = '<span class="badge badge-soft-warning font-weight-bold">Bekliyor</span>';
-                                $statusText = 'Bekliyor';
-                            } elseif ($state == 1) {
-                                $statusBadge = '<span class="badge badge-soft-info font-weight-bold">Onaylandı</span>';
-                                $statusText = 'Onaylandı';
-                            } elseif ($state == 2) {
-                                $statusBadge = '<span class="badge badge-soft-success font-weight-bold">Tamamlandı</span>';
-                                $statusText = 'Tamamlandı';
-                            } elseif ($state == 3) {
-                                $statusBadge = '<span class="badge badge-soft-danger font-weight-bold">Reddedildi</span>';
-                                $statusText = 'Reddedildi';
-                            } else {
-                                $statusBadge = Helper::getStateBadge($state);
-                                $statusText = Helper::getState($state) ?? '';
-                            }
-
-                            $creatorTooltip = "Oluşturulma: " . $rawCreateTime;
-                            if (!empty($updater)) {
-                                $creatorTooltip .= "\nGüncelleyen: " . $updater . " (" . $updatedDate . ")";
-                            }
-                        ?>
-                            <tr data-id="<?php echo $pid; ?>" 
-                                data-siparis-no="<?php echo $siparisNo; ?>" 
-                                data-type="<?php echo $type; ?>" 
-                                data-type-label="<?php echo $typeLabel; ?>"
-                                data-state="<?php echo $state; ?>"
-                                data-company="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>"
-                                data-edit-link="<?php echo $editLink; ?>">
-                                
-                                <td class="text-center">
-                                    <span class="row-index-badge"><?php echo $sira++; ?></span>
-                                </td>
-
-                                <td>
-                                    <span class="font-weight-bold text-dark"><?php echo $siparisNo; ?></span>
-                                </td>
-
-                                <td class="company-name-cell" data-tooltip="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 20), ENT_QUOTES, 'UTF-8'); ?></span>
-                                </td>
-
-                                <td class="text-muted text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
-
-                                <td class="text-center"><?php echo $deadlineFormatted; ?></td>
-
-                                <td class="text-right font-weight-bold text-dark">
-                                    <?php echo $altToplam . ' ₺'; ?>
-                                </td>
-
-                                <td class="text-center">
-                                    <?php echo $statusBadge; ?>
-                                </td>
-
-                                <td class="text-center"><?php echo $paymentPeriod ?: '-'; ?></td>
-
-                                <td><?php echo $invoiceNumber ?: '-'; ?></td>
-
-                                <td class="text-center"><?php echo $invoiceDateFormatted; ?></td>
-
-                                <td>
-                                    <span class="custom-tooltip" data-tooltip="<?php echo htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8'); ?>
-                                    </span>
-                                </td>
-
-                                <td class="text-center">
-                                    <?php echo $typeBadge; ?>
-                                </td>
-
-                                <td class="text-center text-nowrap" style="width: 105px; min-width: 105px; white-space: nowrap;">
-                                    <div class="action-btn-group">
-                                        <a href="<?php echo $detailLink; ?>" target="_blank" class="btn btn-sm btn-outline-primary action-btn" title="Detay / Form Görüntüle" data-tooltip="Detay / Form">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-
-                                        <a href="<?php echo $editLink; ?>" class="btn btn-sm btn-outline-info action-btn" title="Düzenle" data-tooltip="Düzenle">
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-
-                                        <?php if (permtrue("purchasedelete")) { ?>
-                                            <?php if ($state == 2) { ?>
-                                                <button type="button" class="btn btn-sm btn-outline-danger action-btn disabled opacity-50" title="Tamamlanmış Kayıt Silinemez" data-tooltip="Tamamlanmış Kayıt Silinemez" disabled>
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            <?php } else { ?>
-                                                <button type="button" class="btn btn-sm btn-outline-danger action-btn" title="Sil" data-tooltip="Sil" onclick="deleteRecord('<?php echo $siparisNo; ?> nolu kaydı silmek istediğinize emin misiniz?', <?php echo $pid; ?>, 'purchases')">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            <?php } ?>
-                                        <?php } ?>
-
-                                        <div class="dropdown d-inline">
-                                            <button class="btn btn-sm btn-outline-secondary action-btn" type="button" data-bs-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Diğer İşlemler" data-tooltip="Diğer">
-                                                <i class="fa fa-ellipsis-v"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-right shadow border-0" style="border-radius: 8px; z-index: 1050;">
-                                                <?php if ($type == 1 && $state == 0) { ?>
-                                                    <a href="index.php?p=purchases/manage&talep_id=<?php echo $pid; ?>&demand=true" class="dropdown-item py-2 font-13">
-                                                        <i class="fa fa-shopping-cart text-primary mr-2"></i> Sipariş Oluştur
-                                                    </a>
-                                                <?php } ?>
-
-                                                <a href="index.php?p=purchase-demand-detail&id=<?php echo $pid; ?>" target="_blank" class="dropdown-item py-2 font-13">
-                                                    <i class="fa fa-file-text-o text-info mr-2"></i> Talep Formunu Göster
-                                                </a>
-                                                <a href="index.php?p=purchase-detail&id=<?php echo $pid; ?>" target="_blank" class="dropdown-item py-2 font-13">
-                                                    <i class="fa fa-file-text text-success mr-2"></i> Sipariş Formunu Göster
-                                                </a>
-
-                                                <?php if ($type == 1) { 
-                                                    $toggleStateText = ($state == 0) ? 'Tamamlandı Olarak İşaretle' : 'Bekliyor Olarak İşaretle';
-                                                ?>
-                                                    <a href="#" class="dropdown-item py-2 font-13 done-demand" data-id="<?php echo $pid; ?>">
-                                                        <i class="fa fa-check-square-o text-warning mr-2"></i> <?php echo $toggleStateText; ?>
-                                                    </a>
-                                                <?php } ?>
-
-                                                <a href="index.php?p=report-send-as-mail&type=purchase&id=<?php echo $pid; ?>" class="dropdown-item py-2 font-13">
-                                                    <i class="fa fa-envelope text-secondary mr-2"></i> Mail Gönder
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                        <!-- Server-side AJAX ile doldurulur -->
                     </tbody>
                 </table>
             </div>
@@ -926,20 +778,52 @@ try {
     </a>
 </div>
 
-<!-- SheetJS / XLSX Kütüphanesi -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
 <script>
 $(document).ready(function() {
     var isFilteredWaiting = false;
 
-    // DataTable Başlatma
+    // DataTable Başlatma (Server-Side AJAX)
     var table = $('#purchasesTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "api/purchases_datatables.php",
+            type: "GET",
+            data: function(d) {
+                d.only_pending = isFilteredWaiting ? 1 : 0;
+            },
+            error: function(xhr, error, thrown) {
+                console.error("Purchases DataTable Ajax Error:", error, thrown, xhr.responseText);
+            }
+        },
+        columns: [
+            { data: 0, orderable: false, searchable: false, className: "text-center" },
+            { data: 1 },
+            { data: 2, className: "company-name-cell" },
+            { data: 3, className: "text-center" },
+            { data: 4, className: "text-center" },
+            { data: 5, className: "text-right" },
+            { data: 6, className: "text-center" },
+            { data: 7, className: "text-center" },
+            { data: 8, className: "text-center" },
+            { data: 9, className: "text-center" },
+            { data: 10 },
+            { data: 11, className: "text-center" },
+            { data: 12, orderable: false, searchable: false, className: "text-center" }
+        ],
+        createdRow: function(row, data, dataIndex) {
+            if (data && data.DT_RowAttr) {
+                $.each(data.DT_RowAttr, function(key, val) {
+                    $(row).attr(key, val);
+                });
+            }
+        },
         responsive: false,
         scrollX: false,
         autoWidth: false,
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tümü"]],
+        order: [[3, 'desc']],
         language: {
             url: "include/js/tr.json",
             search: "",
@@ -947,28 +831,33 @@ $(document).ready(function() {
         },
         dom: "<'row'<'col-sm-12'tr>>" +
              "<'row align-items-center mt-2 px-2 pb-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
-        order: [[1, 'desc']],
-        columnDefs: [
-            { targets: [0, 11, 12], orderable: false }
-        ]
+        initComplete: function() {
+            if (window.App && window.App.TableFilter) {
+                App.TableFilter.attachToTable(document.getElementById('purchasesTable'));
+            }
+        },
+        drawCallback: function(settings) {
+            var api = this.api();
+            var total = api.page.info().recordsTotal;
+            $('#purchasesCountBadge').text(total + ' Kayıt');
+            if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        }
     });
 
-    if (window.App && window.App.TableFilter) {
-        App.TableFilter.attachToTable(document.getElementById('purchasesTable'));
-    }
-
     function filterWaitingDemands() {
-        table.column(6).search('Bekliyor').draw();
+        isFilteredWaiting = true;
+        table.ajax.reload();
         $('#showdemand').find('span').text('Tüm Kayıtları Göster');
         $('#showdemand').removeClass('btn-outline-primary').addClass('btn-primary');
-        isFilteredWaiting = true;
     }
 
     function showAllDemands() {
-        table.column(6).search('').draw();
+        isFilteredWaiting = false;
+        table.ajax.reload();
         $('#showdemand').find('span').text('Sadece Bekleyenleri Göster');
         $('#showdemand').removeClass('btn-primary').addClass('btn-outline-primary');
-        isFilteredWaiting = false;
     }
 
     // Filtre Butonu
@@ -1033,49 +922,60 @@ $(document).ready(function() {
         updateKpiToggleState(newState, true);
     });
 
-    // Excel Dışa Aktarma (SheetJS / XLSX)
+    // Excel Dışa Aktarma (SheetJS / XLSX - Lazy Loading)
     $('#btnExportExcel').on('click', function() {
-        var data = [];
-        data.push([
-            "Sıra",
-            "Sipariş / Talep No",
-            "Firma Adı",
-            "Kayıt Tarihi",
-            "Termin Tarihi",
-            "Toplam Fiyat",
-            "Durum",
-            "Ödeme Vadesi",
-            "Fatura No",
-            "Fatura Tarihi",
-            "Oluşturan",
-            "Tip"
-        ]);
+        function exportPurchasesToExcel() {
+            var data = [];
+            data.push([
+                "Sıra",
+                "Sipariş / Talep No",
+                "Firma Adı",
+                "Kayıt Tarihi",
+                "Termin Tarihi",
+                "Toplam Fiyat",
+                "Durum",
+                "Ödeme Vadesi",
+                "Fatura No",
+                "Fatura Tarihi",
+                "Oluşturan",
+                "Tip"
+            ]);
 
-        $('#purchasesTable tbody tr').each(function(idx) {
-            var $row = $(this);
-            if ($row.find('td').length > 1) {
-                var cols = [];
-                cols.push(idx + 1);
-                cols.push($row.find('td').eq(1).text().trim());
-                cols.push($row.find('td').eq(2).text().trim());
-                cols.push($row.find('td').eq(3).text().trim());
-                cols.push($row.find('td').eq(4).text().trim());
-                cols.push($row.find('td').eq(5).text().trim());
-                cols.push($row.find('td').eq(6).text().trim());
-                cols.push($row.find('td').eq(7).text().trim());
-                cols.push($row.find('td').eq(8).text().trim());
-                cols.push($row.find('td').eq(9).text().trim());
-                cols.push($row.find('td').eq(10).text().trim());
-                cols.push($row.find('td').eq(11).text().trim());
-                data.push(cols);
-            }
-        });
+            $('#purchasesTable tbody tr').each(function(idx) {
+                var $row = $(this);
+                if ($row.find('td').length > 1) {
+                    var cols = [];
+                    cols.push(idx + 1);
+                    cols.push($row.find('td').eq(1).text().trim());
+                    cols.push($row.find('td').eq(2).text().trim());
+                    cols.push($row.find('td').eq(3).text().trim());
+                    cols.push($row.find('td').eq(4).text().trim());
+                    cols.push($row.find('td').eq(5).text().trim());
+                    cols.push($row.find('td').eq(6).text().trim());
+                    cols.push($row.find('td').eq(7).text().trim());
+                    cols.push($row.find('td').eq(8).text().trim());
+                    cols.push($row.find('td').eq(9).text().trim());
+                    cols.push($row.find('td').eq(10).text().trim());
+                    cols.push($row.find('td').eq(11).text().trim());
+                    data.push(cols);
+                }
+            });
 
-        var ws = XLSX.utils.aoa_to_sheet(data);
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Satın Alma Listesi");
-        var filename = "Satin_Alma_Listesi_" + new Date().toISOString().slice(0, 10) + ".xlsx";
-        XLSX.writeFile(wb, filename);
+            var ws = XLSX.utils.aoa_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Satın Alma Listesi");
+            var filename = "Satin_Alma_Listesi_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+            XLSX.writeFile(wb, filename);
+        }
+
+        if (typeof XLSX === 'undefined') {
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            script.onload = exportPurchasesToExcel;
+            document.head.appendChild(script);
+        } else {
+            exportPurchasesToExcel();
+        }
     });
 
     // Sipariş Talebini Tamamlandı Yap / Güncelle
@@ -1181,7 +1081,7 @@ $(document).ready(function() {
                 $('#ctxDelete').removeClass('text-muted disabled').addClass('text-danger').off('click').on('click', function(ev) {
                     ev.preventDefault();
                     $contextMenu.hide();
-                    deleteRecord(siparisNo + ' nolu kaydı silmek istediğinize emin misiniz?', pid, 'purchases');
+                    deleteRecord(siparisNo + ' nolu kaydı silmek istediğinize emin misiniz?', pid, 'purchases', null, '/satin-almalar');
                 });
             }
         <?php } else { ?>

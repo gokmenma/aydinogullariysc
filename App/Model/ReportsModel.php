@@ -387,4 +387,122 @@ class ReportsModel extends BaseModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Belirli bir müşteriye ait tüm raporları, ekipman/kalem dökümlerini ve konsolide icmal özetini getirir
+     *
+     * @param int $customerId
+     * @return array
+     */
+    public function getCustomerReportSummary($customerId)
+    {
+        $customerId = (int)$customerId;
+        if ($customerId <= 0) {
+            return ['reports' => [], 'summary' => []];
+        }
+
+        $sql = "SELECT 
+                    r.*,
+                    COALESCE(rt.reportName, 'Rapor') as report_name,
+                    COALESCE(rt.page_link, 'ysc') as page_link,
+                    rt.deviceType as device_type,
+                    u_cr.username as creator_name,
+                    u_co.username as controller_name,
+                    u_of.username as company_official_name
+                FROM {$this->table} r
+                LEFT JOIN report_types rt ON r.report_type = rt.id
+                LEFT JOIN users u_cr ON r.creator = u_cr.id
+                LEFT JOIN users u_co ON r.controller_id = u_co.id
+                LEFT JOIN users u_of ON r.company_official = u_of.id
+                WHERE r.customer_id = :cid
+                ORDER BY r.id DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':cid', $customerId, PDO::PARAM_INT);
+        $stmt->execute();
+        $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($reports)) {
+            return [
+                'reports' => [],
+                'summary' => [
+                    'total_reports'     => 0,
+                    'total_items'       => 0,
+                    'ysc_reports_count' => 0,
+                    'ysc_items_count'   => 0,
+                    'hst_reports_count' => 0,
+                    'hst_items_count'   => 0,
+                    'other_reports_count' => 0,
+                    'other_items_count' => 0,
+                ]
+            ];
+        }
+
+        $totalItems = 0;
+        $yscReportsCount = 0;
+        $yscItemsCount = 0;
+        $hstReportsCount = 0;
+        $hstItemsCount = 0;
+        $otherReportsCount = 0;
+        $otherItemsCount = 0;
+
+        // Her rapor türü için alt kalemleri hazırlıklı sorgularla çekelim
+        $stmtYsc = $this->db->prepare("SELECT * FROM report_ysc_content WHERE report_id = ? ORDER BY id ASC");
+        $stmtHst = $this->db->prepare("SELECT * FROM report_hst_content WHERE report_id = ? ORDER BY id ASC");
+        $stmtMet = $this->db->prepare("SELECT * FROM report_met_content WHERE report_id = ? ORDER BY id ASC");
+        $stmtGen = $this->db->prepare("SELECT * FROM report_contents WHERE report_id = ? ORDER BY id ASC");
+
+        foreach ($reports as &$report) {
+            $rid = (int)$report['id'];
+            $pageLink = strtolower(trim((string)($report['page_link'] ?? '')));
+            $reportType = (int)($report['report_type'] ?? 1);
+            $items = [];
+
+            if ($pageLink === 'ysc' || $reportType === 1) {
+                $stmtYsc->execute([$rid]);
+                $items = $stmtYsc->fetchAll(PDO::FETCH_ASSOC);
+                $count = count($items);
+                $yscReportsCount++;
+                $yscItemsCount += $count;
+            } elseif ($pageLink === 'hst' || $reportType === 2) {
+                $stmtHst->execute([$rid]);
+                $items = $stmtHst->fetchAll(PDO::FETCH_ASSOC);
+                $count = count($items);
+                $hstReportsCount++;
+                $hstItemsCount += $count;
+            } elseif ($pageLink === 'met' || $reportType === 3) {
+                $stmtMet->execute([$rid]);
+                $items = $stmtMet->fetchAll(PDO::FETCH_ASSOC);
+                $count = count($items);
+                $otherReportsCount++;
+                $otherItemsCount += $count;
+            } else {
+                $stmtGen->execute([$rid]);
+                $items = $stmtGen->fetchAll(PDO::FETCH_ASSOC);
+                $count = count($items);
+                $otherReportsCount++;
+                $otherItemsCount += $count;
+            }
+
+            $report['items'] = $items;
+            $report['item_count'] = count($items);
+            $totalItems += count($items);
+        }
+        unset($report);
+
+        return [
+            'reports' => $reports,
+            'summary' => [
+                'total_reports'       => count($reports),
+                'total_items'         => $totalItems,
+                'ysc_reports_count'   => $yscReportsCount,
+                'ysc_items_count'     => $yscItemsCount,
+                'hst_reports_count'   => $hstReportsCount,
+                'hst_items_count'     => $hstItemsCount,
+                'other_reports_count' => $otherReportsCount,
+                'other_items_count'   => $otherItemsCount,
+            ]
+        ];
+    }
 }
+

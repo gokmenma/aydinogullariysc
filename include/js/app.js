@@ -279,8 +279,10 @@ function deleteRecord(msg, ID, pLink, table=null, redirectLink=null) {
             text: res.message, 
             icon: "success",
           }).then(() => {
-            // Redirect to page
-            window.location.href = "index.php?p=" + (redirectLink || pLink);
+            // Açıkça verilen temiz rotayı doğrudan kullan; eski çağrılar için geriye uyumluluğu koru.
+            window.location.href = redirectLink && redirectLink.charAt(0) === "/"
+              ? redirectLink
+              : "index.php?p=" + (redirectLink || pLink);
           });
        
         }else{
@@ -1051,7 +1053,6 @@ if (typeof $ !== 'undefined') {
     });
     window.addEventListener('load', initGlobalWysiPadding);
 }
-
 
 
 

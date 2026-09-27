@@ -203,8 +203,12 @@ class ActivityLogModel extends BaseModel
 
         // Arama filtresi
         if (!empty($filters['search'])) {
-            $where[] = "(l.summary LIKE :search OR l.action LIKE :search OR l.message LIKE :search OR l.module LIKE :search OR l.ip_address LIKE :search)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $where[] = "(l.summary LIKE :search_0 OR l.action LIKE :search_1 OR l.message LIKE :search_2 OR l.module LIKE :search_3 OR l.ip_address LIKE :search_4)";
+            $params[':search_0'] = '%' . $filters['search'] . '%';
+            $params[':search_1'] = '%' . $filters['search'] . '%';
+            $params[':search_2'] = '%' . $filters['search'] . '%';
+            $params[':search_3'] = '%' . $filters['search'] . '%';
+            $params[':search_4'] = '%' . $filters['search'] . '%';
         }
 
         $whereSql = implode(' AND ', $where);

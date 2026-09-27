@@ -1,5 +1,7 @@
 <?php
 
+use App\Model\DocumentModel;
+
 if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
     permcontrol("");
     $cdid = (int)$_GET["id"];
@@ -16,17 +18,9 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
     }
 }
 
-// KPI İstatistikleri
-$statsQuery = $ac->query("
-    SELECT 
-        COUNT(*) as total_count,
-        SUM(CASE WHEN estatu = 'Bekliyor' THEN 1 ELSE 0 END) as pending_count,
-        SUM(CASE WHEN estatu = 'Çalışıyor' THEN 1 ELSE 0 END) as processing_count,
-        SUM(CASE WHEN estatu = 'Tamamlandı' THEN 1 ELSE 0 END) as completed_count
-    FROM evraktakip
-    WHERE evrakturu = 'Gelen'
-");
-$stats = $statsQuery ? $statsQuery->fetch(PDO::FETCH_ASSOC) : [];
+// KPI İstatistikleri (Model Katmanı Üzerinden)
+$documentModel = new DocumentModel();
+$stats = $documentModel->getInDocumentsSummaryStats();
 $totalCount = (int)($stats['total_count'] ?? 0);
 $pendingCount = (int)($stats['pending_count'] ?? 0);
 $processingCount = (int)($stats['processing_count'] ?? 0);
@@ -622,7 +616,7 @@ try {
                 <button type="button" class="btn btn-outline-success btn-action-outline" id="btnExportInDocs" title="Excel Olarak İndir">
                     <i class="fa fa-file-excel-o"></i> <span class="d-none d-sm-inline">Excel'e Aktar</span>
                 </button>
-                <a href="index.php?p=new-indocument" class="btn btn-action-primary">
+                <a href="index.php?p=new-indocument&type=Gelen" class="btn btn-action-primary">
                     <i class="fa fa-plus-circle"></i> <span>Yeni Gelen Evrak</span>
                 </a>
             </div>
@@ -715,7 +709,14 @@ try {
                         <i class="fa fa-list"></i>
                     </div>
                     <div>
-                        <h5>Gelen Evrak Listesi</h5>
+                        <div class="d-flex align-items-center" style="gap: 8px;">
+                            <h5>Gelen Evrak Listesi</h5>
+                            <?php if (permtrue("indocadd")) { ?>
+                                <a href="index.php?p=new-indocument&type=Gelen" class="btn-card-header-add" title="Yeni Gelen Evrak" data-toggle="tooltip">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            <?php } ?>
+                        </div>
                         <p>Evrak kayıtları, teslim bilgileri ve takip durumu</p>
                     </div>
                 </div>
@@ -745,106 +746,8 @@ try {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $cq = $ac->prepare("
-                            SELECT e.*, 
-                                   c.company AS customer_company,
-                                   u_teslimalan.username AS teslim_alan_username, 
-                                   u_teslimeden.username AS teslim_eden_username
-                            FROM evraktakip e 
-                            LEFT JOIN customers c ON c.id = e.firma
-                            LEFT JOIN users u_teslimalan ON e.teslimalan = u_teslimalan.id 
-                            LEFT JOIN users u_teslimeden ON e.teslimeden = u_teslimeden.id 
-                            WHERE e.evrakturu = 'Gelen'
-                            ORDER BY e.id DESC
-                        ");
-                        $cq->execute();
-                        $siraNo = 1;
-
-                        while ($as = $cq->fetch(PDO::FETCH_ASSOC)) {
-                            $docId = (int)$as["id"];
-                            $companyName = htmlspecialchars($as["customer_company"] ?? ($as["firma"] ?? '-'));
-                            $evrakTuru = htmlspecialchars($as["evrakturu"] ?? 'Gelen');
-                            $kategori = htmlspecialchars($as["kategori"] ?? '-');
-                            $adet = htmlspecialchars($as["adet"] ?? '1');
-                            $teslimEden = htmlspecialchars($as["teslim_eden_username"] ?? '-');
-                            $teslimAlan = htmlspecialchars($as["teslim_alan_username"] ?? '-');
-                            $teslimTarihi = htmlspecialchars($as["teslimtarihi"] ?? '-');
-                            $estatu = $as["estatu"] ?? 'Bekliyor';
-                            $aciklama = htmlspecialchars($as["aciklama"] ?? '');
-                        ?>
-                        <tr data-doc-id="<?php echo $docId; ?>" data-company="<?php echo $companyName; ?>">
-                            <td class="text-center">
-                                <span class="row-index-badge"><?php echo $siraNo; ?></span>
-                            </td>
-                            <td>
-                                <span class="font-weight-600 text-dark"><?php echo $companyName; ?></span>
-                            </td>
-                            <td>
-                                <span class="badge-doc-type"><?php echo $evrakTuru; ?></span>
-                            </td>
-                            <td>
-                                <span class="badge-category"><?php echo $kategori; ?></span>
-                            </td>
-                            <td class="text-center font-weight-600">
-                                <?php echo $adet; ?>
-                            </td>
-                            <td>
-                                <span class="font-12 text-muted"><i class="fa fa-user-o mr-1"></i><?php echo $teslimEden; ?></span>
-                            </td>
-                            <td>
-                                <span class="font-12 text-muted"><i class="fa fa-user-check mr-1"></i><?php echo $teslimAlan; ?></span>
-                            </td>
-                            <td class="text-center text-nowrap font-12 text-muted">
-                                <i class="fa fa-calendar-o mr-1"></i><?php echo $teslimTarihi; ?>
-                            </td>
-                            <td class="text-center">
-                                <?php
-                                if ($estatu == "Bekliyor") {
-                                    echo "<span class='badge-stat-soft-warning'><i class='fa fa-clock-o mr-1'></i>Bekliyor</span>";
-                                } elseif ($estatu == "Çalışıyor") {
-                                    echo "<span class='badge-stat-soft-primary'><i class='fa fa-spinner fa-spin mr-1'></i>Çalışıyor</span>";
-                                } elseif ($estatu == "Tamamlandı") {
-                                    echo "<span class='badge-stat-soft-success'><i class='fa fa-check mr-1'></i>Tamamlandı</span>";
-                                } else {
-                                    echo "<span class='badge badge-secondary'>" . htmlspecialchars($estatu) . "</span>";
-                                }
-                                ?>
-                            </td>
-                            <td>
-                                <span class="font-12 text-muted" title="<?php echo $aciklama; ?>"><?php echo shorted($aciklama, 30); ?></span>
-                            </td>
-                            <td class="text-center">
-                                <div class="action-btn-group">
-                                    <a class="btn btn-sm btn-outline-info action-btn" data-tooltip="Düzenle" href="index.php?p=indocument-edit&id=<?php echo $docId; ?>">
-                                        <i class="fa fa-pencil"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-outline-danger action-btn" data-tooltip="Sil" onClick="deleteRecord('<?php echo addslashes($companyName); ?> firmasına ait evrak kaydını silmek istediğinize emin misiniz?', '<?php echo $docId; ?>', 'view-indocument', 'evraktakip')">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php
-                            $siraNo++;
-                        }
-                        ?>
+                        <!-- DataTables Server-Side Processing -->
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th class="text-center">#Sıra</th>
-                            <th>Firma</th>
-                            <th>Evrak Türü</th>
-                            <th>Kategori</th>
-                            <th class="text-center">Adet</th>
-                            <th>Teslim Eden</th>
-                            <th>Teslim Alan</th>
-                            <th class="text-center">Teslim Tarihi</th>
-                            <th class="text-center">Evrak Durumu</th>
-                            <th>Açıklama</th>
-                            <th class="text-center">İşlem</th>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
@@ -889,19 +792,53 @@ try {
             updateKpiToggleState(newState, true);
         });
 
-        // DataTables Kurulumu
+        // DataTables Kurulumu (Server-Side)
         var inDocTable = $('#tblInDocuments').DataTable({
+            processing: true,
+            serverSide: true,
             responsive: false,
             autoWidth: false,
             scrollX: false,
+            ajax: {
+                url: 'api/indocuments_datatables.php',
+                type: 'GET',
+                error: function (xhr, error, code) {
+                    console.error('Gelen evraklar yüklenirken hata:', error, code, xhr.responseText);
+                }
+            },
+            columns: [
+                { data: 0, className: 'text-center', width: '42px', orderable: true },
+                { data: 1, width: '20%' },
+                { data: 2, width: '100px' },
+                { data: 3, width: '120px' },
+                { data: 4, className: 'text-center', width: '65px' },
+                { data: 5, width: '120px' },
+                { data: 6, width: '120px' },
+                { data: 7, className: 'text-center', width: '100px' },
+                { data: 8, className: 'text-center', width: '105px' },
+                { data: 9, width: '140px' },
+                { data: 10, className: 'text-center', width: '80px', orderable: false }
+            ],
             pageLength: 25,
             lengthMenu: [10, 25, 50, 100],
             language: {
                 url: 'include/js/tr.json',
                 processing: '<div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"><span class="sr-only">Yükleniyor...</span></div>'
             },
-            order: [[0, 'asc']],
+            order: [[0, 'desc']],
             orderCellsTop: true,
+            createdRow: function (row, data, dataIndex) {
+                if (data && data.DT_RowAttr) {
+                    $.each(data.DT_RowAttr, function (key, val) {
+                        $(row).attr(key, val);
+                    });
+                }
+            },
+            drawCallback: function () {
+                if (typeof $('[data-tooltip]').tooltip === 'function') {
+                    $('[data-tooltip]').tooltip();
+                }
+            },
             initComplete: function () {
                 var api = this.api();
                 
@@ -928,39 +865,16 @@ try {
         $('#btnRefreshInDocs').on('click', function() {
             var $icon = $(this).find('i');
             $icon.addClass('fa-spin');
-            window.location.reload();
+            inDocTable.ajax.reload(function() {
+                $icon.removeClass('fa-spin');
+            }, false);
         });
 
-        // Excel Export (SheetJS / XLSX)
+        // Excel Export
         $('#btnExportInDocs').on('click', function () {
-            if (typeof XLSX === 'undefined') {
-                alert('Excel kütüphanesi yüklenemedi.');
-                return;
-            }
-
-            var rows = [];
-            rows.push(['Sıra', 'Firma', 'Evrak Türü', 'Kategori', 'Adet', 'Teslim Eden', 'Teslim Alan', 'Teslim Tarihi', 'Evrak Durumu', 'Açıklama']);
-
-            inDocTable.rows({ search: 'applied' }).every(function() {
-                var $row = $(this.node());
-                var col0 = $row.find('td:nth-child(1)').text().trim();
-                var col1 = $row.find('td:nth-child(2)').text().trim();
-                var col2 = $row.find('td:nth-child(3)').text().trim();
-                var col3 = $row.find('td:nth-child(4)').text().trim();
-                var col4 = $row.find('td:nth-child(5)').text().trim();
-                var col5 = $row.find('td:nth-child(6)').text().trim();
-                var col6 = $row.find('td:nth-child(7)').text().trim();
-                var col7 = $row.find('td:nth-child(8)').text().trim();
-                var col8 = $row.find('td:nth-child(9)').text().trim();
-                var col9 = $row.find('td:nth-child(10)').text().trim();
-
-                rows.push([col0, col1, col2, col3, col4, col5, col6, col7, col8, col9]);
-            });
-
-            var ws = XLSX.utils.aoa_to_sheet(rows);
-            var wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Gelen Evrak Listesi');
-            XLSX.writeFile(wb, 'Gelen_Evrak_Listesi_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+            var params = inDocTable.ajax.params();
+            var query = $.param(params);
+            window.location.href = 'api/indocuments_export.php?' + query;
         });
 
         // Tabloda Sağ Tık (Context Menu) İşlemleri

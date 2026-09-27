@@ -398,9 +398,97 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.8', 'Giriş Ekranı Otomatik Doldurma ve Giriş Yapılıyor Spinner İyileştirmesi', 'improvement', '- Giriş ve şifre sıfırlama ekranlarında tarayıcı otomatik doldurma (autofill) çakışması giderildi; form gönderildiğinde sayfa yönlenene kadar spinner ile \"Giriş Yapılıyor...\" bildirim durumu eklendi.', 'Antigravity AI', '2026-09-27 08:28:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.8');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.9', 'Merkezi Router ve Temiz URL Yapısı', 'feature', '- Modül menüleri ve kullanıcı bağlantıları temiz URL yapısına taşındı; teklif, firma, ürün, servis ve satın alma düzenleme adresleri şifreli kimlik ve ayrı yetki kontrolleriyle güvenceye alındı.', 'Antigravity AI', '2026-09-27 08:42:57'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.9');
 
+UPDATE `version_notes`
+SET `title` = 'Merkezi Router ve Temiz URL Yapısı',
+    `description` = '- Modül menüleri ve kullanıcı bağlantıları temiz URL yapısına taşındı; teklif, firma, ürün, servis ve satın alma düzenleme adresleri şifreli kimlik ve ayrı yetki kontrolleriyle güvenceye alındı.'
+WHERE `version_tag` = 'v2.8.9';
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.10', 'Tanımlama Sayfaları Kayıt Hatası Düzeltmesi', 'bugfix', '- Servis konusu, servis durumu, servis bölgesi, tahsilat türü ve birim ekranlarında kayıt hatası giderildi; kayıt sonrasında geçerli JSON başarı cevabı ve güvenli oturum doğrulaması sağlandı.', 'Antigravity AI', '2026-09-27 10:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.10');
 
+UPDATE `version_notes`
+SET `description` = '- Servis konusu, servis durumu, servis bölgesi, tahsilat türü ve birim ekranlarında kayıt hatası giderildi; kayıt sonrasında geçerli JSON başarı cevabı ve güvenli oturum doğrulaması sağlandı.'
+WHERE `version_tag` = 'v2.8.10';
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.11', 'Satın Alma Sipariş ve Talep Kayıt İyileştirmeleri', 'bugfix', '- Satın alma yeni sipariş sayfasında ödeme vadesi hatası (vadeGun), script yükleme/önbellek ve API kayıt akışı düzeltildi; eksik alanlar için SweetAlert uyarı penceresi ve satın alma talebi kayıt bildirimi entegre edildi.', 'Antigravity AI', '2026-09-27 10:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.11');
+
+UPDATE `version_notes`
+SET `title` = 'Satın Alma Sipariş ve Talep Kayıt İyileştirmeleri',
+    `description` = '- Satın alma yeni sipariş sayfasında ödeme vadesi hatası (vadeGun), script yükleme/önbellek ve API kayıt akışı düzeltildi; eksik alanlar için SweetAlert uyarı penceresi ve satın alma talebi kayıt bildirimi entegre edildi.'
+WHERE `version_tag` = 'v2.8.11';
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.12', 'Satın Alma Listesi Varsayılan Sıralama İyileştirmesi', 'improvement', '- Satın alma ve talep listesi kayıt tarihine göre en yeni kayıtlar en üstte görünecek şekilde güncellendi; tarih sıralaması ve model katmanı optimize edildi.', 'Antigravity AI', '2026-09-27 10:20:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.12');
+
+UPDATE `version_notes`
+SET `title` = 'Satın Alma Listesi Varsayılan Sıralama İyileştirmesi',
+    `description` = '- Satın alma ve talep listesi kayıt tarihine göre en yeni kayıtlar en üstte görünecek şekilde güncellendi; tarih sıralaması ve model katmanı optimize edildi.'
+WHERE `version_tag` = 'v2.8.12';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.13', 'DataTable Liste Kartları Kenar Boşluğu ve Yuvarlatılmış Kenarlık Standardı', 'improvement', '- Satın alma, fiyat talepleri ve tüm DataTable liste kartları teklifler sayfasındaki gibi kart içi boşluklu (padding), yuvarlatılmış iç kenarlıklı ve pürüzsüz varsayılan tema yapısına kavuşturuldu.', 'Antigravity AI', '2026-09-27 10:48:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.13');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.14', 'Ürün ve DataTable Listelerinde Arama Hatası Düzeltmesi', 'bugfix', '- Ürün/hizmet ve diğer sunucu taraflı listelerde genel arama yapıldığında oluşan PDO sorgu parametresi hatası (SQLSTATE[HY093]) giderildi; tüm liste ve dışa aktarma sorguları optimize edildi.', 'Antigravity AI', '2026-09-27 10:58:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.14');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.15', 'Firma Detayında Rapor İcmali ve Ekipman Dökümü Modülü', 'feature', '- Firma detay sayfasına teklif icmaline benzer şekilde Rapor İcmali modülü eklendi; YSC, HST, MET ve diğer kontrol raporları ile alt ekipman dökümleri, dinamik KPI sayaçları, tür filtreleme, A4 kurumsal yazdırma önizlemesi, PDF ve Excel aktarımı sağlandı.', 'Antigravity AI', '2026-09-27 11:05:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.15');
+
+UPDATE `version_notes`
+SET `title` = 'Firma Detayında Rapor İcmali ve Ekipman Dökümü Modülü',
+    `description` = '- Firma detay sayfasına teklif icmaline benzer şekilde Rapor İcmali modülü eklendi; YSC, HST, MET ve diğer kontrol raporları ile alt ekipman dökümleri, dinamik KPI sayaçları, tür filtreleme, A4 kurumsal yazdırma önizlemesi, PDF ve Excel aktarımı sağlandı.'
+WHERE `version_tag` = 'v2.8.15';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.16', 'Ersan Gold Temasının Varsayılan Tema, Fontunun Outfit ve Kalınlığının 500 Olarak Ayarlanması', 'improvement', '- Ersan Gold teması sistem genelinde ve giriş sayfalarında kullanıcı seçimi olmadığında geçerli varsayılan tema yapıldı; temanın varsayılan yazı tipi Outfit ve yazı kalınlığı 500 olarak güncellendi.', 'Antigravity AI', '2026-09-27 11:08:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.16');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.17', 'Firma Detay Sayfası Sekmeli Yapı ve İcmal Lazy-Load Optimizasyonu', 'improvement', '- Firma detay sayfası sekmeli (tabbed) mimariye taşındı; Teklif ve Rapor icmallerinin sayfa açılışında yarattığı gecikme engellenerek ilgili sekmeye tıklandığında anlık ve hafif AJAX lazy-load ile yüklenmesi sağlandı.', 'Antigravity AI', '2026-09-27 11:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.17');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.18', 'Müşteri Listesinde Rapor Sayısı Gösterimi', 'feature', '- Müşteri ve cari listesinde Teklif ve Servis rozetlerinin yanına firmanın toplam kontrol/muayene rapor sayısını gösteren Rapor rozeti ve Excel dışa aktarım desteği eklendi.', 'Antigravity AI', '2026-09-27 11:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.18');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.19', 'Gelen Evraklar Sayfası Server-Side DataTables ve Performans Optimizasyonu', 'improvement', '- Gelen evraklar sayfası Server-Side DataTables mimarisine geçirildi, tablo altbilgisi (footer) kaldırıldı; veritabanı indeksleri, AJAX arama ve düzenleme/ekleme sayfalarında dinamik Select2 müşteri arama desteği sağlandı.', 'Antigravity AI', '2026-09-27 12:35:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.19');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.20', 'Liste Kart Başlıklarına Hızlı Ekleme (+) Butonları', 'feature', '- Teklifler, servisler, keşifler, müşteri/firma, ürün/hizmet, raporlar, gelen evrak ve giden evrak sayfalarında kart başlığı yanına yeni kayıt oluşturma/modal açma işlevini gören minik hızlı ekleme (+) butonları ve global tema standardı eklendi.', 'Antigravity AI', '2026-09-27 12:47:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.20');
+
+UPDATE `version_notes`
+SET `title` = 'Liste Kart Başlıklarına Hızlı Ekleme (+) Butonları',
+    `description` = '- Teklifler, servisler, keşifler, müşteri/firma, ürün/hizmet, raporlar, gelen evrak ve giden evrak sayfalarında kart başlığı yanına yeni kayıt oluşturma/modal açma işlevini gören minik hızlı ekleme (+) butonları ve global tema standardı eklendi.',
+    `created_at` = '2026-09-27 13:10:00'
+WHERE `version_tag` = 'v2.8.20';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.21', 'Select2 Seçim ve Hover Renk / Kontrast Standartlaştırması', 'improvement', '- Select2 dropdown listelerinde aktif/seçili eleman ile hover (vurgulanan) eleman renkleri birbirinden ayrıştırıldı; koyu ve renkli zeminlerdeki metin, alt bilgi ve ikonların tam beyaz (#fff) görünmesi sağlanarak okunabilirlik artırıldı.', 'Antigravity AI', '2026-09-27 13:08:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.21');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.22', 'Evrak Formlarında Kategori Otomatik Tamamlama ve Varsayılan Tür Seçimi', 'feature', '- Yeni evrak ekleme ve düzenleme sayfalarında kategori alanı için sistemde kayıtlı tüm benzersiz kategorileri içeren Excel benzeri otomatik tamamlama (datalist) desteği sağlandı; gelen evrak listesinden eklemeye tıklandığında Evrak Türünün varsayılan olarak Gelen Evrak seçili gelmesi sağlandı.', 'Antigravity AI', '2026-09-27 13:13:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.22');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.23', 'Dosya ve Kategori Sayfaları Açılış Hızı ve DataTable Düzeltmesi', 'bugfix', '- Dosya yönetimi ve kategori listesi sayfalarında eksik DataTable scripti tamamlanarak 6 saniyelik yükleme gecikmesi giderildi ve anlık açılış sağlandı.', 'Antigravity AI', '2026-09-27 13:17:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.23');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.24', 'Tanımlama Sayfalarına Hızlı Ekleme (+) Butonları ve Merkezden Açılan Modal Standardı', 'feature', '- Servis konusu, servis durumu, servis bölgesi, tahsilat türü, birim, teklif şablonu ve dosya kategorileri sayfalarında kart başlığı yanına minik (+) ekleme butonu eklendi; açılan tüm pencereler (modallar) yukarıdan kayma yerine doğrudan ekranda merkezlenip yumuşak zoom/fade efektiyle açılacak şekilde modernize edildi.', 'Antigravity AI', '2026-09-27 13:44:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.24');
 
 
 

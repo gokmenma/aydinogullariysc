@@ -7,6 +7,8 @@ require_once dirname(__DIR__) . '/bootstrap.php';
 require_once __DIR__ . '/../configs/functions.php';
 global $ac;
 
+use App\Helper\Security;
+
 // Permission check: return JSON instead of redirect
 if (!permtrue("customeredit") && !permtrue("customeradd") && !permtrue("customerdelete")) {
     http_response_code(403);
@@ -58,16 +60,23 @@ $params = [];
 // Global search
 if ($search_value !== '') {
     $where_conditions[] = "(
-        c.id LIKE :search OR
-        c.company LIKE :search OR
-        cg.title LIKE :search OR
-        c.represant LIKE :search OR
-        c.email LIKE :search OR
-        c.gsm LIKE :search OR
-        DATE_FORMAT(c.regdate, '%d.%m.%Y') LIKE :search OR
-        c.regdate LIKE :search
+        c.id LIKE :search_0 OR
+        c.company LIKE :search_1 OR
+        cg.title LIKE :search_2 OR
+        c.represant LIKE :search_3 OR
+        c.email LIKE :search_4 OR
+        c.gsm LIKE :search_5 OR
+        DATE_FORMAT(c.regdate, '%d.%m.%Y') LIKE :search_6 OR
+        c.regdate LIKE :search_7
     )";
-    $params[':search'] = "%{$search_value}%";
+    $params[':search_0'] = "%{$search_value}%";
+    $params[':search_1'] = "%{$search_value}%";
+    $params[':search_2'] = "%{$search_value}%";
+    $params[':search_3'] = "%{$search_value}%";
+    $params[':search_4'] = "%{$search_value}%";
+    $params[':search_5'] = "%{$search_value}%";
+    $params[':search_6'] = "%{$search_value}%";
+    $params[':search_7'] = "%{$search_value}%";
 }
 
 use App\Helper\DataTableFilter;
@@ -124,7 +133,8 @@ $data_query = "
         c.regdate,
         cg.title as group_title,
         (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) as offer_count,
-        (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) as project_count
+        (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) as project_count,
+        (SELECT COUNT(*) FROM reports r WHERE r.customer_id = c.id) as report_count
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}
     LIMIT :start, :length
@@ -159,7 +169,8 @@ foreach ($customers as $row_data) {
     $row[] = '<span class="row-index-badge">' . $cid . '</span>';
 
     // Column 1: Firma Adı (company link)
-    $link = $canEdit ? "index.php?p=customers/manage&id=" . $cid : "#";
+    $encryptedCustomerId = Security::encrypt((string)$cid);
+    $link = $canEdit ? "firma-duzenle?id=" . $encryptedCustomerId : "#";
     $company_name = htmlspecialchars($row_data['company']);
     $short_company = htmlspecialchars(shorted($row_data['company'], 45));
     $row[] = '<div class="customer-title-cell"><a href="' . $link . '" class="font-weight-600 text-primary-hover" data-toggle="tooltip" data-tooltip="' . $company_name . '">' . $short_company . '</a></div>';
@@ -180,12 +191,14 @@ foreach ($customers as $row_data) {
         $row[] = '<span class="text-muted font-12">-</span>';
     }
 
-    // Column 4: Teklif/Servis Sayısı (offer_count / project_count)
+    // Column 4: Teklif/Servis/Rapor Sayısı (offer_count / project_count / report_count)
     $offer_cnt = intval($row_data['offer_count']);
     $proj_cnt = intval($row_data['project_count']);
+    $report_cnt = intval($row_data['report_count'] ?? 0);
     $stats_html = '<div class="d-inline-flex align-items-center" style="gap: 4px;">';
-    $stats_html .= '<span class="badge-stat-tag badge-stat-offers" title="Teklif Sayısı"><i class="fa fa-file-text-o mr-1"></i>' . $offer_cnt . '</span>';
-    $stats_html .= '<span class="badge-stat-tag badge-stat-services" title="Servis/Proje Sayısı"><i class="fa fa-wrench mr-1"></i>' . $proj_cnt . '</span>';
+    $stats_html .= '<span class="badge-stat-tag badge-stat-offers" title="Teklif Sayısı: ' . $offer_cnt . '"><i class="fa fa-file-text-o mr-1"></i>' . $offer_cnt . '</span>';
+    $stats_html .= '<span class="badge-stat-tag badge-stat-services" title="Servis/Proje Sayısı: ' . $proj_cnt . '"><i class="fa fa-wrench mr-1"></i>' . $proj_cnt . '</span>';
+    $stats_html .= '<span class="badge-stat-tag badge-stat-reports" title="Rapor Sayısı: ' . $report_cnt . '"><i class="fa fa-clipboard mr-1"></i>' . $report_cnt . '</span>';
     $stats_html .= '</div>';
     $row[] = $stats_html;
 
@@ -214,7 +227,7 @@ foreach ($customers as $row_data) {
     // Column 8: İşlem
     $actions = '<div class="action-btn-group">';
     if ($canEdit) {
-        $actions .= '<a href="index.php?p=customers/manage&id=' . $cid . '" class="btn btn-sm btn-outline-info action-btn" data-tooltip="Görüntüle / Düzenle">
+        $actions .= '<a href="firma-duzenle?id=' . $encryptedCustomerId . '" class="btn btn-sm btn-outline-info action-btn" data-tooltip="Görüntüle / Düzenle">
                 <i class="fa fa-pencil"></i>
         </a>';
     }

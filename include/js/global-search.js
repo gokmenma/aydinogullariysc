@@ -407,12 +407,12 @@
             var html = '<div class="gs-suggestions-wrap">';
             html += '  <div class="gs-suggestions-header">Hızlı Modül Sayfaları</div>';
             html += '  <div class="gs-suggestions-grid">';
-            html += '    <a href="index.php?p=offers/list" class="gs-suggestion-card"><i class="fa fa-file-text-o text-purple"></i><span>Teklifler</span></a>';
-            html += '    <a href="index.php?p=products/list" class="gs-suggestion-card"><i class="fa fa-cube text-amber"></i><span>Ürünler</span></a>';
-            html += '    <a href="index.php?p=customers/list" class="gs-suggestion-card"><i class="fa fa-building-o text-blue"></i><span>Firmalar</span></a>';
-            html += '    <a href="index.php?p=service/list" class="gs-suggestion-card"><i class="fa fa-wrench text-emerald"></i><span>Servisler</span></a>';
-            html += '    <a href="index.php?p=kesif/list" class="gs-suggestion-card"><i class="fa fa-search-plus text-cyan"></i><span>Keşifler</span></a>';
-            html += '    <a href="index.php?p=reports/reports" class="gs-suggestion-card"><i class="fa fa-file-text text-indigo"></i><span>Raporlar</span></a>';
+            html += '    <a href="teklifler" class="gs-suggestion-card"><i class="fa fa-file-text-o text-purple"></i><span>Teklifler</span></a>';
+            html += '    <a href="urun-hizmetler" class="gs-suggestion-card"><i class="fa fa-cube text-amber"></i><span>Ürünler</span></a>';
+            html += '    <a href="firmalar" class="gs-suggestion-card"><i class="fa fa-building-o text-blue"></i><span>Firmalar</span></a>';
+            html += '    <a href="servisler" class="gs-suggestion-card"><i class="fa fa-wrench text-emerald"></i><span>Servisler</span></a>';
+            html += '    <a href="kesifler" class="gs-suggestion-card"><i class="fa fa-search-plus text-cyan"></i><span>Keşifler</span></a>';
+            html += '    <a href="raporlar" class="gs-suggestion-card"><i class="fa fa-file-text text-indigo"></i><span>Raporlar</span></a>';
             html += '  </div>';
             html += '</div>';
 

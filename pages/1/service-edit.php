@@ -20,7 +20,7 @@ $qct->execute();
 $cscs = $qct->fetch(PDO::FETCH_ASSOC);
 
 if (!$cc) {
-    header('Location: index.php?p=service/list&err=01735');
+    header('Location: servisler?err=01735');
     exit;
 }
 
@@ -136,7 +136,7 @@ $ofinfo = $ofinf->fetch(PDO::FETCH_ASSOC);
                         <button id="submitButton" onclick="validateForm()" data-tooltip="Kaydet"
                             data-tooltip-location="bottom" class="btn btn-sm btn-primary"><i class="fa fa-save"></i>
                             Kaydet </button>
-                        <a href="index.php?p=service/list" data-tooltip="Listeye Dön" data-tooltip-location="bottom"
+                        <a href="servisler" data-tooltip="Listeye Dön" data-tooltip-location="bottom"
                             class="btn btn-sm btn-secondary"><i class="fa fa-list"></i> Listeye Dön</a>
                     </div>
                 </div>

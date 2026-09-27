@@ -181,7 +181,7 @@ if ($_GET["st"] == "newsuccess") {
                         </span>
                         <p>
                             <a target="_blank" class="weight-400 font-18"
-                                href="index.php?p=service/list&cid=<?php echo $cid ?>">Toplam Servis
+                                href="servisler?cid=<?php echo $cid ?>">Toplam Servis
                                 Sayısı</a>
                         </p>
                     </div>
@@ -256,7 +256,7 @@ if ($_GET["st"] == "newsuccess") {
                             <?php echo $servicestype["title"] ?>
                         </span>
                         <p class="weight-400 font-18">
-                            <a target="_blank" href="index.php?p=service/list&id=<?php echo $servicestype["id"] ?>">
+                            <a target="_blank" href="servisler?id=<?php echo $servicestype["id"] ?>">
                                 Son Oluşturulan Servis
                             </a>
                         </p>

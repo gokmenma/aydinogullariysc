@@ -178,21 +178,7 @@ $maintenanceHeaderJson = htmlspecialchars(
 		</div>
 		<div class="theme-presets-scroll-wrap">
 			<div class="theme-presets-grid">
-				<!-- 1. Kode -->
-				<div class="theme-preset-card" data-preset="kode" onclick="selectThemePreset('kode');">
-					<div class="theme-preview-box">
-						<div class="theme-preview-header" style="background: #2563eb;"></div>
-						<div class="theme-preview-body">
-							<div class="theme-preview-sidebar" style="background: #1e293b;"></div>
-							<div class="theme-preview-content" style="background: #f8fafc;">
-								<div class="theme-preview-pill" style="background: #2563eb;"></div>
-							</div>
-						</div>
-					</div>
-					<div class="theme-preset-name">Kode</div>
-				</div>
-
-				<!-- 2. Ersan Gold -->
+				<!-- 1. Ersan Gold -->
 				<div class="theme-preset-card" data-preset="ersan-gold" onclick="selectThemePreset('ersan-gold');">
 					<div class="theme-preview-box">
 						<div class="theme-preview-header" style="background: #ffffff; border-bottom: 1px solid #e2e8f0;"></div>
@@ -204,6 +190,20 @@ $maintenanceHeaderJson = htmlspecialchars(
 						</div>
 					</div>
 					<div class="theme-preset-name">Ersan Gold</div>
+				</div>
+
+				<!-- 2. Kode -->
+				<div class="theme-preset-card" data-preset="kode" onclick="selectThemePreset('kode');">
+					<div class="theme-preview-box">
+						<div class="theme-preview-header" style="background: #2563eb;"></div>
+						<div class="theme-preview-body">
+							<div class="theme-preview-sidebar" style="background: #1e293b;"></div>
+							<div class="theme-preview-content" style="background: #f8fafc;">
+								<div class="theme-preview-pill" style="background: #2563eb;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="theme-preset-name">Kode</div>
 				</div>
 
 				<!-- 3. Zümrüt -->

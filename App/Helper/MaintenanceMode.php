@@ -123,7 +123,7 @@ final class MaintenanceMode
                 exit;
             }
 
-            $returnUrl = urlencode((string) ($_SERVER['REQUEST_URI'] ?? 'index.php?p=home'));
+            $returnUrl = urlencode((string) ($_SERVER['REQUEST_URI'] ?? 'anasayfa'));
             header('Location: ' . self::projectUrl($rootPath, 'login.php') . '?returnUrl=' . $returnUrl);
             exit;
         }

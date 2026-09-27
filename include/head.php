@@ -86,7 +86,7 @@
 	integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
 	</script>
 
-<link rel="canonical" href="https://aydinogullariysc.com/index.php?p=home" />
+<link rel="canonical" href="https://aydinogullariysc.com/anasayfa" />
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <link rel="stylesheet" href="vendors/styles/style.css?v=<?php echo filemtime('vendors/styles/style.css'); ?>">
@@ -320,7 +320,7 @@
 	// Tema - Yazı Tipi Eşleştirme Haritası (Ön Tanımlı)
 	var themePresetFonts = {
 		'kode': 'inter',
-		'ersan-gold': 'montserrat',
+		'ersan-gold': 'outfit',
 		'zumrut': 'plus-jakarta-sans',
 		'kraliyet-moru': 'outfit',
 		'rose': 'poppins',
@@ -356,10 +356,15 @@
 		'gradient-altin': 'montserrat'
 	};
 
+	// Tema - Yazı Kalınlığı Eşleştirme Haritası (Ön Tanımlı)
+	var themePresetWeights = {
+		'ersan-gold': '500'
+	};
+
 	// Hazır Tema -> Varsayılan Topbar & Sidebar Eşleştirme Haritası
 	var presetTopbarSidebarMap = {
-		'kode': { topbar: 'mavi', sidebar: 'klasik-koyu' },
 		'ersan-gold': { topbar: 'beyaz', sidebar: 'klasik-koyu' },
+		'kode': { topbar: 'mavi', sidebar: 'klasik-koyu' },
 		'zumrut': { topbar: 'zumrut', sidebar: 'koyu-zumrut' },
 		'kraliyet-moru': { topbar: 'mor', sidebar: 'koyu-mor' },
 		'rose': { topbar: 'rose', sidebar: 'klasik-koyu' },
@@ -463,7 +468,7 @@
 		window.syncActiveThemeWeightButtons();
 	};
 
-	// Hazır Tema Seçme Fonksiyonu (Topbar, Sidebar ve Font'u Birlikte Ayarlar)
+	// Hazır Tema Seçme Fonksiyonu (Topbar, Sidebar, Font ve Font-Weight'i Birlikte Ayarlar)
 	window.selectThemePreset = function(presetName) {
 		if (!presetName) return;
 		try {
@@ -483,13 +488,17 @@
 		}
 
 		// İlgili temanın topbar ve sidebar rengini de uygula
-		var mapping = presetTopbarSidebarMap[presetName] || { topbar: 'mavi', sidebar: 'klasik-koyu' };
+		var mapping = presetTopbarSidebarMap[presetName] || { topbar: 'beyaz', sidebar: 'klasik-koyu' };
 		window.selectTopbarTheme(mapping.topbar, false);
 		window.selectSidebarTheme(mapping.sidebar, false);
 
 		// Otomatik tema fontu ata
-		var suggestedFont = themePresetFonts[presetName] || 'inter';
+		var suggestedFont = themePresetFonts[presetName] || 'outfit';
 		window.selectThemeFont(suggestedFont, false);
+
+		// Otomatik tema font-weight ata
+		var suggestedWeight = themePresetWeights[presetName] || '400';
+		window.selectThemeWeight(suggestedWeight, false);
 
 		// Koyu temalarda Dark Mode'u otomatik aktif et; açık temalarda dark mode kaldır
 		var body = document.body;
@@ -518,7 +527,7 @@
 
 	// Aktif Tema Kartını Eşitleme
 	window.syncActiveThemePresetCard = function() {
-		var activePreset = localStorage.getItem('app_theme_preset') || document.documentElement.getAttribute('data-theme-preset') || 'kode';
+		var activePreset = localStorage.getItem('app_theme_preset') || document.documentElement.getAttribute('data-theme-preset') || 'ersan-gold';
 		document.querySelectorAll('.theme-preset-card').forEach(function(card) {
 			if (card.getAttribute('data-preset') === activePreset) {
 				card.classList.add('active');
@@ -530,7 +539,7 @@
 
 	// Aktif Topbar Butonunu Eşitleme
 	window.syncActiveTopbarButtons = function() {
-		var activeTopbar = localStorage.getItem('app_topbar_theme') || document.documentElement.getAttribute('data-topbar-theme') || 'mavi';
+		var activeTopbar = localStorage.getItem('app_topbar_theme') || document.documentElement.getAttribute('data-topbar-theme') || 'beyaz';
 		document.querySelectorAll('[data-topbar]').forEach(function(btn) {
 			if (btn.getAttribute('data-topbar') === activeTopbar) {
 				btn.classList.add('active');
@@ -554,7 +563,7 @@
 
 	// Aktif Yazı Tipi Butonunu Eşitleme
 	window.syncActiveThemeFontButtons = function() {
-		var activeFont = localStorage.getItem('app_theme_font') || document.documentElement.getAttribute('data-theme-font') || 'inter';
+		var activeFont = localStorage.getItem('app_theme_font') || document.documentElement.getAttribute('data-theme-font') || 'outfit';
 		document.querySelectorAll('.theme-font-btn').forEach(function(btn) {
 			if (btn.getAttribute('data-font') === activeFont) {
 				btn.classList.add('active');
@@ -566,7 +575,7 @@
 
 	// Aktif Yazı Tipi Kalınlığı Butonunu Eşitleme
 	window.syncActiveThemeWeightButtons = function() {
-		var activeWeight = localStorage.getItem('app_theme_weight') || document.documentElement.getAttribute('data-theme-weight') || '400';
+		var activeWeight = localStorage.getItem('app_theme_weight') || document.documentElement.getAttribute('data-theme-weight') || '500';
 		document.querySelectorAll('.theme-weight-btn').forEach(function(btn) {
 			if (btn.getAttribute('data-weight') === activeWeight) {
 				btn.classList.add('active');
@@ -584,12 +593,12 @@
 			// 1. Hazır Tema (Preset) Yükleme
 			var savedPreset = localStorage.getItem('app_theme_preset');
 			if (!savedPreset) {
-				savedPreset = 'kode'; // Varsayılan tema
+				savedPreset = 'ersan-gold'; // Varsayılan tema: Ersan Gold
 			}
 			html.setAttribute('data-theme-preset', savedPreset);
 
 			// 2. Topbar & Sidebar Ayrı Renk Yükleme
-			var defaultMap = presetTopbarSidebarMap[savedPreset] || { topbar: 'mavi', sidebar: 'klasik-koyu' };
+			var defaultMap = presetTopbarSidebarMap[savedPreset] || { topbar: 'beyaz', sidebar: 'klasik-koyu' };
 			var savedTopbar = localStorage.getItem('app_topbar_theme') || defaultMap.topbar;
 			var savedSidebar = localStorage.getItem('app_sidebar_theme') || defaultMap.sidebar;
 			html.setAttribute('data-topbar-theme', savedTopbar);
@@ -611,12 +620,15 @@
 			// 4. Yazı Tipi Yükleme
 			var savedFont = localStorage.getItem('app_theme_font');
 			if (!savedFont) {
-				savedFont = themePresetFonts[savedPreset] || 'inter';
+				savedFont = themePresetFonts[savedPreset] || 'outfit';
 			}
 			html.setAttribute('data-theme-font', savedFont);
 
 			// 5. Yazı Tipi Kalınlığı Yükleme
-			var savedWeight = localStorage.getItem('app_theme_weight') || '400';
+			var savedWeight = localStorage.getItem('app_theme_weight');
+			if (!savedWeight) {
+				savedWeight = themePresetWeights[savedPreset] || (savedPreset === 'ersan-gold' ? '500' : '400');
+			}
 			html.setAttribute('data-theme-weight', savedWeight);
 
 			// 6. Dark/Light Mode Yükleme

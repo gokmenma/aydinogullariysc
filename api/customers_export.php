@@ -31,11 +31,18 @@ $params = [];
 
 if ($searchValue !== '') {
     $conditions[] = '(
-        c.id LIKE :search OR c.company LIKE :search OR cg.title LIKE :search OR
-        c.represant LIKE :search OR c.email LIKE :search OR c.gsm LIKE :search OR
-        DATE_FORMAT(c.regdate, \'%d.%m.%Y\') LIKE :search OR c.regdate LIKE :search
+        c.id LIKE :search_0 OR c.company LIKE :search_1 OR cg.title LIKE :search_2 OR
+        c.represant LIKE :search_3 OR c.email LIKE :search_4 OR c.gsm LIKE :search_5 OR
+        DATE_FORMAT(c.regdate, \'%d.%m.%Y\') LIKE :search_6 OR c.regdate LIKE :search_7
     )';
-    $params[':search'] = '%' . $searchValue . '%';
+    $params[':search_0'] = '%' . $searchValue . '%';
+    $params[':search_1'] = '%' . $searchValue . '%';
+    $params[':search_2'] = '%' . $searchValue . '%';
+    $params[':search_3'] = '%' . $searchValue . '%';
+    $params[':search_4'] = '%' . $searchValue . '%';
+    $params[':search_5'] = '%' . $searchValue . '%';
+    $params[':search_6'] = '%' . $searchValue . '%';
+    $params[':search_7'] = '%' . $searchValue . '%';
 }
 
 if (is_array($requestedColumns)) {
@@ -58,6 +65,7 @@ $sql = '
     SELECT c.id, c.company, cg.title AS group_title, c.represant,
            (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) AS offer_count,
            (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) AS service_count,
+           (SELECT COUNT(*) FROM reports r WHERE r.customer_id = c.id) AS report_count,
            c.email, c.gsm, c.regdate, c.yetkili, c.city, c.ilce, c.region, c.address
     FROM customers c
     LEFT JOIN cgroups cg ON cg.id = c.grp
@@ -85,11 +93,11 @@ $sheet->setTitle('Firmalar');
 
 $headers = [
     'Firma No', 'Firma Adı', 'Grup', 'Satış Temsilcisi', 'Teklif Sayısı',
-    'Servis Sayısı', 'E-Posta', 'GSM', 'Kayıt Tarihi', 'Yetkili', 'İl', 'İlçe', 'Bölge', 'Adres'
+    'Servis Sayısı', 'Rapor Sayısı', 'E-Posta', 'GSM', 'Kayıt Tarihi', 'Yetkili', 'İl', 'İlçe', 'Bölge', 'Adres'
 ];
 $fields = [
     'id', 'company', 'group_title', 'represant', 'offer_count',
-    'service_count', 'email', 'gsm', 'regdate', 'yetkili', 'city', 'ilce', 'region', 'address'
+    'service_count', 'report_count', 'email', 'gsm', 'regdate', 'yetkili', 'city', 'ilce', 'region', 'address'
 ];
 
 foreach ($headers as $index => $header) {

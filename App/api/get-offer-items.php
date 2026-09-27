@@ -2,6 +2,7 @@
 require_once dirname(__DIR__, 2) . '/bootstrap.php';
 
 use App\Helper\Financial;
+use App\Helper\Security;
 
 $draw = $_POST['draw'] ?? 0;
 $start = $_POST['start'] ?? 0;
@@ -383,14 +384,14 @@ foreach ($results as $r) {
 
     $canEditOffer = checkAuth("offeredit");
     $teklifNoCell = $canEditOffer
-        ? '<a href="index.php?p=offers/offer-manage&id=' . (int)$r['oid'] . '" class="font-weight-bold text-primary" data-tooltip="Düzenle">' . htmlspecialchars($r['offerNumber']) . '</a>'
+        ? '<a href="teklif-duzenle?id=' . Security::encrypt((string)$r['oid']) . '" class="font-weight-bold text-primary" data-tooltip="Düzenle">' . htmlspecialchars($r['offerNumber']) . '</a>'
         : htmlspecialchars($r['offerNumber']);
 
     $data[] = [
         "sira_no" => $sirano++,
         "islemler" => $actions,
         "teklif_no" => $teklifNoCell,
-        "firma" => '<a href="index.php?p=customers/manage&id='.$r['customer_id'].'">'.htmlspecialchars($r['company_name']).'</a>',
+        "firma" => '<a href="firma-duzenle?id='.Security::encrypt((string)$r['customer_id']).'">'.htmlspecialchars($r['company_name']).'</a>',
         "tarih" => (!empty($r["created_at"]) ? (new DateTime($r["created_at"]))->format('d.m.Y') : ''),
         "stok_kodu" => htmlspecialchars($r['stokKodu'] ?? '-'),
         "urun_adi" => htmlspecialchars($r['title']),

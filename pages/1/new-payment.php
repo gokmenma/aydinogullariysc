@@ -11,7 +11,7 @@ $conts = $ac->prepare("SELECT * FROM payments WHERE id = ?");
 $conts->execute(array($id));
 $cont = $conts->fetch(PDO::FETCH_ASSOC);
 if($cont["okey"] == 1){
-	header("Location: index.php?p=home");
+	header("Location: anasayfa");
 	exit;
 }
 $csx = $ac->prepare("SELECT * FROM sales WHERE id = ?");
