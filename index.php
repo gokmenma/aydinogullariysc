@@ -111,7 +111,7 @@ try {
     <div id="preloader">
         <div class="fire-loader-wrapper">
             <img src="files/fire.svg" alt="Yükleniyor..." class="fire-loader-img">
-            <span class="fire-loader-text">Yükleniyor...</span>
+            <span class="fire-loader-text">Yükleniyor.</span>
         </div>
     </div>
 

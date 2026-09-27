@@ -337,6 +337,11 @@ $menuDefinitions = [
                 'title' => 'Mail Hesapları',
                 'link' => 'mail-hesaplari',
                 'visible' => (permtrue("mail-accounts-manage") || $isAdmin || in_array($userId, [1, 12]))
+            ],
+            'mailbox' => [
+                'title' => 'Gelen / Giden Mail',
+                'link' => 'gelen-giden-mail',
+                'visible' => ($userPerm === 13)
             ]
         ]
     ],

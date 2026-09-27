@@ -17,6 +17,33 @@ $maintenanceHeaderJson = htmlspecialchars(
 		<span id="maintenanceNoticeTime" class="maintenance-notice-time"></span>
 	</div>
 </div>
+
+<?php if ((int) sesset('permission') === 13): ?>
+<script>
+(function () {
+    var storageKey = 'aydinogullari_mailbox_last_notified_id';
+    function checkMailbox() {
+        fetch('api/mailbox_status.php', {credentials: 'same-origin', cache: 'no-store'})
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .then(function (data) {
+                if (!data || data.status !== 'success') return;
+                var previous = parseInt(localStorage.getItem(storageKey) || '0', 10);
+                if (previous > 0 && data.last_id > previous) {
+                    if (window.Swal) Swal.fire({toast:true, position:'top-end', icon:'info', title:'Yeni mail geldi', text:data.unread_count + ' okunmamış mailiniz var.', showConfirmButton:false, timer:5000});
+                    if ('Notification' in window && Notification.permission === 'granted') new Notification('Yeni mail geldi', {body:data.unread_count + ' okunmamış mailiniz var.'});
+                    window.dispatchEvent(new CustomEvent('mailbox:new_mail', { detail: data }));
+                }
+                if (data.last_id > previous) localStorage.setItem(storageKey, String(data.last_id));
+            }).catch(function () {});
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().catch(function () {});
+        checkMailbox();
+        window.setInterval(checkMailbox, 30000);
+    });
+})();
+</script>
+<?php endif; ?>
 <div class="header clearfix">
 	<div class="header-right">
 		<!-- Sol: Menü İkonu (Hamburger) + Mobil Logo + Breadcrumb -->

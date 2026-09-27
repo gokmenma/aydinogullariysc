@@ -532,11 +532,38 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.33', 'Teklif Sayfasında Teklif Konusu Otomatik Tamamlama (Datalist) Desteği', 'feature', '- Yeni teklif ve teklif düzenleme sayfalarında (offer-manage) Teklif Konusu alanı için sistemde kayıtlı tüm benzersiz teklif konularını alfabetik getiren otomatik tamamlama (datalist) özelliği eklendi.', 'Antigravity AI', '2026-09-27 23:13:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.33');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.34', 'Süper Admin Gelen ve Giden Mail Modülü', 'feature', '- Kurumsal mail hesabı için güvenli IMAP eşitlemesi, gelen ve gönderilen posta ekranı, sistem üzerinden mail gönderimi, dakikalık arka plan kontrolü ve yeni mail bildirimi kullanıma sunuldu.', 'Antigravity AI', '2026-09-27 23:46:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.34');
 
+UPDATE `version_notes`
+SET `title` = 'Modern Süper Admin Gelen ve Giden Mail Modülü',
+    `description` = '- Kurumsal mail hesabı için güvenli IMAP eşitlemesi, sandbox korumalı HTML/gömülü görsel görünümü, varsayılan olarak engellenen harici görselleri güvenli proxy üzerinden isteğe bağlı gösterme, oltalama bağlantısı engelleme ve güvenli ek indirme kullanıma sunuldu.'
+WHERE `version_tag` = 'v2.8.34';
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.35', 'Mail Kutusu Kaydırma (Scroll) Düzeltmesi', 'bugfix', '- Gelen/giden mail sayfasındaki ileti listesi ve okuma panellerinde dikey kaydırma (scroll) çubuğunun kesintisiz çalışması sağlandı.', 'Antigravity AI', '2026-09-27 23:57:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.35');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.36', 'Mail Kutusu Daraltılabilir Klasörler ve Yeniden Boyutlandırılabilir Liste Paneli', 'feature', '- Gelen/giden mail sayfasında sol klasör panelini gizleyip açan collapse butonu ve mail listesi panelini minimum 260px sınırıyla fareyle sürükleyerek genişletip daraltmayı sağlayan splitter özelliği eklendi.', 'Antigravity AI', '2026-09-28 00:07:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.36');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.37', 'Mail Kutusu Başlık Alanında Modern Açılır Hesap Seçici', 'improvement', '- Posta hesabı seçimi sol menüden üst başlık kartına taşındı; standart select kutusu yerine şık ve durum rozeti içeren açılır liste (dropdown) menüsüne dönüştürüldü.', 'Antigravity AI', '2026-09-28 00:11:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.37');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.38', 'Mail Başlık Hesap Seçicisi Düz Metin Tasarımı ve Taşma Düzeltmesi', 'improvement', '- Başlık kartındaki hesap seçicisi kenarlıksız yalın metin görünümüne geçirildi ve açılır menünün başlık kartı dışına taşmasını engelleyen z-index/overflow sorunu giderildi.', 'Antigravity AI', '2026-09-28 00:14:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.38');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.39', 'Tüm Genel Posta Hesaplarının Mail Modülüne Dahil Edilmesi', 'feature', '- Sistemde tanımlı tüm genel kurumsal e-posta hesapları (info@, teklif@ vb.) IMAP/SMTP eşitlemesiyle posta kutusu modülüne dahil edildi ve başlık menüsünden hızlı geçiş sağlandı.', 'Antigravity AI', '2026-09-28 00:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.39');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.40', 'Mail Kutusunda Sayfa Yenilenmeden Anlık Liste Güncellemesi', 'feature', '- Yeni gelen maillerin sayfa yenilenmesine gerek kalmadan AJAX ile anlık olarak listeye eklenmesi, görsel vurgu efekti ve tek tıkla asenkron eşitleme desteği sağlandı.', 'Antigravity AI', '2026-09-28 00:45:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.40');
 
 
 

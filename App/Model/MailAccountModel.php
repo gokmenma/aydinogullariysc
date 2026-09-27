@@ -174,8 +174,12 @@ class MailAccountModel extends BaseModel
             $creator      = (int)($data['creator'] ?? ($_SESSION['lid'] ?? 1));
             $createTime   = date('Y-m-d H:i:s');
 
-            $sql = "INSERT INTO {$this->table} (mail_address, mail_password, description, mail_user, account_type, creator, create_time) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $imapHost     = ($accountType == 1) ? 'mail.guzel.net.tr' : null;
+            $smtpHost     = ($accountType == 1) ? 'mail.guzel.net.tr' : null;
+            $syncEnabled  = ($accountType == 1) ? 1 : 0;
+
+            $sql = "INSERT INTO {$this->table} (mail_address, mail_password, description, mail_user, account_type, imap_host, smtp_host, sync_enabled, creator, create_time) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
             $result = $stmt->execute([
                 $mailAddress,
@@ -183,6 +187,9 @@ class MailAccountModel extends BaseModel
                 $description,
                 $mailUser,
                 $accountType,
+                $imapHost,
+                $smtpHost,
+                $syncEnabled,
                 $creator,
                 $createTime
             ]);
