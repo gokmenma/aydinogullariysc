@@ -495,8 +495,23 @@ SELECT 'v2.8.25', 'Tanımlama Sayfalarında Silme ve İşlem Sonrası Temiz URL 
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.25');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.8.26', 'Müşteri Listesinde Firma Adına Tıklayınca Özet Dashboard Modalı', 'feature', '- Müşteri ve cari listesinde firma adına veya sağ tık menüsüne tıklandığında firmanın teklif, servis, rapor, keşif, aylık finansal akış grafiği ve iletişim künyesini gösteren interaktif özet dashboard modalı eklendi.', 'Antigravity AI', '2026-09-27 14:45:00'
+SELECT 'v2.8.26', 'Müşteri Listesinde Firma Adına Tıklayınca Özet Dashboard Modalı ve Şifreli Etiket Rotası', 'feature', '- Müşteri listesinde firma adına basıldığında açılan özet dashboard modalı eklendi; etiket sayfasına şifreli ID ile yönlendiren etiket-goster temiz URL rotası ve şifreleme standardı tanımlandı.', 'Antigravity AI', '2026-09-27 15:27:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.26');
+
+UPDATE `version_notes`
+SET `title` = 'Müşteri Listesinde Firma Adına Tıklayınca Özet Dashboard Modalı ve Şifreli Etiket Rotası',
+    `description` = '- Müşteri listesinde firma adına basıldığında açılan özet dashboard modalı eklendi; etiket sayfasına şifreli ID ile yönlendiren etiket-goster temiz URL rotası ve şifreleme standardı tanımlandı.',
+    `created_at` = '2026-09-27 15:27:00'
+WHERE `version_tag` = 'v2.8.26';
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.27', 'Müşteri Etiket Sayfasında Gelişmiş Dinamik Firma Arama Kutusu', 'improvement', '- Etiket göster sayfasındaki müşteri seçim alanı, yeni teklif sayfasındaki gibi yetkili, telefon, e-posta ve şehir detaylarını listeleyen AJAX Select2 dinamik arama yapısına dönüştürüldü.', 'Antigravity AI', '2026-09-27 15:32:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.27');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.28', 'Teklif Sayfası Özet Kartları Tasarım Yenilemesi', 'improvement', '- Yeni teklif ve teklif düzenleme sayfasındaki özet KPI kartları (Alış TL, Satış TL, Kâr TL, Kâr Oranı), yeni sipariş sayfasıyla tam uyumlu modern kart ve rozet tasarımına geçirildi.', 'Antigravity AI', '2026-09-27 19:24:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.28');
+
 
 
 

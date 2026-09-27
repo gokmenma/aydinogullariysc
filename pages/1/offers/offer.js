@@ -220,19 +220,25 @@ function updateAltToplam() {
   //Kâr hesaplamaları
   let profit = totalSale - totalBuy;
 
-  //Kâr oranı hesaplamaları--    //alış fiyatı toplamı sıfır veya boş ise alış fiyatı toplamı sıfırla
-  let alis_toplam = totalBuy == 0 ? 1 : totalBuy;
-  let profitRate = (profit / alis_toplam) * 100;
+  //Kâr oranı hesaplamaları
+  let profitRate = 0;
+  if (totalBuy > 0) {
+    profitRate = (profit / totalBuy) * 100;
+  } else if (totalSale > 0) {
+    profitRate = 100;
+  } else {
+    profitRate = 0;
+  }
 
   //ÖZET ALANLARI
   $("#buy-tl").text(formatCurrency(totalBuy));
   $("#buy-tl-input").val(totalBuy.toFixed(2));
 
-  $("#sale-tl").text(totalSale.toFixed(2));
+  $("#sale-tl").text(formatCurrency(totalSale));
   $("#sale-tl-input").val(totalSale.toFixed(2));
 
   $("#profit-tl").text(formatCurrency(profit));
-  $("#profit-rate").text(profitRate.toFixed(2) + "%");
+  $("#profit-rate").text(profitRate.toFixed(2) + " %");
 
   //ALIŞ TOPLAMLARI
 
@@ -299,16 +305,23 @@ function araToplam() {
 
   console.log("TL Ara Toplam KDV'siz:", tl_ara_toplam_karsilik);
 
-  let alis_toplam = $("#buy-tl-input").val();
-  let satis_toplam = tl_ara_toplam_karsilik;
+  let alis_toplam = parseFloat($("#buy-tl-input").val()) || 0;
+  let satis_toplam = parseFloat(tl_ara_toplam_karsilik) || 0;
 
   let kar = satis_toplam - alis_toplam;
 
-  let kar_oran = (kar / alis_toplam) * 100;
+  let kar_oran = 0;
+  if (alis_toplam > 0) {
+    kar_oran = (kar / alis_toplam) * 100;
+  } else if (satis_toplam > 0) {
+    kar_oran = 100;
+  } else {
+    kar_oran = 0;
+  }
   // console.log("Kar:", kar_oran);
 
   $("#profit-tl").text(formatCurrency(kar));
-  $("#profit-rate").text(kar_oran.toFixed(2) + "%");
+  $("#profit-rate").text(kar_oran.toFixed(2) + " %");
 
   // console.log("TL Toplam Karşılık:", tl_toplam_karsilik);
   $("#tl_toplam_karsilik").val(formatCurrency(tl_toplam_karsilik));

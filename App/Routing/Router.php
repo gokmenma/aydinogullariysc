@@ -109,6 +109,7 @@ final class Router
                 $encryptedEditRoutes = [
                     'offers/offer-manage' => 'teklif-duzenle',
                     'customers/manage' => 'firma-duzenle',
+                    'customer-label' => 'etiket-goster',
                     'products/manage' => 'urun-hizmet-duzenle',
                     'service/manage' => 'servis-duzenle',
                     'purchases/manage' => 'siparis-duzenle',

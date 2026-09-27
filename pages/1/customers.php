@@ -166,7 +166,7 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                                 <i class="fa fa-ellipsis-v ml-1 mr-1"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_<?php echo $as['id']; ?>">
-                                <a href="index.php?p=customer-label&id=<?php echo $as["id"]; ?>" target="_blank" class="dropdown-item" type="button">
+                                <a href="etiket-goster?id=<?php echo \App\Helper\Security::encrypt((string)$as["id"]); ?>" target="_blank" class="dropdown-item" type="button">
                                     <i class="fa fa-print mr-2"></i>
                                     Etiket Göster</a>
                                 <a href="index.php?p=send-mail&customer=<?php echo encrypt($as["id"]) ; ?>" target="_blank" class="dropdown-item" type="button">

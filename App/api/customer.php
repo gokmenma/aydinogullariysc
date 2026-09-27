@@ -53,8 +53,8 @@ if (($_REQUEST['action'] ?? '') === 'get_dashboard_summary') {
     $data['edit_url'] = 'firma-duzenle?id=' . $encryptedId;
     $data['new_offer_url'] = 'index.php?p=offer-new&customer=' . $encryptedId;
     $data['new_service_url'] = 'index.php?p=service-new&customer=' . $encryptedId;
-    $data['label_url'] = 'index.php?p=customer-label&id=' . $customerId;
-    $data['mail_url'] = 'index.php?p=send-mail&customer=' . encrypt($customerId);
+    $data['label_url'] = 'etiket-goster?id=' . $encryptedId;
+    $data['mail_url'] = 'mail-sms?customer=' . encrypt($customerId);
 
     echo json_encode([
         'status' => 'success',

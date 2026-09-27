@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . '/bootstrap.php';
 require_once __DIR__ . '/../configs/functions.php';
 
 use App\Model\CustomerModel;
+use App\Helper\Security;
 
 // Yetki & Oturum Kontrolü
 $userId = (int)($_SESSION['lid'] ?? 0);
@@ -46,15 +47,16 @@ if ($action === 'get_by_id') {
         echo json_encode([
             'status' => 'success',
             'data' => [
-                'id'          => (int)$customer->id,
-                'text'        => $customer->company,
-                'company'     => $customer->company,
-                'yetkili'     => $customer->yetkili ?? '',
-                'email'       => $customer->email ?? '',
-                'gsm'         => $customer->gsm ?? '',
-                'city'        => $customer->city ?? '',
-                'ilce'        => $customer->ilce ?? '',
-                'odemevadesi' => $customer->OdemeVade ?? ''
+                'id'           => (int)$customer->id,
+                'encrypted_id' => Security::encrypt((string)$customer->id),
+                'text'         => $customer->company,
+                'company'      => $customer->company,
+                'yetkili'      => $customer->yetkili ?? '',
+                'email'        => $customer->email ?? '',
+                'gsm'          => $customer->gsm ?? '',
+                'city'         => $customer->city ?? '',
+                'ilce'         => $customer->ilce ?? '',
+                'odemevadesi'  => $customer->OdemeVade ?? ''
             ]
         ], JSON_UNESCAPED_UNICODE);
     } else {
@@ -103,15 +105,16 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $results = [];
 foreach ($rows as $r) {
     $results[] = [
-        'id'          => (int)$r['id'],
-        'text'        => $r['company'],
-        'company'     => $r['company'],
-        'yetkili'     => $r['yetkili'] ?? '',
-        'email'       => $r['email'] ?? '',
-        'gsm'         => $r['gsm'] ?? '',
-        'city'        => $r['city'] ?? '',
-        'ilce'        => $r['ilce'] ?? '',
-        'odemevadesi' => $r['OdemeVade'] ?? ''
+        'id'           => (int)$r['id'],
+        'encrypted_id' => Security::encrypt((string)$r['id']),
+        'text'         => $r['company'],
+        'company'      => $r['company'],
+        'yetkili'      => $r['yetkili'] ?? '',
+        'email'        => $r['email'] ?? '',
+        'gsm'          => $r['gsm'] ?? '',
+        'city'         => $r['city'] ?? '',
+        'ilce'         => $r['ilce'] ?? '',
+        'odemevadesi'  => $r['OdemeVade'] ?? ''
     ];
 }
 

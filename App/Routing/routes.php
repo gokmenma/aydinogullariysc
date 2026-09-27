@@ -40,6 +40,7 @@ return [
         'firmalar' => ['page' => 'customers/list', 'permissions' => []],
         'yeni-firma' => ['page' => 'customers/manage', 'permissions' => ['customeradd']],
         'firma-duzenle' => ['page' => 'customers/manage', 'permissions' => ['customeredit'], 'encrypted_id' => true],
+        'etiket-goster' => ['page' => 'customer-label', 'permissions' => [], 'encrypted_id' => true],
     ],
     'products' => [
         'urun-paneli' => ['page' => 'products/dashboard', 'permissions' => ['product_dashboard', 'productcategory', 'productadd']],

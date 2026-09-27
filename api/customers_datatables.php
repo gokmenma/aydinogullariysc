@@ -244,10 +244,10 @@ foreach ($customers as $row_data) {
             <i class="fa fa-ellipsis-v"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_' . $cid . '">
-            <a href="index.php?p=customer-label&id=' . $cid . '" target="_blank" class="dropdown-item">
+            <a href="etiket-goster?id=' . $encryptedCustomerId . '" target="_blank" class="dropdown-item">
                 <i class="fa fa-print mr-2 text-primary"></i>
                 Etiket Göster</a>
-            <a href="index.php?p=customer-label" target="_blank" class="dropdown-item">
+            <a href="sms-gonder?customer=' . urlencode($encryptedCustomerId) . '" target="_blank" class="dropdown-item">
                 <i class="fa fa-send mr-2 text-info"></i>
                 SMS Gönder</a>
             <a href="index.php?p=send-mail&customer=' . urlencode($encrypted_cid) . '" target="_blank" class="dropdown-item">

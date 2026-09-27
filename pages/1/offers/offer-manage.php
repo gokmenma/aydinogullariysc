@@ -96,41 +96,86 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
                 margin: 0;
             }
 
-            /* Summary info styling */
-            .sum-primary, .sum-success, .sum-warning, .sum-danger {
-                border-radius: 12px;
-                padding: 20px 24px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
-                border: 1px solid #f1f5f9;
+            /* Summary KPI styling (aligned with purchases/manage) */
+            .offer-summary-row {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 15px;
+                width: 100%;
+                margin: 0 0 24px !important;
+            }
+            .offer-kpi-card {
                 display: flex;
-                flex-direction: column;
-                height: 100%;
-                transition: transform 0.3s, box-shadow 0.3s;
+                min-width: 0;
+                min-height: 98px;
+                align-items: center;
+                gap: 14px;
+                padding: 16px;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                background: #f8fafc;
+                transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
             }
-            
-            .sum-primary:hover, .sum-success:hover, .sum-warning:hover, .sum-danger:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            .offer-kpi-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
+                transform: translateY(-2px);
             }
-
-            .sum-primary { border-left: 4px solid #3b82f6; background: #eff6ff; }
-            .sum-success { border-left: 4px solid #10b981; background: #ecfdf5; }
-            .sum-warning { border-left: 4px solid #f59e0b; background: #fffbeb; }
-            .sum-danger { border-left: 4px solid #ef4444; background: #fef2f2; }
-
-            .sum-primary label, .sum-success label, .sum-warning label, .sum-danger label {
+            .offer-kpi-icon {
+                display: flex;
+                width: 48px;
+                height: 48px;
+                flex: 0 0 48px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10px;
+                font-size: 20px;
+            }
+            .offer-kpi-icon.is-blue { background: #e0f2fe; color: #0284c7; }
+            .offer-kpi-icon.is-green { background: #dcfce7; color: #16a34a; }
+            .offer-kpi-icon.is-amber { background: #fef3c7; color: #d97706; }
+            .offer-kpi-icon.is-purple { background: #f3e8ff; color: #9333ea; }
+            .offer-kpi-info { min-width: 0; flex: 1; }
+            .offer-kpi-title {
+                margin-bottom: 4px;
+                color: #64748b;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.2;
+                text-transform: uppercase;
+            }
+            .offer-kpi-value {
+                overflow: hidden;
                 margin: 0;
+                color: #1e293b;
+                font-size: 18px;
+                font-weight: 700;
+                line-height: 1.2;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .offer-kpi-sub {
+                overflow: hidden;
+                margin-top: 4px;
+                color: #94a3b8;
+                font-size: 11px;
+                line-height: 1.25;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
 
-            .sum-primary label:first-child { color: #1e40af; font-size: 13.5px; }
-            .sum-success label:first-child { color: #065f46; font-size: 13.5px; }
-            .sum-warning label:first-child { color: #92400e; font-size: 13.5px; }
-            .sum-danger label:first-child { color: #991b1b; font-size: 13.5px; }
+            .dark-mode .offer-kpi-card { border-color: #334155; background: #1e293b; }
+            .dark-mode .offer-kpi-card:hover { border-color: #475569; box-shadow: 0 4px 14px rgba(0, 0, 0, .2); }
+            .dark-mode .offer-kpi-title { color: #94a3b8; }
+            .dark-mode .offer-kpi-value { color: #f1f5f9; }
+            .dark-mode .offer-kpi-sub { color: #64748b; }
 
-            .sum-primary label:last-child { color: #1d4ed8; font-size: 24px; font-weight: 700; margin-top: 6px; }
-            .sum-success label:last-child { color: #047857; font-size: 24px; font-weight: 700; margin-top: 6px; }
-            .sum-warning label:last-child { color: #b45309; font-size: 24px; font-weight: 700; margin-top: 6px; }
-            .sum-danger label:last-child { color: #b91c1c; font-size: 24px; font-weight: 700; margin-top: 6px; }
+            @media (max-width: 1199.98px) {
+                .offer-summary-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            }
+            @media (max-width: 575.98px) {
+                .offer-summary-row { grid-template-columns: 1fr; }
+            }
 
             /* Form Card styling */
             .form-card {
@@ -1033,57 +1078,62 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 
             $alisToplam = $offer->tl_alis_toplam ?? 0;
             $satisToplam = $offer->tl_satis_toplam ?? 0;
+            $KarTL = $satisToplam - $alisToplam;
 
-            if (isset($satisToplam) && isset($alisToplam)) {
-                $KarTL = $satisToplam - $alisToplam;
-            }
-
-            if (isset($satisToplam) && isset($alisToplam) && $alisToplam > 0) {
+            if ($alisToplam > 0) {
                 $KarOrani = number_format(($satisToplam - $alisToplam) / $alisToplam * 100, 2);
+            } elseif ($satisToplam > 0) {
+                $KarOrani = '100.00';
             } else {
-                $KarOrani = '0.00 TL';
-            }
-
-            //eğer alış tutarı 0 ve satış tutarı 0'dan büyükse kar oranı 100 olacak
-            if ($alisToplam == 0 && $satisToplam > 0) {
-                $KarOrani = '100';
+                $KarOrani = '0.00';
             }
             ?>
 
             <!-- ÖZET ALANLARI -->
-            <div class="row ml-0 mr-0 mb-30">
-                <div class="pd-5 col-lg-3 col-md-6 col-sm-12 mb-5">
-                    <div class="sum-primary">
-                        <label style="font-weight: 600;" for="">Alış TL</label>
-                        <label id="buy-tl" for="">
-                            <?php echo tlFormat($alisToplam ?? 0) ?>
-                        </label>
+            <div class="row offer-summary-row">
+                <div class="offer-kpi-card">
+                    <div class="offer-kpi-icon is-blue" aria-hidden="true">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                    <div class="offer-kpi-info">
+                        <div class="offer-kpi-title">Alış TL</div>
+                        <div class="offer-kpi-value" id="buy-tl"><?php echo tlFormat($alisToplam ?? 0) ?></div>
+                        <div class="offer-kpi-sub">Vergi öncesi alış tutarı</div>
                         <input type="hidden" name="buy-tl-input" id="buy-tl-input" value="<?php echo $alisToplam ?? 0 ?>">
                     </div>
                 </div>
-                <div class="pd-5 col-lg-3 col-md-6 col-sm-12 mb-5">
-                    <div class="sum-success">
-                        <label style="font-weight: 600;" for="">Satış TL</label>
-                        <label id="sale-tl" for="">
-                            <?php echo tlFormat($satisToplam ?? 0) ?>
-                        </label>
+
+                <div class="offer-kpi-card">
+                    <div class="offer-kpi-icon is-green" aria-hidden="true">
+                        <i class="fa fa-tags"></i>
+                    </div>
+                    <div class="offer-kpi-info">
+                        <div class="offer-kpi-title">Satış TL</div>
+                        <div class="offer-kpi-value" id="sale-tl"><?php echo tlFormat($satisToplam ?? 0) ?></div>
+                        <div class="offer-kpi-sub">Vergi öncesi satış tutarı</div>
                         <input type="hidden" name="sale-tl-input" id="sale-tl-input" value="<?php echo $satisToplam ?? 0 ?>">
                     </div>
                 </div>
-                <div class="pd-5 col-lg-3 col-md-6 col-sm-12 mb-5">
-                    <div class="sum-warning">
-                        <label style="font-weight: 600;" for="">Kâr TL</label>
-                        <label id="profit-tl" for="">
-                            <?php echo tlFormat($KarTL ?? 0) ?>
-                        </label>
+
+                <div class="offer-kpi-card">
+                    <div class="offer-kpi-icon is-amber" aria-hidden="true">
+                        <i class="fa fa-calculator"></i>
+                    </div>
+                    <div class="offer-kpi-info">
+                        <div class="offer-kpi-title">Kâr TL</div>
+                        <div class="offer-kpi-value" id="profit-tl"><?php echo tlFormat($KarTL ?? 0) ?></div>
+                        <div class="offer-kpi-sub">Tahmini net kâr tutarı</div>
                     </div>
                 </div>
-                <div class="pd-5 col-lg-3 col-md-6 col-sm-12 mb-5">
-                    <div class="sum-danger">
-                        <label style="font-weight: 600;" for="">Kâr Oranı</label>
-                        <label name="profit-rate" id="profit-rate" for="">
-                            <?php echo $KarOrani . ' %' ?>
-                        </label>
+
+                <div class="offer-kpi-card">
+                    <div class="offer-kpi-icon is-purple" aria-hidden="true">
+                        <i class="fa fa-percent"></i>
+                    </div>
+                    <div class="offer-kpi-info">
+                        <div class="offer-kpi-title">Kâr Oranı</div>
+                        <div class="offer-kpi-value" name="profit-rate" id="profit-rate"><?php echo $KarOrani . ' %' ?></div>
+                        <div class="offer-kpi-sub">Maliyet kâr marjı</div>
                     </div>
                 </div>
             </div>

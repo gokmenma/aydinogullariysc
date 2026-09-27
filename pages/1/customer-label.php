@@ -1,24 +1,21 @@
 <?php
+use App\Helper\Security;
 use App\Model\CustomerModel;
 
-$cid = $_GET["id"] ?? $_GET["customer"] ?? 0;
+$cid = (int)($_GET["id"] ?? $_GET["customer"] ?? 0);
 
-// Şifrelenmiş ID gelirse çözme denemesi
-if (!is_numeric($cid) && !empty($cid)) {
-    $decrypted = decrypt($cid);
+// Şifrelenmiş ID gelirse çözme denemesi (Router çözmediyse fallback)
+if ($cid === 0 && !empty($_GET["id"]) && !is_numeric($_GET["id"])) {
+    $decrypted = Security::decrypt($_GET["id"]);
+    if (!$decrypted) {
+        $decrypted = decrypt($_GET["id"]);
+    }
     if ($decrypted) {
-        $cid = $decrypted;
+        $cid = (int)$decrypted;
     }
 }
 
-$cid = (int)$cid;
-
 $customer = null;
-
-// Müşterileri dropdown seçimi için çek
-$allStmt = $ac->prepare("SELECT id, company FROM customers WHERE deleted_at IS NULL ORDER BY company ASC");
-$allStmt->execute();
-$allCustomers = $allStmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($cid > 0) {
     $stmt = $ac->prepare("
@@ -49,6 +46,116 @@ if ($cid > 0) {
         background: #1e293b !important;
         border-color: #334155 !important;
         color: #e2e8f0;
+    }
+
+    /* Select2 Özel Müşteri Seçim Kutusu */
+    .select2-container .select2-selection--single {
+        height: 42px !important;
+        border-radius: 8px !important;
+        border: 1px solid #dcdfe6 !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px !important;
+        font-size: 13.5px !important;
+        font-weight: 500 !important;
+        color: #1e293b !important;
+        padding-left: 12px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 40px !important;
+        right: 10px !important;
+    }
+    .select2-dropdown {
+        border-radius: 8px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        z-index: 99999 !important;
+    }
+    .select2-results__option {
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+        border-bottom: 1px solid #f1f5f9;
+        background-color: #ffffff !important;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .select2-results__option:last-child {
+        border-bottom: none;
+    }
+    .select2-customer-option {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .customer-title {
+        font-weight: 600;
+        color: #0f172a !important;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13.5px;
+    }
+    .customer-title i {
+        color: var(--focus-color, var(--theme-primary, #2563eb)) !important;
+    }
+    .customer-sub {
+        font-size: 12px;
+        color: #475569 !important;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .customer-sub i {
+        color: #64748b !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted,
+    .select2-results__option:hover {
+        background: #2563eb !important;
+        color: #ffffff !important;
+    }
+    .select2-container--default .select2-results__option--highlighted .customer-title,
+    .select2-container--default .select2-results__option--highlighted .customer-title i,
+    .select2-results__option:hover .customer-title,
+    .select2-results__option:hover .customer-title i {
+        color: #ffffff !important;
+    }
+    .select2-container--default .select2-results__option--highlighted .customer-sub,
+    .select2-container--default .select2-results__option--highlighted .customer-sub i,
+    .select2-results__option:hover .customer-sub,
+    .select2-results__option:hover .customer-sub i {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    /* Dark Mode Uyumluluğu */
+    .dark-mode .select2-container .select2-selection--single {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode .select2-dropdown {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode .select2-results__option {
+        background-color: #1e293b !important;
+        border-bottom: 1px solid #334155 !important;
+        color: #e2e8f0 !important;
+    }
+    .dark-mode .customer-title {
+        color: #f8fafc !important;
+    }
+    .dark-mode .customer-sub {
+        color: #94a3b8 !important;
+    }
+    .dark-mode .select2-search--dropdown .select2-search__field {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
     }
 
     /* Önizleme Alanı */
@@ -237,32 +344,41 @@ if ($cid > 0) {
     <!-- Kontrol Kartı -->
     <div class="label-control-card">
         <div class="row align-items-center">
-            <div class="col-md-4 mb-2 mb-md-0">
+            <div class="col-md-5 mb-2 mb-md-0">
                 <label class="font-weight-bold mb-1" style="font-size: 13px;">Müşteri Seçin:</label>
-                <select id="selectCustomer" class="form-control selectpicker" data-live-search="true">
-                    <?php foreach ($allCustomers as $cItem): ?>
-                        <option value="<?php echo $cItem['id']; ?>" <?php echo $cItem['id'] == $cid ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cItem['company']); ?>
+                <select id="selectCustomer" data-placeholder="Firma adı veya yetkili yazarak arayın..." class="form-control select2-customer-select" style="width: 100%;">
+                    <?php if ($customer): ?>
+                        <option value="<?php echo (int)$customer['id']; ?>" selected
+                            data-company="<?php echo htmlspecialchars($customer['company'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-yetkili="<?php echo htmlspecialchars($customer['yetkili'] ?? $customer['represant'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-gsm="<?php echo htmlspecialchars($customer['gsm'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-email="<?php echo htmlspecialchars($customer['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-city="<?php echo htmlspecialchars($customer['city'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-ilce="<?php echo htmlspecialchars($customer['ilce'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-encrypted-id="<?php echo htmlspecialchars(Security::encrypt((string)$customer['id']), ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars($customer['company'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                         </option>
-                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">Firma adı veya yetkili yazarak arayın...</option>
+                    <?php endif; ?>
                 </select>
             </div>
             <div class="col-md-3 mb-2 mb-md-0">
                 <label class="font-weight-bold mb-1" style="font-size: 13px;">Etiket Boyutu:</label>
-                <select id="selectLabelSize" class="form-control">
+                <select id="selectLabelSize" class="form-control" style="height: 42px; border-radius: 8px;">
                     <option value="standard">Standart Kargo Etiketi (420px)</option>
                     <option value="small">Küçük Kutu Etiketi (320px)</option>
                 </select>
             </div>
-            <div class="col-md-2 mb-2 mb-md-0">
-                <label class="font-weight-bold mb-1" style="font-size: 13px;">Kopyala Adedi:</label>
-                <input type="number" id="labelCopies" class="form-control" value="1" min="1" max="20">
+            <div class="col-md-1 mb-2 mb-md-0">
+                <label class="font-weight-bold mb-1" style="font-size: 13px;">Adet:</label>
+                <input type="number" id="labelCopies" class="form-control" value="1" min="1" max="20" style="height: 42px; border-radius: 8px;">
             </div>
             <div class="col-md-3 text-right">
-                <button type="button" onclick="window.print()" class="btn btn-primary btn-md mr-1" style="border-radius: 8px;">
+                <button type="button" onclick="window.print()" class="btn btn-primary btn-md mr-1" style="height: 42px; border-radius: 8px; font-weight: 600;">
                     <i class="fa fa-print mr-1"></i> Etiketi Yazdır
                 </button>
-                <a href="index.php?p=customers/list" class="btn btn-outline-secondary btn-md" style="border-radius: 8px;">
+                <a href="firmalar" class="btn btn-outline-secondary btn-md" style="height: 42px; border-radius: 8px; line-height: 28px;">
                     <i class="fa fa-arrow-left mr-1"></i> Listeye Dön
                 </a>
             </div>
@@ -346,20 +462,121 @@ if ($cid > 0) {
     <?php else: ?>
         <div class="alert alert-warning text-center p-4" style="border-radius: 12px;">
             <i class="fa fa-exclamation-triangle fa-2x mb-2 d-block"></i>
-            Müşteri bilgisi bulunamadı veya geçersiz müşteri ID'si seçildi.
+            Lütfen etiket oluşturmak için yukarıdaki arama kutusundan bir müşteri seçin.
         </div>
     <?php endif; ?>
 </div>
 
 <script>
 $(document).ready(function() {
-    // Müşteri seçimi değiştiğinde sayfayı yenile
-    $('#selectCustomer').on('change', function() {
-        var val = $(this).val();
-        if(val) {
-            window.location.href = 'index.php?p=customer-label&id=' + val;
+    function formatCustomerResult(item) {
+        if (item.loading) {
+            return item.text;
         }
-    });
+        if (!item.id) {
+            return item.text;
+        }
+
+        var company = item.company || item.text || '';
+        var yetkili = item.yetkili || '';
+        var gsm = item.gsm || '';
+        var email = item.email || '';
+        var city = item.city || '';
+        var ilce = item.ilce || '';
+
+        var subParts = [];
+        if (yetkili && yetkili !== '.' && yetkili !== '-') {
+            subParts.push('<i class="fa fa-user mr-1"></i>' + $('<div>').text(yetkili).html());
+        }
+        if (gsm && gsm !== '.' && gsm !== '-') {
+            subParts.push('<i class="fa fa-phone mr-1"></i>' + $('<div>').text(gsm).html());
+        }
+        if (email && email !== '.' && email !== '-') {
+            subParts.push('<i class="fa fa-envelope mr-1"></i>' + $('<div>').text(email).html());
+        }
+        if (city && city !== '') {
+            var cityText = city + (ilce ? ' / ' + ilce : '');
+            subParts.push('<i class="fa fa-map-marker mr-1"></i>' + $('<div>').text(cityText).html());
+        }
+        var subHtml = subParts.length > 0 ? subParts.join(' &bull; ') : '<span style="opacity: 0.7;">Ek iletişim bilgisi bulunmuyor</span>';
+
+        return $(
+            '<div class="select2-customer-option">' +
+                '<div class="customer-title"><i class="fa fa-building"></i> ' + $('<div>').text(company).html() + '</div>' +
+                '<div class="customer-sub">' + subHtml + '</div>' +
+            '</div>'
+        );
+    }
+
+    function formatCustomerSelection(item) {
+        if (!item.id) {
+            return item.text || 'Firma adı veya yetkili yazarak arayın...';
+        }
+        var company = item.company || (item.element ? $(item.element).data('company') : '') || item.text;
+        return company;
+    }
+
+    var $customerSelect = $('#selectCustomer');
+    if ($customerSelect.length && $.fn.select2) {
+        if ($customerSelect.data('select2')) {
+            $customerSelect.select2('destroy');
+        }
+
+        $customerSelect.select2({
+            placeholder: 'Firma adı veya yetkili yazarak arayın...',
+            allowClear: false,
+            width: '100%',
+            minimumInputLength: 0,
+            ajax: {
+                url: 'api/search_customers.php',
+                dataType: 'json',
+                delay: 100,
+                data: function(params) {
+                    return {
+                        q: params.term || '',
+                        limit: 30
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.results || []
+                    };
+                },
+                cache: true
+            },
+            templateResult: formatCustomerResult,
+            templateSelection: formatCustomerSelection,
+            language: {
+                searching: function() { return "Aranıyor..."; },
+                noResults: function() { return "Eşleşen firma bulunamadı"; },
+                loadingMore: function() { return "Daha fazla yükleniyor..."; },
+                inputTooShort: function() { return "Aramak için yazmaya başlayın..."; }
+            }
+        });
+
+        // Tıklandığında anında ilk 30 firmayı getir
+        $customerSelect.on('select2:open', function() {
+            var s2 = $customerSelect.data('select2');
+            if (s2 && s2.dataAdapter) {
+                s2.dataAdapter.query({ term: '' }, function(data) {
+                    s2.results.append(data);
+                });
+            }
+        });
+
+        // Müşteri seçildiğinde sayfayı yeni müşteriyle aç
+        $customerSelect.on('select2:select', function(e) {
+            var data = e.params ? e.params.data : null;
+            if (data) {
+                var encId = data.encrypted_id || (data.element ? $(data.element).data('encrypted-id') : null);
+                if (encId) {
+                    window.location.href = 'etiket-goster?id=' + encodeURIComponent(encId);
+                } else if (data.id) {
+                    window.location.href = 'etiket-goster?id=' + encodeURIComponent(data.id);
+                }
+            }
+        });
+    }
 
     // Boyut değişimi
     $('#selectLabelSize').on('change', function() {
