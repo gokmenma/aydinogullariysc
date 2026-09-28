@@ -617,20 +617,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: formData,
                 credentials: 'same-origin'
             })
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                if (syncBtn) {
-                    syncBtn.disabled = false;
-                    syncBtn.innerHTML = '<i class="fa fa-refresh mr-1"></i> Şimdi Eşitle';
-                }
-                if (data && data.status === 'success') {
-                    if (lastSyncText && data.last_sync_at) {
-                        lastSyncText.textContent = 'Son kontrol: ' + data.last_sync_at;
+            .then(function (res) {
+                return res.text().then(function (body) {
+                    var data = null;
+                    try { data = JSON.parse(body); } catch (ignore) {}
+                    if (!res.ok || !data || data.status !== 'success') {
+                        throw new Error((data && data.message) || 'Sunucu geçerli bir yanıt vermedi (HTTP ' + res.status + ').');
                     }
-                    refreshMessageList(false);
+                    return data;
+                });
+            })
+            .then(function (data) {
+                if (lastSyncText && data.last_sync_at) {
+                    lastSyncText.textContent = 'Son kontrol: ' + data.last_sync_at;
+                }
+                refreshMessageList(false);
+            })
+            .catch(function (error) {
+                if (window.Swal && typeof window.Swal.fire === 'function') {
+                    window.Swal.fire({icon: 'error', title: 'Eşitleme başarısız', text: error.message});
+                } else {
+                    window.alert('Eşitleme başarısız: ' + error.message);
                 }
             })
-            .catch(function () {
+            .then(function () {
                 if (syncBtn) {
                     syncBtn.disabled = false;
                     syncBtn.innerHTML = '<i class="fa fa-refresh mr-1"></i> Şimdi Eşitle';

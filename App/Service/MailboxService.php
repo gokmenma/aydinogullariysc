@@ -167,16 +167,48 @@ final class MailboxService
 
     private function validateTlsCertificate(string $host, int $port): void
     {
-        $context = stream_context_create(['ssl' => [
+        $sslOptions = [
             'verify_peer' => true,
             'verify_peer_name' => true,
             'peer_name' => $host,
             'SNI_enabled' => true,
-            'cafile' => '/etc/ssl/certs/ca-certificates.crt',
-        ]]);
+        ];
+
+        // Dağıtıma özel tek bir CA yolu kullanmak paylaşımlı hostinglerde bağlantıyı
+        // bozabilir. Önce PHP/OpenSSL ayarlarını, ardından yaygın sistem yollarını dene.
+        $locations = function_exists('openssl_get_cert_locations') ? openssl_get_cert_locations() : [];
+        $caFiles = [
+            getenv('SSL_CERT_FILE') ?: '',
+            (string) ($locations['ini_cafile'] ?? ''),
+            (string) ($locations['default_cert_file'] ?? ''),
+            '/etc/ssl/certs/ca-certificates.crt',
+            '/etc/pki/tls/certs/ca-bundle.crt',
+            '/etc/ssl/ca-bundle.pem',
+            '/usr/local/share/certs/ca-root-nss.crt',
+        ];
+        foreach (array_unique(array_filter($caFiles)) as $caFile) {
+            if (is_readable($caFile)) {
+                $sslOptions['cafile'] = $caFile;
+                break;
+            }
+        }
+
+        $caPaths = [
+            getenv('SSL_CERT_DIR') ?: '',
+            (string) ($locations['ini_capath'] ?? ''),
+            (string) ($locations['default_cert_dir'] ?? ''),
+        ];
+        foreach (array_unique(array_filter($caPaths)) as $caPath) {
+            if (is_dir($caPath) && is_readable($caPath)) {
+                $sslOptions['capath'] = $caPath;
+                break;
+            }
+        }
+
+        $context = stream_context_create(['ssl' => $sslOptions]);
         $socket = @stream_socket_client('ssl://' . $host . ':' . $port, $errorNo, $errorText, 10, STREAM_CLIENT_CONNECT, $context);
         if (!$socket) {
-            throw new RuntimeException('Mail sunucusunun TLS sertifikası doğrulanamadı: ' . ($errorText ?: (string) $errorNo));
+            throw new RuntimeException('Mail sunucusuna güvenli bağlantı kurulamadı. Hosting CA deposu ve 993 portu kontrol edilmeli: ' . ($errorText ?: (string) $errorNo));
         }
         fclose($socket);
     }

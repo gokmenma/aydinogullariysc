@@ -538,7 +538,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.34')
 
 UPDATE `version_notes`
 SET `title` = 'Modern Süper Admin Gelen ve Giden Mail Modülü',
-    `description` = '- Kurumsal mail hesabı için güvenli IMAP eşitlemesi, eksik geçmiş postaları kademeli aktarma, sandbox korumalı HTML/gömülü görsel görünümü, harici görselleri güvenli proxy üzerinden isteğe bağlı gösterme ve güvenli ek indirme kullanıma sunuldu.'
+    `description` = '- Kurumsal mail hesabı için paylaşımlı hosting uyumlu güvenli IMAP eşitlemesi, anlaşılır bağlantı hata bildirimi, eksik geçmiş postaları kademeli aktarma, sandbox korumalı HTML/gömülü görsel görünümü, harici görselleri güvenli proxy üzerinden isteğe bağlı gösterme ve güvenli ek indirme kullanıma sunuldu.'
 WHERE `version_tag` = 'v2.8.34';
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
@@ -576,7 +576,6 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.42')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.43', 'Rapor Listesinde Satır İçi PDF Önizleme Modalı', 'feature', '- Raporlar sayfasında rapor numarasının önüne PDF ikonu eklendi; tıklandığında sayfadan ayrılmadan açılan modal penceresinde (iframe) rapor formu önizleme, yazdırma ve yeni sekmede açma özellikleri sağlandı.', 'Antigravity AI', '2026-09-28 08:25:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.43');
-
 
 
 
