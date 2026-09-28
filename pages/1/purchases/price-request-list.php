@@ -289,8 +289,43 @@ try {
         padding: 0 !important;
         width: 100% !important;
     }
-    .form-card .dataTables_wrapper .dataTables_filter,
+    .form-card .dataTables_wrapper .dataTables_filter {
+        display: none !important;
+    }
     .form-card .dataTables_wrapper .dataTables_length {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin-right: 15px !important;
+    }
+    .form-card .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        height: 32px !important;
+        padding: 2px 8px !important;
+        font-size: 12.5px !important;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        margin: 0 4px !important;
+        outline: none !important;
+    }
+    .dark-mode .form-card .dataTables_wrapper .dataTables_length select {
+        background-color: #1e293b !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
+    .form-card .dataTables_wrapper .dataTables_length label {
+        font-size: 13px !important;
+        color: #64748b !important;
+        font-weight: 500 !important;
+        margin-bottom: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+    .dark-mode .form-card .dataTables_wrapper .dataTables_length label {
+        color: #94a3b8 !important;
+    }
+    #priceRequestTable [data-tooltip]::before,
+    #priceRequestTable [data-tooltip]::after {
         display: none !important;
     }
     .form-card .dataTables_wrapper .row:last-child {
@@ -764,11 +799,11 @@ try {
                                     <span class="font-weight-bold text-dark"><?php echo $siparisNo; ?></span>
                                 </td>
 
-                                <td class="company-name-cell" data-tooltip="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
-                                    <span class="font-weight-600 text-dark"><?php echo htmlspecialchars(shorted($companyName, 24), ENT_QUOTES, 'UTF-8'); ?></span>
+                                <td class="company-name-cell">
+                                    <span class="font-weight-600 text-dark" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(shorted($companyName, 24), ENT_QUOTES, 'UTF-8'); ?></span>
                                 </td>
 
-                                <td class="text-muted text-center" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
+                                <td class="text-muted text-center" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
 
                                 <td class="text-center"><?php echo $deadlineFormatted; ?></td>
 
@@ -781,23 +816,23 @@ try {
                                 </td>
 
                                 <td>
-                                    <span title="<?php echo htmlspecialchars($creator, ENT_QUOTES, 'UTF-8'); ?>">
+                                    <span data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($creator, ENT_QUOTES, 'UTF-8'); ?>">
                                         <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 14), ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
 
                                 <td class="text-center text-nowrap" style="width: 105px; min-width: 105px; white-space: nowrap;">
                                     <div class="action-btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary action-btn view-detail" data-id="<?php echo $pid; ?>" title="Detayı Görüntüle" data-tooltip="Görüntüle">
+                                        <button type="button" class="btn btn-sm btn-outline-primary action-btn view-detail" data-id="<?php echo $pid; ?>" data-toggle="tooltip" data-placement="top" title="Detayı Görüntüle">
                                             <i class="fa fa-eye"></i>
                                         </button>
 
-                                        <a href="<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-info action-btn" title="Düzenle" data-tooltip="Düzenle">
+                                        <a href="<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-info action-btn" data-toggle="tooltip" data-placement="top" title="Düzenle">
                                             <i class="fa fa-pencil"></i>
                                         </a>
 
                                         <?php if (permtrue("tum_fiyat_taleplerini_gor") || permtrue("purchasedelete") || ((int)($purc['creator'] ?? 0) === (int)sesset('id'))) { ?>
-                                            <button type="button" class="btn btn-sm btn-outline-danger action-btn" title="Sil" data-tooltip="Sil" onclick="deleteRecord('<?php echo $siparisNo; ?> nolu fiyat talebini silmek istediğinize emin misiniz?', <?php echo $pid; ?>, 'purchases', null, '/fiyat-talepleri')">
+                                            <button type="button" class="btn btn-sm btn-outline-danger action-btn" data-toggle="tooltip" data-placement="top" title="Sil" onclick="deleteRecord('<?php echo $siparisNo; ?> nolu fiyat talebini silmek istediğinize emin misiniz?', <?php echo $pid; ?>, 'purchases', null, '/fiyat-talepleri')">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         <?php } ?>
@@ -898,16 +933,33 @@ $(document).ready(function() {
             searchPlaceholder: "Listede ara..."
         },
         dom: "<'row'<'col-sm-12'tr>>" +
-             "<'row align-items-center mt-2 px-2 pb-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
+             "<'row align-items-center mt-2 px-3 pb-3'<'col-12 col-md-6 d-flex align-items-center flex-wrap'l i><'col-12 col-md-6 d-flex justify-content-md-end justify-content-center'p>>",
         order: [[1, 'desc']],
         columnDefs: [
             { targets: [0, 8], orderable: false }
-        ]
+        ],
+        initComplete: function() {
+            if (window.App && window.App.TableFilter) {
+                App.TableFilter.attachToTable(document.getElementById('priceRequestTable'));
+            }
+            $('#priceRequestTable [data-toggle="tooltip"]').tooltip({
+                container: 'body',
+                boundary: 'window',
+                trigger: 'hover'
+            });
+        },
+        drawCallback: function(settings) {
+            $('#priceRequestTable [data-toggle="tooltip"]').tooltip({
+                container: 'body',
+                boundary: 'window',
+                trigger: 'hover'
+            });
+        }
     });
 
-    if (window.App && window.App.TableFilter) {
-        App.TableFilter.attachToTable(document.getElementById('priceRequestTable'));
-    }
+    table.on('preDraw', function() {
+        $('.tooltip').remove();
+    });
 
     // Özel Arama Kutusu
     $('#priceRequestCustomSearch').on('keyup input', function() {

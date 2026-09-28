@@ -257,8 +257,43 @@ try {
         padding: 0 !important;
         width: 100% !important;
     }
-    .form-card .dataTables_wrapper .dataTables_filter,
+    .form-card .dataTables_wrapper .dataTables_filter {
+        display: none !important;
+    }
     .form-card .dataTables_wrapper .dataTables_length {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin-right: 15px !important;
+    }
+    .form-card .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        height: 32px !important;
+        padding: 2px 8px !important;
+        font-size: 12.5px !important;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        margin: 0 4px !important;
+        outline: none !important;
+    }
+    .dark-mode .form-card .dataTables_wrapper .dataTables_length select {
+        background-color: #1e293b !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
+    .form-card .dataTables_wrapper .dataTables_length label {
+        font-size: 13px !important;
+        color: #64748b !important;
+        font-weight: 500 !important;
+        margin-bottom: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+    .dark-mode .form-card .dataTables_wrapper .dataTables_length label {
+        color: #94a3b8 !important;
+    }
+    #purchasesTable [data-tooltip]::before,
+    #purchasesTable [data-tooltip]::after {
         display: none !important;
     }
     .form-card .dataTables_wrapper .row:last-child {
@@ -830,20 +865,31 @@ $(document).ready(function() {
             searchPlaceholder: "Listede ara..."
         },
         dom: "<'row'<'col-sm-12'tr>>" +
-             "<'row align-items-center mt-2 px-2 pb-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
+             "<'row align-items-center mt-2 px-3 pb-3'<'col-12 col-md-6 d-flex align-items-center flex-wrap'l i><'col-12 col-md-6 d-flex justify-content-md-end justify-content-center'p>>",
         initComplete: function() {
             if (window.App && window.App.TableFilter) {
                 App.TableFilter.attachToTable(document.getElementById('purchasesTable'));
             }
+            $('#purchasesTable [data-toggle="tooltip"]').tooltip({
+                container: 'body',
+                boundary: 'window',
+                trigger: 'hover'
+            });
         },
         drawCallback: function(settings) {
             var api = this.api();
             var total = api.page.info().recordsTotal;
             $('#purchasesCountBadge').text(total + ' Kayıt');
-            if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
-                $('[data-toggle="tooltip"]').tooltip();
-            }
+            $('#purchasesTable [data-toggle="tooltip"]').tooltip({
+                container: 'body',
+                boundary: 'window',
+                trigger: 'hover'
+            });
         }
+    });
+
+    table.on('preDraw', function() {
+        $('.tooltip').remove();
     });
 
     function filterWaitingDemands() {

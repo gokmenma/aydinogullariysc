@@ -407,6 +407,129 @@ $reportTypeMeta = [
         color: #38bdf8 !important;
     }
 
+    /* PDF Butonu Stilleri */
+    .offer-pdf-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626 !important;
+        font-size: 12px;
+        line-height: 1;
+        transition: all 0.15s ease;
+        text-decoration: none !important;
+        cursor: pointer;
+        flex-shrink: 0;
+        padding: 0;
+        box-shadow: 0 1px 2px rgba(220, 38, 38, 0.08);
+    }
+    .offer-pdf-btn:hover {
+        background: #dc2626;
+        color: #ffffff !important;
+        border-color: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(220, 38, 38, 0.28);
+    }
+    .offer-pdf-btn:active {
+        transform: translateY(0);
+    }
+    .dark-mode .offer-pdf-btn {
+        background: rgba(220, 38, 38, 0.15);
+        border-color: rgba(220, 38, 38, 0.4);
+        color: #f87171 !important;
+    }
+    .dark-mode .offer-pdf-btn:hover {
+        background: #dc2626;
+        color: #ffffff !important;
+        border-color: #dc2626;
+    }
+
+    /* PDF Modal Stilleri */
+    #reportPdfModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+    #reportPdfModal .modal-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 14px 20px;
+    }
+    #reportPdfModal .modal-icon-badge.pdf-modal-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: rgba(239, 68, 68, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+    }
+    #reportPdfModal .badge-report-no {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        font-size: 13px;
+    }
+    #reportPdfModal .modal-body {
+        background: #525659;
+        height: 78vh;
+        min-height: 520px;
+    }
+    #reportPdfModal .pdf-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(248, 250, 252, 0.95);
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    #reportPdfModal .pdf-loading-overlay.d-none {
+        display: none !important;
+    }
+    .dark-mode #reportPdfModal .modal-content {
+        background: #1e293b;
+        color: #f1f5f9;
+    }
+    .dark-mode #reportPdfModal .modal-header,
+    .dark-mode #reportPdfModal .modal-footer {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    .dark-mode #reportPdfModal .badge-report-no {
+        background: #1e3a8a !important;
+        color: #93c5fd !important;
+        border-color: #1d4ed8 !important;
+    }
+    .dark-mode #reportPdfModal .modal-title {
+        color: #f1f5f9 !important;
+    }
+    .dark-mode #reportPdfModal .close {
+        color: #cbd5e1;
+        text-shadow: none;
+    }
+    .dark-mode #pdfModalLoading {
+        background: rgba(15, 23, 42, 0.95) !important;
+    }
+    .dark-mode #pdfModalLoading .text-dark {
+        color: #f8fafc !important;
+    }
+
     /* Report Action Dropdowns */
     .report-action-dropdown {
         min-width: 480px;
@@ -737,6 +860,62 @@ $reportTypeMeta = [
     </div>
 </div>
 
+<!-- Rapor PDF Önizleme Modalı -->
+<div class="modal fade" id="reportPdfModal" tabindex="-1" role="dialog" aria-labelledby="reportPdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-width: 1100px; width: 95vw;">
+        <div class="modal-content custom-pdf-modal-content">
+            <div class="modal-header custom-pdf-modal-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 12px; min-width: 0;">
+                    <div class="modal-icon-badge pdf-modal-icon">
+                        <i class="fa fa-file-pdf-o text-danger"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                            <h5 class="modal-title font-16 weight-700 mb-0" id="reportPdfModalLabel">
+                                Rapor Önizleme
+                            </h5>
+                            <span class="badge-report-no font-13 font-weight-bold" id="pdfModalReportBadge">-</span>
+                        </div>
+                        <small class="text-muted text-truncate d-block" id="pdfModalCustomerTitle">-</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <a id="btnPdfOpenExternal" href="#" target="_blank" class="btn btn-outline-secondary btn-sm" title="Yeni Sekmede Aç" data-toggle="tooltip">
+                        <i class="fa fa-external-link"></i> <span class="d-none d-sm-inline ml-1">Yeni Sekme</span>
+                    </a>
+                    <button type="button" id="btnPdfPrintModal" class="btn btn-outline-primary btn-sm" title="Yazdır" data-toggle="tooltip">
+                        <i class="fa fa-print"></i> <span class="d-none d-sm-inline ml-1">Yazdır</span>
+                    </button>
+                    <button type="button" class="close btn-pdf-modal-close ml-2" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body p-0 position-relative" style="height: 78vh; min-height: 520px; background: #525659;">
+                <!-- Loading State -->
+                <div id="pdfModalLoading" class="pdf-loading-overlay text-center d-none">
+                    <div class="spinner-border text-danger mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <div class="text-dark font-14 font-weight-600">Rapor PDF Hazırlanıyor...</div>
+                    <small class="text-muted mt-1">Lütfen bekleyiniz, belge yükleniyor.</small>
+                </div>
+
+                <!-- PDF Iframe -->
+                <iframe id="reportPdfIframe" src="about:blank" style="width: 100%; height: 100%; border: none; display: block;" allowfullscreen></iframe>
+            </div>
+
+            <div class="modal-footer custom-pdf-modal-footer d-flex justify-content-between align-items-center px-4 py-2 bg-light">
+                <div class="text-muted font-12" id="pdfModalFooterInfo">Kontrol ve Muayene Raporu</div>
+                <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal" data-bs-dismiss="modal">
+                    Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal -->
 <div class="modal fade" id="reportdetail" tabindex="-1" role="dialog" aria-labelledby="reportdetailCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -987,6 +1166,108 @@ tr.context-menu-active {
             });
         });
 
+        // ==========================================
+        // Rapor PDF Önizleme Modalı İşlemleri
+        // ==========================================
+        var reportPdfLoadTimer = null;
+
+        function hideReportPdfLoader() {
+            if (reportPdfLoadTimer) {
+                clearTimeout(reportPdfLoadTimer);
+                reportPdfLoadTimer = null;
+            }
+            $('#reportPdfModal #pdfModalLoading').addClass('d-none');
+        }
+
+        function showReportPdfLoader() {
+            if (reportPdfLoadTimer) {
+                clearTimeout(reportPdfLoadTimer);
+                reportPdfLoadTimer = null;
+            }
+            $('#reportPdfModal #pdfModalLoading').removeClass('d-none');
+        }
+
+        function openReportPdfModal(pdfUrl, reportNo, customer, reportType) {
+            if (!pdfUrl) return;
+
+            $('#pdfModalReportBadge').text(reportNo || '-');
+            var subTitle = (customer ? customer : 'Müşteri Belirtilmemiş') + (reportType ? ' (' + reportType + ')' : '');
+            $('#pdfModalCustomerTitle').text(subTitle);
+            $('#btnPdfOpenExternal').attr('href', pdfUrl);
+            $('#pdfModalFooterInfo').text('Rapor No: ' + (reportNo || '-') + (customer ? ' | ' + customer : '') + (reportType ? ' | ' + reportType : ''));
+
+            showReportPdfLoader();
+
+            var iframeEl = document.getElementById('reportPdfIframe');
+            if (iframeEl) {
+                iframeEl.onload = function() {
+                    hideReportPdfLoader();
+                };
+            }
+
+            var $iframe = $('#reportPdfIframe');
+            $iframe.off('load').on('load', function() {
+                hideReportPdfLoader();
+            });
+
+            // 400ms sonra her koşulda yükleyiciyi gizle
+            reportPdfLoadTimer = setTimeout(function() {
+                hideReportPdfLoader();
+            }, 400);
+
+            $iframe.attr('src', pdfUrl);
+            $('#reportPdfModal').modal('show');
+        }
+
+        $(document).on('click', '.btn-report-pdf', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var pdfUrl = $(this).data('url') || $(this).attr('data-url');
+            var reportNo = $(this).data('report-no') || $(this).attr('data-report-no') || '';
+            var customer = $(this).data('customer') || $(this).attr('data-customer') || '';
+            var reportType = $(this).data('report-type') || $(this).attr('data-report-type') || '';
+
+            openReportPdfModal(pdfUrl, reportNo, customer, reportType);
+        });
+
+        $(document).on('click', '.btn-context-report-pdf', function(e) {
+            e.preventDefault();
+            var pdfUrl = $(this).data('url');
+            var reportNo = $(this).data('report-no') || '';
+            var customer = $(this).data('customer') || '';
+            var reportType = $(this).data('report-type') || '';
+            openReportPdfModal(pdfUrl, reportNo, customer, reportType);
+        });
+
+        $('#reportPdfModal').on('shown.bs.modal', function() {
+            setTimeout(function() {
+                hideReportPdfLoader();
+            }, 250);
+        });
+
+        // Modal kapandığında iframe içeriğini temizle
+        $('#reportPdfModal').on('hidden.bs.modal', function() {
+            hideReportPdfLoader();
+            $('#reportPdfIframe').attr('src', 'about:blank');
+        });
+
+        // Yazdır butonu
+        $('#btnPdfPrintModal').on('click', function() {
+            var iframeEl = document.getElementById('reportPdfIframe');
+            if (iframeEl && iframeEl.contentWindow) {
+                try {
+                    iframeEl.contentWindow.focus();
+                    iframeEl.contentWindow.print();
+                } catch (err) {
+                    var url = $('#btnPdfOpenExternal').attr('href');
+                    if (url && url !== '#') {
+                        window.open(url, '_blank');
+                    }
+                }
+            }
+        });
+
         // Tabloda Sağ Tık (Context Menu) İşlemleri
         $(document).on('contextmenu', '#reportTable tbody tr', function(e) {
             if ($(this).find('td').length <= 1) return;
@@ -997,10 +1278,21 @@ tr.context-menu-active {
             $('#reportTable tbody tr').removeClass('context-menu-active');
             $tr.addClass('context-menu-active');
 
-            var reportNo = $tr.find('td:nth-child(2)').text().trim() || 'Rapor İşlemleri';
+            var $pdfBtn = $tr.find('.btn-report-pdf');
+            var reportNo = $tr.find('.report-num-link').text().trim() || $pdfBtn.data('report-no') || $tr.find('td:nth-child(2)').text().trim() || 'Rapor İşlemleri';
             var $actionTd = $tr.find('td:last-child');
             
             var menuHtml = '<div class="cm-header"><i class="fa fa-file-text-o mr-1"></i> ' + $('<div>').text(reportNo).html() + '</div>';
+
+            // PDF Önizleme seçeneği
+            if ($pdfBtn.length) {
+                var pdfUrl = $pdfBtn.data('url') || $pdfBtn.attr('data-url');
+                var reportNoVal = $pdfBtn.data('report-no') || $pdfBtn.attr('data-report-no') || '';
+                var custVal = $pdfBtn.data('customer') || $pdfBtn.attr('data-customer') || '';
+                var repTypeVal = $pdfBtn.data('report-type') || $pdfBtn.attr('data-report-type') || '';
+                
+                menuHtml += '<button type="button" class="btn-context-report-pdf" data-url="' + $('<div>').text(pdfUrl).html() + '" data-report-no="' + $('<div>').text(reportNoVal).html() + '" data-customer="' + $('<div>').text(custVal).html() + '" data-report-type="' + $('<div>').text(repTypeVal).html() + '"><i class="fa fa-file-pdf-o text-danger mr-2"></i> PDF Önizleme</button>';
+            }
 
             // 1. Düzenle Butonu Varsa
             var $editBtn = $actionTd.find('a[data-tooltip="Düzenle"], a.btn-outline-primary');
@@ -1013,6 +1305,7 @@ tr.context-menu-active {
             if ($dropdownItems.length) {
                 $dropdownItems.each(function() {
                     var $item = $(this);
+                    if ($item.hasClass('btn-report-pdf')) return; // Zaten yukarıda eklendi
                     var href = $item.attr('href');
                     var isLink = href && href !== '#' && href !== 'javascript:void(0);';
                     var target = $item.attr('target') ? ' target="' + $item.attr('target') + '"' : '';

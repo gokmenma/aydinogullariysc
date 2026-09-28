@@ -23,7 +23,7 @@ if ($accountId < 1) {
 
 try {
     $service = new MailboxService($ac);
-    $count = $service->syncAccount($accountId);
+    $count = $service->syncAccount($accountId, 100);
     $accounts = $service->accounts();
     $activeAcc = null;
     foreach ($accounts as $a) {

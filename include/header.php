@@ -212,7 +212,7 @@ $maintenanceHeaderJson = htmlspecialchars(
 						<div class="theme-preview-body">
 							<div class="theme-preview-sidebar" style="background: #1e293b;"></div>
 							<div class="theme-preview-content" style="background: #f8fafc;">
-								<div class="theme-preview-pill" style="background: #d97706;"></div>
+								<div class="theme-preview-pill" style="background: #475569;"></div>
 							</div>
 						</div>
 					</div>

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = (string) ($_POST['action'] ?? '');
             $accountId = (int) ($_POST['account_id'] ?? 0);
             if ($action === 'sync') {
-                $count = $mailboxService->syncAccount($accountId);
+                $count = $mailboxService->syncAccount($accountId, 100);
                 $feedback = $count > 0 ? "$count yeni mail alındı." : 'Posta kutusu güncel.';
             } elseif ($action === 'send') {
                 $mailboxService->send($accountId, trim((string) ($_POST['to'] ?? '')), trim((string) ($_POST['subject'] ?? '')), trim((string) ($_POST['body'] ?? '')));

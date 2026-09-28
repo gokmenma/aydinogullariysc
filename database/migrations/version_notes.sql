@@ -538,7 +538,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.34')
 
 UPDATE `version_notes`
 SET `title` = 'Modern Süper Admin Gelen ve Giden Mail Modülü',
-    `description` = '- Kurumsal mail hesabı için güvenli IMAP eşitlemesi, sandbox korumalı HTML/gömülü görsel görünümü, varsayılan olarak engellenen harici görselleri güvenli proxy üzerinden isteğe bağlı gösterme, oltalama bağlantısı engelleme ve güvenli ek indirme kullanıma sunuldu.'
+    `description` = '- Kurumsal mail hesabı için güvenli IMAP eşitlemesi, eksik geçmiş postaları kademeli aktarma, sandbox korumalı HTML/gömülü görsel görünümü, harici görselleri güvenli proxy üzerinden isteğe bağlı gösterme ve güvenli ek indirme kullanıma sunuldu.'
 WHERE `version_tag` = 'v2.8.34';
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
@@ -564,6 +564,18 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.39')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.40', 'Mail Kutusunda Sayfa Yenilenmeden Anlık Liste Güncellemesi', 'feature', '- Yeni gelen maillerin sayfa yenilenmesine gerek kalmadan AJAX ile anlık olarak listeye eklenmesi, görsel vurgu efekti ve tek tıkla asenkron eşitleme desteği sağlandı.', 'Antigravity AI', '2026-09-28 00:45:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.40');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.41', 'Ersan Gold Teması Varsayılan Vurgu Rengi Çelik Slate Yapıldı', 'improvement', '- Ersan Gold hazır temasının varsayılan birincil (primary) vurgu ve odak rengi çelik slate (#475569) olarak güncellendi.', 'Antigravity AI', '2026-09-28 08:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.41');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.42', 'Satın Alma Listesi Sayfalama ve Bilgi Balonu Düzeltmesi', 'improvement', '- Satın alma listesinde tablonun sayfa başına kayıt adedi (pageLength) seçicisi eklendi; firma ve kullanıcı bilgi balonlarının (tooltip) hücre içinde kırpılması giderilerek sayfa gövdesinde açılması sağlandı.', 'Antigravity AI', '2026-09-28 08:18:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.42');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.43', 'Rapor Listesinde Satır İçi PDF Önizleme Modalı', 'feature', '- Raporlar sayfasında rapor numarasının önüne PDF ikonu eklendi; tıklandığında sayfadan ayrılmadan açılan modal penceresinde (iframe) rapor formu önizleme, yazdırma ve yeni sekmede açma özellikleri sağlandı.', 'Antigravity AI', '2026-09-28 08:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.43');
 
 
 

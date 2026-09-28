@@ -27,11 +27,11 @@
 }
 
 [data-theme-preset="ersan-gold"] {
-    --theme-primary: #d97706;
-    --theme-primary-hover: #b45309;
-    --theme-primary-shadow: rgba(217, 119, 6, 0.3);
-    --theme-primary-light: #fef3c7;
-    --focus-color: #d97706;
+    --theme-primary: #475569;
+    --theme-primary-hover: #334155;
+    --theme-primary-shadow: rgba(71, 85, 105, 0.3);
+    --theme-primary-light: #f1f5f9;
+    --focus-color: #475569;
     --sidebar-bg: #1e1e2d;
     --topbar-color: #ffffff;
 }

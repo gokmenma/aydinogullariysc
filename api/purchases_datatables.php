@@ -43,7 +43,9 @@ $params_source = !empty($_POST['draw']) ? $_POST : $_GET;
 $draw = intval($params_source['draw'] ?? 0);
 $start = intval($params_source['start'] ?? 0);
 $length = intval($params_source['length'] ?? 25);
-if ($length <= 0) {
+if ($length === -1) {
+    $length = 1000000;
+} else if ($length <= 0) {
     $length = 25;
 }
 $search_value = trim($params_source['search']['value'] ?? '');
@@ -248,19 +250,19 @@ foreach ($results as $purc) {
 
     // İşlem Butonları ve Açılır Menü
     $actions = '<div class="action-btn-group">';
-    $actions .= '<a href="' . $detailLink . '" target="_blank" class="btn btn-sm btn-outline-primary action-btn" title="Detay / Form Görüntüle" data-tooltip="Detay / Form"><i class="fa fa-eye"></i></a>';
-    $actions .= '<a href="' . $editLink . '" class="btn btn-sm btn-outline-info action-btn" title="Düzenle" data-tooltip="Düzenle"><i class="fa fa-pencil"></i></a>';
+    $actions .= '<a href="' . $detailLink . '" target="_blank" class="btn btn-sm btn-outline-primary action-btn" data-toggle="tooltip" data-placement="top" title="Detay / Form Görüntüle"><i class="fa fa-eye"></i></a>';
+    $actions .= '<a href="' . $editLink . '" class="btn btn-sm btn-outline-info action-btn" data-toggle="tooltip" data-placement="top" title="Düzenle"><i class="fa fa-pencil"></i></a>';
 
     if ($canDelete) {
         if ($state == 2) {
-            $actions .= '<button type="button" class="btn btn-sm btn-outline-danger action-btn disabled opacity-50" title="Tamamlanmış Kayıt Silinemez" data-tooltip="Tamamlanmış Kayıt Silinemez" disabled><i class="fa fa-trash"></i></button>';
+            $actions .= '<button type="button" class="btn btn-sm btn-outline-danger action-btn disabled opacity-50" data-toggle="tooltip" data-placement="top" title="Tamamlanmış Kayıt Silinemez" disabled><i class="fa fa-trash"></i></button>';
         } else {
-            $actions .= '<button type="button" class="btn btn-sm btn-outline-danger action-btn" title="Sil" data-tooltip="Sil" onclick="deleteRecord(\'' . $siparisNo . ' nolu kaydı silmek istediğinize emin misiniz?\', ' . $pid . ', \'purchases\', null, \'/satin-almalar\')"><i class="fa fa-trash"></i></button>';
+            $actions .= '<button type="button" class="btn btn-sm btn-outline-danger action-btn" data-toggle="tooltip" data-placement="top" title="Sil" onclick="deleteRecord(\'' . $siparisNo . ' nolu kaydı silmek istediğinize emin misiniz?\', ' . $pid . ', \'purchases\', null, \'/satin-almalar\')"><i class="fa fa-trash"></i></button>';
         }
     }
 
     $actions .= '<div class="dropdown d-inline">
-        <button class="btn btn-sm btn-outline-secondary action-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Diğer İşlemler" data-tooltip="Diğer">
+        <button class="btn btn-sm btn-outline-secondary action-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Diğer İşlemler">
             <i class="fa fa-ellipsis-v"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-right shadow border-0" style="border-radius: 8px; z-index: 1050;">';
@@ -292,15 +294,15 @@ foreach ($results as $purc) {
         ],
         0 => '<span class="row-index-badge">' . $sira++ . '</span>',
         1 => '<span class="font-weight-bold text-dark">' . $siparisNo . '</span>',
-        2 => '<span class="font-weight-600 text-dark" data-tooltip="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(shorted($companyName, 20), ENT_QUOTES, 'UTF-8') . '</span>',
-        3 => '<span class="text-muted text-center" title="' . htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8') . '">' . $createTimeFormatted . '</span>',
+        2 => '<span class="font-weight-600 text-dark" data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(shorted($companyName, 20), ENT_QUOTES, 'UTF-8') . '</span>',
+        3 => '<span class="text-muted text-center" data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8') . '">' . $createTimeFormatted . '</span>',
         4 => '<span class="text-center">' . $deadlineFormatted . '</span>',
         5 => '<span class="text-right font-weight-bold text-dark">' . $altToplam . ' ₺</span>',
         6 => $statusBadge,
         7 => $paymentPeriod ?: '-',
         8 => $invoiceNumber ?: '-',
         9 => $invoiceDateFormatted,
-        10 => '<span class="custom-tooltip" data-tooltip="' . htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8') . '" title="' . htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-user-circle text-muted mr-1"></i>' . htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8') . '</span>',
+        10 => '<span data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-user-circle text-muted mr-1"></i>' . htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8') . '</span>',
         11 => $typeBadge,
         12 => $actions
     ];

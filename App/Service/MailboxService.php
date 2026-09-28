@@ -60,7 +60,7 @@ final class MailboxService
         return $row;
     }
 
-    public function syncAccount(int $accountId): int
+    public function syncAccount(int $accountId, int $maxNewMessages = 100): int
     {
         if (!function_exists('imap_open')) {
             throw new RuntimeException('Sunucuda PHP IMAP eklentisi etkin değil.');
@@ -80,7 +80,11 @@ final class MailboxService
         $status = imap_status($stream, $mailbox, SA_UIDVALIDITY);
         $uidValidity = (int) ($status->uidvalidity ?? 0);
         $uids = imap_search($stream, 'ALL', SE_UID) ?: [];
-        $uids = array_slice($uids, -200);
+        // En yeni mesajları önce işle; mevcut kayıtları atlayarak her çalışmada
+        // geçmişte henüz alınmamış mesajlara doğru ilerle. Böylece ilk 200 sınırı
+        // nedeniyle eski maillerin kalıcı biçimde dışarıda kalması engellenir.
+        rsort($uids, SORT_NUMERIC);
+        $maxNewMessages = max(1, min(500, $maxNewMessages));
         $inserted = 0;
         foreach ($uids as $uid) {
             $exists = $this->db->prepare("SELECT id, has_attachments, attachments_synced_at, body_html FROM mailbox_messages WHERE account_id = ? AND folder = 'inbox' AND uid_validity = ? AND imap_uid = ? LIMIT 1");
@@ -103,10 +107,12 @@ final class MailboxService
             $body = $this->extractBody($stream, (int) $uid);
             $stmt = $this->db->prepare("INSERT IGNORE INTO mailbox_messages (account_id, folder, imap_uid, uid_validity, message_id, from_address, from_name, to_addresses, subject, body_html, body_text, has_attachments, received_at) VALUES (?, 'inbox', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$accountId, (int) $uid, $uidValidity, (string) ($overview->message_id ?? ''), $fromAddress, $this->decode((string) ($from->personal ?? '')), $this->addresses($header->to ?? []), $this->decode((string) ($overview->subject ?? '(Konu yok)')), $body['html'], $body['text'], $body['attachments'] ? 1 : 0, date('Y-m-d H:i:s', (int) ($overview->udate ?? time()))]);
-            if ($stmt->rowCount() > 0) {
+            $wasInserted = $stmt->rowCount() > 0;
+            if ($wasInserted) {
                 $this->saveAttachments((int) $this->db->lastInsertId(), $body['attachments']);
+                $inserted++;
+                if ($inserted >= $maxNewMessages) break;
             }
-            $inserted += $stmt->rowCount();
         }
         imap_close($stream);
         $this->saveSyncState($accountId, null);

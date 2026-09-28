@@ -171,7 +171,7 @@ if ($_POST) {
             <span class="theme-bar-current-color" id="themeActiveColorIndicator" title="Aktif Tema Rengi"></span>
         </div>
         <div class="theme-pills-list">
-            <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #d97706;" title="Ersan Gold (Varsayılan)"></button>
+            <button type="button" class="theme-pill-btn" data-preset="ersan-gold" style="background: #475569;" title="Ersan Gold (Varsayılan)"></button>
             <button type="button" class="theme-pill-btn" data-preset="kode" style="background: #2563eb;" title="Kode (Mavi)"></button>
             <button type="button" class="theme-pill-btn" data-preset="zumrut" style="background: #059669;" title="Zümrüt Yeşili"></button>
             <button type="button" class="theme-pill-btn" data-preset="kraliyet-moru" style="background: #6f42c1;" title="Kraliyet Moru"></button>

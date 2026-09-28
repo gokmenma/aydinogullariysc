@@ -185,10 +185,13 @@ foreach ($reports_list as $row_data) {
     // 0: ID
     $row[] = htmlspecialchars($rid);
 
-    // 1: Rapor No (Tıklanınca Raporu Gösterir)
+    // 1: Rapor No (Önünde PDF Önizleme butonu ve Raporu Göster linki)
     $reportNo = htmlspecialchars($row_data['report_number'] ?? '');
+    $repType = htmlspecialchars($row_data['reportName'] ?? '', ENT_QUOTES, 'UTF-8');
     if (!empty($pageLink) && $reportNo !== '') {
-        $row[] = '<a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="report-num-link font-weight-600 text-primary" data-toggle="tooltip" title="Raporu Göster">' . $reportNo . '</a>';
+        $pdfBtn = '<button type="button" class="btn-report-pdf offer-pdf-btn" data-url="' . htmlspecialchars($viewpagelink) . '" data-id="' . $rid . '" data-report-no="' . $reportNo . '" data-customer="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '" data-report-type="' . $repType . '" data-tooltip="PDF Önizle" title="PDF Önizle"><i class="fa fa-file-pdf-o"></i></button>';
+        $rowLink = '<a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="report-num-link font-weight-600 text-primary" data-toggle="tooltip" title="Raporu Göster">' . $reportNo . '</a>';
+        $row[] = '<div class="d-flex align-items-center justify-content-center text-nowrap" style="gap: 6px;">' . $pdfBtn . $rowLink . '</div>';
     } else {
         $row[] = $reportNo !== '' ? $reportNo : '-';
     }
@@ -263,8 +266,11 @@ foreach ($reports_list as $row_data) {
         <div class="dropdown-menu dropdown-menu-right dropdown-menu-detail" aria-labelledby="dropdownMenu_' . $rid . '">';
 
     if ($canViewOffer) {
-        $actions .= ' <a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="dropdown-item">
-            <i class="fa fa-file-text-o text-primary mr-2"></i> Raporu Göster
+        $actions .= ' <button type="button" class="btn-report-pdf dropdown-item" data-url="' . htmlspecialchars($viewpagelink) . '" data-id="' . $rid . '" data-report-no="' . $reportNo . '" data-customer="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '" data-report-type="' . $repType . '">
+            <i class="fa fa-file-pdf-o text-danger mr-2"></i> PDF Önizleme
+        </button>
+        <a href="' . htmlspecialchars($viewpagelink) . '" target="_blank" class="dropdown-item">
+            <i class="fa fa-file-text-o text-primary mr-2"></i> Raporu Göster (Yeni Sekme)
         </a>
         <a href="' . htmlspecialchars($viewpagelink . '&sign=no') . '" target="_blank" class="dropdown-item">
             <i class="fa fa-file-o text-info mr-2"></i> İmzasız Raporu Göster

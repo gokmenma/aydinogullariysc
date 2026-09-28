@@ -55,28 +55,28 @@
 /* ==========================================================================
    2. THEME COLOR PRESETS
    ========================================================================== */
-/* Default / 2. ERSAN GOLD (Amber / Altın) */
+/* Default / 2. ERSAN GOLD (Çelik Slate) */
 :root,
 [data-theme-preset="ersan-gold"] {
-    --primary-color: #d97706;
-    --primary-hover: #b45309;
-    --secondary-color: #78716c;
-    --background-color: #fafaf9;
+    --primary-color: #475569;
+    --primary-hover: #334155;
+    --secondary-color: #64748b;
+    --background-color: #f8fafc;
     --form-bg-color: #ffffff;
     --card-bg: rgba(255, 255, 255, 0.94);
-    --text-color: #1c1917;
-    --light-text-color: #78716c;
-    --border-color: #e7e5e4;
+    --text-color: #0f172a;
+    --light-text-color: #64748b;
+    --border-color: #e2e8f0;
     --error-color: #ef4444;
     --error-bg: #fee2e2;
-    --login-btn-gradient: linear-gradient(135deg, #78350f 0%, #b45309 50%, #d97706 100%);
-    --login-btn-shadow: 0 8px 24px rgba(217, 119, 6, 0.32);
-    --login-title-gradient: linear-gradient(90deg, #78350f, #d97706);
-    --login-card-border: linear-gradient(135deg, rgba(217, 119, 6, 0.5), rgba(245, 158, 11, 0.25));
-    --login-aurora-1: rgba(217, 119, 6, 0.14);
-    --login-aurora-2: rgba(245, 158, 11, 0.09);
-    --login-focus-ring: rgba(217, 119, 6, 0.25);
-    --card-shadow: 0 24px 60px rgba(120, 53, 15, 0.08);
+    --login-btn-gradient: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+    --login-btn-shadow: 0 8px 24px rgba(71, 85, 105, 0.32);
+    --login-title-gradient: linear-gradient(90deg, #1e293b, #475569);
+    --login-card-border: linear-gradient(135deg, rgba(71, 85, 105, 0.5), rgba(100, 116, 139, 0.25));
+    --login-aurora-1: rgba(71, 85, 105, 0.14);
+    --login-aurora-2: rgba(100, 116, 139, 0.09);
+    --login-focus-ring: rgba(71, 85, 105, 0.25);
+    --card-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
 }
 
 /* 1. KODE (Klasik Mavi) */
@@ -236,15 +236,15 @@ body.dark-mode[data-theme-preset="kraliyet-moru"] {
 
 html.dark-mode[data-theme-preset="ersan-gold"],
 body.dark-mode[data-theme-preset="ersan-gold"] {
-    --primary-color: #f59e0b;
-    --primary-hover: #d97706;
-    --login-btn-gradient: linear-gradient(135deg, #78350f 0%, #b45309 50%, #f59e0b 100%);
-    --login-btn-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
-    --login-title-gradient: linear-gradient(90deg, #fbbf24, #f59e0b);
-    --login-card-border: linear-gradient(135deg, rgba(245, 158, 11, 0.5), rgba(251, 191, 36, 0.25));
-    --login-aurora-1: rgba(245, 158, 11, 0.18);
-    --login-aurora-2: rgba(180, 83, 9, 0.12);
-    --login-focus-ring: rgba(245, 158, 11, 0.3);
+    --primary-color: #64748b;
+    --primary-hover: #475569;
+    --login-btn-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    --login-btn-shadow: 0 8px 24px rgba(100, 116, 139, 0.35);
+    --login-title-gradient: linear-gradient(90deg, #94a3b8, #64748b);
+    --login-card-border: linear-gradient(135deg, rgba(100, 116, 139, 0.5), rgba(148, 163, 184, 0.25));
+    --login-aurora-1: rgba(100, 116, 139, 0.18);
+    --login-aurora-2: rgba(71, 85, 105, 0.12);
+    --login-focus-ring: rgba(100, 116, 139, 0.3);
 }
 
 html.dark-mode[data-theme-preset="zumrut"],
