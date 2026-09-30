@@ -578,7 +578,7 @@ SELECT 'v2.8.43', 'Rapor Listesinde Satır İçi PDF Önizleme Modalı', 'featur
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.43');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.8.44', 'Sol Menü Constellation Parçacık Ağı Animasyonu', 'feature', '- Sol menüye (sidebar) donanımı yormayan, HiDPI ve pil tasarrufu uyumlu ultra hafif 60 FPS Constellation parçacık ağı arka plan animasyonu eklendi.', 'Antigravity AI', '2026-09-30 15:55:00'
+SELECT 'v2.8.44', 'Sol Menü Constellation Parçacık Ağı Animasyonu', 'feature', '- Sol menüye (sidebar) donanımı yormayan 60 FPS Constellation parçacık ağı animasyonu ile yarı saydam (glassmorphism) menü hover ve aktif seçim efektleri eklendi.', 'Antigravity AI', '2026-09-30 16:15:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.44');
 
 

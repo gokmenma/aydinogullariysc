@@ -13089,6 +13089,84 @@ body.dark-mode .left-side-bar .menu-block {
     z-index: 3;
 }
 
+/* ==========================================================================
+   Yarı Şeffaf (Glassmorphic) Menü Hover & Aktif Vurguları
+   (Arka plandaki Constellation parçacık ağının menü üzerindeyken de görünmesi için)
+   ========================================================================== */
+/* Ana Menü Hover */
+.left-side-bar .sidebar-menu .dropdown-toggle:hover,
+.left-side-bar .sidebar-menu #accordion-menu > li > a:hover,
+[data-sidebar-theme] .left-side-bar .sidebar-menu .dropdown-toggle:hover,
+.dark-mode .left-side-bar .sidebar-menu .dropdown-toggle:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    color: #ffffff !important;
+}
+
+/* Ana Menü Açık (Show) ve Aktif (Active) Durum */
+.left-side-bar .sidebar-menu .dropdown.show > .dropdown-toggle,
+.left-side-bar .sidebar-menu .dropdown.active > .dropdown-toggle,
+.left-side-bar .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+.left-side-bar .sidebar-menu #accordion-menu > li.active > .dropdown-toggle,
+.left-side-bar .sidebar-menu .dropdown-toggle.active,
+[data-sidebar-theme] .left-side-bar .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-sidebar-theme] .left-side-bar .sidebar-menu #accordion-menu > li.show > .dropdown-toggle,
+[data-sidebar-theme] .left-side-bar .sidebar-menu .dropdown-toggle.active,
+.dark-mode .left-side-bar .sidebar-menu .dropdown.show > .dropdown-toggle,
+.dark-mode .left-side-bar .sidebar-menu .dropdown-toggle.active {
+    background: color-mix(in srgb, var(--topbar-color, #2563eb) 28%, rgba(255, 255, 255, 0.08)) !important;
+    background-color: color-mix(in srgb, var(--topbar-color, #2563eb) 28%, rgba(255, 255, 255, 0.08)) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Alt Menü (Submenu) Hover */
+.left-side-bar .sidebar-menu .submenu li a:hover,
+[data-sidebar-theme] .left-side-bar .sidebar-menu .submenu li a:hover,
+.dark-mode .left-side-bar .sidebar-menu .submenu li a:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    color: #ffffff !important;
+}
+
+/* Alt Menü Aktif (Active) Eleman */
+.left-side-bar .sidebar-menu .submenu li a.active,
+[data-sidebar-theme] .left-side-bar .sidebar-menu .submenu li a.active,
+.dark-mode .left-side-bar .sidebar-menu .submenu li a.active {
+    background: color-mix(in srgb, var(--topbar-color, #2563eb) 35%, rgba(255, 255, 255, 0.08)) !important;
+    background-color: color-mix(in srgb, var(--topbar-color, #2563eb) 35%, rgba(255, 255, 255, 0.08)) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Sade Beyaz Teması İçin Yarı Saydam Uyum */
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-menu .dropdown-toggle:hover,
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-menu .submenu li a:hover {
+    background: rgba(0, 0, 0, 0.06) !important;
+    background-color: rgba(0, 0, 0, 0.06) !important;
+    color: #0f172a !important;
+}
+
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-menu .dropdown.show > .dropdown-toggle,
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-menu .dropdown-toggle.active,
+[data-sidebar-theme="sade-beyaz"] .left-side-bar .sidebar-menu .submenu li a.active {
+    background: color-mix(in srgb, var(--topbar-color, #2563eb) 18%, rgba(0, 0, 0, 0.04)) !important;
+    background-color: color-mix(in srgb, var(--topbar-color, #2563eb) 18%, rgba(0, 0, 0, 0.04)) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #0f172a !important;
+}
+
+
 
 
 
