@@ -577,6 +577,11 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.43', 'Rapor Listesinde Satır İçi PDF Önizleme Modalı', 'feature', '- Raporlar sayfasında rapor numarasının önüne PDF ikonu eklendi; tıklandığında sayfadan ayrılmadan açılan modal penceresinde (iframe) rapor formu önizleme, yazdırma ve yeni sekmede açma özellikleri sağlandı.', 'Antigravity AI', '2026-09-28 08:25:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.43');
 
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.44', 'Sol Menü Constellation Parçacık Ağı Animasyonu', 'feature', '- Sol menüye (sidebar) donanımı yormayan, HiDPI ve pil tasarrufu uyumlu ultra hafif 60 FPS Constellation parçacık ağı arka plan animasyonu eklendi.', 'Antigravity AI', '2026-09-30 15:55:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.44');
+
+
 
 
 

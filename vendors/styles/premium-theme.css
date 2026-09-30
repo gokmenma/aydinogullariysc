@@ -13033,4 +13033,63 @@ textarea.form-control.is-invalid,
     }
 }
 
+/* ==========================================================================
+   Sidebar Constellation / Parçacık Ağı (Plexus) Arka Plan Animasyonu
+   ========================================================================== */
+.sidebar-particles-canvas {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    opacity: 0.95;
+    transition: opacity 0.3s ease;
+}
+
+.left-side-bar {
+    position: fixed;
+}
+
+/* Tüm menü kapsayıcılarını ve listeleri şeffaf yap */
+.left-side-bar .brand-logo,
+.left-side-bar .sidebar-search-wrap,
+.left-side-bar .menu-block,
+.left-side-bar .menu-block.customscroll,
+.left-side-bar .mCustomScrollBox,
+.left-side-bar .mCSB_container,
+.left-side-bar .sidebar-menu,
+.left-side-bar .sidebar-menu ul,
+.left-side-bar .sidebar-menu ul#accordion-menu,
+.left-side-bar .sidebar-menu .submenu {
+    position: relative;
+    z-index: 2;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Temaların menu-block ezmelerini şeffaf yap */
+[data-sidebar-theme] .left-side-bar .menu-block,
+[data-theme-preset] .left-side-bar .menu-block,
+.dark-mode .left-side-bar .menu-block,
+html.dark-mode .left-side-bar .menu-block,
+body.dark-mode .left-side-bar .menu-block {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.left-side-bar .sidebar-menu li {
+    position: relative;
+    z-index: 2;
+}
+
+.left-side-bar .sidebar-search-input {
+    position: relative;
+    z-index: 3;
+}
+
+
+
+
 

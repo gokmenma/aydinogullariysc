@@ -683,6 +683,7 @@ $isMenuLinkActive = function($link, $itemKey = null, $menuKey = null) use ($curr
 };
 ?>
 <div class="left-side-bar">
+    <canvas id="sidebar-particles-canvas" class="sidebar-particles-canvas" style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; pointer-events: none !important; z-index: 0 !important;"></canvas>
     <div class="brand-logo">
         <a href="anasayfa">
             <img src="<?php echo set("logo"); ?>"

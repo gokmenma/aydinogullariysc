@@ -37,3 +37,4 @@ if ($page == 'products/manage' || $page == 'products/list' || $page == 'products
 <script src="include/js/product-picker.js?v=<?php echo file_exists('include/js/product-picker.js') ? filemtime('include/js/product-picker.js') : time(); ?>"></script>
 <script src="include/js/menu-order.js?v=<?php echo file_exists('include/js/menu-order.js') ? filemtime('include/js/menu-order.js') : time(); ?>"></script>
 <script src="include/js/maintenance-notice.js?v=<?php echo file_exists('include/js/maintenance-notice.js') ? filemtime('include/js/maintenance-notice.js') : time(); ?>"></script>
+<script src="include/js/sidebar-particles.js?v=<?php echo file_exists('include/js/sidebar-particles.js') ? filemtime('include/js/sidebar-particles.js') : time(); ?>"></script>
