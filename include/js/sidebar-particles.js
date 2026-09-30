@@ -1,6 +1,6 @@
 /**
  * Sidebar Constellation / Parçacık Ağı (Plexus) Arka Plan Animasyonu
- * Ultra-lightweight 60 FPS Canvas, HiDPI / Retina uyumlu, pil dostu
+ * Ultra-lightweight 60 FPS Canvas, HiDPI / Retina uyumlu, pil dostu ve sakin ambient mod
  */
 (function(window, document) {
     'use strict';
@@ -12,7 +12,7 @@
     var particles = [];
     var width = 0, height = 0, dpr = 1;
     var isRunning = false;
-    var mouse = { x: -1000, y: -1000, active: false, radius: 105 };
+    var mouse = { x: -1000, y: -1000, active: false, radius: 90 };
 
     function getColors() {
         var html = document.documentElement;
@@ -63,20 +63,20 @@
         particles = [];
         if (!width || !height) return;
         var isCollapsed = width < 120;
-        var count = isCollapsed ? 14 : Math.min(Math.max(Math.floor((width * height) / 12000), 24), 45);
+        var count = isCollapsed ? 10 : Math.min(Math.max(Math.floor((width * height) / 16000), 18), 32);
 
         for (var i = 0; i < count; i++) {
             particles.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
-                vx: (Math.random() - 0.5) * 0.45,
-                vy: (Math.random() - 0.5) * 0.45,
-                radius: Math.random() * 1.6 + 1.2,
-                baseAlpha: Math.random() * 0.35 + 0.45,
-                alpha: 0.5,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                radius: Math.random() * 1.2 + 0.9,
+                baseAlpha: Math.random() * 0.2 + 0.18,
+                alpha: 0.25,
                 pulseAngle: Math.random() * Math.PI * 2,
-                pulseSpeed: Math.random() * 0.025 + 0.01,
-                isSpecial: Math.random() > 0.7
+                pulseSpeed: Math.random() * 0.02 + 0.008,
+                isSpecial: Math.random() > 0.75
             });
         }
     }
@@ -86,7 +86,7 @@
         ctx.clearRect(0, 0, width, height);
 
         var colors = getColors();
-        var maxDistance = width < 120 ? 65 : 95;
+        var maxDistance = width < 120 ? 60 : 85;
         var maxDistSq = maxDistance * maxDistance;
 
         // Bağlantı Çizgileri
@@ -99,10 +99,10 @@
 
                 if (distSq < maxDistSq) {
                     var dist = Math.sqrt(distSq);
-                    var lineAlpha = (1 - dist / maxDistance) * 0.35;
+                    var lineAlpha = (1 - dist / maxDistance) * 0.15;
                     ctx.beginPath();
                     ctx.strokeStyle = colors.line + lineAlpha + ')';
-                    ctx.lineWidth = 0.9;
+                    ctx.lineWidth = 0.65;
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
                     ctx.stroke();
@@ -115,15 +115,15 @@
                 var mDistSq = mdx * mdx + mdy * mdy;
                 if (mDistSq < mouse.radius * mouse.radius) {
                     var mDist = Math.sqrt(mDistSq);
-                    var mAlpha = (1 - mDist / mouse.radius) * 0.55;
+                    var mAlpha = (1 - mDist / mouse.radius) * 0.25;
                     ctx.beginPath();
                     ctx.strokeStyle = colors.accent + mAlpha + ')';
-                    ctx.lineWidth = 1.1;
+                    ctx.lineWidth = 0.8;
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(mouse.x, mouse.y);
                     ctx.stroke();
-                    p1.x += (mdx / mDist) * 0.35;
-                    p1.y += (mdy / mDist) * 0.35;
+                    p1.x += (mdx / mDist) * 0.25;
+                    p1.y += (mdy / mDist) * 0.25;
                 }
             }
         }
@@ -132,14 +132,14 @@
         for (var k = 0; k < particles.length; k++) {
             var p = particles[k];
             p.pulseAngle += p.pulseSpeed;
-            p.alpha = Math.max(0.2, p.baseAlpha + Math.sin(p.pulseAngle) * 0.25);
+            p.alpha = Math.max(0.1, p.baseAlpha + Math.sin(p.pulseAngle) * 0.12);
 
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             if (p.isSpecial) {
-                ctx.fillStyle = colors.accent + Math.min(1, p.alpha * 1.3) + ')';
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = colors.accent + '0.7)';
+                ctx.fillStyle = colors.accent + Math.min(0.8, p.alpha * 1.2) + ')';
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = colors.accent + '0.3)';
             } else {
                 ctx.fillStyle = colors.node + p.alpha + ')';
                 ctx.shadowBlur = 0;
