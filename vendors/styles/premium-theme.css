@@ -13120,7 +13120,7 @@ body.dark-mode .left-side-bar .menu-block {
     background-color: rgba(56, 189, 248, 0.08) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid rgba(56, 189, 248, 0.22) !important;
+    border: 1px solid rgba(56, 189, 248, 0.10) !important;
     color: #ffffff !important;
     font-weight: 600 !important;
 }
@@ -13144,7 +13144,7 @@ body.dark-mode .left-side-bar .menu-block {
     background-color: rgba(56, 189, 248, 0.12) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    border: 1px solid rgba(56, 189, 248, 0.10) !important;
     color: #ffffff !important;
     font-weight: 600 !important;
 }
@@ -13166,7 +13166,7 @@ body.dark-mode .left-side-bar .menu-block {
     background-color: rgba(2, 132, 199, 0.10) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid rgba(2, 132, 199, 0.22) !important;
+    border: 1px solid rgba(2, 132, 199, 0.10) !important;
     color: #0f172a !important;
 }
 
