@@ -24,7 +24,7 @@ class Date
             '12' => 'Aralık'
         ];
 
-        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white">';
+        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white" data-size="8">';
 
         foreach ($months as $key => $value) {
             $selected = $key == $id ? 'selected' : null;
@@ -37,7 +37,7 @@ class Date
 
     public static function getYearSelect($name = 'year', $id = null)
     {
-        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white">';
+        $select = '<select name="' . $name . '" id="' . $name . '" class="selectpicker form-control" data-style="border bg-white" data-size="8">';
         $select .= '<option value="">Hepsi</option>';
         for ($i = 2020; $i <= date('Y') + 4; $i++) {
             $selected = $i == $id ? 'selected' : null;

@@ -214,6 +214,20 @@ try {
         border: 1px solid #e2e8f0;
         overflow: hidden;
     }
+    .form-card.form-card-filter {
+        overflow: visible !important;
+        position: relative;
+        z-index: 20;
+    }
+    .form-card.form-card-filter .form-card-body {
+        overflow: visible !important;
+    }
+    .form-card.form-card-filter .bootstrap-select {
+        width: 100% !important;
+    }
+    .form-card.form-card-filter .bootstrap-select .dropdown-menu {
+        z-index: 1050 !important;
+    }
     .form-card-header {
         display: flex;
         align-items: center;
@@ -491,7 +505,7 @@ try {
         </div>
 
         <!-- Filtre Kartı -->
-        <div class="form-card mb-3">
+        <div class="form-card form-card-filter mb-3">
             <div class="form-card-header">
                 <div class="header-left-inner">
                     <div class="card-icon">
