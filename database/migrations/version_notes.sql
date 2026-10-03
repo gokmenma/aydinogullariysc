@@ -585,9 +585,7 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.45', 'Kontrol ve Dolum Listelerinde Ay Seçici Açılır Menü Düzeltmesi', 'bugfix', '- Kontrol ve dolum listesi sayfalarındaki ay ve yıl açılır seçim listelerinin (dropdown) filtre kartı sınırları içinde kırpılması sorunu giderildi.', 'Antigravity AI', '2026-10-01 16:28:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.45');
 
-
-
-
-
-
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.46', 'Teklif Excel Dışa Aktarma Düzeltmesi', 'bugfix', '- Teklif düzenleme ekranındaki Excel çıktısı alma işlemi PHP 8 uyumluluğu, yetki kontrolleri ve güvenli dosya akışıyla düzeltildi.', 'Antigravity AI', '2026-10-03 13:18:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.46');
 
