@@ -38,7 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $serviceId = intval($_POST['service_id'] ?? 0);
-        $recipientId = intval($_POST['recipient_id'] ?? 0);
+        $rawRecipientId = $_POST['recipient_id'] ?? null;
+        $recipientId = ($rawRecipientId !== null && $rawRecipientId !== '' && intval($rawRecipientId) > 0)
+            ? intval($rawRecipientId)
+            : null;
         $note = trim($_POST['note'] ?? '');
 
         if ($serviceId <= 0) {
@@ -50,16 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        if ($recipientId <= 0) {
-            http_response_code(422);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Lütfen teslim alacak kullanıcıyı seçiniz.'
-            ]);
-            exit;
-        }
-
-        $serviceCheck = $ac->prepare("SELECT id, service_number FROM projects WHERE id = ? LIMIT 1");
+        $serviceCheck = $ac->prepare("SELECT id, service_number, pstatu FROM projects WHERE id = ? LIMIT 1");
         $serviceCheck->execute([$serviceId]);
         $serviceRow = $serviceCheck->fetch(PDO::FETCH_ASSOC);
         if (!$serviceRow) {
@@ -70,26 +64,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             exit;
         }
+        $oldStatusId = (int)($serviceRow['pstatu'] ?? 0);
 
-        $recipientCheck = $ac->prepare("SELECT id, username, Unvan FROM users WHERE id = ? AND statu = 1 LIMIT 1");
-        $recipientCheck->execute([$recipientId]);
-        $recipientUser = $recipientCheck->fetch(PDO::FETCH_ASSOC);
-        if (!$recipientUser) {
-            http_response_code(422);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Seçilen teslim alacak kullanıcı aktif değil veya bulunamadı.'
-            ]);
-            exit;
+        $recipientName = 'Muhasebe Departmanı';
+        if ($recipientId !== null) {
+            $recipientCheck = $ac->prepare("SELECT id, username, Unvan FROM users WHERE id = ? AND statu = 1 LIMIT 1");
+            $recipientCheck->execute([$recipientId]);
+            $recipientUser = $recipientCheck->fetch(PDO::FETCH_ASSOC);
+            if (!$recipientUser) {
+                http_response_code(422);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Seçilen teslim alacak kullanıcı aktif değil veya bulunamadı.'
+                ]);
+                exit;
+            }
+            $recipientName = $recipientUser['username'] ?? 'Kullanıcı';
         }
 
         $actionBy = intval(sesset('id'));
-        $recipientName = $recipientUser['username'] ?? '';
+
+        // Servis durumunu 'MUHASEBEYE TESLİM EDİLDİ.' (pstatu = 113) yap
+        $accountingStatusId = 113;
+        $statusStmt = $ac->query("SELECT id FROM units WHERE statu = 4 AND (title LIKE '%MUHASEBEYE TESLİM%' OR id = 113) ORDER BY (id = 113) DESC LIMIT 1");
+        if ($statusStmt) {
+            $foundId = (int)$statusStmt->fetchColumn();
+            if ($foundId > 0) {
+                $accountingStatusId = $foundId;
+            }
+        }
+
+        $updateProject = $ac->prepare("UPDATE projects SET pstatu = ? WHERE id = ?");
+        $updateProject->execute([$accountingStatusId, $serviceId]);
 
         $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, recipient_id, note, action_at) VALUES (?, 'received', ?, ?, ?, NOW())");
         $insertLog->execute([$serviceId, $actionBy, $recipientId, $note !== '' ? $note : null]);
 
-        $logMsg = "Servis evrakları muhasebeye teslim edildi (Teslim Alan: " . $recipientName . ")";
+        $logMsg = "Servis evrakları muhasebeye teslim edildi (Teslim Alan: " . $recipientName . ") - Durum 'MUHASEBEYE TESLİM EDİLDİ.' yapıldı";
         if ($note !== '') {
             $logMsg .= " - Not: " . $note;
         }
@@ -102,6 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $serviceId,
             [
                 'accounting_status' => 'received',
+                'old_pstatu' => $oldStatusId,
+                'new_pstatu' => $accountingStatusId,
                 'recipient_id' => $recipientId,
                 'recipient_name' => $recipientName,
                 'note' => $note
@@ -110,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Servis evrakları başarıyla muhasebeye teslim edildi.',
+            'message' => 'Servis evrakları muhasebeye teslim edildi ve servis durumu "MUHASEBEYE TESLİM EDİLDİ." olarak güncellendi.',
             'status' => 'received',
             'action_by' => getUsername($actionBy),
             'recipient_name' => $recipientName
@@ -138,9 +151,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $serviceCheck = $ac->prepare("SELECT id FROM projects WHERE id = ? LIMIT 1");
+        $serviceCheck = $ac->prepare("SELECT id, pstatu FROM projects WHERE id = ? LIMIT 1");
         $serviceCheck->execute([$serviceId]);
-        if (!$serviceCheck->fetch(PDO::FETCH_ASSOC)) {
+        $serviceRow = $serviceCheck->fetch(PDO::FETCH_ASSOC);
+        if (!$serviceRow) {
             http_response_code(404);
             echo json_encode([
                 'success' => false,
@@ -148,6 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             exit;
         }
+        $oldStatusId = (int)($serviceRow['pstatu'] ?? 0);
 
         $lastActionQuery = $ac->prepare("SELECT action FROM service_accounting_receipt_logs WHERE service_id = ? ORDER BY id DESC LIMIT 1");
         $lastActionQuery->execute([$serviceId]);
@@ -156,17 +171,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $isCurrentlyReceived = ($lastAction['action'] ?? '') === 'received';
         $newAction = $isCurrentlyReceived ? 'removed' : 'received';
         $actionBy = intval(sesset('id'));
+        $rawRecipientId = $_POST['recipient_id'] ?? null;
         $recipientId = ($newAction === 'received')
-            ? (!empty($_POST['recipient_id']) ? intval($_POST['recipient_id']) : $actionBy)
+            ? (($rawRecipientId !== null && $rawRecipientId !== '' && intval($rawRecipientId) > 0) ? intval($rawRecipientId) : $actionBy)
             : null;
         $note = trim($_POST['note'] ?? '');
+
+        // Eğer yeni işlem received ise servis durumunu 'MUHASEBEYE TESLİM EDİLDİ.' (113) yap
+        if ($newAction === 'received') {
+            $accountingStatusId = 113;
+            $statusStmt = $ac->query("SELECT id FROM units WHERE statu = 4 AND (title LIKE '%MUHASEBEYE TESLİM%' OR id = 113) ORDER BY (id = 113) DESC LIMIT 1");
+            if ($statusStmt) {
+                $foundId = (int)$statusStmt->fetchColumn();
+                if ($foundId > 0) {
+                    $accountingStatusId = $foundId;
+                }
+            }
+            $updateProject = $ac->prepare("UPDATE projects SET pstatu = ? WHERE id = ?");
+            $updateProject->execute([$accountingStatusId, $serviceId]);
+        }
 
         $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, recipient_id, note, action_at) VALUES (?, ?, ?, ?, ?, NOW())");
         $insertLog->execute([$serviceId, $newAction, $actionBy, $recipientId, $note !== '' ? $note : null]);
 
-        $recipientName = $recipientId ? getUsername($recipientId) : '';
+        $recipientName = $recipientId ? getUsername($recipientId) : 'Muhasebe Departmanı';
         $logSummary = $newAction === 'received'
-            ? ("Servis muhasebe tarafından teslim alındı" . ($recipientName ? " (Teslim Alan: {$recipientName})" : ""))
+            ? ("Servis muhasebe tarafından teslim alındı" . ($recipientName ? " (Teslim Alan: {$recipientName})" : "") . " - Durum 'MUHASEBEYE TESLİM EDİLDİ.' yapıldı")
             : "Servisin muhasebe teslim kaydı kaldırıldı / iade alındı";
 
         audit_log(
@@ -177,6 +207,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $serviceId,
             [
                 'accounting_status' => $newAction,
+                'old_pstatu' => $oldStatusId,
+                'new_pstatu' => ($newAction === 'received' ? 113 : $oldStatusId),
                 'recipient_id' => $recipientId,
                 'recipient_name' => $recipientName
             ]
@@ -184,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo json_encode([
             'success' => true,
-            'message' => $newAction === 'received' ? 'Muhasebe teslim alındı olarak işaretlendi.' : 'Muhasebe teslim kaydı kaldırıldı.',
+            'message' => $newAction === 'received' ? 'Muhasebe teslim alındı olarak işaretlendi ve durum güncellendi.' : 'Muhasebe teslim kaydı kaldırıldı.',
             'status' => $newAction,
             'action_by' => getUsername($actionBy),
             'recipient_name' => $recipientName
@@ -649,10 +681,12 @@ foreach ($projects as $project) {
     $isAccountingReceived = ($project['accounting_action'] ?? '') === 'received';
     $recipientName = htmlspecialchars($project['accounting_recipient_username'] ?? '', ENT_QUOTES, 'UTF-8');
     if ($isAccountingReceived) {
-        $badgeTitle = $recipientName !== '' ? ('Teslim Alan: ' . $recipientName) : 'Muhasebeye Teslim Edildi';
+        $badgeTitle = $recipientName !== '' ? ('Teslim Alan: ' . $recipientName) : 'Teslim Alan: Muhasebe Departmanı';
         $accountingInfo = "<span class='crm-badge-soft soft-emerald' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;' title='{$badgeTitle}'><i class='fa fa-check mr-1'></i>Teslim Edildi</span>";
         if ($recipientName !== '') {
             $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Alan: {$recipientName}'><i class='fa fa-user-circle mr-1 text-success'></i>{$recipientName}</div>";
+        } else {
+            $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Alan: Muhasebe Departmanı'><i class='fa fa-building-o mr-1 text-info'></i>Muhasebe Dep.</div>";
         }
     } else {
         $accountingInfo = "<span class='crm-badge-soft soft-amber' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;'><i class='fa fa-clock-o mr-1'></i>Teslim Bekliyor</span>";

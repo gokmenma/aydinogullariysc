@@ -193,7 +193,8 @@ $i = 1;
 foreach ($rows as $r) {
     $accStatus = 'Teslim Bekliyor';
     if (($r['accounting_action'] ?? '') === 'received') {
-        $accStatus = 'Teslim Edildi' . (!empty($r['accounting_recipient_username']) ? (' (' . $r['accounting_recipient_username'] . ')') : '');
+        $recName = !empty($r['accounting_recipient_username']) ? $r['accounting_recipient_username'] : 'Muhasebe Departmanı';
+        $accStatus = 'Teslim Edildi (' . $recName . ')';
     }
 
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(1) . $rowIndex, $i);

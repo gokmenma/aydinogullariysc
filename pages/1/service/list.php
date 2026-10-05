@@ -1408,10 +1408,10 @@ if ($cid || $sid) {
 
                     <div class="form-group mb-3">
                         <label class="font-13 font-weight-bold text-dark mb-1">
-                            Teslim Alacak Kullanıcı / Muhasebe Sorumlusu <span class="text-danger">*</span>
+                            Teslim Alacak Kullanıcı / Muhasebe Sorumlusu
                         </label>
-                        <select name="recipient_id" id="handoverRecipientId" class="form-control select2-handover-user" required style="width: 100%;">
-                            <option value="">-- Lütfen Kullanıcı Seçiniz --</option>
+                        <select name="recipient_id" id="handoverRecipientId" class="form-control select2-handover-user" style="width: 100%;">
+                            <option value="0" data-person-id="0" data-fullname="Muhasebe Departmanı (Genel)" data-unvan="Belirli bir personel seçilmedi / Departman geneli" data-is-accounting="1">🏢 Muhasebe Departmanı (Genel)</option>
                             <?php foreach ($activeUsers as $u): ?>
                                 <?php 
                                     $isAcct = (stripos($u['Unvan'] ?? '', 'MUHASEBE') !== false || stripos($u['Unvan'] ?? '', 'FİNANS') !== false);
@@ -1427,6 +1427,7 @@ if ($cid || $sid) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <small class="text-muted font-11 d-block mt-1"><i class="fa fa-info-circle mr-1"></i>Belirli bir personel seçilmezse evraklar doğrudan <strong>Muhasebe Departmanı</strong>'na teslim edilmiş sayılır.</small>
                     </div>
 
                     <div class="form-group mb-0">
@@ -1794,13 +1795,27 @@ if ($cid || $sid) {
 
         // Select2 Formatlayıcıları - Teslim Alacak Kullanıcı Seçimi
         function formatHandoverUserOption(item) {
-            if (!item.id) {
+            if (!item.id && item.id !== 0 && item.id !== '0') {
                 return item.text;
             }
             var $el = $(item.element);
+            var isGeneral = (item.id === '0' || item.id === 0 || $el.data('person-id') === 0 || $el.data('person-id') === '0');
             var fullname = $el.data('fullname') || item.text;
             var unvan = $el.data('unvan') || '';
             var isAcct = $el.data('is-accounting') == '1' || $el.data('is-accounting') == 1;
+
+            if (isGeneral) {
+                var $container = $(
+                    '<div style="padding: 4px 2px; line-height: 1.2;">' +
+                        '<div class="d-flex align-items-center justify-content-between">' +
+                            '<div style="font-weight: 700; color: #0284c7; font-size: 13px;"><i class="fa fa-building-o mr-1"></i>' + $('<div>').text(fullname).html() + '</div>' +
+                            '<span class="crm-badge-soft soft-blue ml-auto" style="padding: 2px 7px; font-size: 10.5px; font-weight: 600;">Departman Geneli</span>' +
+                        '</div>' +
+                        '<div style="font-size: 11.5px; color: #64748b; line-height: 1.2; margin-top: 1px;">' + $('<div>').text(unvan || 'Belirli bir personel seçilmedi').html() + '</div>' +
+                    '</div>'
+                );
+                return $container;
+            }
 
             var badge = isAcct ? '<span class="crm-badge-soft soft-emerald ml-auto" style="padding: 2px 7px; font-size: 10.5px; font-weight: 600; white-space: nowrap;"><i class="fa fa-check-circle mr-1"></i>Muhasebe</span>' : '';
             var unvanHtml = unvan ? '<div style="font-size: 11.5px; color: #64748b; line-height: 1.2; margin-top: 1px;">' + $('<div>').text(unvan).html() + '</div>' : '';
@@ -1818,8 +1833,12 @@ if ($cid || $sid) {
         }
 
         function formatHandoverUserSelection(item) {
-            if (!item.id) return item.text;
+            if (!item.id && item.id !== 0 && item.id !== '0') return item.text;
             var $el = $(item.element);
+            var isGeneral = (item.id === '0' || item.id === 0 || $el.data('person-id') === 0 || $el.data('person-id') === '0');
+            if (isGeneral) {
+                return '🏢 Muhasebe Departmanı (Genel)';
+            }
             var fullname = $el.data('fullname') || item.text;
             var unvan = $el.data('unvan') || '';
             return fullname + (unvan ? ' (' + unvan + ')' : '');
@@ -1828,7 +1847,7 @@ if ($cid || $sid) {
         if ($.fn.select2) {
             $('#handoverRecipientId').select2({
                 dropdownParent: $('#accountingHandoverModal'),
-                placeholder: '-- Lütfen Kullanıcı Seçiniz --',
+                placeholder: 'Muhasebe Departmanı (Genel) veya Kullanıcı Seçiniz',
                 allowClear: false,
                 width: '100%',
                 templateResult: formatHandoverUserOption,
@@ -1851,13 +1870,8 @@ if ($cid || $sid) {
             $('#handoverCompanyName').text(companyName);
             $('#handoverNote').val('');
 
-            // Varsa muhasebe personelini otomatik seç, yoksa ilk seçeneği seç
-            var $acctOption = $('#handoverRecipientId option[data-is-accounting="1"]').first();
-            if ($acctOption.length) {
-                $('#handoverRecipientId').val($acctOption.val()).trigger('change');
-            } else {
-                $('#handoverRecipientId').val('').trigger('change');
-            }
+            // Modal açılırken varsayılan olarak "Muhasebe Departmanı (Genel)" seçilsin
+            $('#handoverRecipientId').val('0').trigger('change');
 
             $('#accountingHandoverModal').modal('show');
         });
@@ -1867,13 +1881,6 @@ if ($cid || $sid) {
             e.preventDefault();
             var $form = $(this);
             var $submitBtn = $('#btnSubmitHandover');
-            var recipientId = $('#handoverRecipientId').val();
-
-            if (!recipientId) {
-                showSimpleMessage('warning', 'Uyarı', 'Lütfen teslim alacak kullanıcıyı seçiniz.');
-                return;
-            }
-
             var originalBtnHtml = $submitBtn.html();
             $submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Kaydediliyor...');
 
@@ -2231,10 +2238,14 @@ if ($cid || $sid) {
                     var relTime = log.relative_time ? '<span class="badge badge-light border text-muted ml-2 font-11"><i class="fa fa-clock-o mr-1"></i>' + $('<div>').text(log.relative_time).html() + '</span>' : '';
 
                     var recipientHtml = '';
-                    if (isReceived && log.recipient_name) {
-                        var recName = $('<div>').text(log.recipient_name).html();
-                        var recUnvan = log.recipient_unvan ? '<span class="text-muted font-11"> (' + $('<div>').text(log.recipient_unvan).html() + ')</span>' : '';
-                        recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">Teslim Alan:</span> <strong class="text-success"><i class="fa fa-user-circle mr-1"></i>' + recName + '</strong>' + recUnvan + '</div>';
+                    if (isReceived) {
+                        if (log.recipient_name) {
+                            var recName = $('<div>').text(log.recipient_name).html();
+                            var recUnvan = log.recipient_unvan ? '<span class="text-muted font-11"> (' + $('<div>').text(log.recipient_unvan).html() + ')</span>' : '';
+                            recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">Teslim Alan:</span> <strong class="text-success"><i class="fa fa-user-circle mr-1"></i>' + recName + '</strong>' + recUnvan + '</div>';
+                        } else {
+                            recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">Teslim Alan:</span> <strong class="text-primary"><i class="fa fa-building-o mr-1"></i>Muhasebe Departmanı (Genel)</strong></div>';
+                        }
                     }
 
                     var noteHtml = '';
