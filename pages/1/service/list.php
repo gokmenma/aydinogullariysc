@@ -1286,8 +1286,20 @@ if ($cid || $sid) {
                                                 <?php endif; ?>
                                                 <a href="index.php?p=service-view&id=<?php echo Security::encrypt($pid); ?>" target="_blank" class="dropdown-item"><i class="fa fa-info-circle text-info mr-2"></i> Detay Görüntüle</a>
                                                 <?php if ($canAccountingReceipt): ?>
-                                                    <?php if ($isAccountingReceived): ?>
+                                                    <?php 
+                                                        $acctAction = $purc['accounting_action'] ?? '';
+                                                        $isAcctReceived = ($acctAction === 'received');
+                                                        $isAcctDelivered = ($acctAction === 'delivered');
+                                                        $pStatu = (int)($purc['pstatu'] ?? 0);
+                                                        $isStatusAcct = ($pStatu === 113 || stripos($purc['status_title'] ?? '', 'MUHASEBE') !== false);
+                                                    ?>
+                                                    <?php if ($isAcctReceived): ?>
                                                         <?php $confirmText = 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?'; ?>
+                                                        <button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #d97706 !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-undo mr-2" style="color: #d97706 !important; background: transparent !important;"></i> Muhasebe İade Al</button>
+                                                    <?php elseif ($isAcctDelivered || $isStatusAcct): ?>
+                                                        <?php $confirmDirect = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?'; ?>
+                                                        <button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #16a34a !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmDirect, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-check mr-2" style="color: #16a34a !important; background: transparent !important;"></i> Muhasebe Teslim Al</button>
+                                                        <?php $confirmText = 'Bu servis için muhasebe teslimat kaydını iptal edip geri almak istediğinize emin misiniz?'; ?>
                                                         <button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #d97706 !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-undo mr-2" style="color: #d97706 !important; background: transparent !important;"></i> Muhasebe İade Al</button>
                                                     <?php else: ?>
                                                         <button type="button" class="dropdown-item js-accounting-handover" style="color: #0284c7 !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-service-number="<?php echo htmlspecialchars($purc['service_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-company-name="<?php echo htmlspecialchars($purc['company_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-paper-plane mr-2" style="color: #0284c7 !important; background: transparent !important;"></i> Muhasebeye Teslim Et</button>
@@ -2229,22 +2241,46 @@ if ($cid || $sid) {
 
                 logs.forEach(function (log) {
                     var isReceived = log.action === 'received';
-                    var iconClass = isReceived ? 'fa fa-check-circle' : 'fa fa-undo';
-                    var badgeStyle = isReceived ? 'soft-emerald' : 'soft-rose';
-                    var actionLabel = isReceived ? 'Muhasebeye Teslim Edildi' : 'Muhasebeden İade Alındı';
+                    var isDelivered = log.action === 'delivered';
+                    var isRemoved = log.action === 'removed';
+
+                    var iconClass = 'fa fa-history';
+                    var badgeStyle = 'soft-blue';
+                    var actionLabel = 'İşlem';
+                    var summary = '';
+
+                    if (isReceived) {
+                        iconClass = 'fa fa-check-circle';
+                        badgeStyle = 'soft-emerald';
+                        actionLabel = 'Muhasebe Teslim Alındı';
+                        summary = 'Servis evrakları muhasebe tarafından teslim alındı / kabul edildi.';
+                    } else if (isDelivered) {
+                        iconClass = 'fa fa-paper-plane';
+                        badgeStyle = 'soft-blue';
+                        actionLabel = 'Muhasebeye Teslim Edildi';
+                        summary = 'Servis evrakları muhasebe departmanına teslim edildi.';
+                    } else if (isRemoved) {
+                        iconClass = 'fa fa-undo';
+                        badgeStyle = 'soft-rose';
+                        actionLabel = 'Muhasebeden İade Alındı';
+                        summary = 'Servisin muhasebe teslim kaydı geri alındı / iade edildi.';
+                    }
+
                     var userName = $('<div>').text(log.action_by_name || 'Kullanıcı').html();
                     var userUnvan = log.action_by_unvan ? '<span class="text-muted font-12">(' + $('<div>').text(log.action_by_unvan).html() + ')</span>' : '';
                     var timeFormatted = $('<div>').text(log.action_at_formatted || log.action_at || '-').html();
                     var relTime = log.relative_time ? '<span class="badge badge-light border text-muted ml-2 font-11"><i class="fa fa-clock-o mr-1"></i>' + $('<div>').text(log.relative_time).html() + '</span>' : '';
 
                     var recipientHtml = '';
-                    if (isReceived) {
+                    if (isReceived || isDelivered) {
+                        var labelPrefix = isDelivered ? 'Teslim Edilen:' : 'Teslim Alan:';
+                        var badgeColor = isDelivered ? 'text-primary' : 'text-success';
                         if (log.recipient_name) {
                             var recName = $('<div>').text(log.recipient_name).html();
                             var recUnvan = log.recipient_unvan ? '<span class="text-muted font-11"> (' + $('<div>').text(log.recipient_unvan).html() + ')</span>' : '';
-                            recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">Teslim Alan:</span> <strong class="text-success"><i class="fa fa-user-circle mr-1"></i>' + recName + '</strong>' + recUnvan + '</div>';
+                            recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">' + labelPrefix + '</span> <strong class="' + badgeColor + '"><i class="fa fa-user-circle mr-1"></i>' + recName + '</strong>' + recUnvan + '</div>';
                         } else {
-                            recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">Teslim Alan:</span> <strong class="text-primary"><i class="fa fa-building-o mr-1"></i>Muhasebe Departmanı (Genel)</strong></div>';
+                            recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">' + labelPrefix + '</span> <strong class="text-primary"><i class="fa fa-building-o mr-1"></i>Muhasebe Departmanı (Genel)</strong></div>';
                         }
                     }
 
@@ -2252,10 +2288,6 @@ if ($cid || $sid) {
                     if (log.note) {
                         noteHtml = '<div class="mt-2 p-2 rounded bg-light border font-12 text-secondary"><i class="fa fa-comment-o text-muted mr-1"></i><span class="font-weight-600 text-dark">Not:</span> ' + $('<div>').text(log.note).html() + '</div>';
                     }
-
-                    var summary = isReceived
-                        ? 'Servis evrakları muhasebe departmanına başarıyla teslim edildi.'
-                        : 'Servisin muhasebe teslim kaydı geri alındı / iade edildi.';
 
                     var itemHtml = `
                         <div class="service-log-item">

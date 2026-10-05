@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updateProject = $ac->prepare("UPDATE projects SET pstatu = ? WHERE id = ?");
         $updateProject->execute([$accountingStatusId, $serviceId]);
 
-        $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, recipient_id, note, action_at) VALUES (?, 'received', ?, ?, ?, NOW())");
+        $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, recipient_id, note, action_at) VALUES (?, 'delivered', ?, ?, ?, NOW())");
         $insertLog->execute([$serviceId, $actionBy, $recipientId, $note !== '' ? $note : null]);
 
         $logMsg = "Servis evrakları muhasebeye teslim edildi (Teslim Alan: " . $recipientName . ") - Durum 'MUHASEBEYE TESLİM EDİLDİ.' yapıldı";
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "service",
             $serviceId,
             [
-                'accounting_status' => 'received',
+                'accounting_status' => 'delivered',
                 'old_pstatu' => $oldStatusId,
                 'new_pstatu' => $accountingStatusId,
                 'recipient_id' => $recipientId,
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode([
             'success' => true,
             'message' => 'Servis evrakları muhasebeye teslim edildi ve servis durumu "MUHASEBEYE TESLİM EDİLDİ." olarak güncellendi.',
-            'status' => 'received',
+            'status' => 'delivered',
             'action_by' => getUsername($actionBy),
             'recipient_name' => $recipientName
         ]);
@@ -678,15 +678,28 @@ foreach ($projects as $project) {
     $row[] = '<div class="font-12 text-muted" style="line-height:1.25;" data-toggle="tooltip" title="' . $updater . '">' . $updater . '</div>';
 
     // 11: Muhasebe Teslim
-    $isAccountingReceived = ($project['accounting_action'] ?? '') === 'received';
+    $accountingAction = $project['accounting_action'] ?? '';
+    $isAccountingReceived = ($accountingAction === 'received');
+    $isAccountingDelivered = ($accountingAction === 'delivered');
     $recipientName = htmlspecialchars($project['accounting_recipient_username'] ?? '', ENT_QUOTES, 'UTF-8');
+    $pstatu = (int)($project['pstatu'] ?? 0);
+    $isStatusAccounting = ($pstatu === 113 || stripos($project['status_title'] ?? '', 'MUHASEBE') !== false);
+
     if ($isAccountingReceived) {
         $badgeTitle = $recipientName !== '' ? ('Teslim Alan: ' . $recipientName) : 'Teslim Alan: Muhasebe Departmanı';
-        $accountingInfo = "<span class='crm-badge-soft soft-emerald' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;' title='{$badgeTitle}'><i class='fa fa-check mr-1'></i>Teslim Edildi</span>";
+        $accountingInfo = "<span class='crm-badge-soft soft-emerald' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;' title='{$badgeTitle}'><i class='fa fa-check mr-1'></i>Teslim Alındı</span>";
         if ($recipientName !== '') {
             $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Alan: {$recipientName}'><i class='fa fa-user-circle mr-1 text-success'></i>{$recipientName}</div>";
         } else {
             $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Alan: Muhasebe Departmanı'><i class='fa fa-building-o mr-1 text-info'></i>Muhasebe Dep.</div>";
+        }
+    } elseif ($isAccountingDelivered || $isStatusAccounting) {
+        $badgeTitle = $recipientName !== '' ? ('Teslim Edilen: ' . $recipientName) : 'Muhasebeye Teslim Edildi';
+        $accountingInfo = "<span class='crm-badge-soft soft-blue' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;' title='{$badgeTitle}'><i class='fa fa-paper-plane mr-1'></i>Teslim Edildi</span>";
+        if ($recipientName !== '') {
+            $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Edilen: {$recipientName}'><i class='fa fa-user-circle mr-1 text-primary'></i>{$recipientName}</div>";
+        } else {
+            $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Edilen: Muhasebe Departmanı'><i class='fa fa-building-o mr-1 text-primary'></i>Muhasebe Dep.</div>";
         }
     } else {
         $accountingInfo = "<span class='crm-badge-soft soft-amber' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;'><i class='fa fa-clock-o mr-1'></i>Teslim Bekliyor</span>";
@@ -709,6 +722,11 @@ foreach ($projects as $project) {
     if ($canAccountingReceipt) {
         if ($isAccountingReceived) {
             $confirmText = 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #d97706 !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-undo mr-2" style="color: #d97706 !important; background: transparent !important;"></i> Muhasebe İade Al</button>';
+        } elseif ($isAccountingDelivered || $isStatusAccounting) {
+            $confirmDirect = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #16a34a !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmDirect, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-check mr-2" style="color: #16a34a !important; background: transparent !important;"></i> Muhasebe Teslim Al</button>';
+            $confirmText = 'Bu servis için muhasebe teslimat kaydını iptal edip geri almak istediğinize emin misiniz?';
             $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #d97706 !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-undo mr-2" style="color: #d97706 !important; background: transparent !important;"></i> Muhasebe İade Al</button>';
         } else {
             $actions .= '<button type="button" class="dropdown-item js-accounting-handover" style="color: #0284c7 !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'] ?? '', ENT_QUOTES, 'UTF-8') . '" data-company-name="' . htmlspecialchars($project['company_name'] ?? '', ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-paper-plane mr-2" style="color: #0284c7 !important; background: transparent !important;"></i> Muhasebeye Teslim Et</button>';
@@ -764,7 +782,11 @@ try {
 
     // 11: Muhasebe Durumu
     $stMuhasebe = $ac->query("SELECT 
-        CASE WHEN ar.action = 'received' THEN 'Teslim Alındı' ELSE 'Teslim Bekliyor' END as lbl, 
+        CASE 
+            WHEN ar.action = 'received' THEN 'Teslim Alındı' 
+            WHEN ar.action = 'delivered' OR p.pstatu = 113 THEN 'Teslim Edildi'
+            ELSE 'Teslim Bekliyor' 
+        END as lbl, 
         COUNT(*) as cnt 
         FROM projects p 
         LEFT JOIN (

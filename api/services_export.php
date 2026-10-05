@@ -194,6 +194,9 @@ foreach ($rows as $r) {
     $accStatus = 'Teslim Bekliyor';
     if (($r['accounting_action'] ?? '') === 'received') {
         $recName = !empty($r['accounting_recipient_username']) ? $r['accounting_recipient_username'] : 'Muhasebe Departmanı';
+        $accStatus = 'Teslim Alındı (' . $recName . ')';
+    } elseif (($r['accounting_action'] ?? '') === 'delivered' || (int)($r['pstatu'] ?? 0) === 113) {
+        $recName = !empty($r['accounting_recipient_username']) ? $r['accounting_recipient_username'] : 'Muhasebe Departmanı';
         $accStatus = 'Teslim Edildi (' . $recName . ')';
     }
 
