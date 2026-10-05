@@ -27,6 +27,97 @@ use App\Helper\Security;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
+    if ($action === 'deliver_to_accounting') {
+        if (!permtrue("muhasebe_teslim_alma_yetkisi")) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Bu işlem için yetkiniz yok.'
+            ]);
+            exit;
+        }
+
+        $serviceId = intval($_POST['service_id'] ?? 0);
+        $recipientId = intval($_POST['recipient_id'] ?? 0);
+        $note = trim($_POST['note'] ?? '');
+
+        if ($serviceId <= 0) {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Geçersiz servis ID.'
+            ]);
+            exit;
+        }
+
+        if ($recipientId <= 0) {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Lütfen teslim alacak kullanıcıyı seçiniz.'
+            ]);
+            exit;
+        }
+
+        $serviceCheck = $ac->prepare("SELECT id, service_number FROM projects WHERE id = ? LIMIT 1");
+        $serviceCheck->execute([$serviceId]);
+        $serviceRow = $serviceCheck->fetch(PDO::FETCH_ASSOC);
+        if (!$serviceRow) {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Servis kaydı bulunamadı.'
+            ]);
+            exit;
+        }
+
+        $recipientCheck = $ac->prepare("SELECT id, username, Unvan FROM users WHERE id = ? AND statu = 1 LIMIT 1");
+        $recipientCheck->execute([$recipientId]);
+        $recipientUser = $recipientCheck->fetch(PDO::FETCH_ASSOC);
+        if (!$recipientUser) {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Seçilen teslim alacak kullanıcı aktif değil veya bulunamadı.'
+            ]);
+            exit;
+        }
+
+        $actionBy = intval(sesset('id'));
+        $recipientName = $recipientUser['username'] ?? '';
+
+        $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, recipient_id, note, action_at) VALUES (?, 'received', ?, ?, ?, NOW())");
+        $insertLog->execute([$serviceId, $actionBy, $recipientId, $note !== '' ? $note : null]);
+
+        $logMsg = "Servis evrakları muhasebeye teslim edildi (Teslim Alan: " . $recipientName . ")";
+        if ($note !== '') {
+            $logMsg .= " - Not: " . $note;
+        }
+
+        audit_log(
+            "status_change",
+            "services",
+            $logMsg,
+            "service",
+            $serviceId,
+            [
+                'accounting_status' => 'received',
+                'recipient_id' => $recipientId,
+                'recipient_name' => $recipientName,
+                'note' => $note
+            ]
+        );
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Servis evrakları başarıyla muhasebeye teslim edildi.',
+            'status' => 'received',
+            'action_by' => getUsername($actionBy),
+            'recipient_name' => $recipientName
+        ]);
+        exit;
+    }
+
     if ($action === 'toggle_accounting_receipt') {
         if (!permtrue("muhasebe_teslim_alma_yetkisi")) {
             http_response_code(403);
@@ -65,25 +156,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $isCurrentlyReceived = ($lastAction['action'] ?? '') === 'received';
         $newAction = $isCurrentlyReceived ? 'removed' : 'received';
         $actionBy = intval(sesset('id'));
+        $recipientId = ($newAction === 'received')
+            ? (!empty($_POST['recipient_id']) ? intval($_POST['recipient_id']) : $actionBy)
+            : null;
+        $note = trim($_POST['note'] ?? '');
 
-        $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, action_at) VALUES (?, ?, ?, NOW())");
-        $insertLog->execute([$serviceId, $newAction, $actionBy]);
+        $insertLog = $ac->prepare("INSERT INTO service_accounting_receipt_logs (service_id, action, action_by, recipient_id, note, action_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $insertLog->execute([$serviceId, $newAction, $actionBy, $recipientId, $note !== '' ? $note : null]);
+
+        $recipientName = $recipientId ? getUsername($recipientId) : '';
+        $logSummary = $newAction === 'received'
+            ? ("Servis muhasebe tarafından teslim alındı" . ($recipientName ? " (Teslim Alan: {$recipientName})" : ""))
+            : "Servisin muhasebe teslim kaydı kaldırıldı / iade alındı";
+
         audit_log(
             "status_change",
             "services",
-            $newAction === 'received'
-                ? "Servis muhasebe tarafından teslim alındı"
-                : "Servisin muhasebe teslim kaydı kaldırıldı",
+            $logSummary,
             "service",
             $serviceId,
-            ['accounting_status' => $newAction]
+            [
+                'accounting_status' => $newAction,
+                'recipient_id' => $recipientId,
+                'recipient_name' => $recipientName
+            ]
         );
 
         echo json_encode([
             'success' => true,
             'message' => $newAction === 'received' ? 'Muhasebe teslim alındı olarak işaretlendi.' : 'Muhasebe teslim kaydı kaldırıldı.',
             'status' => $newAction,
-            'action_by' => getUsername($actionBy)
+            'action_by' => getUsername($actionBy),
+            'recipient_name' => $recipientName
         ]);
         exit;
     }
@@ -108,11 +212,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $logQuery = $ac->prepare("SELECT l.action, l.action_at, 
+        $logQuery = $ac->prepare("SELECT l.id, l.action, l.action_at, l.note,
                    COALESCE(NULLIF(u.username, ''), 'Kullanıcı') as action_by_name,
-                   u.Unvan as action_by_unvan
+                   u.Unvan as action_by_unvan,
+                   COALESCE(NULLIF(ur.username, ''), '') as recipient_name,
+                   ur.Unvan as recipient_unvan
             FROM service_accounting_receipt_logs l
             LEFT JOIN users u ON u.id = l.action_by
+            LEFT JOIN users ur ON ur.id = l.recipient_id
             WHERE l.service_id = ?
             ORDER BY l.id DESC");
         $logQuery->execute([$serviceId]);
@@ -238,7 +345,7 @@ $base_query = "
     LEFT JOIN users uu ON uu.id = p.updater
     LEFT JOIN units st ON st.id = p.pstatu
     LEFT JOIN (
-        SELECT l.service_id, l.action, l.action_by, l.action_at
+        SELECT l.service_id, l.action, l.action_by, l.recipient_id, l.note, l.action_at
         FROM service_accounting_receipt_logs l
         INNER JOIN (
             SELECT service_id, MAX(id) as max_id
@@ -247,6 +354,7 @@ $base_query = "
         ) lm ON lm.max_id = l.id
     ) ar ON ar.service_id = p.id
     LEFT JOIN users au ON au.id = ar.action_by
+    LEFT JOIN users aur ON aur.id = ar.recipient_id
 ";
 
 // Toplam kayıt için JOIN çalıştırmaya gerek yok.
@@ -415,7 +523,11 @@ $data_query = "
         uu.username as updater_username,
         ar.action as accounting_action,
         ar.action_at as accounting_action_at,
-        au.username as accounting_actor_username
+        ar.recipient_id as accounting_recipient_id,
+        ar.note as accounting_note,
+        au.username as accounting_actor_username,
+        aur.username as accounting_recipient_username,
+        aur.Unvan as accounting_recipient_unvan
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}
     LIMIT :start, :length
@@ -535,10 +647,16 @@ foreach ($projects as $project) {
 
     // 11: Muhasebe Teslim
     $isAccountingReceived = ($project['accounting_action'] ?? '') === 'received';
-    $accountingLabel = $isAccountingReceived ? 'Teslim Alındı' : 'Teslim Bekliyor';
-    $accountingSoftClass = $isAccountingReceived ? 'soft-emerald' : 'soft-amber';
-    $accountingIcon = $isAccountingReceived ? 'fa-check' : 'fa-clock-o';
-    $accountingInfo = "<span class='crm-badge-soft {$accountingSoftClass}' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;'><i class='fa {$accountingIcon} mr-1'></i>{$accountingLabel}</span>";
+    $recipientName = htmlspecialchars($project['accounting_recipient_username'] ?? '', ENT_QUOTES, 'UTF-8');
+    if ($isAccountingReceived) {
+        $badgeTitle = $recipientName !== '' ? ('Teslim Alan: ' . $recipientName) : 'Muhasebeye Teslim Edildi';
+        $accountingInfo = "<span class='crm-badge-soft soft-emerald' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;' title='{$badgeTitle}'><i class='fa fa-check mr-1'></i>Teslim Edildi</span>";
+        if ($recipientName !== '') {
+            $accountingInfo .= "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:140px;' title='Teslim Alan: {$recipientName}'><i class='fa fa-user-circle mr-1 text-success'></i>{$recipientName}</div>";
+        }
+    } else {
+        $accountingInfo = "<span class='crm-badge-soft soft-amber' style='padding:2px 7px; font-size:11px; display:inline-block; line-height:1.2;'><i class='fa fa-clock-o mr-1'></i>Teslim Bekliyor</span>";
+    }
     $row[] = $accountingInfo;
 
     // 12: İşlem Butonları (Açılır Liste / Dropdown Menu)
@@ -557,15 +675,16 @@ foreach ($projects as $project) {
     if ($canAccountingReceipt) {
         if ($isAccountingReceived) {
             $confirmText = 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?';
-            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle text-warning" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-undo text-warning mr-2"></i> Muhasebe İade Al</button>';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #d97706 !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-undo mr-2" style="color: #d97706 !important; background: transparent !important;"></i> Muhasebe İade Al</button>';
         } else {
-            $confirmText = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
-            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle text-success" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-check text-success mr-2"></i> Muhasebe Teslim Al</button>';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-handover" style="color: #0284c7 !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'] ?? '', ENT_QUOTES, 'UTF-8') . '" data-company-name="' . htmlspecialchars($project['company_name'] ?? '', ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-paper-plane mr-2" style="color: #0284c7 !important; background: transparent !important;"></i> Muhasebeye Teslim Et</button>';
+            $confirmDirect = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?';
+            $actions .= '<button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #16a34a !important; font-weight: 700 !important;" data-service-id="' . (int) $pid . '" data-confirm="' . htmlspecialchars($confirmDirect, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-check mr-2" style="color: #16a34a !important; background: transparent !important;"></i> Muhasebe Teslim Al</button>';
         }
-        $actions .= '<button type="button" class="dropdown-item js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-book text-dark mr-2"></i> Muhasebe Logları</button>';
+        $actions .= '<button type="button" class="dropdown-item js-accounting-log" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'] ?? '', ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-book text-dark mr-2"></i> Muhasebe Logları</button>';
     }
 
-    $actions .= '<button type="button" class="dropdown-item btn-service-logs" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'], ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-history text-info mr-2"></i> Log Kayıtları</button>';
+    $actions .= '<button type="button" class="dropdown-item btn-service-logs" data-service-id="' . (int) $pid . '" data-service-number="' . htmlspecialchars($project['service_number'] ?? '', ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-history text-info mr-2"></i> Log Kayıtları</button>';
 
     if ($canDel) {
         $actions .= '<div class="dropdown-divider"></div>';

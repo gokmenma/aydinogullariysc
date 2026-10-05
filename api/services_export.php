@@ -66,7 +66,7 @@ $base_query = "
     LEFT JOIN users uu ON uu.id = p.updater
     LEFT JOIN units st ON st.id = p.pstatu
     LEFT JOIN (
-        SELECT l.service_id, l.action, l.action_by, l.action_at
+        SELECT l.service_id, l.action, l.action_by, l.recipient_id, l.note, l.action_at
         FROM service_accounting_receipt_logs l
         INNER JOIN (
             SELECT service_id, MAX(id) as max_id
@@ -74,6 +74,7 @@ $base_query = "
             GROUP BY service_id
         ) lm ON lm.max_id = l.id
     ) ar ON ar.service_id = p.id
+    LEFT JOIN users aur ON aur.id = ar.recipient_id
 ";
 
 $where_conditions = [];
@@ -165,7 +166,8 @@ $data_query = "
         st.title as status_title,
         u.username as creator_username,
         uu.username as updater_username,
-        ar.action as accounting_action
+        ar.action as accounting_action,
+        aur.username as accounting_recipient_username
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}
 ";
@@ -189,6 +191,11 @@ foreach ($headers as $idx => $title) {
 $rowIndex = 2;
 $i = 1;
 foreach ($rows as $r) {
+    $accStatus = 'Teslim Bekliyor';
+    if (($r['accounting_action'] ?? '') === 'received') {
+        $accStatus = 'Teslim Edildi' . (!empty($r['accounting_recipient_username']) ? (' (' . $r['accounting_recipient_username'] . ')') : '');
+    }
+
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(1) . $rowIndex, $i);
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(2) . $rowIndex, $r['service_number'] ?? '');
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(3) . $rowIndex, $r['company_name'] ?? '');
@@ -200,7 +207,7 @@ foreach ($rows as $r) {
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(9) . $rowIndex, $r['status_title'] ?? '');
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(10) . $rowIndex, $r['creator_username'] ?? '');
     $sheet->setCellValue(Coordinate::stringFromColumnIndex(11) . $rowIndex, $r['updater_username'] ?: ($r['creator_username'] ?? ''));
-    $sheet->setCellValue(Coordinate::stringFromColumnIndex(12) . $rowIndex, (($r['accounting_action'] ?? '') === 'received') ? 'Teslim Alındı' : 'Teslim Bekliyor');
+    $sheet->setCellValue(Coordinate::stringFromColumnIndex(12) . $rowIndex, $accStatus);
     $rowIndex++;
     $i++;
 }

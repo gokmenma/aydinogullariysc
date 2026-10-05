@@ -25,6 +25,15 @@ $canEdit = permtrue("serviceEdit");
 $canDel = permtrue("serviceDel");
 $canAccountingReceipt = permtrue("muhasebe_teslim_alma_yetkisi");
 
+// Aktif kullanıcılar (Muhasebeye teslim modalı için)
+$activeUsers = [];
+try {
+    $userStmt = $ac->query("SELECT id, username, Unvan FROM users WHERE statu = 1 ORDER BY username ASC");
+    if ($userStmt) {
+        $activeUsers = $userStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+} catch (\Exception $e) {}
+
 try {
     $logger = \getLogger("Servisler");
     $logger->info("Servis listesi görüntülendi.", [
@@ -45,7 +54,11 @@ if ($cid) {
              uu.username as updater_username,
              ar.action as accounting_action,
              ar.action_at as accounting_action_at,
+             ar.recipient_id as accounting_recipient_id,
+             ar.note as accounting_note,
              au.username as accounting_actor_username,
+             aur.username as accounting_recipient_username,
+             aur.Unvan as accounting_recipient_unvan,
                cs.title as contract_status_title,
                cs.colour as contract_status_color,
                st.title as status_title,
@@ -57,7 +70,7 @@ if ($cid) {
         LEFT JOIN users u ON u.id = p.pcreativer
         LEFT JOIN users uu ON uu.id = p.updater
         LEFT JOIN (
-            SELECT l.service_id, l.action, l.action_by, l.action_at
+            SELECT l.service_id, l.action, l.action_by, l.recipient_id, l.note, l.action_at
             FROM service_accounting_receipt_logs l
             INNER JOIN (
                 SELECT service_id, MAX(id) as max_id
@@ -66,6 +79,7 @@ if ($cid) {
             ) lm ON lm.max_id = l.id
         ) ar ON ar.service_id = p.id
         LEFT JOIN users au ON au.id = ar.action_by
+        LEFT JOIN users aur ON aur.id = ar.recipient_id
         LEFT JOIN units cs ON cs.id = p.contract_statu AND cs.statu = 4
         LEFT JOIN units st ON st.id = p.pstatu AND st.statu = 4
         WHERE p.pcid = ? 
@@ -83,7 +97,11 @@ if ($cid) {
              uu.username as updater_username,
              ar.action as accounting_action,
              ar.action_at as accounting_action_at,
+             ar.recipient_id as accounting_recipient_id,
+             ar.note as accounting_note,
              au.username as accounting_actor_username,
+             aur.username as accounting_recipient_username,
+             aur.Unvan as accounting_recipient_unvan,
                cs.title as contract_status_title,
                cs.colour as contract_status_color,
                st.title as status_title,
@@ -95,7 +113,7 @@ if ($cid) {
         LEFT JOIN users u ON u.id = p.pcreativer
         LEFT JOIN users uu ON uu.id = p.updater
         LEFT JOIN (
-            SELECT l.service_id, l.action, l.action_by, l.action_at
+            SELECT l.service_id, l.action, l.action_by, l.recipient_id, l.note, l.action_at
             FROM service_accounting_receipt_logs l
             INNER JOIN (
                 SELECT service_id, MAX(id) as max_id
@@ -104,6 +122,7 @@ if ($cid) {
             ) lm ON lm.max_id = l.id
         ) ar ON ar.service_id = p.id
         LEFT JOIN users au ON au.id = ar.action_by
+        LEFT JOIN users aur ON aur.id = ar.recipient_id
         LEFT JOIN units cs ON cs.id = p.contract_statu AND cs.statu = 4
         LEFT JOIN units st ON st.id = p.pstatu AND st.statu = 4
         WHERE p.id = ? 
@@ -1244,10 +1263,16 @@ if ($cid || $sid) {
                                     <td><div class="font-11 text-muted" style="line-height:1.2;" data-toggle="tooltip" title="<?php echo htmlspecialchars($purc['updater_username'] ?: $purc['creator_username']); ?>"><?php echo htmlspecialchars($purc['updater_username'] ?: $purc['creator_username']); ?></div></td>
                                     <td class="text-center">
                                         <?php
-                                        $accLabel = $isAccountingReceived ? 'Teslim Alındı' : 'Teslim Bekliyor';
-                                        $accSoftClass = $isAccountingReceived ? 'soft-emerald' : 'soft-amber';
-                                        $accIcon = $isAccountingReceived ? 'fa-check' : 'fa-clock-o';
-                                        echo "<span class='crm-badge-soft {$accSoftClass}' style='padding:2px 6px; font-size:10.5px; display:inline-block; line-height:1.2;'><i class='fa {$accIcon} mr-1'></i>{$accLabel}</span>";
+                                        $recipientName = htmlspecialchars($purc['accounting_recipient_username'] ?? '', ENT_QUOTES, 'UTF-8');
+                                        if ($isAccountingReceived) {
+                                            $badgeTitle = $recipientName !== '' ? ('Teslim Alan: ' . $recipientName) : 'Muhasebeye Teslim Edildi';
+                                            echo "<span class='crm-badge-soft soft-emerald' style='padding:2px 6px; font-size:10.5px; display:inline-block; line-height:1.2;' title='{$badgeTitle}'><i class='fa fa-check mr-1'></i>Teslim Edildi</span>";
+                                            if ($recipientName !== '') {
+                                                echo "<div class='font-11 text-muted mt-1 text-truncate' style='max-width:130px;' title='Teslim Alan: {$recipientName}'><i class='fa fa-user-circle mr-1 text-success'></i>{$recipientName}</div>";
+                                            }
+                                        } else {
+                                            echo "<span class='crm-badge-soft soft-amber' style='padding:2px 6px; font-size:10.5px; display:inline-block; line-height:1.2;'><i class='fa fa-clock-o mr-1'></i>Teslim Bekliyor</span>";
+                                        }
                                         ?>
                                     </td>
                                     <td class="text-center">
@@ -1263,12 +1288,13 @@ if ($cid || $sid) {
                                                 <?php if ($canAccountingReceipt): ?>
                                                     <?php if ($isAccountingReceived): ?>
                                                         <?php $confirmText = 'Bu servis için muhasebe teslim kaydını iade almak istediğinize emin misiniz?'; ?>
-                                                        <button type="button" class="dropdown-item js-accounting-receipt-toggle text-warning" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-undo text-warning mr-2"></i> Muhasebe İade Al</button>
+                                                        <button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #d97706 !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-undo mr-2" style="color: #d97706 !important; background: transparent !important;"></i> Muhasebe İade Al</button>
                                                     <?php else: ?>
-                                                        <?php $confirmText = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?'; ?>
-                                                        <button type="button" class="dropdown-item js-accounting-receipt-toggle text-success" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmText, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-check text-success mr-2"></i> Muhasebe Teslim Al</button>
+                                                        <button type="button" class="dropdown-item js-accounting-handover" style="color: #0284c7 !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-service-number="<?php echo htmlspecialchars($purc['service_number'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" data-company-name="<?php echo htmlspecialchars($purc['company_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-paper-plane mr-2" style="color: #0284c7 !important; background: transparent !important;"></i> Muhasebeye Teslim Et</button>
+                                                        <?php $confirmDirect = 'Bu servisi muhasebe teslim alındı olarak işaretlemek istediğinize emin misiniz?'; ?>
+                                                        <button type="button" class="dropdown-item js-accounting-receipt-toggle" style="color: #16a34a !important; font-weight: 700 !important;" data-service-id="<?php echo (int) $pid; ?>" data-confirm="<?php echo htmlspecialchars($confirmDirect, ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-check mr-2" style="color: #16a34a !important; background: transparent !important;"></i> Muhasebe Teslim Al</button>
                                                     <?php endif; ?>
-                                                    <button type="button" class="dropdown-item js-accounting-log" data-service-id="<?php echo (int) $pid; ?>" data-service-number="<?php echo htmlspecialchars($purc['service_number'], ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-history text-dark mr-2"></i> Muhasebe Logları</button>
+                                                    <button type="button" class="dropdown-item js-accounting-log" data-service-id="<?php echo (int) $pid; ?>" data-service-number="<?php echo htmlspecialchars($purc['service_number'], ENT_QUOTES, 'UTF-8'); ?>"><i class="fa fa-book text-dark mr-2"></i> Muhasebe Logları</button>
                                                 <?php endif; ?>
                                                 <?php if ($canDel): ?>
                                                     <div class="dropdown-divider"></div>
@@ -1338,6 +1364,88 @@ if ($cid || $sid) {
                     Kapat
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Muhasebeye Teslim Et Modalı -->
+<div class="modal fade" id="accountingHandoverModal" tabindex="-1" role="dialog" aria-labelledby="accountingHandoverModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;">
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <form id="accountingHandoverForm">
+                <input type="hidden" name="action" value="deliver_to_accounting">
+                <input type="hidden" name="service_id" id="handoverServiceId" value="">
+                
+                <div class="modal-header d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-bottom: 1px solid #bfdbfe; padding: 16px 20px;">
+                    <div class="d-flex align-items-center" style="gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #3b82f6; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
+                            <i class="fa fa-paper-plane"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-16 font-weight-bold mb-0 text-dark" id="accountingHandoverModalLabel">
+                                Muhasebeye Teslim Et
+                            </h5>
+                            <small class="text-muted" style="font-size: 12px;">Evrakları teslim alacak muhasebe personelini seçiniz</small>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Kapat" style="font-size: 22px; line-height: 1; opacity: 0.6;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <!-- Servis Bilgi Şeridi -->
+                    <div class="p-3 mb-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted font-12 font-weight-600">SERVİS NUMARASI</span>
+                            <span class="font-14 font-weight-bold text-primary" id="handoverServiceNumber">-</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted font-12 font-weight-600">FİRMA ADI</span>
+                            <span class="font-13 font-weight-600 text-dark text-truncate" id="handoverCompanyName" style="max-width: 250px;">-</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="font-13 font-weight-bold text-dark mb-1">
+                            Teslim Alacak Kullanıcı / Muhasebe Sorumlusu <span class="text-danger">*</span>
+                        </label>
+                        <select name="recipient_id" id="handoverRecipientId" class="form-control select2-handover-user" required style="width: 100%;">
+                            <option value="">-- Lütfen Kullanıcı Seçiniz --</option>
+                            <?php foreach ($activeUsers as $u): ?>
+                                <?php 
+                                    $isAcct = (stripos($u['Unvan'] ?? '', 'MUHASEBE') !== false || stripos($u['Unvan'] ?? '', 'FİNANS') !== false);
+                                    $uFullName = htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8');
+                                    $uUnvan = htmlspecialchars($u['Unvan'] ?? '', ENT_QUOTES, 'UTF-8');
+                                ?>
+                                <option value="<?php echo (int) $u['id']; ?>" 
+                                        data-person-id="<?php echo (int) $u['id']; ?>"
+                                        data-fullname="<?php echo $uFullName; ?>"
+                                        data-unvan="<?php echo $uUnvan; ?>"
+                                        data-is-accounting="<?php echo $isAcct ? '1' : '0'; ?>">
+                                    <?php echo $uFullName . ($uUnvan ? ' (' . $uUnvan . ')' : ''); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="font-13 font-weight-bold text-dark mb-1">
+                            Teslim Notu / Açıklama <small class="text-muted font-weight-normal">(İsteğe bağlı)</small>
+                        </label>
+                        <textarea name="note" id="handoverNote" class="form-control" rows="2" placeholder="Varsa evrak teslimi ile ilgili ek açıklama veya not yazabilirsiniz..." style="border-radius: 8px; font-size: 13px; resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-between px-4 py-3" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                    <button type="button" class="btn btn-secondary btn-sm px-3" data-dismiss="modal" data-bs-dismiss="modal" style="border-radius: 6px;">
+                        <i class="fa fa-times mr-1"></i> Vazgeç
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-sm px-4" id="btnSubmitHandover" style="border-radius: 6px; font-weight: 600;">
+                        <i class="fa fa-paper-plane mr-1"></i> Muhasebeye Teslim Et
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -1684,6 +1792,119 @@ if ($cid || $sid) {
             window.location = 'api/services_export.php' + (qs ? ('?' + qs) : '');
         });
 
+        // Select2 Formatlayıcıları - Teslim Alacak Kullanıcı Seçimi
+        function formatHandoverUserOption(item) {
+            if (!item.id) {
+                return item.text;
+            }
+            var $el = $(item.element);
+            var fullname = $el.data('fullname') || item.text;
+            var unvan = $el.data('unvan') || '';
+            var isAcct = $el.data('is-accounting') == '1' || $el.data('is-accounting') == 1;
+
+            var badge = isAcct ? '<span class="crm-badge-soft soft-emerald ml-auto" style="padding: 2px 7px; font-size: 10.5px; font-weight: 600; white-space: nowrap;"><i class="fa fa-check-circle mr-1"></i>Muhasebe</span>' : '';
+            var unvanHtml = unvan ? '<div style="font-size: 11.5px; color: #64748b; line-height: 1.2; margin-top: 1px;">' + $('<div>').text(unvan).html() + '</div>' : '';
+
+            var $container = $(
+                '<div style="padding: 4px 2px; line-height: 1.2;">' +
+                    '<div class="d-flex align-items-center justify-content-between">' +
+                        '<div style="font-weight: 600; color: #1e293b; font-size: 13px;">' + $('<div>').text(fullname).html() + '</div>' +
+                        badge +
+                    '</div>' +
+                    unvanHtml +
+                '</div>'
+            );
+            return $container;
+        }
+
+        function formatHandoverUserSelection(item) {
+            if (!item.id) return item.text;
+            var $el = $(item.element);
+            var fullname = $el.data('fullname') || item.text;
+            var unvan = $el.data('unvan') || '';
+            return fullname + (unvan ? ' (' + unvan + ')' : '');
+        }
+
+        if ($.fn.select2) {
+            $('#handoverRecipientId').select2({
+                dropdownParent: $('#accountingHandoverModal'),
+                placeholder: '-- Lütfen Kullanıcı Seçiniz --',
+                allowClear: false,
+                width: '100%',
+                templateResult: formatHandoverUserOption,
+                templateSelection: formatHandoverUserSelection
+            });
+        }
+
+        // Muhasebeye Teslim Et Modalını Açma
+        $(document).on('click', '.js-accounting-handover', function (e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var serviceId = parseInt($btn.data('service-id') || $btn.attr('data-service-id'), 10);
+            var serviceNumber = $btn.data('service-number') || $btn.attr('data-service-number') || ('#' + serviceId);
+            var companyName = $btn.data('company-name') || $btn.attr('data-company-name') || '-';
+
+            if (!serviceId) return;
+
+            $('#handoverServiceId').val(serviceId);
+            $('#handoverServiceNumber').text(serviceNumber);
+            $('#handoverCompanyName').text(companyName);
+            $('#handoverNote').val('');
+
+            // Varsa muhasebe personelini otomatik seç, yoksa ilk seçeneği seç
+            var $acctOption = $('#handoverRecipientId option[data-is-accounting="1"]').first();
+            if ($acctOption.length) {
+                $('#handoverRecipientId').val($acctOption.val()).trigger('change');
+            } else {
+                $('#handoverRecipientId').val('').trigger('change');
+            }
+
+            $('#accountingHandoverModal').modal('show');
+        });
+
+        // Muhasebeye Teslim Et Form Gönderimi
+        $('#accountingHandoverForm').on('submit', function (e) {
+            e.preventDefault();
+            var $form = $(this);
+            var $submitBtn = $('#btnSubmitHandover');
+            var recipientId = $('#handoverRecipientId').val();
+
+            if (!recipientId) {
+                showSimpleMessage('warning', 'Uyarı', 'Lütfen teslim alacak kullanıcıyı seçiniz.');
+                return;
+            }
+
+            var originalBtnHtml = $submitBtn.html();
+            $submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-1"></i> Kaydediliyor...');
+
+            $.ajax({
+                url: 'api/services_datatables.php',
+                type: 'POST',
+                dataType: 'json',
+                data: $form.serialize()
+            }).done(function (response) {
+                if (response && response.success) {
+                    $('#accountingHandoverModal').modal('hide');
+                    showSimpleMessage('success', 'Başarılı', response.message || 'Servis evrakları muhasebeye teslim edildi.');
+                    if (useServerSide) {
+                        serviceTable.ajax.reload(null, false);
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    showSimpleMessage('error', 'Hata', (response && response.message) ? response.message : 'İşlem başarısız oldu.');
+                }
+            }).fail(function (xhr) {
+                var msg = 'İşlem sırasında bir hata oluştu.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                showSimpleMessage('error', 'Hata', msg);
+            }).always(function () {
+                $submitBtn.prop('disabled', false).html(originalBtnHtml);
+            });
+        });
+
         // Muhasebe Teslim / İade Toggle
         $(document).on('click', '.js-accounting-receipt-toggle', function () {
             var $btn = $(this);
@@ -2004,13 +2225,26 @@ if ($cid || $sid) {
                     var iconClass = isReceived ? 'fa fa-check-circle' : 'fa fa-undo';
                     var badgeStyle = isReceived ? 'soft-emerald' : 'soft-rose';
                     var actionLabel = isReceived ? 'Muhasebeye Teslim Edildi' : 'Muhasebeden İade Alındı';
-                    var summary = isReceived
-                        ? 'Servis evrakları muhasebe departmanına başarıyla teslim edildi.'
-                        : 'Servisin muhasebe teslim kaydı geri alındı / iade edildi.';
                     var userName = $('<div>').text(log.action_by_name || 'Kullanıcı').html();
                     var userUnvan = log.action_by_unvan ? '<span class="text-muted font-12">(' + $('<div>').text(log.action_by_unvan).html() + ')</span>' : '';
                     var timeFormatted = $('<div>').text(log.action_at_formatted || log.action_at || '-').html();
                     var relTime = log.relative_time ? '<span class="badge badge-light border text-muted ml-2 font-11"><i class="fa fa-clock-o mr-1"></i>' + $('<div>').text(log.relative_time).html() + '</span>' : '';
+
+                    var recipientHtml = '';
+                    if (isReceived && log.recipient_name) {
+                        var recName = $('<div>').text(log.recipient_name).html();
+                        var recUnvan = log.recipient_unvan ? '<span class="text-muted font-11"> (' + $('<div>').text(log.recipient_unvan).html() + ')</span>' : '';
+                        recipientHtml = '<div class="mt-2 font-12 text-dark"><span class="text-muted font-weight-600">Teslim Alan:</span> <strong class="text-success"><i class="fa fa-user-circle mr-1"></i>' + recName + '</strong>' + recUnvan + '</div>';
+                    }
+
+                    var noteHtml = '';
+                    if (log.note) {
+                        noteHtml = '<div class="mt-2 p-2 rounded bg-light border font-12 text-secondary"><i class="fa fa-comment-o text-muted mr-1"></i><span class="font-weight-600 text-dark">Not:</span> ' + $('<div>').text(log.note).html() + '</div>';
+                    }
+
+                    var summary = isReceived
+                        ? 'Servis evrakları muhasebe departmanına başarıyla teslim edildi.'
+                        : 'Servisin muhasebe teslim kaydı geri alındı / iade edildi.';
 
                     var itemHtml = `
                         <div class="service-log-item">
@@ -2021,6 +2255,7 @@ if ($cid || $sid) {
                                 <div class="d-flex flex-wrap align-items-center justify-content-between mb-1" style="gap: 8px;">
                                     <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
                                         <span class="crm-badge-soft ${badgeStyle}">${actionLabel}</span>
+                                        <span class="text-muted font-12 font-weight-600">İşlem Yapan:</span>
                                         <strong class="text-dark font-13">${userName}</strong>
                                         ${userUnvan}
                                     </div>
@@ -2032,6 +2267,8 @@ if ($cid || $sid) {
                                 <div class="service-log-summary font-13 text-secondary mt-1">
                                     ${summary}
                                 </div>
+                                ${recipientHtml}
+                                ${noteHtml}
                             </div>
                         </div>
                     `;

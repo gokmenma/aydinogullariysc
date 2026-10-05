@@ -85,6 +85,7 @@ final class ApiSecurity
         'api/permission_save.php' => ['*' => ['authdefine', 'authEdit']],
         'api/services_datatables.php' => [
             'toggle_accounting_receipt' => ['muhasebe_teslim_alma_yetkisi'],
+            'deliver_to_accounting' => ['muhasebe_teslim_alma_yetkisi'],
             'get_accounting_receipt_logs' => ['serviceView'],
         ],
         'api/test_smtp.php' => ['*' => ['panelsettings']],
