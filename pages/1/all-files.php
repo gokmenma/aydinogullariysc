@@ -94,7 +94,11 @@ if (isset($_GET["mode"]) && $_GET["mode"] === "delete" && isset($_GET["id"])) {
         $delQ->execute([$fileId]);
 
         if (function_exists('audit_log')) {
-            audit_log("delete", "all-files", "Dosya silindi: #" . $fileId . " - " . $fileData["filename"], "upfiles", $fileId, $fileData);
+            $fileContext = array_merge($fileData, [
+                'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+                'deleted_by_username' => $_SESSION['username'] ?? null,
+            ]);
+            audit_log("delete", "all-files", "Dosya silindi: #" . $fileId . " - " . $fileData["filename"], "upfiles", $fileId, $fileContext);
         }
 
         header("Location: index.php?p=all-files&st=deleted");

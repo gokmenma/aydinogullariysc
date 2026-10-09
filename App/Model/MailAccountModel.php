@@ -286,7 +286,17 @@ class MailAccountModel extends BaseModel
             if ($result) {
                 if (function_exists('audit_log')) {
                     $mailName = $account['mail_address'] ?? "ID: {$id}";
-                    audit_log('delete', 'send-mail-accounts', "Mail hesabı silindi: {$mailName}", $this->table, (int)$id);
+                    $mailContext = [
+                        'id' => (int)$id,
+                        'mail_title' => $account['mail_title'] ?? null,
+                        'mail_address' => $account['mail_address'] ?? null,
+                        'mail_server' => $account['mail_server'] ?? null,
+                        'mail_port' => $account['mail_port'] ?? null,
+                        'mail_secure' => $account['mail_secure'] ?? null,
+                        'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+                        'deleted_by_username' => $_SESSION['username'] ?? null,
+                    ];
+                    audit_log('delete', 'send-mail-accounts', "Mail hesabı silindi: {$mailName}", $this->table, (int)$id, $mailContext);
                 }
                 return true;
             }

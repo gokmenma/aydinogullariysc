@@ -8,7 +8,7 @@ $sid = $_GET['id'];  // service id
 $pis = $sid;
 $poid = $_GET['poid'] ?? 0;
 
-$cerq = $ac->prepare('SELECT * FROM projects WHERE id = ?');
+$cerq = $ac->prepare('SELECT * FROM projects WHERE id = ? AND deleted_at IS NULL');
 $cerq->execute(array($_GET['id']));
 $cc = $cerq->fetch(PDO::FETCH_ASSOC);
 

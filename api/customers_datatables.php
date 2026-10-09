@@ -133,7 +133,7 @@ $data_query = "
         c.regdate,
         cg.title as group_title,
         (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) as offer_count,
-        (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) as project_count,
+        (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id AND p.deleted_at IS NULL) as project_count,
         (SELECT COUNT(*) FROM reports r WHERE r.customer_id = c.id) as report_count
 " . $base_query . $where_clause . "
     ORDER BY {$order_by} {$order_dir}

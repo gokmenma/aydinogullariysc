@@ -18,6 +18,26 @@ class ServiceModel extends BaseModel
         $this->db = $ac;
     }
 
+    public function softDelete($id, $deletedBy = 0): bool
+    {
+        try {
+            $statement = $this->db->prepare(
+                "UPDATE {$this->table}
+                 SET deleted_at = ?, deleted_by = ?
+                 WHERE id = ? AND deleted_at IS NULL"
+            );
+            $statement->execute([
+                date('Y-m-d H:i:s'),
+                (int) $deletedBy,
+                (int) $id
+            ]);
+            return $statement->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("ServiceModel softDelete Hatası: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function getServiceList()
     {
         $sql = $this->db->prepare("SELECT 
@@ -34,7 +54,8 @@ class ServiceModel extends BaseModel
                                     FROM {$this->table} p
                                     LEFT JOIN customers c ON c.id = p.pcid
                                     LEFT JOIN units u ON u.id = p.servicestype
-                                    LEFT JOIN users us ON us.id = p.pcreativer");
+                                    LEFT JOIN users us ON us.id = p.pcreativer
+                                    WHERE p.deleted_at IS NULL");
         $sql->execute();
         return $sql->fetchAll(PDO::FETCH_OBJ);
     }
@@ -55,8 +76,9 @@ class ServiceModel extends BaseModel
                                         FROM {$this->table} p
                                         LEFT JOIN customers c ON c.id = p.pcid
                                         LEFT JOIN units u ON u.id = p.servicestype
-                                        WHERE STR_TO_DATE(REPLACE(pstart_date, '.', '-'), '%d-%m-%Y') = ? 
-                                           OR STR_TO_DATE(REPLACE(psecond_date, '.', '-'), '%d-%m-%Y') = ?");
+                                        WHERE p.deleted_at IS NULL
+                                          AND (STR_TO_DATE(REPLACE(pstart_date, '.', '-'), '%d-%m-%Y') = ? 
+                                           OR STR_TO_DATE(REPLACE(psecond_date, '.', '-'), '%d-%m-%Y') = ?)");
             $sql->execute([$date, $date]);
             return $sql->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
@@ -75,7 +97,7 @@ class ServiceModel extends BaseModel
     // Gelen id değerine göre servis sayısını getir
     public function getServiceCount($id)
     {
-        $sql = $this->db->prepare("SELECT COUNT(*) as count FROM {$this->table} WHERE pstatu = ?");
+        $sql = $this->db->prepare("SELECT COUNT(*) as count FROM {$this->table} WHERE pstatu = ? AND deleted_at IS NULL");
         $sql->execute([$id]);
         return $sql->fetch(PDO::FETCH_OBJ);
     }
@@ -96,6 +118,7 @@ class ServiceModel extends BaseModel
                     SUM(CASE WHEN pstatu = 17 THEN 1 ELSE 0 END) as tamamlanan_count,
                     SUM(CASE WHEN pstatu = 18 THEN 1 ELSE 0 END) as iptal_count
                 FROM {$this->table}
+                WHERE deleted_at IS NULL
             ");
             $sql->execute();
             $result = $sql->fetch(PDO::FETCH_ASSOC);
@@ -128,7 +151,7 @@ class ServiceModel extends BaseModel
      */
     public function getDashboardSummary($startDate = null, $endDate = null)
     {
-        $where = ["1=1"];
+        $where = ["p.deleted_at IS NULL"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -202,7 +225,7 @@ class ServiceModel extends BaseModel
      */
     public function getTopCustomers($limit = 10, $startDate = null, $endDate = null)
     {
-        $where = ["p.pcid IS NOT NULL", "p.pcid > 0"];
+        $where = ["p.deleted_at IS NULL", "p.pcid IS NOT NULL", "p.pcid > 0"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -261,7 +284,7 @@ class ServiceModel extends BaseModel
      */
     public function getTopUsers($limit = 10, $startDate = null, $endDate = null)
     {
-        $where = ["1=1"];
+        $where = ["p.deleted_at IS NULL"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -326,7 +349,7 @@ class ServiceModel extends BaseModel
                     COUNT(CASE WHEN pstatu = 15 THEN 1 END) as pending_services,
                     COUNT(CASE WHEN pstatu = 16 THEN 1 END) as working_services
                 FROM {$this->table}
-                WHERE pregdate >= ?
+                WHERE deleted_at IS NULL AND pregdate >= ?
                 GROUP BY LEFT(pregdate, 7)
                 ORDER BY ym ASC";
 
@@ -386,7 +409,7 @@ class ServiceModel extends BaseModel
      */
     public function getStatusDistribution($startDate = null, $endDate = null)
     {
-        $where = ["1=1"];
+        $where = ["p.deleted_at IS NULL"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -436,7 +459,7 @@ class ServiceModel extends BaseModel
      */
     public function getServiceTypeDistribution($limit = 8, $startDate = null, $endDate = null)
     {
-        $where = ["1=1"];
+        $where = ["p.deleted_at IS NULL"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -488,7 +511,7 @@ class ServiceModel extends BaseModel
      */
     public function getRegionDistribution($limit = 8, $startDate = null, $endDate = null)
     {
-        $where = ["1=1"];
+        $where = ["p.deleted_at IS NULL"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -538,7 +561,7 @@ class ServiceModel extends BaseModel
      */
     public function getPaymentTypeDistribution($startDate = null, $endDate = null)
     {
-        $where = ["1=1"];
+        $where = ["p.deleted_at IS NULL"];
         $params = [];
 
         if (!empty($startDate)) {
@@ -608,6 +631,7 @@ class ServiceModel extends BaseModel
                 LEFT JOIN units rg ON p.region = rg.id AND rg.statu = 5
                 LEFT JOIN units s ON p.pstatu = s.id AND s.statu = 4
                 LEFT JOIN users u ON p.pcreativer = u.id
+                WHERE p.deleted_at IS NULL
                 ORDER BY p.id DESC
                 LIMIT {$limit}";
 
@@ -643,7 +667,7 @@ class ServiceModel extends BaseModel
                 LEFT JOIN units st ON p.servicestype = st.id AND st.statu = 2
                 LEFT JOIN units rg ON p.region = rg.id AND rg.statu = 5
                 LEFT JOIN users u ON p.pcreativer = u.id
-                WHERE p.pstatu = 15
+                WHERE p.deleted_at IS NULL AND p.pstatu = 15
                 ORDER BY p.id ASC
                 LIMIT {$limit}";
 

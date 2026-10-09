@@ -69,7 +69,7 @@ try {
         FROM customers c
         LEFT JOIN cgroups cg ON c.grp = cg.id
         LEFT JOIN (SELECT cid, COUNT(*) as cnt FROM offers GROUP BY cid) offers_count ON c.id = offers_count.cid
-        LEFT JOIN (SELECT pcid, COUNT(*) as cnt FROM projects GROUP BY pcid) projects_count ON c.id = projects_count.pcid
+        LEFT JOIN (SELECT pcid, COUNT(*) as cnt FROM projects WHERE deleted_at IS NULL GROUP BY pcid) projects_count ON c.id = projects_count.pcid
         $whereClause
         ORDER BY c.id DESC
         LIMIT :start, :length

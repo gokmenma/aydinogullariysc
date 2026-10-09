@@ -658,7 +658,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <select name="isemrino" id="isemrino" class="form-control select2" style="width:100%;">
                                 <option value="">İş Emri Seçiniz</option>
                                 <?php
-                                $servicequery = $ac->prepare("SELECT id FROM projects ORDER BY id DESC");
+                                $servicequery = $ac->prepare("SELECT id FROM projects WHERE deleted_at IS NULL ORDER BY id DESC");
                                 $servicequery->execute();
                                 while ($isemri = $servicequery->fetch(PDO::FETCH_ASSOC)) {
                                     $sn_val = "SN" . $isemri["id"];

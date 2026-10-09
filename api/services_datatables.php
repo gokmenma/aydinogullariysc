@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $serviceCheck = $ac->prepare("SELECT id, service_number, pstatu FROM projects WHERE id = ? LIMIT 1");
+        $serviceCheck = $ac->prepare("SELECT id, service_number, pstatu FROM projects WHERE id = ? AND deleted_at IS NULL LIMIT 1");
         $serviceCheck->execute([$serviceId]);
         $serviceRow = $serviceCheck->fetch(PDO::FETCH_ASSOC);
         if (!$serviceRow) {
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $serviceCheck = $ac->prepare("SELECT id, pstatu FROM projects WHERE id = ? LIMIT 1");
+        $serviceCheck = $ac->prepare("SELECT id, pstatu FROM projects WHERE id = ? AND deleted_at IS NULL LIMIT 1");
         $serviceCheck->execute([$serviceId]);
         $serviceRow = $serviceCheck->fetch(PDO::FETCH_ASSOC);
         if (!$serviceRow) {
@@ -390,13 +390,13 @@ $base_query = "
 ";
 
 // Toplam kayıt için JOIN çalıştırmaya gerek yok.
-$count_query = "SELECT COUNT(*) as total FROM projects";
+$count_query = "SELECT COUNT(*) as total FROM projects WHERE deleted_at IS NULL";
 $count_stmt = $ac->prepare($count_query);
 $count_stmt->execute();
 $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 // Count filtered records
-$where_conditions = [];
+$where_conditions = ["p.deleted_at IS NULL"];
 $params = [];
 // Global search
 if ($search_value !== '') {

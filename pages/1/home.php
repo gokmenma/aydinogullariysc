@@ -33,21 +33,21 @@ if ($canViewSystemLogs) {
 }
 
 // 1. KPI Metrikleri - Servisler
-$waitingServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ?');
+$waitingServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ? AND deleted_at IS NULL');
 $waitingServicesQuery->execute([15]);
 $waitingCount = (int) $waitingServicesQuery->fetchColumn();
 
-$inProgressServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ?');
+$inProgressServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ? AND deleted_at IS NULL');
 $inProgressServicesQuery->execute([16]);
 $inProgressCount = (int) $inProgressServicesQuery->fetchColumn();
 
 $activeServices = $waitingCount + $inProgressCount;
 
-$completedServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ?');
+$completedServicesQuery = $ac->prepare('SELECT COUNT(*) FROM projects WHERE pstatu = ? AND deleted_at IS NULL');
 $completedServicesQuery->execute([17]);
 $completedCount = (int) $completedServicesQuery->fetchColumn();
 
-$totalServicesQuery = $ac->query('SELECT COUNT(*) FROM projects');
+$totalServicesQuery = $ac->query('SELECT COUNT(*) FROM projects WHERE deleted_at IS NULL');
 $totalServices = (int) $totalServicesQuery->fetchColumn();
 $serviceCompRate = $totalServices > 0 ? round(($completedCount / $totalServices) * 100, 1) : 0;
 
@@ -1166,6 +1166,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 																LEFT JOIN customers c ON p.pcid = c.id 
 																LEFT JOIN units u ON p.servicestype = u.id 
 																LEFT JOIN units st ON p.pstatu = st.id
+																WHERE p.deleted_at IS NULL
 																ORDER BY p.id DESC LIMIT 5');
 								$latestProjects->execute();
 								$hasProjects = false;

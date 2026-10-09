@@ -27,7 +27,7 @@ $cerq = $ac->prepare("SELECT * FROM customers WHERE id = ?");
 $cerq->execute(array($_GET["id"] ?? 0));
 $cc = $cerq->fetch(PDO::FETCH_ASSOC);
 
-$todos = $ac->prepare("SELECT COUNT(*) FROM projects WHERE pcid = ?");
+$todos = $ac->prepare("SELECT COUNT(*) FROM projects WHERE pcid = ? AND deleted_at IS NULL");
 $todos->execute(array($id));
 $pjs = $todos->fetchColumn();
 
@@ -41,7 +41,7 @@ $sot->execute(array($id));
 $sonteklif = $sot->fetch(PDO::FETCH_ASSOC);
 
 // Son Oluşturulan Servis
-$sos = $ac->prepare("SELECT * FROM projects WHERE pcid = ? ORDER BY id DESC LIMIT 1");
+$sos = $ac->prepare("SELECT * FROM projects WHERE pcid = ? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1");
 $sos->execute(array($id));
 $ojsp = $sos->fetch(PDO::FETCH_ASSOC);
 

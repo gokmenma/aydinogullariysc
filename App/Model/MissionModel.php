@@ -224,6 +224,10 @@ class MissionModel extends BaseModel
     {
         try {
             $id = (int)$id;
+            $sel = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ? AND creativer = ?");
+            $sel->execute([$id, (int)$userId]);
+            $missionData = $sel->fetch(PDO::FETCH_ASSOC);
+
             $stmt = $this->db->prepare("UPDATE {$this->table} SET deleted = 'yes' WHERE id = ? AND creativer = ? AND deleted != 'yes'");
             $res = $stmt->execute([$id, (int)$userId]);
 
@@ -232,9 +236,19 @@ class MissionModel extends BaseModel
             }
 
             if ($res && function_exists('audit_log')) {
-                audit_log('delete', 'missions', "Görev silindi (ID: {$id})", 'mission', $id, [
-                    'deleted_by' => $userId
-                ]);
+                $missionContext = [
+                    'id' => $id,
+                    'title' => $missionData['title'] ?? null,
+                    'content' => $missionData['content'] ?? null,
+                    'status' => $missionData['status'] ?? null,
+                    'priority' => $missionData['priority'] ?? null,
+                    'start_date' => $missionData['start_date'] ?? null,
+                    'end_date' => $missionData['end_date'] ?? null,
+                    'deleted_by_user_id' => $userId,
+                    'deleted_by_username' => $_SESSION['username'] ?? null,
+                ];
+                $mTitle = $missionData['title'] ?? '#' . $id;
+                audit_log('delete', 'missions', "Görev silindi: {$mTitle}", 'mission', $id, $missionContext);
             }
 
             return $res;

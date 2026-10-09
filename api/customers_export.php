@@ -64,7 +64,7 @@ if (is_array($requestedColumns)) {
 $sql = '
     SELECT c.id, c.company, cg.title AS group_title, c.represant,
            (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) AS offer_count,
-           (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id) AS service_count,
+           (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id AND p.deleted_at IS NULL) AS service_count,
            (SELECT COUNT(*) FROM reports r WHERE r.customer_id = c.id) AS report_count,
            c.email, c.gsm, c.regdate, c.yetkili, c.city, c.ilce, c.region, c.address
     FROM customers c

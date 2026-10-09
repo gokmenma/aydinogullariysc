@@ -314,8 +314,36 @@ if ($_POST['action'] == 'saveOffer') {
 if ($_POST['action'] == 'deleteOffer') {
     $id = (int) ($_POST['id'] ?? 0);
     try {
+        $offerData = $offer->find($id);
+        $customerName = '';
+        if (!empty($offerData->cid)) {
+            $custStmt = $ac->prepare("SELECT company FROM customers WHERE id = ?");
+            $custStmt->execute([$offerData->cid]);
+            $customerName = $custStmt->fetchColumn() ?: '';
+        }
+
+        $offerProducts = $offer->getOfferProducts($id);
+
+        $offerContext = [
+            'id' => $id,
+            'offer_number' => $offerData->offerNumber ?? null,
+            'customer_id' => $offerData->cid ?? null,
+            'customer_name' => $customerName,
+            'offer_date' => $offerData->offer_date ?? ($offerData->created_at ?? null),
+            'subject' => $offerData->offer_subject ?? null,
+            'total_price' => $offerData->total_price ?? null,
+            'currency' => $offerData->currency ?? null,
+            'status_id' => $offerData->statu ?? null,
+            'description' => $offerData->description ?? null,
+            'matters_count' => is_array($offerProducts) ? count($offerProducts) : 0,
+            'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+            'deleted_by_username' => $_SESSION['username'] ?? null,
+        ];
+
+        $offerSummary = "Teklif silindi: " . ($offerData->offerNumber ?? ('#' . $id)) . ($customerName ? " ({$customerName})" : '');
+
         $offer->deleteOffer($id);
-        audit_log("delete", "offers", "Teklif silindi", "offer", $id);
+        audit_log("delete", "offers", $offerSummary, "offer", $id, $offerContext);
         $status = 'success';
         $message = 'Teklif başarı ile silindi.';
     } catch (\Throwable $ex) {

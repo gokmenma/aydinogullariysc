@@ -82,7 +82,7 @@ if ($cid) {
         LEFT JOIN users aur ON aur.id = ar.recipient_id
         LEFT JOIN units cs ON cs.id = p.contract_statu AND cs.statu = 4
         LEFT JOIN units st ON st.id = p.pstatu AND st.statu = 4
-        WHERE p.pcid = ? 
+        WHERE p.pcid = ? AND p.deleted_at IS NULL
         ORDER BY p.id desc
     ");
     $query->execute(array($cid));
@@ -125,7 +125,7 @@ if ($cid) {
         LEFT JOIN users aur ON aur.id = ar.recipient_id
         LEFT JOIN units cs ON cs.id = p.contract_statu AND cs.statu = 4
         LEFT JOIN units st ON st.id = p.pstatu AND st.statu = 4
-        WHERE p.id = ? 
+        WHERE p.id = ? AND p.deleted_at IS NULL
         ORDER BY p.id desc
     ");
     $query->execute(array($sid));

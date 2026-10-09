@@ -458,7 +458,7 @@ if (@$_GET["st"] == "error") {
                     <select name="isemrino" id="isemrino" data-size="10" class="form-control selectpicker" data-style="bg-white border">
                         <option value="">İş Emri Seçiniz</option>
                         <?php
-                        $servicequery = $ac->prepare("SELECT id FROM projects ORDER BY id DESC");
+                        $servicequery = $ac->prepare("SELECT id FROM projects WHERE deleted_at IS NULL ORDER BY id DESC");
                         $servicequery->execute();
                         while ($isemri = $servicequery->fetch(PDO::FETCH_ASSOC)) {
                             $snValue = "SN" . $isemri["id"];

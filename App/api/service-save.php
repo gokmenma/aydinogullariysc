@@ -82,7 +82,7 @@ $serviceNumberLockAcquired = false;
 
 try {
     if ($isEdit) {
-        $currentQuery = $ac->prepare('SELECT * FROM projects WHERE id = ?');
+        $currentQuery = $ac->prepare('SELECT * FROM projects WHERE id = ? AND deleted_at IS NULL');
         $currentQuery->execute([$serviceId]);
         $current = $currentQuery->fetch(PDO::FETCH_ASSOC);
 

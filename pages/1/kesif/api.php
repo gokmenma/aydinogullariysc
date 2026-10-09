@@ -207,13 +207,30 @@ try {
                 throw new Exception('Bu işlem için yetkiniz bulunmamaktadır.');
             }
 
-            $id = $_POST['id'] ?? 0;
+            $id = (int)($_POST['id'] ?? 0);
             if (empty($id)) {
                 throw new Exception('ID belirtilmesi gerekli');
             }
 
+            $kesifData = $kesifObj->findActive($id);
             $kesifObj->softDelete($id, $user_id);
-            $logger->info('Keşif silindi', ['id' => $id]);
+
+            if (function_exists('audit_log')) {
+                $kesifContext = [
+                    'id' => $id,
+                    'customer_name' => $kesifData['musteri_adi'] ?? null,
+                    'customer_id' => $kesifData['musteri_id'] ?? null,
+                    'kesif_tarihi' => $kesifData['kesif_tarihi'] ?? null,
+                    'durum' => $kesifData['durum'] ?? null,
+                    'yetkili' => $kesifData['yetkili_kisi'] ?? null,
+                    'telefon' => $kesifData['telefon'] ?? null,
+                    'adres' => $kesifData['adres'] ?? null,
+                    'deleted_by_user_id' => $user_id,
+                    'deleted_by_username' => $_SESSION['username'] ?? null,
+                ];
+                $kTitle = $kesifData['musteri_adi'] ?? ('#' . $id);
+                audit_log('delete', 'kesif', "Keşif silindi: {$kTitle}", 'kesif', $id, $kesifContext);
+            }
 
             $response['success'] = true;
             $response['message'] = 'Keşif başarıyla silindi.';

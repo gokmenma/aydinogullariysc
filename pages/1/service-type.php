@@ -95,10 +95,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // GET ile Silme Desteği
 if (!empty($_GET["id"]) && @$_GET["mode"] === "delete" && @$_GET["code"] === "04md177") {
     $delId = (int)$_GET["id"];
+    $selStmt = $ac->prepare("SELECT * FROM units WHERE id = ? AND statu = ?");
+    $selStmt->execute([$delId, $statuCode]);
+    $unitData = $selStmt->fetch(PDO::FETCH_ASSOC);
+
     $delStmt = $ac->prepare("DELETE FROM units WHERE id = ? AND statu = ?");
     $delStmt->execute([$delId, $statuCode]);
     if (function_exists('audit_log')) {
-        audit_log("delete", $pageSlug, "Servis konusu silindi. ID: " . $delId, "units", (string)$delId);
+        $unitContext = [
+            'id' => $delId,
+            'title' => $unitData['title'] ?? null,
+            'status' => $unitData['statu'] ?? $statuCode,
+            'regdate' => $unitData['regdate'] ?? null,
+            'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+            'deleted_by_username' => $_SESSION['username'] ?? null,
+        ];
+        audit_log("delete", $pageSlug, "Servis konusu silindi: " . ($unitData['title'] ?? '#' . $delId), "units", (string)$delId, $unitContext);
     }
 }
 

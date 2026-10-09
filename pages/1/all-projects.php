@@ -2,16 +2,56 @@
 
 $pids = @$_GET["id"];
 if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
-  // permcontrol("purchasedelete");
-  $qcont = $ac->prepare("SELECT * FROM projects WHERE id = ?");
+  permcontrol("serviceDel");
+  $stItem = $ac->prepare("
+      SELECT p.*, 
+             c.company as customer_name,
+             u.username as creator_username,
+             st.title as service_type_name,
+             ss.title as status_name,
+             sr.title as region_name
+      FROM projects p
+      LEFT JOIN customers c ON c.id = p.pcid
+      LEFT JOIN users u ON u.id = p.creativer
+      LEFT JOIN units st ON st.id = p.p_type AND st.statu = 'servicestype'
+      LEFT JOIN units ss ON ss.id = p.pstatu AND ss.statu = 'servicestatus'
+      LEFT JOIN units sr ON sr.id = p.pregion AND sr.statu = 'serviceregion'
+      WHERE p.id = ? AND p.deleted_at IS NULL
+  ");
+  $stItem->execute([$pids]);
+  $itemData = $stItem->fetch(PDO::FETCH_ASSOC);
 
-  $qcont->execute(array($pids));
-  $qkx = $qcont->fetch(PDO::FETCH_ASSOC);
-  if ($qkx) {
-    $pdq = $ac->prepare("DELETE FROM projects WHERE id = ?");
-    $pdq->execute(array($pids));
+  $serviceModel = new \App\Model\ServiceModel();
+  $deletedBy = $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0);
+  $serviceModel->softDelete($pids, $deletedBy);
 
-    // header("Location: index.php?p=purchases&type=delete&code=0882md25&pid=$pids");
+  if ($itemData && function_exists('audit_log')) {
+      $serviceContext = [
+          'id' => $pids,
+          'service_number' => $itemData['service_number'] ?? null,
+          'customer_id' => $itemData['pcid'] ?? null,
+          'customer_name' => $itemData['customer_name'] ?? null,
+          'service_type' => $itemData['service_type_name'] ?? ($itemData['p_type'] ?? null),
+          'status' => $itemData['status_name'] ?? ($itemData['pstatu'] ?? null),
+          'region' => $itemData['region_name'] ?? ($itemData['pregion'] ?? null),
+          'price' => $itemData['price'] ?? null,
+          'currency' => $itemData['currency'] ?? null,
+          'start_date' => $itemData['start_date'] ?? null,
+          'finish_date' => $itemData['finish_date'] ?? null,
+          'description' => $itemData['description'] ?? null,
+          'creator' => $itemData['creator_username'] ?? null,
+          'created_at' => $itemData['created_at'] ?? null,
+          'deleted_by_user_id' => $deletedBy,
+          'deleted_by_username' => $_SESSION['username'] ?? null,
+      ];
+      audit_log(
+          "delete",
+          "services",
+          "Servis silindi: " . ($itemData['service_number'] ?? '#' . $pids) . (!empty($itemData['customer_name']) ? " (" . $itemData['customer_name'] . ")" : ""),
+          "service",
+          $pids,
+          $serviceContext
+      );
   }
 }
 if (@$_GET["st"] == "yes") {
@@ -46,7 +86,7 @@ if (@$_GET["st"] == "yes") {
     <tbody>
       <?php
       $sira = 1;
-      $query = $ac->prepare("SELECT * FROM projects ORDER BY id desc");
+      $query = $ac->prepare("SELECT * FROM projects WHERE deleted_at IS NULL ORDER BY id desc");
       $query->execute();
 
       while ($purc = $query->fetch(PDO::FETCH_ASSOC)) {

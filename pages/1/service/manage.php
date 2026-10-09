@@ -34,7 +34,7 @@ $cc = null;
 $sid = 0;
 if ($isEdit) {
     $sid = $_GET['id'];
-    $cerq = $ac->prepare('SELECT * FROM projects WHERE id = ?');
+    $cerq = $ac->prepare('SELECT * FROM projects WHERE id = ? AND deleted_at IS NULL');
     $cerq->execute(array($sid));
     $cc = $cerq->fetch(PDO::FETCH_ASSOC);
 

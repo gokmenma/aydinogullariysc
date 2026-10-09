@@ -13,8 +13,29 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
     $cdid = (int)$_GET["id"];
     $contq = $ac->prepare("SELECT * FROM customers WHERE id = ?");
     $contq->execute(array($cdid));
-    if ($contq->fetch(PDO::FETCH_ASSOC)) {
+    $custData = $contq->fetch(PDO::FETCH_ASSOC);
+    if ($custData) {
         $CustomerModel->softDelete($cdid, $_SESSION['lid'] ?? 0);
+        if (function_exists('audit_log')) {
+            $custContext = [
+                'id' => $cdid,
+                'company' => $custData['company'] ?? null,
+                'email' => $custData['email'] ?? null,
+                'gsm' => $custData['gsm'] ?? null,
+                'yetkili' => $custData['yetkili'] ?? null,
+                'city' => $custData['city'] ?? null,
+                'ilce' => $custData['ilce'] ?? null,
+                'address' => $custData['address'] ?? null,
+                'tax_office' => $custData['tax_office'] ?? null,
+                'tax_number' => $custData['tax_number'] ?? null,
+                'region' => $custData['region'] ?? null,
+                'group' => $custData['grp'] ?? null,
+                'regdate' => $custData['regdate'] ?? null,
+                'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+                'deleted_by_username' => $_SESSION['username'] ?? null,
+            ];
+            audit_log("delete", "customers", "Firma pasife alındı: " . ($custData['company'] ?? ('#' . $cdid)), "customer", $cdid, $custContext);
+        }
         header("Location: index.php?p=customers&id=$cdid&type=delete");
         exit;
     }

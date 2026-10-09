@@ -100,7 +100,7 @@ if (@$_GET["id"] && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
                 $tqm->execute(array($as["id"]));
                 $tsay = $tqm->rowCount();
 
-                $pqm = $ac->prepare("SELECT * FROM projects WHERE pcid = ?");
+                $pqm = $ac->prepare("SELECT * FROM projects WHERE pcid = ? AND deleted_at IS NULL");
                 $pqm->execute(array($as["id"]));
                 $servissay = $pqm->rowCount();
 

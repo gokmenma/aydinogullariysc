@@ -18,7 +18,7 @@ if (!$cc) {
 	exit;
 }
 
-$todos = $ac->prepare("SELECT COUNT(*) FROM projects WHERE pcid = ?");
+$todos = $ac->prepare("SELECT COUNT(*) FROM projects WHERE pcid = ? AND deleted_at IS NULL");
 $todos->execute(array($cid));
 $pjs = $todos->fetchColumn();
 
@@ -32,7 +32,7 @@ $sot->execute(array($cid));
 $sonteklif = $sot->fetch(PDO::FETCH_ASSOC);
 
 // Son Oluşturulan Servis
-$sos = $ac->prepare("SELECT * FROM projects WHERE pcid = ? ORDER BY id DESC LIMIT 1");
+$sos = $ac->prepare("SELECT * FROM projects WHERE pcid = ? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1");
 $sos->execute(array($cid));
 $ojsp = $sos->fetch(PDO::FETCH_ASSOC);
 

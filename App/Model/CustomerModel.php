@@ -699,7 +699,7 @@ class CustomerModel extends BaseModel
                 SUM(CASE WHEN pstatu = 18 THEN 1 ELSE 0 END) as cancelled_count,
                 COALESCE(SUM(price), 0) as total_price
             FROM projects
-            WHERE pcid = ?
+            WHERE pcid = ? AND deleted_at IS NULL
         ");
         $stmtProjectsStats->execute([$customerId]);
         $projectStats = $stmtProjectsStats->fetch(\PDO::FETCH_ASSOC);
@@ -801,7 +801,7 @@ class CustomerModel extends BaseModel
                 COALESCE(ms.stitle, 'Genel Servis') as service_title
             FROM projects p
             LEFT JOIN mainservices ms ON ms.id = p.servicestype
-            WHERE p.pcid = ?
+            WHERE p.pcid = ? AND p.deleted_at IS NULL
             ORDER BY p.id DESC
             LIMIT 15
         ");

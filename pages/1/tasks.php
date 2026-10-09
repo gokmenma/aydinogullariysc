@@ -7,11 +7,26 @@ if ($pids && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 	if (function_exists('permcontrol')) {
 		permcontrol("tododelete");
 	}
+	$taskStmt = $ac->prepare("SELECT * FROM todolist WHERE id = ?");
+	$taskStmt->execute(array($pids));
+	$taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
+
 	$pdq = $ac->prepare("DELETE FROM todolist WHERE id = ?");
 	$pdq->execute(array($pids));
 	
 	if (function_exists('audit_log')) {
-		audit_log('delete', 'tasks', 'Görev silindi (ID: ' . $pids . ')', 'task', $pids);
+		$taskContext = [
+			'id' => $pids,
+			'title' => $taskData['title'] ?? null,
+			'content' => $taskData['content'] ?? null,
+			'user_id' => $taskData['user_id'] ?? null,
+			'status' => $taskData['okey'] ?? null,
+			'regdate' => $taskData['regdate'] ?? null,
+			'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+			'deleted_by_username' => $_SESSION['username'] ?? null,
+		];
+		$taskTitle = $taskData['title'] ?? ($taskData['content'] ?? '#' . $pids);
+		audit_log('delete', 'tasks', 'Görev silindi: ' . mb_substr($taskTitle, 0, 50), 'task', $pids, $taskContext);
 	}
 
 	header("Location: index.php?p=tasks&st=deleted");

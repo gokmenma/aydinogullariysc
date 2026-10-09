@@ -77,7 +77,7 @@ $base_query = "
     LEFT JOIN users aur ON aur.id = ar.recipient_id
 ";
 
-$where_conditions = [];
+$where_conditions = ["p.deleted_at IS NULL"];
 $params = [];
 
 if ($cid) {

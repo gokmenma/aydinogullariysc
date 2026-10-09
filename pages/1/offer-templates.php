@@ -75,10 +75,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // GET ile Silme İsteği (Geriye Dönük Uyumluluk)
 if (!empty($_GET["id"]) && @$_GET["mode"] === "delete" && @$_GET["code"] === "04md177") {
     $delId = (int)$_GET["id"];
+    $selStmt = $ac->prepare("SELECT * FROM offertemplate WHERE id = ?");
+    $selStmt->execute([$delId]);
+    $tplData = $selStmt->fetch(PDO::FETCH_ASSOC);
+
     $delStmt = $ac->prepare("DELETE FROM offertemplate WHERE id = ?");
     $delStmt->execute([$delId]);
     if (function_exists('audit_log')) {
-        audit_log("delete", "offer_template", "Teklif şablonu silindi. ID: " . $delId, "offertemplate", (string)$delId);
+        $tplContext = [
+            'id' => $delId,
+            'title' => $tplData['title'] ?? null,
+            'state' => $tplData['State'] ?? null,
+            'content' => $tplData['content'] ?? null,
+            'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+            'deleted_by_username' => $_SESSION['username'] ?? null,
+        ];
+        audit_log("delete", "offer_template", "Teklif şablonu silindi: " . ($tplData['title'] ?? '#' . $delId), "offertemplate", (string)$delId, $tplContext);
     }
 }
 

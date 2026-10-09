@@ -296,7 +296,8 @@ class GlobalSearchModel extends BaseModel
                     FROM projects p
                     LEFT JOIN customers c ON c.id = p.pcid
                     LEFT JOIN units u ON u.id = p.servicestype
-                    WHERE (
+                    WHERE p.deleted_at IS NULL
+                      AND (
                         p.service_number LIKE :q1
                         OR c.company LIKE :q2
                         OR u.title LIKE :q3

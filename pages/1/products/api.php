@@ -84,8 +84,25 @@ if ($_POST['action'] == 'delete-product') {
 
     try {
         $decryptedId = Security::decrypt($id);
+        $productData = $Products->find($decryptedId);
+
+        $prodContext = [
+            'id' => $decryptedId,
+            'name' => $productData->Adi ?? ($productData->name ?? null),
+            'stock_code' => $productData->StokKodu ?? null,
+            'barcode' => $productData->Barkod ?? null,
+            'unit' => $productData->Birimi ?? null,
+            'price' => $productData->SatisFiyati ?? null,
+            'currency' => $productData->SatisParaBirimi ?? null,
+            'kdv' => $productData->KdvOrani ?? null,
+            'category' => $productData->Kategori ?? null,
+            'deleted_by_user_id' => $_SESSION['lid'] ?? ($_SESSION['id'] ?? 0),
+            'deleted_by_username' => $_SESSION['username'] ?? null,
+        ];
+
+        $prodName = $productData->Adi ?? ($productData->name ?? '#' . $decryptedId);
         $Products->delete($decryptedId);
-        audit_log("delete", "products", "Ürün/hizmet silindi", "product", $decryptedId);
+        audit_log("delete", "products", "Ürün/hizmet silindi: " . $prodName, "product", $decryptedId, $prodContext);
         $status = "success";
         $message = "Ürün başarıyla silindi.";
     } catch (PDOException $ex) {

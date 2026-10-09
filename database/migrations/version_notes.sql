@@ -593,4 +593,9 @@ INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, 
 SELECT 'v2.8.47', 'Servisler Modülü Muhasebeye Teslim Et ve Teslim Al Özellikleri', 'feature', '- Servisler listesine Select2 destekli "Muhasebeye Teslim Et" ve iki aşamalı evrak kabulü sağlayan "Muhasebe Teslim Al" aksiyonları eklendi; teslimat aşamasında genel Muhasebe Departmanı seçimi ve durum güncellemeleri entegre edildi.', 'Antigravity AI', '2026-10-05 10:20:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.47');
 
-
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.48', 'Servisler Modülünde Soft Delete (Geçici Silme) Altyapısı', 'feature', '- Servis silme işlemleri fiziksel silme yerine deleted_at ve deleted_by alanlarıyla soft delete yapısına geçirildi; liste, dashboard, KPI ve arama sorguları filtrelendi.', 'Antigravity AI', '2026-10-09 19:05:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.48');
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.49', 'Silme İşlemleri Loglarında Zengin Snapshot Context Desteği', 'improvement', '- Tüm modüllerdeki silme işlemlerinde kaydın silinmeden önceki tüm detayları (evrak, servis, teklif, müşteri, ürün vb.) log context verisi olarak kaydedildi ve log detay modalında JSON görünümü zenginleştirildi.', 'Antigravity AI', '2026-10-09 19:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.49');

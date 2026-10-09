@@ -15,7 +15,17 @@ if ($nid && @$_GET["mode"] == "delete" && @$_GET["code"] == "04md177") {
 		$deleted = $pdq->execute(array($nid));
 
 		if ($deleted && function_exists('audit_log')) {
-			audit_log('delete', 'notes', 'Not silindi: ' . ($qkx['title'] ?? ''), 'note', $nid, ['deleted_title' => $qkx['title'] ?? '']);
+			$noteContext = [
+				'id' => $nid,
+				'title' => $qkx['title'] ?? null,
+				'content' => $qkx['content'] ?? null,
+				'visibility' => $qkx['visibility'] ?? null,
+				'creativer' => $qkx['creativer'] ?? null,
+				'created_at' => $qkx['created_at'] ?? ($qkx['regdate'] ?? null),
+				'deleted_by_user_id' => $currentUserId,
+				'deleted_by_username' => $_SESSION['username'] ?? null,
+			];
+			audit_log('delete', 'notes', 'Not silindi: ' . ($qkx['title'] ?? '#' . $nid), 'note', $nid, $noteContext);
 		}
 
 		header("Location: index.php?p=all-notes&type=delete&code=0882md25&tid=" . urlencode($nid));
