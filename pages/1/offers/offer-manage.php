@@ -1956,8 +1956,8 @@ if ($oid != 0 && isset($offer->offer_footer_content) && $offer->offer_footer_con
 <?php include_once __DIR__ . '/../../../components/modals/multi-product-modal.php'; ?>
 
 <!--buradan başlıyor-->
-<script src="include/js/offer.js"></script>
-<script src="pages/1/offers/offer.js?v=<?php echo filemtime("pages/1/offers/offer.js"); ?>"></script>
+<script src="include/js/offer.js?v=<?php echo file_exists('include/js/offer.js') ? filemtime('include/js/offer.js') : time(); ?>"></script>
+<script src="pages/1/offers/offer.js?v=<?php echo file_exists('pages/1/offers/offer.js') ? filemtime('pages/1/offers/offer.js') : time(); ?>"></script>
 
 <script>
 $(document).ready(function() {
@@ -2388,6 +2388,89 @@ $(document).ready(function() {
             $(this).hide();
         });
     }
+
+    // Şablon Seçimi ve WYSIHTML5 İçerik Güncelleme
+    window.setOfferTemplateContent = function(type, htmlContent) {
+        htmlContent = htmlContent || '';
+        var cleanType = type ? (type.charAt(0).toUpperCase() + type.slice(1)) : '';
+        var wrapperSelector = '#offer' + cleanType + 'Content';
+        var $wrapper = $(wrapperSelector);
+        if (!$wrapper.length) {
+            $wrapper = $('.offer' + cleanType + 'Content');
+        }
+
+        var $textarea = $wrapper.find('textarea');
+        $textarea.val(htmlContent);
+
+        var editorData = $textarea.data('wysihtml5');
+        if (editorData && editorData.editor && typeof editorData.editor.setValue === 'function') {
+            try {
+                editorData.editor.setValue(htmlContent, false);
+            } catch (e) {
+                console.warn('wysihtml5 setValue hatası:', e);
+            }
+        }
+
+        var $iframe = $wrapper.find('iframe.wysihtml5-sandbox, .wysihtml5-sandbox');
+        if ($iframe.length) {
+            try {
+                var iframeEl = $iframe[0];
+                var doc = iframeEl.contentDocument || (iframeEl.contentWindow && iframeEl.contentWindow.document);
+                if (doc && doc.body) {
+                    doc.body.innerHTML = htmlContent;
+                }
+            } catch (e) {
+                try {
+                    $iframe.contents().find('body').html(htmlContent);
+                } catch (err) {}
+            }
+        }
+
+        if (typeof window.syncWysihtml5Theme === 'function') {
+            try {
+                window.syncWysihtml5Theme();
+            } catch (e) {}
+        }
+    };
+
+    window.getOfferTemplate = function(name, type) {
+        var id = 0;
+        if (typeof name === 'object' && name !== null) {
+            id = $(name).val();
+        } else if (typeof name === 'number' || typeof name === 'string') {
+            id = isNaN(name) ? $(name).val() : name;
+        }
+
+        var cleanType = type ? (type.charAt(0).toUpperCase() + type.slice(1)) : '';
+        if (!id || parseInt(id, 10) <= 0) {
+            window.setOfferTemplateContent(cleanType, '');
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: 'pages/1/offer-get-template.php',
+            data: { id: id },
+            dataType: 'json',
+            success: function(response) {
+                var data = (typeof response === 'string') ? JSON.parse(response) : response;
+                if (data && typeof data.content !== 'undefined') {
+                    window.setOfferTemplateContent(cleanType, data.content);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Şablon yükleme hatası:', error);
+            }
+        });
+    };
+
+    $(document).on('change select2:select', '#offerHeader', function() {
+        window.getOfferTemplate($(this), 'Header');
+    });
+
+    $(document).on('change select2:select', '#offerFooter', function() {
+        window.getOfferTemplate($(this), 'Footer');
+    });
 });
 
 function syncOfferTotalsDrawer() {

@@ -8,16 +8,34 @@ $(document).on("click", "#btn_save_offer", function () {
 
 function TeklifKaydet(autosave = false) {
   // WYSIWYG editor içeriklerini textarea'lara aktar
-  $(".offerHeaderContent .wysihtml5-sandbox").each(function () {
-    var html = $(this).contents().find("body").html();
-    if (html !== undefined) {
-      $("#offerHeaderContent textarea").val(html);
+  ["Header", "Footer"].forEach(function (type) {
+    var $wrapper = $("#offer" + type + "Content");
+    if (!$wrapper.length) {
+      $wrapper = $(".offer" + type + "Content");
     }
-  });
-  $(".offerFooterContent .wysihtml5-sandbox").each(function () {
-    var html = $(this).contents().find("body").html();
-    if (html !== undefined) {
-      $("#offerFooterContent textarea").val(html);
+    var $textarea = $wrapper.find("textarea");
+    var editorData = $textarea.data("wysihtml5");
+    var content = "";
+    if (editorData && editorData.editor && typeof editorData.editor.getValue === "function") {
+      content = editorData.editor.getValue();
+    }
+    if (!content || content === "<br>" || content === "<p><br></p>") {
+      var $iframe = $wrapper.find("iframe.wysihtml5-sandbox, .wysihtml5-sandbox");
+      if ($iframe.length) {
+        try {
+          var iframeDoc = $iframe[0].contentDocument || ($iframe[0].contentWindow && $iframe[0].contentWindow.document);
+          if (iframeDoc && iframeDoc.body) {
+            content = iframeDoc.body.innerHTML;
+          }
+        } catch (e) {
+          try {
+            content = $iframe.contents().find("body").html();
+          } catch (err) {}
+        }
+      }
+    }
+    if (content !== undefined && content !== "") {
+      $textarea.val(content);
     }
   });
 
@@ -389,17 +407,23 @@ $(document).ready(function () {
   });
 });
 
-$("#offerHeader").change(function () {
-  var content = $(this); // olay tetiklendiğinde 'this' kullanarak #offerHeader öğesini alıyoruz
-  getOfferTemplate(content, "Header");
+$(document).on("change select2:select", "#offerHeader", function () {
+  var content = $(this);
+  if (typeof getOfferTemplate === "function") {
+    getOfferTemplate(content, "Header");
+  } else if (typeof window.getOfferTemplate === "function") {
+    window.getOfferTemplate(content, "Header");
+  }
 });
 
-$("#offerFooter").change(function () {
-  var content = $(this); // olay tetiklendiğinde 'this' kullanarak #offerHeader öğesini alıyoruz
-  getOfferTemplate(content, "Footer");
+$(document).on("change select2:select", "#offerFooter", function () {
+  var content = $(this);
+  if (typeof getOfferTemplate === "function") {
+    getOfferTemplate(content, "Footer");
+  } else if (typeof window.getOfferTemplate === "function") {
+    window.getOfferTemplate(content, "Footer");
+  }
 });
-//getOfferTemplate($('#offerHeader'), "Header");
-//getOfferTemplate($('#offerFooter'), "Footer");
 
 $("#servicebutton").on("click", function (event) {
   var offerstatu = $("#offerstatu").val();

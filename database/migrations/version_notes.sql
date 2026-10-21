@@ -599,3 +599,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.48')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.49', 'Silme İşlemleri Loglarında Zengin Snapshot Context Desteği', 'improvement', '- Tüm modüllerdeki silme işlemlerinde kaydın silinmeden önceki tüm detayları (evrak, servis, teklif, müşteri, ürün vb.) log context verisi olarak kaydedildi ve log detay modalında JSON görünümü zenginleştirildi.', 'Antigravity AI', '2026-10-09 19:15:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.49');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.50', 'Teklif Üst ve Alt Bilgi Şablon Seçimi Senkronizasyonu', 'bugfix', '- Yeni teklif ve teklif düzenleme sayfalarında üst bilgi veya alt bilgi şablonu seçildiğinde ilgili açıklama editörünün içeriğinin anlık ve sorunsuz olarak güncellenmesi sağlandı.', 'Antigravity AI', '2026-10-21 10:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.50');

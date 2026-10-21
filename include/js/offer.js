@@ -85,28 +85,79 @@ function offercopy(id) {
     });
 }
 
+function setOfferTemplateContent(type, htmlContent) {
+  htmlContent = htmlContent || "";
+  var cleanType = type ? (type.charAt(0).toUpperCase() + type.slice(1)) : "";
+  var wrapperSelector = "#offer" + cleanType + "Content";
+  var $wrapper = $(wrapperSelector);
+  if (!$wrapper.length) {
+    $wrapper = $(".offer" + cleanType + "Content");
+  }
+
+  var $textarea = $wrapper.find("textarea");
+  $textarea.val(htmlContent);
+
+  var editorData = $textarea.data("wysihtml5");
+  if (editorData && editorData.editor && typeof editorData.editor.setValue === "function") {
+    try {
+      editorData.editor.setValue(htmlContent, false);
+    } catch (e) {
+      console.warn("wysihtml5 setValue hatası:", e);
+    }
+  }
+
+  var $iframe = $wrapper.find("iframe.wysihtml5-sandbox");
+  if ($iframe.length) {
+    try {
+      var iframeEl = $iframe[0];
+      var doc = iframeEl.contentDocument || (iframeEl.contentWindow && iframeEl.contentWindow.document);
+      if (doc && doc.body) {
+        doc.body.innerHTML = htmlContent;
+      }
+    } catch (e) {
+      try {
+        $iframe.contents().find("body").html(htmlContent);
+      } catch (err) {}
+    }
+  }
+
+  if (typeof window.syncWysihtml5Theme === "function") {
+    try {
+      window.syncWysihtml5Theme();
+    } catch (e) {}
+  }
+}
+
 function getOfferTemplate(name, type) {
-  var id = name.val();
+  var id = 0;
+  if (typeof name === "object" && name !== null) {
+    id = $(name).val();
+  } else if (typeof name === "number" || typeof name === "string") {
+    id = isNaN(name) ? $(name).val() : name;
+  }
 
-  var contentEditableElement = $("#offer" + type + "Content")
-    .find("iframe")
-    .contents()
-    .find(".textarea_editor")
-    .get(0);
+  var cleanType = type ? (type.charAt(0).toUpperCase() + type.slice(1)) : "";
+  if (!id || parseInt(id, 10) <= 0) {
+    setOfferTemplateContent(cleanType, "");
+    return;
+  }
 
-  var ajaxpromise = $.ajax({
+  $.ajax({
     type: "POST",
     url: "pages/1/offer-get-template.php",
     data: {
       id: id
+    },
+    dataType: "json",
+    success: function (response) {
+      var data = (typeof response === "string") ? JSON.parse(response) : response;
+      if (data && typeof data.content !== "undefined") {
+        setOfferTemplateContent(cleanType, data.content);
+      }
+    },
+    error: function (xhr, status, error) {
+      console.error("Şablon yükleme hatası:", error);
     }
-  }).then(function (response) {
-    var data = JSON.parse(response);
-    $(".offer" + type + "Content .wysihtml5-sandbox")
-      .contents()
-      .find("body")
-      .html(data.content);
-    $("#offer" + type + "Content textarea").val(data.content);
   });
 }
 
