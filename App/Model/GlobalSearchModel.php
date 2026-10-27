@@ -40,6 +40,7 @@ class GlobalSearchModel extends BaseModel
         }
 
         $param = '%' . $rawQuery . '%';
+        $allowed = self::allowedCategories();
         $results = [
             'offers'    => [],
             'products'  => [],
@@ -50,7 +51,7 @@ class GlobalSearchModel extends BaseModel
         ];
 
         // 1. TEKLİFLER (Offers)
-        if ($category === 'all' || $category === 'offers') {
+        if ($allowed['offers'] && ($category === 'all' || $category === 'offers')) {
             $sql = "SELECT 
                         o.id,
                         o.offerNumber,
@@ -125,7 +126,7 @@ class GlobalSearchModel extends BaseModel
         }
 
         // 2. ÜRÜN & HİZMETLER (Products)
-        if ($category === 'all' || $category === 'products') {
+        if ($allowed['products'] && ($category === 'all' || $category === 'products')) {
             $sql = "SELECT 
                         p.ID as id,
                         p.Adi,
@@ -204,7 +205,7 @@ class GlobalSearchModel extends BaseModel
         }
 
         // 3. FİRMALAR (Customers / Companies)
-        if ($category === 'all' || $category === 'customers') {
+        if ($allowed['customers'] && ($category === 'all' || $category === 'customers')) {
             $sql = "SELECT 
                         c.id,
                         c.company,
@@ -282,7 +283,7 @@ class GlobalSearchModel extends BaseModel
         }
 
         // 4. SERVİSLER (Projects / Services)
-        if ($category === 'all' || $category === 'services') {
+        if ($allowed['services'] && ($category === 'all' || $category === 'services')) {
             $sql = "SELECT 
                         p.id,
                         p.service_number,
@@ -363,7 +364,7 @@ class GlobalSearchModel extends BaseModel
         }
 
         // 5. KEŞİFLER (Kesifler)
-        if ($category === 'all' || $category === 'kesifler') {
+        if ($allowed['kesifler'] && ($category === 'all' || $category === 'kesifler')) {
             $sql = "SELECT 
                         k.id,
                         k.firma,
@@ -434,7 +435,7 @@ class GlobalSearchModel extends BaseModel
         }
 
         // 6. RAPORLAR (Reports)
-        if ($category === 'all' || $category === 'reports') {
+        if ($allowed['reports'] && ($category === 'all' || $category === 'reports')) {
             $sql = "SELECT 
                         r.id,
                         r.report_number,
@@ -522,5 +523,34 @@ class GlobalSearchModel extends BaseModel
             'counts'  => $counts,
             'results' => $results
         ];
+    }
+
+    public static function allowedCategories(): array
+    {
+        $userId = (int)($_SESSION['lid'] ?? ($_SESSION['id'] ?? 0));
+        $isAdmin = in_array($userId, [1, 12], true) || in_array((int)($_SESSION['permission'] ?? 0), [1, 13], true);
+        $map = [
+            'offers'    => ['offerview', 'offer_dashboard'],
+            'products'  => ['product_dashboard', 'productcategory', 'productadd', 'productedit', 'productdelete'],
+            'customers' => ['customer_dashboard', 'customeradd', 'customeredit', 'customerdelete', 'customerexport'],
+            'services'  => ['serviceView', 'service_dashboard'],
+            'kesifler'  => ['kesifView', 'kesif_dashboard'],
+            'reports'   => ['reportview', 'report_dashboard'],
+        ];
+
+        $allowed = [];
+        foreach ($map as $category => $permissions) {
+            $allowed[$category] = $isAdmin;
+            if (!$isAdmin && function_exists('permtrue')) {
+                foreach ($permissions as $permission) {
+                    if (permtrue($permission)) {
+                        $allowed[$category] = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $allowed;
     }
 }

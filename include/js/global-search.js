@@ -407,12 +407,23 @@
             var html = '<div class="gs-suggestions-wrap">';
             html += '  <div class="gs-suggestions-header">Hızlı Modül Sayfaları</div>';
             html += '  <div class="gs-suggestions-grid">';
-            html += '    <a href="teklifler" class="gs-suggestion-card"><i class="fa fa-file-text-o text-purple"></i><span>Teklifler</span></a>';
-            html += '    <a href="urun-hizmetler" class="gs-suggestion-card"><i class="fa fa-cube text-amber"></i><span>Ürünler</span></a>';
-            html += '    <a href="firmalar" class="gs-suggestion-card"><i class="fa fa-building-o text-blue"></i><span>Firmalar</span></a>';
-            html += '    <a href="servisler" class="gs-suggestion-card"><i class="fa fa-wrench text-emerald"></i><span>Servisler</span></a>';
-            html += '    <a href="kesifler" class="gs-suggestion-card"><i class="fa fa-search-plus text-cyan"></i><span>Keşifler</span></a>';
-            html += '    <a href="raporlar" class="gs-suggestion-card"><i class="fa fa-file-text text-indigo"></i><span>Raporlar</span></a>';
+            var allowedCats = String($('#global-search-container').attr('data-allowed-categories') || '').split(',');
+            var quickLinks = [
+                { cat: 'offers', link: '<a href="teklifler" class="gs-suggestion-card"><i class="fa fa-file-text-o text-purple"></i><span>Teklifler</span></a>' },
+                { cat: 'products', link: '<a href="urun-hizmetler" class="gs-suggestion-card"><i class="fa fa-cube text-amber"></i><span>Ürünler</span></a>' },
+                { cat: 'customers', link: '<a href="firmalar" class="gs-suggestion-card"><i class="fa fa-building-o text-blue"></i><span>Firmalar</span></a>' },
+                { cat: 'services', link: '<a href="servisler" class="gs-suggestion-card"><i class="fa fa-wrench text-emerald"></i><span>Servisler</span></a>' },
+                { cat: 'kesifler', link: '<a href="kesifler" class="gs-suggestion-card"><i class="fa fa-search-plus text-cyan"></i><span>Keşifler</span></a>' },
+                { cat: 'reports', link: '<a href="raporlar" class="gs-suggestion-card"><i class="fa fa-file-text text-indigo"></i><span>Raporlar</span></a>' }
+            ];
+            quickLinks.forEach(function (item) {
+                if (allowedCats.indexOf(item.cat) !== -1) {
+                    html += item.link;
+                }
+            });
+            if (allowedCats.indexOf('') !== -1 || !quickLinks.some(function (item) { return allowedCats.indexOf(item.cat) !== -1; })) {
+                html += '<div class="gs-empty-subtitle">Aranabilecek modül için yetkiniz bulunmuyor.</div>';
+            }
             html += '  </div>';
             html += '</div>';
 

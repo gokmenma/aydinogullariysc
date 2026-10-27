@@ -23,6 +23,19 @@ if (!isset($_SESSION['login']) || (int)set('system_statu') !== 1) {
     exit;
 }
 
+if (!array_filter(GlobalSearchModel::allowedCategories())) {
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(403);
+    echo json_encode([
+        'status'  => 'error',
+        'message' => 'Arama için yetkiniz bulunmamaktadır.'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $query    = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
 $category = isset($_GET['category']) ? trim((string)$_GET['category']) : 'all';
 $limit    = isset($_GET['limit']) ? min(max((int)$_GET['limit'], 1), 20) : 8;

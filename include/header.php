@@ -6,6 +6,7 @@ $maintenanceHeaderJson = htmlspecialchars(
 	ENT_QUOTES,
 	'UTF-8'
 );
+$globalSearchAllowed = \App\Model\GlobalSearchModel::allowedCategories();
 ?>
 <div id="maintenanceNotice" class="maintenance-notice" data-status="<?php echo $maintenanceHeaderJson; ?>" hidden role="status" aria-live="polite">
 	<div class="maintenance-notice-inner">
@@ -72,8 +73,9 @@ $maintenanceHeaderJson = htmlspecialchars(
 		</div>
 
 		<!-- Orta: Global Arama (Teklif, Ürün, Firma, Servis, Keşif, Rapor) -->
+		<?php if (array_filter($globalSearchAllowed)) : ?>
 		<div class="header-search-wrap d-none d-lg-flex">
-			<div class="global-search-container" id="global-search-container">
+			<div class="global-search-container" id="global-search-container" data-allowed-categories="<?php echo htmlspecialchars(implode(',', array_keys(array_filter($globalSearchAllowed))), ENT_QUOTES, 'UTF-8'); ?>">
 				<div class="global-search-input-box">
 					<i class="fa fa-search global-search-icon" aria-hidden="true"></i>
 					<input type="text" 
@@ -100,24 +102,36 @@ $maintenanceHeaderJson = htmlspecialchars(
 						<button type="button" class="gs-cat-pill active" data-cat="all">
 							<i class="fa fa-th-large"></i> Tümü <span class="gs-count" id="count-all">0</span>
 						</button>
+						<?php if (!empty($globalSearchAllowed['offers'])) : ?>
 						<button type="button" class="gs-cat-pill" data-cat="offers">
 							<i class="fa fa-file-text-o"></i> Teklifler <span class="gs-count" id="count-offers">0</span>
 						</button>
+						<?php endif; ?>
+						<?php if (!empty($globalSearchAllowed['products'])) : ?>
 						<button type="button" class="gs-cat-pill" data-cat="products">
 							<i class="fa fa-cube"></i> Ürünler <span class="gs-count" id="count-products">0</span>
 						</button>
+						<?php endif; ?>
+						<?php if (!empty($globalSearchAllowed['customers'])) : ?>
 						<button type="button" class="gs-cat-pill" data-cat="customers">
 							<i class="fa fa-building-o"></i> Firmalar <span class="gs-count" id="count-customers">0</span>
 						</button>
+						<?php endif; ?>
+						<?php if (!empty($globalSearchAllowed['services'])) : ?>
 						<button type="button" class="gs-cat-pill" data-cat="services">
 							<i class="fa fa-wrench"></i> Servisler <span class="gs-count" id="count-services">0</span>
 						</button>
+						<?php endif; ?>
+						<?php if (!empty($globalSearchAllowed['kesifler'])) : ?>
 						<button type="button" class="gs-cat-pill" data-cat="kesifler">
 							<i class="fa fa-search-plus"></i> Keşifler <span class="gs-count" id="count-kesifler">0</span>
 						</button>
+						<?php endif; ?>
+						<?php if (!empty($globalSearchAllowed['reports'])) : ?>
 						<button type="button" class="gs-cat-pill" data-cat="reports">
 							<i class="fa fa-file-text"></i> Raporlar <span class="gs-count" id="count-reports">0</span>
 						</button>
+						<?php endif; ?>
 					</div>
 
 					<!-- Sonuç İçerik Alanı -->
@@ -139,6 +153,7 @@ $maintenanceHeaderJson = htmlspecialchars(
 				</div>
 			</div>
 		</div>
+		<?php endif; ?>
 
 		<!-- Sağ: Hızlı Araçlar (Tema Ayarları & Toggle) + Kullanıcı Profili -->
 		<div class="header-right-actions d-flex align-items-center">

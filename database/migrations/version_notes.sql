@@ -718,7 +718,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.75')
 
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.8.76', 'Menü ve Sayfa Erişim Yetkilerinin Sıkılaştırılması', 'security', '- Satın alma, firma listesi, ekip üyeleri, teklif, stok, yapılacaklar ve not sayfaları ile menüleri ve ana sayfadaki servis, teklif, görev ve yapılacaklar kartları artık yalnızca ilgili yetkiye sahip pozisyonlara açılıyor.', 'Claude Code', '2026-10-27 11:00:00'
+SELECT 'v2.8.76', 'Menü ve Sayfa Erişim Yetkilerinin Sıkılaştırılması', 'security', '- Satın alma, firma listesi, ekip üyeleri, teklif, stok, yapılacaklar ve not sayfaları ile menüleri ve ana sayfadaki servis, teklif, görev ve yapılacaklar kartları ile genel arama sonuçları artık yalnızca ilgili yetkiye sahip pozisyonlara açılıyor.', 'Claude Code', '2026-10-27 11:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.76');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
@@ -728,3 +728,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.77')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.78', 'Yedekleme Kademeli Saklama Politikası', 'improvement', '- Eski yedekler artık yerelde ve harici depoda (Google Drive/FTP) ayrı sürelerle temizleniyor; günlük, haftalık ve aylık yedekler kademeli olarak saklanıyor ve son yedekler her zaman korunuyor.', 'Claude Code', '2026-10-27 13:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.78');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.79', 'Mobil SPA Evrak Takip Başlık ve Güvenli Alan Hizalaması', 'improvement', '- Evrak Takip sayfasında üst başlığın ekran tepesine ve çentiğe yapışma sorunu çözüldü; sayfa kapsayıcısına ds-screen sınıfı, safe-area-inset-top ve standart gutter boşlukları tanımlanarak başlık çubuğu ve butonların konumu dengelendi.', 'Antigravity AI', '2026-10-27 13:28:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.79');
