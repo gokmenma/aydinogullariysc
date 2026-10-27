@@ -54,3 +54,4 @@ node_modules/
 # Public files that shouldn't be tracked
 uploads/
 files/downloads/
+/mobile-spa/*

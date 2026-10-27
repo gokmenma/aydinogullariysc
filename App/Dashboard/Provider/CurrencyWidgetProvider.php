@@ -27,42 +27,59 @@ class CurrencyWidgetProvider extends AbstractDashboardWidgetProvider
             return $cached;
         }
 
-        try {
-            $ch = curl_init('https://www.tcmb.gov.tr/kurlar/today.xml');
-            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => false,
-                CURLOPT_CONNECTTIMEOUT => 4, CURLOPT_TIMEOUT => 7, CURLOPT_USERAGENT => 'AydinogullariYSC-Dashboard/1.0']);
-            $xmlText = curl_exec($ch);
-            $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $error = curl_error($ch);
-            curl_close($ch);
-            if ($xmlText === false || $status !== 200) {
-                throw new RuntimeException($error ?: 'TCMB HTTP ' . $status);
+        $stale = $cache->get('tcmb_today_rates', PHP_INT_MAX, true);
+        if ($stale !== null) {
+            if ($cache->get('tcmb_refresh_lock', 120) === null) {
+                $cache->put('tcmb_refresh_lock', ['t' => time()]);
+                register_shutdown_function(function () use ($cache) {
+                    if (function_exists('fastcgi_finish_request')) {
+                        fastcgi_finish_request();
+                    } else {
+                        @flush();
+                    }
+                    try {
+                        $this->fetch($cache);
+                    } catch (\Throwable $exception) {
+                        error_log('TCMB kur yenileme hatası: ' . $exception->getMessage());
+                    }
+                });
             }
-
-            $xml = simplexml_load_string($xmlText, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOCDATA);
-            if ($xml === false) {
-                throw new RuntimeException('TCMB XML yanıtı okunamadı.');
-            }
-            $rates = [];
-            foreach (['USD' => 'ABD Doları', 'EUR' => 'Euro', 'GBP' => 'İngiliz Sterlini'] as $code => $name) {
-                $nodes = $xml->xpath("/Tarih_Date/Currency[@CurrencyCode='{$code}']");
-                if (!$nodes) {
-                    continue;
-                }
-                $rates[] = ['code' => $code, 'name' => $name,
-                    'buying' => (string)$nodes[0]->ForexBuying, 'selling' => (string)$nodes[0]->ForexSelling];
-            }
-            $result = ['rates' => $rates, 'date' => (string)($xml['Tarih'] ?? date('d.m.Y')), 'cached' => false];
-            $cache->put('tcmb_today_rates', $result);
-            return $result;
-        } catch (\Throwable $exception) {
-            $stale = $cache->get('tcmb_today_rates', PHP_INT_MAX, true);
-            if ($stale !== null) {
-                $stale['cached'] = true;
-                $stale['stale'] = true;
-                return $stale;
-            }
-            throw $exception;
+            $stale['cached'] = true;
+            $stale['stale'] = true;
+            return $stale;
         }
+
+        return $this->fetch($cache);
+    }
+
+    private function fetch(WidgetCache $cache): array
+    {
+        $ch = curl_init('https://www.tcmb.gov.tr/kurlar/today.xml');
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_TIMEOUT => 5, CURLOPT_USERAGENT => 'AydinogullariYSC-Dashboard/1.0']);
+        $xmlText = curl_exec($ch);
+        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        if ($xmlText === false || $status !== 200) {
+            throw new RuntimeException($error ?: 'TCMB HTTP ' . $status);
+        }
+
+        $xml = simplexml_load_string($xmlText, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOCDATA);
+        if ($xml === false) {
+            throw new RuntimeException('TCMB XML yanıtı okunamadı.');
+        }
+        $rates = [];
+        foreach (['USD' => 'ABD Doları', 'EUR' => 'Euro', 'GBP' => 'İngiliz Sterlini'] as $code => $name) {
+            $nodes = $xml->xpath("/Tarih_Date/Currency[@CurrencyCode='{$code}']");
+            if (!$nodes) {
+                continue;
+            }
+            $rates[] = ['code' => $code, 'name' => $name,
+                'buying' => (string)$nodes[0]->ForexBuying, 'selling' => (string)$nodes[0]->ForexSelling];
+        }
+        $result = ['rates' => $rates, 'date' => (string)($xml['Tarih'] ?? date('d.m.Y')), 'cached' => false];
+        $cache->put('tcmb_today_rates', $result);
+        return $result;
     }
 }

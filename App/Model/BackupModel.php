@@ -114,6 +114,7 @@ class BackupModel extends BaseModel
 
     public function deleteLog(int $id): bool
     {
+        $this->deleteRemoteFilesByLog($id);
         $stmt = $this->db->prepare("DELETE FROM backup_logs WHERE id = ?");
         return $stmt->execute([$id]);
     }
@@ -131,6 +132,10 @@ class BackupModel extends BaseModel
             'backup_remote_pass',
             'backup_remote_path',
             'backup_retention_days',
+            'backup_retention_remote_daily_days',
+            'backup_retention_weekly_weeks',
+            'backup_retention_monthly_months',
+            'backup_retention_min_keep',
             'backup_cron_token',
             'backup_gdrive_folder_id',
             'backup_gdrive_service_account_json',
@@ -160,11 +165,95 @@ class BackupModel extends BaseModel
 
     public function updateBackupSettings(array $settings): bool
     {
-        $stmt = $this->db->prepare("INSERT INTO settings (`var`, `val`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `val` = VALUES(`val`)");
+        $check = $this->db->prepare("SELECT COUNT(*) FROM settings WHERE `var` = ?");
+        $update = $this->db->prepare("UPDATE settings SET `val` = ? WHERE `var` = ?");
+        $insert = $this->db->prepare("INSERT INTO settings (`var`, `val`) VALUES (?, ?)");
         foreach ($settings as $key => $val) {
-            $stmt->execute([$key, (string)$val]);
+            $check->execute([$key]);
+            if ((int)$check->fetchColumn() > 0) {
+                $update->execute([(string)$val, $key]);
+            } else {
+                $insert->execute([$key, (string)$val]);
+            }
         }
         return true;
+    }
+
+    public function getLogsForRetention(): array
+    {
+        $stmt = $this->db->query("SELECT * FROM backup_logs ORDER BY created_at DESC, id DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getGdriveAccounts(bool $onlyActive = false): array
+    {
+        $sql = "SELECT * FROM backup_gdrive_accounts WHERE deleted_at IS NULL";
+        if ($onlyActive) {
+            $sql .= " AND is_active = 1";
+        }
+        $stmt = $this->db->query($sql . " ORDER BY id ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getGdriveAccount(int $id): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM backup_gdrive_accounts WHERE id = ? AND deleted_at IS NULL LIMIT 1");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function saveGdriveAccount(?int $id, array $data, ?int $userId = null): int
+    {
+        if ($id) {
+            $stmt = $this->db->prepare("UPDATE backup_gdrive_accounts SET label = ?, client_id = ?, client_secret = ?, folder_id = ?, is_active = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL");
+            $stmt->execute([$data['label'], $data['client_id'], $data['client_secret'], $data['folder_id'], (int)$data['is_active'], $id]);
+            return $id;
+        }
+
+        $stmt = $this->db->prepare("INSERT INTO backup_gdrive_accounts (label, client_id, client_secret, folder_id, is_active, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([$data['label'], $data['client_id'], $data['client_secret'], $data['folder_id'], (int)$data['is_active'], $userId]);
+        return (int)$this->db->lastInsertId();
+    }
+
+    public function setGdriveTokens(int $id, ?string $refreshToken, ?string $accessToken): bool
+    {
+        if ($refreshToken === null) {
+            $stmt = $this->db->prepare("UPDATE backup_gdrive_accounts SET access_token = ?, updated_at = NOW() WHERE id = ?");
+            return $stmt->execute([$accessToken, $id]);
+        }
+        $stmt = $this->db->prepare("UPDATE backup_gdrive_accounts SET refresh_token = ?, access_token = ?, updated_at = NOW() WHERE id = ?");
+        return $stmt->execute([$refreshToken, $accessToken, $id]);
+    }
+
+    public function softDeleteGdriveAccount(int $id, ?int $userId): bool
+    {
+        $stmt = $this->db->prepare("UPDATE backup_gdrive_accounts SET deleted_at = NOW(), deleted_by = ?, is_active = 0, refresh_token = NULL, access_token = NULL WHERE id = ? AND deleted_at IS NULL");
+        return $stmt->execute([$userId, $id]);
+    }
+
+    public function getRemoteFiles(int $logId): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM backup_remote_files WHERE backup_log_id = ?");
+        $stmt->execute([$logId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function saveRemoteFile(int $logId, int $accountId, string $remoteFileId): bool
+    {
+        $stmt = $this->db->prepare("INSERT INTO backup_remote_files (backup_log_id, account_id, remote_file_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE remote_file_id = VALUES(remote_file_id)");
+        return $stmt->execute([$logId, $accountId, $remoteFileId]);
+    }
+
+    public function deleteRemoteFile(int $id): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM backup_remote_files WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
+    public function deleteRemoteFilesByLog(int $logId): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM backup_remote_files WHERE backup_log_id = ?");
+        return $stmt->execute([$logId]);
     }
 
     public function cleanOldLogs(int $retentionDays): int

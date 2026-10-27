@@ -159,9 +159,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'ajax_upload_remote' && !emp
         exit;
     }
 
-    $uploadResult = $backupService->uploadToRemote($filePath, $log['file_name'], $settings);
+    $uploadResult = $backupService->uploadToRemote($filePath, $log['file_name'], $settings, (int)$rawId);
     if ($uploadResult['success']) {
-        $targetName = (($settings['backup_remote_type'] ?? 'ftp') === 'gdrive') ? 'Google Drive' : ($settings['backup_remote_host'] ?? 'FTP');
+        $targetName = (($settings['backup_remote_type'] ?? 'ftp') === 'gdrive') ? ($uploadResult['target'] ?? 'Google Drive') : ($settings['backup_remote_host'] ?? 'FTP');
         $backupModel->updateLog((int)$rawId, [
             'remote_status' => 'uploaded',
             'remote_file_id' => $uploadResult['file_id'] ?? null
@@ -190,17 +190,95 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '/index
 $oauthRedirectUri = $protocol . $domain . $currentPath . '?p=backups&action=oauth_callback';
 
 // -------------------------------------------------------------
+// GOOGLE HESAP YÖNETİMİ (EKLE / DÜZENLE / SİL / BAĞLANTIYI KES)
+// -------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['gdrive_account_action'])) {
+    $receivedCsrf = $_POST['csrf_token'] ?? '';
+    if (empty($receivedCsrf) || !hash_equals($csrfToken, $receivedCsrf)) {
+        header("Location: index.php?p=backups&st=csrf_failed");
+        exit;
+    }
+
+    $accountId = (int)($_POST['account_id'] ?? 0);
+    $accountAction = $_POST['gdrive_account_action'];
+    $userId = (int)sesset('id');
+
+    if ($accountAction === 'save') {
+        $label = trim($_POST['label'] ?? '');
+        $clientId = trim($_POST['client_id'] ?? '');
+        $clientSecret = trim($_POST['client_secret'] ?? '');
+        $folderId = trim($_POST['folder_id'] ?? '');
+
+        $existing = $accountId ? $backupModel->getGdriveAccount($accountId) : null;
+        if ($accountId && !$existing) {
+            header("Location: index.php?p=backups&st=account_not_found");
+            exit;
+        }
+        if ($existing && $clientSecret === '') {
+            $clientSecret = $existing['client_secret'];
+        }
+        if ($label === '' || $clientId === '' || $clientSecret === '') {
+            header("Location: index.php?p=backups&st=account_invalid");
+            exit;
+        }
+
+        $credentialsChanged = $existing && ($existing['client_id'] !== $clientId || $existing['client_secret'] !== $clientSecret);
+        $savedId = $backupModel->saveGdriveAccount($existing ? $accountId : null, [
+            'label' => mb_substr($label, 0, 150),
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'folder_id' => $folderId,
+            'is_active' => isset($_POST['is_active']) ? 1 : 0
+        ], $userId);
+        if ($credentialsChanged) {
+            $backupModel->setGdriveTokens($savedId, '', '');
+        }
+
+        if (function_exists('audit_log')) {
+            audit_log($existing ? "update" : "create", "backup_gdrive", "Google Drive hesabı " . ($existing ? "güncellendi" : "eklendi") . ": " . $label, "backup_gdrive_accounts", (string)$savedId);
+        }
+        header("Location: index.php?p=backups&st=" . ($existing ? 'account_updated' : 'account_added'));
+        exit;
+    }
+
+    $account = $accountId ? $backupModel->getGdriveAccount($accountId) : null;
+    if (!$account) {
+        header("Location: index.php?p=backups&st=account_not_found");
+        exit;
+    }
+
+    if ($accountAction === 'disconnect') {
+        $backupModel->setGdriveTokens($accountId, '', '');
+        if (function_exists('audit_log')) {
+            audit_log("disconnect", "backup_gdrive", "Google Drive bağlantısı kaldırıldı: " . $account['label'], "backup_gdrive_accounts", (string)$accountId);
+        }
+        header("Location: index.php?p=backups&st=oauth_disconnected");
+        exit;
+    }
+
+    if ($accountAction === 'delete') {
+        $backupModel->softDeleteGdriveAccount($accountId, $userId);
+        if (function_exists('audit_log')) {
+            audit_log("delete", "backup_gdrive", "Google Drive hesabı kaldırıldı: " . $account['label'], "backup_gdrive_accounts", (string)$accountId);
+        }
+        header("Location: index.php?p=backups&st=account_deleted");
+        exit;
+    }
+}
+
+// -------------------------------------------------------------
 // OAUTH: GOOGLE DRIVE İLE BAĞLAN
 // -------------------------------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'oauth_connect') {
-    $clientId = trim($settings['backup_gdrive_client_id'] ?? '');
-    if (empty($clientId)) {
+    $account = $backupModel->getGdriveAccount((int)($_GET['account'] ?? 0));
+    if (!$account || trim($account['client_id']) === '') {
         header("Location: index.php?p=backups&st=oauth_no_client_id");
         exit;
     }
     $_SESSION['gdrive_oauth_state'] = bin2hex(random_bytes(16));
+    $_SESSION['gdrive_oauth_account'] = (int)$account['id'];
     $authUrl = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
-        'client_id' => $clientId,
+        'client_id' => trim($account['client_id']),
         'redirect_uri' => $oauthRedirectUri,
         'response_type' => 'code',
         'scope' => 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive',
@@ -216,17 +294,21 @@ if (isset($_GET['action']) && $_GET['action'] === 'oauth_connect') {
 // OAUTH: GOOGLE CALLBACK VE TOKEN KAYDETME
 // -------------------------------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'oauth_callback') {
+    $expectedState = $_SESSION['gdrive_oauth_state'] ?? '';
+    $callbackAccountId = (int)($_SESSION['gdrive_oauth_account'] ?? 0);
+    unset($_SESSION['gdrive_oauth_state'], $_SESSION['gdrive_oauth_account']);
+    $callbackAccount = $callbackAccountId ? $backupModel->getGdriveAccount($callbackAccountId) : null;
+
     if (!empty($_GET['error'])) {
         $errorMessage = "Google Yetkilendirme İptal Edildi veya Hata: " . htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8');
+    } elseif (!$callbackAccount || $expectedState === '' || !hash_equals($expectedState, (string)($_GET['state'] ?? ''))) {
+        $errorMessage = "Google yetkilendirme oturumu doğrulanamadı. Lütfen hesabı yeniden bağlamayı deneyiniz.";
     } elseif (!empty($_GET['code'])) {
-        $clientId = trim($settings['backup_gdrive_client_id'] ?? '');
-        $clientSecret = trim($settings['backup_gdrive_client_secret'] ?? '');
-
         $ch = curl_init('https://oauth2.googleapis.com/token');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-            'client_id' => $clientId,
-            'client_secret' => $clientSecret,
+            'client_id' => trim($callbackAccount['client_id']),
+            'client_secret' => trim($callbackAccount['client_secret']),
             'code' => $_GET['code'],
             'grant_type' => 'authorization_code',
             'redirect_uri' => $oauthRedirectUri
@@ -241,44 +323,23 @@ if (isset($_GET['action']) && $_GET['action'] === 'oauth_callback') {
 
         $data = json_decode($response, true);
         if ($httpCode === 200 && (!empty($data['refresh_token']) || !empty($data['access_token']))) {
-            $updates = [
+            $backupModel->setGdriveTokens($callbackAccountId, $data['refresh_token'] ?? null, $data['access_token'] ?? null);
+            $backupModel->updateBackupSettings([
                 'backup_remote_enabled' => '1',
                 'backup_remote_type'    => 'gdrive'
-            ];
-            if (!empty($data['refresh_token'])) {
-                $updates['backup_gdrive_refresh_token'] = $data['refresh_token'];
-            }
-            if (!empty($data['access_token'])) {
-                $updates['backup_gdrive_access_token'] = $data['access_token'];
-            }
-            $backupModel->updateBackupSettings($updates);
+            ]);
             $settings = $backupModel->getBackupSettings();
-            
+
             if (function_exists('audit_log')) {
-                audit_log("connect", "backup_gdrive", "Google Drive hesabı OAuth 2.0 ile bağlandı", "settings", "backup");
+                audit_log("connect", "backup_gdrive", "Google Drive hesabı OAuth 2.0 ile bağlandı: " . $callbackAccount['label'], "backup_gdrive_accounts", (string)$callbackAccountId);
             }
             header("Location: index.php?p=backups&st=oauth_connected");
             exit;
         } else {
-            $errorMessage = "Google Token alınamadı: " . ($data['error_description'] ?? $data['error'] ?? $response);
+            error_log('[backups] Google token hatası: ' . $response);
+            $errorMessage = "Google Token alınamadı: " . htmlspecialchars($data['error_description'] ?? $data['error'] ?? 'Bilinmeyen hata', ENT_QUOTES, 'UTF-8');
         }
     }
-}
-
-// -------------------------------------------------------------
-// OAUTH: GOOGLE DRIVE BAĞLANTISINI KES
-// -------------------------------------------------------------
-if (isset($_GET['action']) && $_GET['action'] === 'oauth_disconnect') {
-    $backupModel->updateBackupSettings([
-        'backup_gdrive_refresh_token' => '',
-        'backup_gdrive_access_token'  => ''
-    ]);
-    $settings = $backupModel->getBackupSettings();
-    if (function_exists('audit_log')) {
-        audit_log("disconnect", "backup_gdrive", "Google Drive bağlantısı kaldırıldı", "settings", "backup");
-    }
-    header("Location: index.php?p=backups&st=oauth_disconnected");
-    exit;
 }
 
 // 1. İNDİRME İŞLEMİ
@@ -433,10 +494,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_backup_settings'
         'backup_remote_port'          => (int)($_POST['backup_remote_port'] ?? 21),
         'backup_remote_user'          => trim($_POST['backup_remote_user'] ?? ''),
         'backup_remote_path'          => trim($_POST['backup_remote_path'] ?? '/backups'),
-        'backup_gdrive_client_id'     => trim($_POST['backup_gdrive_client_id'] ?? ''),
-        'backup_gdrive_client_secret' => trim($_POST['backup_gdrive_client_secret'] ?? ''),
-        'backup_gdrive_folder_id'     => trim($_POST['backup_gdrive_folder_id'] ?? ''),
-        'backup_retention_days'       => max(1, (int)($_POST['backup_retention_days'] ?? 30))
+        'backup_retention_days'       => max(1, min(365, (int)($_POST['backup_retention_days'] ?? 30))),
+        'backup_retention_remote_daily_days' => max(1, min(365, (int)($_POST['backup_retention_remote_daily_days'] ?? 14))),
+        'backup_retention_weekly_weeks'      => max(0, min(104, (int)($_POST['backup_retention_weekly_weeks'] ?? 8))),
+        'backup_retention_monthly_months'    => max(0, min(120, (int)($_POST['backup_retention_monthly_months'] ?? 12))),
+        'backup_retention_min_keep'          => max(1, min(100, (int)($_POST['backup_retention_min_keep'] ?? 5)))
     ];
 
     if (!empty($_POST['backup_remote_pass'])) {
@@ -471,6 +533,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['regenerate_cron_token
     exit;
 }
 
+$gdriveAccounts = $backupModel->getGdriveAccounts();
+$hasConnectedGdrive = (bool)array_filter($gdriveAccounts, fn($a) => !empty($a['is_active']) && !empty($a['refresh_token']));
+
 // Bildirim Mesajları
 if (isset($_GET['st'])) {
     if ($_GET['st'] === 'backup_started') $successMessage = "Yedekleme işlemi arka planda başlatıldı. İşlemlerinize devam edebilirsiniz.";
@@ -480,7 +545,13 @@ if (isset($_GET['st'])) {
     if ($_GET['st'] === 'token_renewed') $successMessage = "Cron güvenlik anahtarı başarıyla yenilendi.";
     if ($_GET['st'] === 'oauth_connected') $successMessage = "Google Drive hesabınız başarıyla bağlandı ve yetkilendirildi! Artık yedekleriniz kendi kişisel Google Drive kotanıza yüklenecektir.";
     if ($_GET['st'] === 'oauth_disconnected') $successMessage = "Google Drive bağlantısı kaldırıldı.";
-    if ($_GET['st'] === 'oauth_no_client_id') $errorMessage = "Lütfen önce Google Client ID ve Client Secret alanlarını doldurup 'Ayarları Kaydet'e basınız.";
+    if ($_GET['st'] === 'oauth_no_client_id') $errorMessage = "Seçilen Google hesabının Client ID ve Client Secret bilgileri eksik.";
+    if ($_GET['st'] === 'account_added') $successMessage = "Google hesabı eklendi. Şimdi \"Bağlan & Yetkilendir\" butonuyla izin veriniz.";
+    if ($_GET['st'] === 'account_updated') $successMessage = "Google hesabı güncellendi.";
+    if ($_GET['st'] === 'account_deleted') $successMessage = "Google hesabı kaldırıldı. Daha önce yüklenen yedekler Drive üzerinde korunur.";
+    if ($_GET['st'] === 'account_invalid') $errorMessage = "Hesap adı, Client ID ve Client Secret alanları zorunludur.";
+    if ($_GET['st'] === 'account_not_found') $errorMessage = "Google hesabı bulunamadı.";
+    if ($_GET['st'] === 'csrf_failed') $errorMessage = "Güvenlik doğrulaması başarısız oldu. Lütfen tekrar deneyiniz.";
 }
 
 // Verileri hazırla
@@ -770,15 +841,72 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                         <small class="form-text text-muted">Boş bırakılırsa paneldeki varsayılan SMTP kullanıcı adresi kullanılır.</small>
                                     </div>
 
+                                    <hr class="my-3">
+                                    <h6 class="weight-600 text-dark font-14 mb-3 d-flex align-items-center" style="gap: 8px;">
+                                        <span><i class="fa fa-history mr-1 text-primary"></i> Saklama Politikası</span>
+                                        <button type="button" class="btn btn-outline-info btn-sm font-11 py-0 px-2" data-toggle="modal" data-target="#retentionInfoModal" title="Saklama politikası nasıl çalışır?"><i class="fa fa-info-circle"></i> Bilgi</button>
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
                                     <div class="form-group mb-0">
-                                        <label class="font-13 weight-600 text-secondary">Yedek Saklama Süresi (Retention Days)</label>
+                                        <label class="font-13 weight-600 text-secondary">Yerel Saklama Süresi</label>
                                         <div class="input-group">
                                             <input type="number" class="form-control" name="backup_retention_days" min="1" max="365" value="<?php echo htmlspecialchars($settings['backup_retention_days'] ?? '30', ENT_QUOTES, 'UTF-8'); ?>">
                                             <div class="input-group-append">
                                                 <span class="input-group-text font-12 bg-white">Gün</span>
                                             </div>
                                         </div>
-                                        <small class="form-text text-muted mt-1">Belirlenen günden eski yerel yedekler disk dolmasını önlemek için otomatik temizlenir.</small>
+                                        <small class="form-text text-muted font-11">Sunucu diskindeki yedekler bu süreden sonra silinir. Harici depoda kopyası olan kayıtlar listede kalır.</small>
+                                    </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                    <div class="form-group mb-0">
+                                        <label class="font-13 weight-600 text-secondary">Harici Depo: Günlük Yedek Süresi</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="backup_retention_remote_daily_days" min="1" max="365" value="<?php echo htmlspecialchars($settings['backup_retention_remote_daily_days'] ?? '14', ENT_QUOTES, 'UTF-8'); ?>">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text font-12 bg-white">Gün</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted font-11">Bu süre içindeki tüm günlük yedekler harici depoda tutulur.</small>
+                                    </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                    <div class="form-group mb-0">
+                                        <label class="font-13 weight-600 text-secondary">Harici Depo: Haftalık Yedek</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="backup_retention_weekly_weeks" min="0" max="104" value="<?php echo htmlspecialchars($settings['backup_retention_weekly_weeks'] ?? '8', ENT_QUOTES, 'UTF-8'); ?>">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text font-12 bg-white">Hafta</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted font-11">Günlük süreden eski yedeklerden her haftanın en yenisi bu kadar hafta saklanır (0 = kapalı).</small>
+                                    </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                    <div class="form-group mb-0">
+                                        <label class="font-13 weight-600 text-secondary">Harici Depo: Aylık Yedek</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="backup_retention_monthly_months" min="0" max="120" value="<?php echo htmlspecialchars($settings['backup_retention_monthly_months'] ?? '12', ENT_QUOTES, 'UTF-8'); ?>">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text font-12 bg-white">Ay</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted font-11">Her ayın en yeni yedeği bu kadar ay saklanır (0 = kapalı).</small>
+                                    </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                    <div class="form-group mb-0">
+                                        <label class="font-13 weight-600 text-secondary">Her Zaman Korunacak Son Yedek</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="backup_retention_min_keep" min="1" max="100" value="<?php echo htmlspecialchars($settings['backup_retention_min_keep'] ?? '5', ENT_QUOTES, 'UTF-8'); ?>">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text font-12 bg-white">Adet</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted font-11">En yeni bu kadar başarılı yedek, süresi dolsa bile silinmez.</small>
+                                    </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -820,54 +948,55 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
                                     <!-- GOOGLE DRIVE AYARLARI (OAUTH 2.0) -->
                                     <div id="gdrive_fields_wrapper" class="<?php echo (($settings['backup_remote_type'] ?? '') === 'gdrive') ? '' : 'd-none'; ?>">
                                         
-                                        <!-- Bağlantı Durumu Kartı -->
-                                        <?php $isOauthConnected = !empty($settings['backup_gdrive_refresh_token']); ?>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <label class="font-13 weight-600 text-secondary mb-0">Google Hesapları (<?php echo count($gdriveAccounts); ?>)</label>
+                                            <button type="button" class="btn btn-primary btn-sm weight-600" onclick="openGdriveAccountModal(null)">
+                                                <i class="fa fa-plus mr-1"></i> Google Hesabı Ekle
+                                            </button>
+                                        </div>
+                                        <p class="font-11 text-muted mb-2">Yedekler, aktif ve bağlı olan tüm hesaplara ayrı ayrı yüklenir.</p>
+
                                         <div class="mb-3">
-                                            <?php if ($isOauthConnected): ?>
-                                                <div class="alert alert-success d-flex align-items-center justify-content-between p-3 rounded-8 mb-0 border-0" style="background: #dcfce7; color: #15803d;">
-                                                    <div>
-                                                        <strong class="font-13 d-block"><i class="fa fa-check-circle mr-1"></i> Google Drive Hesabınız Bağlı & Yetkili</strong>
-                                                        <span class="font-11 text-muted">Kişisel Google Drive kotanız (15 GB) üzerinden kesintisiz yedek alabilirsiniz.</span>
-                                                    </div>
-                                                    <a href="index.php?p=backups&action=oauth_disconnect" onclick="return confirm('Google Drive bağlantısını kesmek istediğinize emin misiniz?');" class="btn btn-sm btn-outline-danger">
-                                                        <i class="fa fa-chain-broken mr-1"></i> Bağlantıyı Kes
-                                                    </a>
-                                                </div>
-                                            <?php else: ?>
-                                                <div class="alert alert-warning p-3 rounded-8 mb-0 border-0" style="background: #fef3c7; color: #92400e;">
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <i class="fa fa-exclamation-triangle mr-2 font-16"></i>
-                                                        <strong class="font-13">Google Drive Hesabı Henüz Yetkilendirilmedi</strong>
-                                                    </div>
-                                                    <p class="font-11 mb-2">Aşağıdaki Google Client ID ve Client Secret bilgilerini girip <strong>"Ayarları Kaydet"</strong>e basın, ardından <strong>"Google Drive ile Bağlan"</strong> butonuna tıklayarak izin verin.</p>
-                                                    <?php if (!empty($settings['backup_gdrive_client_id'])): ?>
-                                                        <a href="index.php?p=backups&action=oauth_connect" class="btn btn-primary btn-sm weight-600 shadow-sm">
-                                                            <i class="fa fa-google mr-1"></i> Google Drive ile Bağlan & Yetkilendir
-                                                        </a>
-                                                    <?php endif; ?>
+                                            <?php if (empty($gdriveAccounts)): ?>
+                                                <div class="alert alert-warning p-3 rounded-8 mb-0 border-0 font-12" style="background: #fef3c7; color: #92400e;">
+                                                    <i class="fa fa-exclamation-triangle mr-1"></i> Henüz Google hesabı eklenmedi. <strong>"Google Hesabı Ekle"</strong> butonuyla hesap ekleyip yetkilendiriniz.
                                                 </div>
                                             <?php endif; ?>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-3">
-                                                    <label class="font-13 weight-600 text-secondary">Google OAuth Client ID</label>
-                                                    <input type="text" class="form-control font-mono font-12" name="backup_gdrive_client_id" value="<?php echo htmlspecialchars($settings['backup_gdrive_client_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="...apps.googleusercontent.com">
+                                            <?php foreach ($gdriveAccounts as $gAcc):
+                                                $gConnected = !empty($gAcc['refresh_token']);
+                                                $gActive = !empty($gAcc['is_active']);
+                                                $gJson = htmlspecialchars(json_encode([
+                                                    'id' => (int)$gAcc['id'],
+                                                    'label' => $gAcc['label'],
+                                                    'client_id' => $gAcc['client_id'],
+                                                    'folder_id' => $gAcc['folder_id'],
+                                                    'is_active' => (int)$gAcc['is_active']
+                                                ], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
+                                            ?>
+                                                <div class="d-flex align-items-center justify-content-between flex-wrap p-2 px-3 mb-2 rounded-8 border bg-white" style="gap: 8px;">
+                                                    <div style="min-width: 0;">
+                                                        <strong class="font-13 d-block"><i class="fa fa-google text-danger mr-1"></i> <?php echo htmlspecialchars($gAcc['label'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                        <span class="font-11 text-muted">
+                                                            <?php if ($gConnected): ?>
+                                                                <span class="badge badge-success">Bağlı</span>
+                                                            <?php else: ?>
+                                                                <span class="badge badge-warning">Yetkilendirilmedi</span>
+                                                            <?php endif; ?>
+                                                            <?php if (!$gActive): ?><span class="badge badge-secondary">Pasif</span><?php endif; ?>
+                                                            <?php if (!empty($gAcc['folder_id'])): ?>Klasör: <code><?php echo htmlspecialchars($gAcc['folder_id'], ENT_QUOTES, 'UTF-8'); ?></code><?php endif; ?>
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex flex-nowrap" style="gap: 4px;">
+                                                        <?php if ($gConnected): ?>
+                                                            <button type="button" class="btn btn-outline-danger btn-sm font-11 py-1 px-2" onclick="submitGdriveAccountAction(<?php echo (int)$gAcc['id']; ?>, 'disconnect', 'Bu hesabın Google bağlantısını kesmek istediğinize emin misiniz?')" title="Bağlantıyı Kes"><i class="fa fa-chain-broken"></i></button>
+                                                        <?php else: ?>
+                                                            <a href="index.php?p=backups&action=oauth_connect&account=<?php echo (int)$gAcc['id']; ?>" class="btn btn-primary btn-sm font-11 py-1 px-2" title="Bağlan & Yetkilendir"><i class="fa fa-google mr-1"></i> Bağlan</a>
+                                                        <?php endif; ?>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm font-11 py-1 px-2" data-account="<?php echo $gJson; ?>" onclick="openGdriveAccountModal(this)" title="Düzenle"><i class="fa fa-pencil"></i></button>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm font-11 py-1 px-2" onclick="submitGdriveAccountAction(<?php echo (int)$gAcc['id']; ?>, 'delete', 'Bu Google hesabını kaldırmak istediğinize emin misiniz? Drive üzerindeki mevcut yedekler silinmez.')" title="Hesabı Kaldır"><i class="fa fa-trash"></i></button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-3">
-                                                    <label class="font-13 weight-600 text-secondary">Google OAuth Client Secret</label>
-                                                    <input type="password" class="form-control font-mono font-12" name="backup_gdrive_client_secret" value="<?php echo htmlspecialchars($settings['backup_gdrive_client_secret'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="GOCSPX-...">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group mb-3">
-                                            <label class="font-13 weight-600 text-secondary">Google Drive Hedef Klasör ID (Folder ID)</label>
-                                            <input type="text" class="form-control font-mono font-13" name="backup_gdrive_folder_id" value="<?php echo htmlspecialchars($settings['backup_gdrive_folder_id'] ?? '1ElD5Hn7rVLBUc29cBmCRuBmJte9U4b1q', ENT_QUOTES, 'UTF-8'); ?>" placeholder="1ElD5Hn7rVLBUc29cBmCRuBmJte9U4b1q">
-                                            <small class="form-text text-muted">Google Drive klasörünüzün adresindeki kod (<code>folders/<strong>BURASI</strong></code>).</small>
+                                            <?php endforeach; ?>
                                         </div>
 
                                         <div class="form-group mb-3">
@@ -1206,6 +1335,117 @@ $cronWebhookUrl = $protocol . $domain . "/cron_backup.php?token=" . ($settings['
     border-color: #b91c1c !important;
 }
 </style>
+
+<form id="gdriveAccountActionForm" method="POST" action="index.php?p=backups" class="d-none">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="gdrive_account_action" id="gdriveActionType" value="">
+    <input type="hidden" name="account_id" id="gdriveActionAccountId" value="">
+</form>
+
+<div class="modal fade" id="retentionInfoModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-info-circle text-info mr-1"></i> Saklama Politikası Nasıl Çalışır?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body font-13">
+                <p class="mb-2">Temizlik her yedekleme işleminin sonunda (cron ile her gün 23:00) otomatik çalışır. Yedekleme çalışmazsa hiçbir yedek silinmez.</p>
+
+                <h6 class="weight-600 mt-3">Yerel (Sunucu Diski)</h6>
+                <ul class="pl-3 mb-2">
+                    <li><strong><?php echo (int)($settings['backup_retention_days'] ?? 30); ?> günden</strong> eski yedek dosyaları silinir.</li>
+                    <li>Harici depoda kopyası olan yedeklerin kaydı listede kalır; kopya da kaldırılınca kayıt silinir.</li>
+                </ul>
+
+                <h6 class="weight-600 mt-3">Harici Depo (Google Drive / FTP)</h6>
+                <ul class="pl-3 mb-2">
+                    <li><strong>Günlük:</strong> Son <?php echo (int)($settings['backup_retention_remote_daily_days'] ?? 14); ?> günün tüm yedekleri tutulur.</li>
+                    <li><strong>Haftalık:</strong> <?php echo ((int)($settings['backup_retention_weekly_weeks'] ?? 8)) > 0 ? 'Daha eski yedeklerden her haftanın en yenisi ' . (int)($settings['backup_retention_weekly_weeks'] ?? 8) . ' hafta tutulur.' : 'Kapalı.'; ?></li>
+                    <li><strong>Aylık:</strong> <?php echo ((int)($settings['backup_retention_monthly_months'] ?? 12)) > 0 ? 'Her ayın en yeni yedeği ' . (int)($settings['backup_retention_monthly_months'] ?? 12) . ' ay tutulur.' : 'Kapalı.'; ?></li>
+                    <li>Bu kuralların dışında kalan yedekler tüm bağlı Google hesaplarında <strong>çöp kutusuna</strong> taşınır (30 gün kurtarılabilir).</li>
+                </ul>
+
+                <h6 class="weight-600 mt-3">Güvenlik Önlemleri</h6>
+                <ul class="pl-3 mb-0">
+                    <li>En yeni <strong><?php echo (int)($settings['backup_retention_min_keep'] ?? 5); ?></strong> başarılı yedek süresi dolsa bile silinmez.</li>
+                    <li>Drive'dan silme başarısız olursa kayıt korunur ve bir sonraki yedeklemede yeniden denenir.</li>
+                    <li>Bağlantısı kesilmiş veya hiç bağlı hesap yoksa harici silme yapılmaz.</li>
+                    <li>Kaldırdığınız Google hesabındaki mevcut yedekler Drive'da olduğu gibi kalır.</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="gdriveAccountModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form method="POST" action="index.php?p=backups" class="modal-content">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="gdrive_account_action" value="save">
+            <input type="hidden" name="account_id" id="gdriveAccId" value="">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gdriveAccModalTitle">Google Hesabı Ekle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="font-13 weight-600 text-secondary">Hesap Adı</label>
+                    <input type="text" class="form-control" name="label" id="gdriveAccLabel" maxlength="150" placeholder="Örn: Ofis Drive" required>
+                </div>
+                <div class="form-group">
+                    <label class="font-13 weight-600 text-secondary">Google OAuth Client ID</label>
+                    <input type="text" class="form-control font-mono font-12" name="client_id" id="gdriveAccClientId" placeholder="...apps.googleusercontent.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="font-13 weight-600 text-secondary">Google OAuth Client Secret</label>
+                    <input type="password" class="form-control font-mono font-12" name="client_secret" id="gdriveAccClientSecret" placeholder="GOCSPX-..." autocomplete="new-password">
+                    <small class="form-text text-muted" id="gdriveAccSecretHint">Düzenlerken boş bırakırsanız mevcut secret korunur.</small>
+                </div>
+                <div class="form-group">
+                    <label class="font-13 weight-600 text-secondary">Hedef Klasör ID (Folder ID)</label>
+                    <input type="text" class="form-control font-mono font-12" name="folder_id" id="gdriveAccFolderId" placeholder="Drive klasör adresindeki kod">
+                </div>
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" name="is_active" id="gdriveAccActive" value="1" checked>
+                    <label class="custom-control-label" for="gdriveAccActive">Bu hesaba yedek yükle (aktif)</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Vazgeç</button>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openGdriveAccountModal(btn) {
+    var acc = btn ? JSON.parse(btn.getAttribute('data-account')) : null;
+    $('#gdriveAccId').val(acc ? acc.id : '');
+    $('#gdriveAccLabel').val(acc ? acc.label : '');
+    $('#gdriveAccClientId').val(acc ? acc.client_id : '');
+    $('#gdriveAccClientSecret').val('');
+    $('#gdriveAccFolderId').val(acc ? acc.folder_id : '');
+    $('#gdriveAccActive').prop('checked', acc ? acc.is_active === 1 : true);
+    $('#gdriveAccClientSecret').prop('required', !acc);
+    $('#gdriveAccSecretHint').toggle(!!acc);
+    $('#gdriveAccModalTitle').text(acc ? 'Google Hesabını Düzenle' : 'Google Hesabı Ekle');
+    $('#gdriveAccountModal').modal('show');
+}
+
+function submitGdriveAccountAction(id, action, message) {
+    if (!confirm(message)) {
+        return;
+    }
+    $('#gdriveActionType').val(action);
+    $('#gdriveActionAccountId').val(id);
+    $('#gdriveAccountActionForm').trigger('submit');
+}
+</script>
 
 <script>
 var backupDataTable = null;
@@ -1870,7 +2110,7 @@ $(document).ready(function() {
     });
 
     // Sayfa açıldığında Google Drive durumunu arka planda sessizce senkronize et
-    <?php if (($settings['backup_remote_type'] ?? '') === 'gdrive' && (!empty($settings['backup_gdrive_refresh_token']) || !empty($settings['backup_gdrive_service_account_json']))): ?>
+    <?php if (($settings['backup_remote_type'] ?? '') === 'gdrive' && $hasConnectedGdrive): ?>
     $.ajax({
         url: 'index.php?p=backups',
         type: 'POST',

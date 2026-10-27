@@ -603,3 +603,128 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.49')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.50', 'Teklif Üst ve Alt Bilgi Şablon Seçimi Senkronizasyonu', 'bugfix', '- Yeni teklif ve teklif düzenleme sayfalarında üst bilgi veya alt bilgi şablonu seçildiğinde ilgili açıklama editörünün içeriğinin anlık ve sorunsuz olarak güncellenmesi sağlandı.', 'Antigravity AI', '2026-10-21 10:25:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.50');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.51', 'Mobil SPA Altyapısı, 3D Logo ve Kimlik Doğrulama', 'feature', '- Vue 3 tabanlı Mobil SPA altyapısı kuruldu; Aydınoğulları 3D amblem ve favicon tasarımı, kurumsal yangın kırmızısı ve antrasit tema uyarlaması, modern splash screen ve e-posta/kullanıcı adı destekli mobil giriş entegrasyonu tamamlandı.', 'Antigravity AI', '2026-10-26 21:05:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.51');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.52', 'Mobil SPA Dashboard ve Personel Veri Entegrasyonu', 'improvement', '- Mobil ana sayfa ve personel modülü Aydınoğulları canlı veritabanına bağlandı; aktif servisler, bekleyen teklifler, müşteri ve personel canlı verileri entegre edildi, oturum ve yetki senkronizasyonu sağlandı.', 'Antigravity AI', '2026-10-26 21:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.52');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.53', 'Mobil SPA Masaüstü Yetki Kontrollü Hiyerarşik Menü Entegrasyonu', 'feature', '- Mobil uygulamada masaüstü sidebar ile birebir uyumlu yetki kontrollü (permtrue) hiyerarşik menü sistemi kuruldu; 4 ana kategori (Operasyon, Raporlar, Evrak, Sistem), alt menü akordeonları, dinamik kısayol düzenleme ve mobil rota entegrasyonu sağlandı.', 'Antigravity AI', '2026-10-26 21:40:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.53');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.54', 'Mobil SPA Teklifler Sayfası ve Detay Çekmecesi Entegrasyonu', 'feature', '- Mobil uygulamada Teklifler modülü canlı Aydınoğulları verileriyle geliştirildi; KPI özetleri (bekleyen, kazanılan, ciro, kazanma oranı), hap durum filtreleri, anlık arama, bento teklif kartları, ürün/hizmet kalemlerini içeren alttan açılır detay çekmecesi ve form görüntüleme bağlantıları eklendi.', 'Antigravity AI', '2026-10-26 21:46:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.54');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.55', 'Mobil SPA Yeni Teklif Oluşturma ve Teklif Düzenleme Modülü', 'feature', '- Mobil uygulamaya tam fonksiyonel Yeni Teklif Oluşturma ve Teklif Düzenleme sayfası eklendi; aramalı müşteri seçici, canlı kalem yönetimi (miktar, birim, satış fiyatı, satır toplamı), anlık iskonto/KDV/genel toplam hesaplaması ve otomatik teklif numarası entegrasyonu tamamlandı.', 'Antigravity AI', '2026-10-26 21:52:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.55');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.56', 'Mobil Teklif Formu Canlı Ürün Arama ve Otomatik Tamamlama', 'improvement', '- Teklif oluşturma ve düzenleme ekranında her kalem için canlı ürün/hizmet arama motoru (autocomplete) entegre edildi; yazılan anahtar kelimeye göre ürün adı, stok kodu, birim ve birim fiyatının otomatik doldurulması sağlandı, form yükleme hata mesajı izole edildi.', 'Antigravity AI', '2026-10-26 21:59:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.56');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.57', 'Mobil Ana Sayfa Detaylı Kart Düzeni', 'improvement', '- Mobil ana sayfa masaüstü ile uyumlu hale getirildi; aktif servis, bekleyen/kazanılan teklif ve portföy özet kartları, 15 günlük servis planlama şeridi, son teklifler ve son servisler kartları eklendi.', 'Claude Code', '2026-10-26 22:10:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.57');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.58', 'Mobil Teklif Düzenleme Kayıt Düzeltmesi ve Detay Görünüm Sabitleme', 'bugfix', '- Teklif kaydetme ve güncelleme işleminde veritabanı xid/müşteri ID alanı uyumu sağlandı; teklif detay çekmecesinde üst başlık/müşteri bilgileri ve alt finansal özet bölümleri sticky sabitlenerek ürün listesi bağımsız kaydırılabilir hale getirildi.', 'Antigravity AI', '2026-10-26 22:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.58');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.59', 'Mobil Servisler Sayfası', 'feature', '- Mobil uygulamada Servisler sayfası Teklifler sayfası düzeniyle yenilendi; servis özeti, durum filtreleri, arama, servis kartları ve detay çekmecesi eklendi.', 'Claude Code', '2026-10-26 22:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.59');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.60', 'Mobil Yeni Servis ve Servis Düzenleme', 'feature', '- Mobil uygulamaya Yeni Servis oluşturma ve servis düzenleme ekranı eklendi; firma, servis konusu, tahsilat türü, bölge, personel, teklif, fiyat, durum ve notlar yetkiye göre yönetilebiliyor.', 'Claude Code', '2026-10-26 22:40:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.60');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.59', 'Mobil Teklif Kalemlerinde Kopyalama ve Sürükle-Bırak Sıralama Desteği', 'feature', '- Mobil teklif oluşturma ve düzenleme ekranındaki ürün kalemlerine masaüstüyle uyumlu hızlı satır kopyalama (klonlama) butonu ve SortableJS destekli dokunmatik sürükle-bırak (drag & drop) sıra değiştirme özelliği eklendi.', 'Antigravity AI', '2026-10-26 22:20:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.59');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.61', 'Mobil Teklif Listesi İşlem Menüsü', 'feature', '- Mobil teklif listesine masaüstündeki sağ tık menüsünün karşılığı eklendi; her teklif kartından kullanıcının yetkisi dahilinde teklif görüntüleme şablonları, düzenleme, firma icmali, mail gönderme, kopyalama, log kayıtları ve silme işlemleri yapılabiliyor; teklif kartlarına PDF önizleme butonu eklendi ve belgeler sayfadan ayrılmadan çerçeve içinde büyütme/küçültme/tam ekran desteğiyle açılıyor.', 'Claude Code', '2026-10-26 22:55:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.61');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.62', 'Mobil Keşifler Modülü ve Saha Yönetimi', 'feature', '- Mobil SPA için Keşifler modülü geliştirildi; Bento KPI özet kartları, durum filtreleri (Tümü, Bekleyen, Teklifte, Tamamlanan, Bugün, İptal), gerçek zamanlı arama, Google Haritalar tek dokunuş navigasyon, sahada hızlı durum güncelleme çekmecesi, kamera/galeri fotoğraf yükleme, detay modalı ve PDF keşif formu entegre edildi.', 'Antigravity AI', '2026-10-26 22:45:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.62');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.63', 'Mobil SPA Firmalar Sayfası ve Standart Bento KPI Kartı', 'feature', '- Mobil SPA Firmalar sayfası Servisler sayfasıyla birebir standart hale getirildi; tekli Bento KPI özet kartı, daraltma butonu, renkli ilerleme çubuğu, 3 kutulu sayaç ızgarası, hap filtre sekmeleri ve tam genişlikli arama çubuğu entegre edildi.', 'Antigravity AI', '2026-10-26 22:50:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.63');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.64', 'Mobil SPA Ürün ve Hizmetler Modülü', 'feature', '- Mobil SPA için Ürün ve Hizmetler sayfası geliştirildi; AGENTS.md standardına uygun arama ve daraltılabilir KPI özet kartları (#toggleKpiSummary), birim ve para birimi filtreleri, dokunmatik ürün kartları, teklif geçmişiyle detay çekmecesi ve yeni ürün ekleme/düzenleme formu entegre edildi.', 'Antigravity AI', '2026-10-27 08:21:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.64');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.65', 'Mobil SPA Satın Alma Modülü Entegrasyonu', 'feature', '- Mobil SPA için Satın Alma modülü geliştirildi; satın alma siparişleri, satın alma talepleri ve fiyat talepleri listesi, AGENTS.md uyumlu daraltılabilir 4''lü KPI özet ızgarası (#toggleKpiSummary), tip ve durum hap filtreleri, detay çekmecesi, hızlı durum güncelleme, talebi siparişe dönüştürme ve dinamik kalem hesaplamalı yeni sipariş/talep oluşturma ve düzenleme ekranı entegre edildi.', 'Antigravity AI', '2026-10-27 08:22:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.65');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.66', 'Mobil SPA Ekip (Personel) Modülü Geliştirmesi', 'feature', '- Mobil SPA için Ekip (Personel) sayfası geliştirildi; AGENTS.md uyumlu daraltılabilir 4''lü Bento KPI dağılım kartı, aktif/pasif/yönetici durum sekmeleri, dinamik rol ve anlık metin arama filtresi, tek dokunuşla arama/WhatsApp/e-posta iletişim butonları, detaylı personel bilgi kartı modalı, aktif/pasif hızlı durum değiştirme ve yetki kontrollü yeni üye ekleme/düzenleme/silme yönetimi entegre edildi.', 'Antigravity AI', '2026-10-27 08:24:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.66');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.67', 'Mobil SPA Satın Alma Bento Kart ve Alt Navigasyon Menüsü Entegrasyonu', 'improvement', '- Satın Alma sayfası özet alanı Firmalar sayfasıyla birebir uyumlu tekli koyu Bento KPI kartı (yüzdelik tamamlanma rozeti, daraltma butonu, renkli durum çubuğu ve 3''lü sayaç ızgarası) haline getirildi; alt navigasyon çubuğuna Fatura modülündeki gibi sayfa sekmelerini (Tümü, Sipariş, Talep, Fiyat) açıp kapatabilen dinamik dock çekmecesi ve yüzen menü butonu entegre edildi.', 'Antigravity AI', '2026-10-27 08:33:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.67');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.68', 'Mobil SPA Satın Alma Alt Navigasyon İzolasyonu', 'bugfix', '- Satın Alma sayfası alt navigasyon çubuğu düzeltildi; modül çekmecesi açıkken ana navigasyon bağlantılarının aynı anda gösterilip sıkışmaya yol açması engellendi, alt bar yalnızca Satın Alma alt modüllerine (Tümü, Sipariş, Talep, Fiyat, Kapat) ayrıldı ve kapatıldığında ana menüye sorunsuz dönüş sağlandı.', 'Antigravity AI', '2026-10-27 08:41:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.68');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.69', 'Mobil SPA Tanımlamalar Modülü ve Parametre Yönetimi', 'feature', '- Mobil SPA için Tanımlamalar modülü geliştirildi; Servis Konuları, Servis Durumları, Servis Bölgeleri, Birimler, Tahsilat Türleri ve Teklif Şablonları sekmeleri, AGENTS.md standardına uygun arama ve daraltılabilir 4''lü KPI özet kartları (#toggleKpiSummary), rozet renk paleti ve şablon konumu destekli yeni tanım ekleme/düzenleme/silme yönetimi ve ilgili tüm yönlendirmeler entegre edildi.', 'Antigravity AI', '2026-10-27 09:58:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.69');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.70', 'Mobil SPA Raporlar ve Dolum Listesi Modülü', 'feature', '- Mobil SPA için Raporlar ve Dolum modülü geliştirildi; Yangın Güvenlik Muayene Raporları (YSC, HST, MET, YAS, OYS, AAS), Cihaz Dolum Listesi, Kontrol Listesi ve Rapor Analiz Paneli sekmeleri, AGENTS.md standardına uygun arama ve daraltılabilir 4''lü KPI ızgarası (#toggleKpiSummary), dönem seçici, zengin detay inceleme çekmecesi, PDF rapor belgesi önizleme ve yetki kontrollü silme yönetimi entegre edildi.', 'Antigravity AI', '2026-10-27 10:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.70');
+
+
+
+
+
+
+
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.71', 'Mobil SPA Evrak Takip Modülü ve Gelen/Giden Evrak Yönetimi', 'feature', '- Mobil SPA için Evrak Takip modülü geliştirildi; Gelen ve Giden resmi evrak listesi, AGENTS.md standardına uygun daraltılabilir 6''lı KPI özet ızgarası (#toggleKpiSummary), tür ve durum hap filtreleri, tek dokunuşla hızlı ''Teslim Al'' işlemi, detaylı inceleme çekmecesi, hızlı durum güncelleme, silme ve dinamik müşteri/personel/kategori seçimli yeni evrak oluşturma/düzenleme formu entegre edildi.', 'Antigravity AI', '2026-10-27 10:05:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.71');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.72', 'Mobil SPA Dosya Yönetimi Modülü', 'feature', '- Mobil SPA için Dosya Yönetimi sayfası geliştirildi; Firmalar sayfasıyla birebir uyumlu tekli koyu Obsidian Bento KPI özet kartı (% kategorili rozeti, daraltma butonu, renkli durum çubuğu ve 3''lü sayaç ızgarası), tam genişlik arama çubuğu, standart sayfa kenar boşlukları (16px), ISO 27001 standardında AES-256-GCM fiziksel şifreleme ve hafızada anlık deşifreleme ile güvenli yükleme/indirme/önizleme, dosya türü sekmeleri ve dinamik kategori yönetimi entegre edildi.', 'Antigravity AI', '2026-10-27 10:15:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.72');
+
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.73', 'Mobil SPA Panel Ayarları ve Sürüm Notları Modülü', 'feature', '- Mobil SPA için Panel Ayarları sayfası geliştirildi; Genel Panel Yapılandırması (başlık, URL), Kurumsal Firma & İletişim, E-Posta & SMTP yapılandırması ve interaktif canlı SMTP test modalı, NetGSM SMS bildirim entegrasyonu, Kurumsal Logo yükleme & önizleme alanı, yetki kontrollü Sistem Bakım Modu ve Sürüm Notları (Changelog) sekmeleri entegre edildi.', 'Antigravity AI', '2026-10-27 10:20:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.73');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.74', 'Mobil SPA Sürüm Notları Sayfası İzolasyonu ve Panel Ayarları İyileştirmesi', 'improvement', '- Sürüm Notları (Changelog) Panel Ayarları sekmesinden ayrılarak Diğer menüsü altına bağımsız ve zengin bir sayfa olarak entegre edildi; Panel Ayarları sayfasındaki logo yükleme alanı metin kayma/sıkışma sorunu giderildi ve genel ayar kartları izole edildi.', 'Antigravity AI', '2026-10-27 10:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.74');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.75', 'Mobil SPA Tanımlamalar Bento KPI Kartı ve Alt Menü Dock Entegrasyonu', 'improvement', '- Tanımlamalar sayfası özet alanı Firmalar sayfasıyla tam uyumlu tekli koyu Bento KPI kartı (parametrelere göre oranlanan renkli dağılım çubuğu, 3''lü sayaç ızgarası ve daraltma butonu) haline getirildi; alt navigasyon çubuğuna Raporlar sayfasındaki gibi dinamik kaydırılabilir alt çekmece dock menüsü (Tümü, Konular, Durumlar, Bölgeler, Birimler, Tahsilat, Şablonlar ve Kapat butonu) ile menü kapalıyken yüzen hızlı açma butonu entegre edildi.', 'Antigravity AI', '2026-10-27 10:25:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.75');
+
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.76', 'Menü ve Sayfa Erişim Yetkilerinin Sıkılaştırılması', 'security', '- Satın alma, firma listesi, ekip üyeleri, teklif, stok, yapılacaklar ve not sayfaları ile menüleri ve ana sayfadaki servis, teklif, görev ve yapılacaklar kartları artık yalnızca ilgili yetkiye sahip pozisyonlara açılıyor.', 'Claude Code', '2026-10-27 11:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.76');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.77', 'Yedeklemede Birden Fazla Google Drive Hesabı Desteği', 'feature', '- Yedekleme sayfasındaki harici depolama ayarlarından birden fazla Google hesabı eklenebiliyor, düzenlenebiliyor ve kaldırılabiliyor; yedekler bağlı ve aktif tüm hesaplara yükleniyor.', 'Claude Code', '2026-10-27 12:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.77');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.78', 'Yedekleme Kademeli Saklama Politikası', 'improvement', '- Eski yedekler artık yerelde ve harici depoda (Google Drive/FTP) ayrı sürelerle temizleniyor; günlük, haftalık ve aylık yedekler kademeli olarak saklanıyor ve son yedekler her zaman korunuyor.', 'Claude Code', '2026-10-27 13:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.78');

@@ -272,12 +272,15 @@ class BackupService
             $remoteStatus = 'none';
             $remoteFileId = null;
             if (!empty($settings['backup_remote_enabled']) && $settings['backup_remote_enabled'] === '1') {
-                $remoteUpload = $this->uploadToRemote($mainZipPath, $mainZipName, $settings);
+                $remoteUpload = $this->uploadToRemote($mainZipPath, $mainZipName, $settings, $logId);
                 if ($remoteUpload['success']) {
                     $remoteStatus = 'uploaded';
                     $remoteFileId = $remoteUpload['file_id'] ?? null;
-                    $targetName = (($settings['backup_remote_type'] ?? 'ftp') === 'gdrive') ? 'Google Drive' : ($settings['backup_remote_host'] ?? 'FTP');
+                    $targetName = (($settings['backup_remote_type'] ?? 'ftp') === 'gdrive') ? ($remoteUpload['target'] ?? 'Google Drive') : ($settings['backup_remote_host'] ?? 'FTP');
                     $messages[] = "Harici depolamaya aktarıldı ({$targetName}).";
+                    if (!empty($remoteUpload['error'])) {
+                        $messages[] = "Bazı hesaplara aktarılamadı: " . $remoteUpload['error'];
+                    }
                 } else {
                     $remoteStatus = 'failed';
                     $messages[] = "Harici aktarım hatası: " . $remoteUpload['error'];
@@ -326,10 +329,12 @@ class BackupService
             }
 
             // 5. Eski Yedeklerin Otomatik Temizliği (Retention Policy)
-            $retentionDays = (int)($settings['backup_retention_days'] ?? 30);
-            $deletedFilesCount = $this->cleanOldBackups($retentionDays);
-            if ($deletedFilesCount > 0) {
-                $messages[] = "$deletedFilesCount adet $retentionDays günden eski yedek temizlendi.";
+            $retention = $this->applyRetention($settings, $logId);
+            if ($retention['local_deleted'] > 0) {
+                $messages[] = $retention['local_deleted'] . " adet yerel yedek saklama süresi dolduğu için temizlendi.";
+            }
+            if ($retention['remote_deleted'] > 0) {
+                $messages[] = $retention['remote_deleted'] . " adet harici yedek saklama politikası gereği kaldırıldı.";
             }
 
             // Log Güncelle
@@ -599,15 +604,73 @@ class BackupService
     /**
      * Harici Depolama Sunucusuna Yükler (Google Drive veya FTP/SFTP)
      */
-    public function uploadToRemote(string $localFilePath, string $remoteFileName, array $settings): array
+    public function uploadToRemote(string $localFilePath, string $remoteFileName, array $settings, ?int $logId = null): array
     {
         $remoteType = $settings['backup_remote_type'] ?? 'ftp';
 
         if ($remoteType === 'gdrive') {
-            return $this->uploadToGoogleDrive($localFilePath, $remoteFileName, $settings);
+            return $this->uploadToAllGoogleAccounts($localFilePath, $remoteFileName, $settings, $logId);
         }
 
         return $this->uploadToFtp($localFilePath, $remoteFileName, $settings);
+    }
+
+    /**
+     * Ayarlar dizisini seçilen Google hesabının bilgileriyle birleştirir
+     */
+    protected function mergeAccountSettings(array $account, array $settings): array
+    {
+        $settings['backup_gdrive_client_id'] = $account['client_id'] ?? '';
+        $settings['backup_gdrive_client_secret'] = $account['client_secret'] ?? '';
+        $settings['backup_gdrive_folder_id'] = $account['folder_id'] ?? '';
+        $settings['backup_gdrive_refresh_token'] = $account['refresh_token'] ?? '';
+        $settings['backup_gdrive_access_token'] = $account['access_token'] ?? '';
+        $settings['backup_gdrive_service_account_json'] = '';
+        return $settings;
+    }
+
+    /**
+     * Yedeği aktif ve bağlı tüm Google Drive hesaplarına yükler
+     */
+    public function uploadToAllGoogleAccounts(string $localFilePath, string $remoteFileName, array $settings, ?int $logId = null): array
+    {
+        $accounts = array_values(array_filter(
+            $this->backupModel->getGdriveAccounts(true),
+            fn($a) => !empty($a['refresh_token'])
+        ));
+
+        if (empty($accounts)) {
+            return ['success' => false, 'error' => 'Bağlı ve aktif Google Drive hesabı bulunamadı. Lütfen Ayarlar sekmesinden hesap ekleyip yetkilendiriniz.'];
+        }
+
+        $okLabels = [];
+        $errors = [];
+        $firstFileId = null;
+
+        foreach ($accounts as $account) {
+            $res = $this->uploadToGoogleDrive($localFilePath, $remoteFileName, $this->mergeAccountSettings($account, $settings));
+            if (!empty($res['success'])) {
+                $okLabels[] = $account['label'];
+                $firstFileId = $firstFileId ?? ($res['file_id'] ?? '');
+                if ($logId) {
+                    $this->backupModel->saveRemoteFile($logId, (int)$account['id'], (string)($res['file_id'] ?? ''));
+                }
+            } else {
+                $errors[] = $account['label'] . ': ' . ($res['error'] ?? 'Bilinmeyen hata');
+                error_log('[BackupService] Google Drive yükleme hatası (' . $account['label'] . '): ' . ($res['error'] ?? ''));
+            }
+        }
+
+        if (empty($okLabels)) {
+            return ['success' => false, 'error' => implode(' | ', $errors)];
+        }
+
+        return [
+            'success' => true,
+            'file_id' => $firstFileId,
+            'target' => 'Google Drive: ' . implode(', ', $okLabels),
+            'error' => implode(' | ', $errors)
+        ];
     }
 
     /**
@@ -903,10 +966,60 @@ class BackupService
     public function deleteFromRemote(array $log, array $settings): array
     {
         $remoteType = $settings['backup_remote_type'] ?? 'ftp';
-        if ($remoteType === 'gdrive') {
-            return $this->deleteFromGoogleDrive($log['remote_file_id'] ?? '', $log['file_name'] ?? '', $settings);
+        if ($remoteType !== 'gdrive') {
+            return $this->deleteFromFtp($log['file_name'] ?? '', $settings);
         }
-        return $this->deleteFromFtp($log['file_name'] ?? '', $settings);
+
+        $accounts = [];
+        foreach ($this->backupModel->getGdriveAccounts() as $a) {
+            $accounts[(int)$a['id']] = $a;
+        }
+
+        $records = !empty($log['id']) ? $this->backupModel->getRemoteFiles((int)$log['id']) : [];
+        $success = false;
+        $errors = [];
+        $attempted = 0;
+
+        if (empty($records)) {
+            foreach ($accounts as $account) {
+                if (empty($account['refresh_token'])) {
+                    continue;
+                }
+                $attempted++;
+                $res = $this->deleteFromGoogleDrive('', $log['file_name'] ?? '', $this->mergeAccountSettings($account, $settings));
+                $success = $success || !empty($res['success']);
+                if (empty($res['success'])) {
+                    $errors[] = $account['label'] . ': ' . ($res['error'] ?? '');
+                }
+            }
+        } else {
+            foreach ($records as $rec) {
+                $account = $accounts[(int)$rec['account_id']] ?? null;
+                if (!$account) {
+                    continue;
+                }
+                if (empty($account['refresh_token'])) {
+                    $errors[] = $account['label'] . ': Google bağlantısı kurulu değil.';
+                    continue;
+                }
+                $attempted++;
+                $res = $this->deleteFromGoogleDrive((string)$rec['remote_file_id'], $log['file_name'] ?? '', $this->mergeAccountSettings($account, $settings));
+                $success = $success || !empty($res['success']);
+                if (empty($res['success'])) {
+                    $errors[] = $account['label'] . ': ' . ($res['error'] ?? '');
+                }
+            }
+        }
+
+        if ($errors) {
+            error_log('[BackupService] Google Drive silme hataları: ' . implode(' | ', $errors));
+        }
+
+        if ($attempted === 0 && empty($errors) && empty($records)) {
+            return ['success' => false, 'error' => 'Bağlı Google hesabı bulunamadı.'];
+        }
+
+        return ['success' => $success || empty($errors), 'message' => 'Google Drive kayıtları işlendi.', 'error' => implode(' | ', $errors)];
     }
 
     /**
@@ -1017,69 +1130,85 @@ class BackupService
      */
     public function syncGoogleDriveBackups(array $settings): array
     {
-        $accessToken = $this->resolveGoogleAccessToken($settings);
-        if (!$accessToken['success']) {
-            return $accessToken;
-        }
-        $token = $accessToken['access_token'];
-        $folderId = trim($settings['backup_gdrive_folder_id'] ?? '');
+        $accounts = array_values(array_filter(
+            $this->backupModel->getGdriveAccounts(true),
+            fn($a) => !empty($a['refresh_token'])
+        ));
 
-        // 1. Google Drive klasöründeki mevcut (çöp kutusunda olmayan) tüm dosyaları getir
-        $q = "trashed = false";
-        if (!empty($folderId)) {
-            $q .= " and '" . addslashes($folderId) . "' in parents";
-        }
-        $listUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode($q) . '&pageSize=100&fields=files(id,name,size,createdTime,trashed)';
-        
-        $ch = curl_init($listUrl);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        $resp = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode !== 200) {
-            return ['success' => false, 'error' => "Google Drive dosyaları listelenemedi (HTTP $httpCode): " . $resp];
+        if (empty($accounts)) {
+            return ['success' => false, 'error' => 'Bağlı ve aktif Google Drive hesabı bulunamadı.'];
         }
 
-        $data = json_decode($resp, true);
-        $driveFiles = $data['files'] ?? [];
-        
-        $driveFilesByName = [];
-        $driveFilesById = [];
-        foreach ($driveFiles as $df) {
-            $driveFilesByName[$df['name']] = $df;
-            $driveFilesById[$df['id']] = $df;
+        $listings = [];
+        $errors = [];
+        $totalDriveFiles = 0;
+
+        foreach ($accounts as $account) {
+            $listing = $this->listGoogleDriveFiles($this->mergeAccountSettings($account, $settings));
+            if ($listing['success']) {
+                $listings[(int)$account['id']] = $listing['files'];
+                $totalDriveFiles += count($listing['files']);
+            } else {
+                $errors[] = $account['label'] . ': ' . $listing['error'];
+                error_log('[BackupService] Google Drive listeleme hatası (' . $account['label'] . '): ' . $listing['error']);
+            }
         }
 
-        // 2. Sistemde remote_status = 'uploaded' olan tüm kayıtları kontrol et
+        if (empty($listings)) {
+            return ['success' => false, 'error' => implode(' | ', $errors)];
+        }
+
         $uploadedLogs = $this->backupModel->getUploadedLogs();
         $updatedMissing = 0;
         $activeSynced = 0;
         $details = [];
 
         foreach ($uploadedLogs as $log) {
-            $existsInDrive = false;
-            $matchedDriveId = null;
+            $records = $this->backupModel->getRemoteFiles((int)$log['id']);
+            $recordsByAccount = [];
+            foreach ($records as $rec) {
+                $recordsByAccount[(int)$rec['account_id']] = $rec;
+            }
 
-            // Önce remote_file_id ile kontrol et
-            if (!empty($log['remote_file_id']) && isset($driveFilesById[$log['remote_file_id']])) {
-                $existsInDrive = true;
-                $matchedDriveId = $log['remote_file_id'];
-            } elseif (isset($driveFilesByName[$log['file_name']])) {
-                // Dosya adıyla eşleşti
-                $existsInDrive = true;
-                $matchedDriveId = $driveFilesByName[$log['file_name']]['id'];
-                // ID eksikse veritabanını güncelle
-                if (empty($log['remote_file_id'])) {
-                    $this->backupModel->updateLog((int)$log['id'], ['remote_file_id' => $matchedDriveId]);
+            $presentSomewhere = false;
+
+            foreach ($accounts as $account) {
+                $accId = (int)$account['id'];
+                if (!isset($listings[$accId])) {
+                    if (isset($recordsByAccount[$accId])) {
+                        $presentSomewhere = true;
+                    }
+                    continue;
+                }
+
+                $byId = [];
+                $byName = [];
+                foreach ($listings[$accId] as $df) {
+                    $byId[$df['id']] = $df;
+                    $byName[$df['name']] = $df;
+                }
+
+                $rec = $recordsByAccount[$accId] ?? null;
+                $matchedId = null;
+                if ($rec && !empty($rec['remote_file_id']) && isset($byId[$rec['remote_file_id']])) {
+                    $matchedId = $rec['remote_file_id'];
+                } elseif (isset($byName[$log['file_name']])) {
+                    $matchedId = $byName[$log['file_name']]['id'];
+                    $this->backupModel->saveRemoteFile((int)$log['id'], $accId, (string)$matchedId);
+                }
+
+                if ($matchedId !== null) {
+                    $presentSomewhere = true;
+                } elseif ($rec) {
+                    $this->backupModel->deleteRemoteFile((int)$rec['id']);
                 }
             }
 
-            if (!$existsInDrive) {
-                // Google Drive'dan silinmiş -> Yerel diskten ve sistemden tamamen kaldır
+            if (!$presentSomewhere && !empty($errors) && empty($records) && !empty($log['remote_file_id'])) {
+                $presentSomewhere = true;
+            }
+
+            if (!$presentSomewhere) {
                 if (!empty($log['file_path'])) {
                     $baseDir = dirname(__DIR__, 2);
                     $localPath = realpath($baseDir . '/' . ltrim($log['file_path'], '/'));
@@ -1096,20 +1225,59 @@ class BackupService
                 }
 
                 $updatedMissing++;
-                $details[] = "<strong>{$log['file_name']}</strong> Google Drive'da bulunamadığı için sistemden ve diskten tamamen silindi.";
+                $details[] = "<strong>" . htmlspecialchars($log['file_name'], ENT_QUOTES, 'UTF-8') . "</strong> Google Drive'da bulunamadığı için sistemden ve diskten tamamen silindi.";
             } else {
                 $activeSynced++;
             }
         }
 
+        $message = "Google Drive senkronizasyonu tamamlandı. {$activeSynced} yedek doğrulandı, {$updatedMissing} silinmiş dosya sistemden temizlendi.";
+        if ($errors) {
+            $message .= ' Bazı hesaplara erişilemedi: ' . implode(' | ', $errors);
+        }
+
         return [
             'success' => true,
-            'total_drive_files' => count($driveFiles),
+            'total_drive_files' => $totalDriveFiles,
             'synced_count' => $activeSynced,
             'missing_count' => $updatedMissing,
             'details' => $details,
-            'message' => "Google Drive senkronizasyonu tamamlandı. {$activeSynced} yedek doğrulandı, {$updatedMissing} silinmiş dosya sistemden temizlendi."
+            'message' => $message
         ];
+    }
+
+    /**
+     * Bir Google Drive hesabının hedef klasöründeki (çöp kutusu hariç) dosyaları listeler
+     */
+    protected function listGoogleDriveFiles(array $accountSettings): array
+    {
+        $accessToken = $this->resolveGoogleAccessToken($accountSettings);
+        if (!$accessToken['success']) {
+            return ['success' => false, 'error' => $accessToken['error'] ?? 'Token alınamadı.'];
+        }
+        $folderId = trim($accountSettings['backup_gdrive_folder_id'] ?? '');
+
+        $q = "trashed = false";
+        if (!empty($folderId)) {
+            $q .= " and '" . addslashes($folderId) . "' in parents";
+        }
+        $listUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode($q) . '&pageSize=100&fields=files(id,name,size,createdTime,trashed)';
+
+        $ch = curl_init($listUrl);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken['access_token']]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        $resp = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            return ['success' => false, 'error' => "Google Drive dosyaları listelenemedi (HTTP $httpCode)"];
+        }
+
+        $data = json_decode($resp, true);
+        return ['success' => true, 'files' => $data['files'] ?? []];
     }
 
     /**
@@ -1231,32 +1399,132 @@ class BackupService
     }
 
     /**
-     * Eski yedekleri yerel diskten temizler
+     * Yerel ve harici saklama politikasını uygular
      */
-    public function cleanOldBackups(int $retentionDays): int
+    public function applyRetention(array $settings, ?int $currentLogId = null): array
     {
-        if ($retentionDays <= 0) {
-            return 0;
-        }
+        $localDays = max(1, (int)($settings['backup_retention_days'] ?? 30));
+        $dailyDays = max(1, (int)($settings['backup_retention_remote_daily_days'] ?? 14));
+        $weeklyWeeks = max(0, (int)($settings['backup_retention_weekly_weeks'] ?? 8));
+        $monthlyMonths = max(0, (int)($settings['backup_retention_monthly_months'] ?? 12));
+        $minKeep = max(1, (int)($settings['backup_retention_min_keep'] ?? 5));
 
-        $deletedCount = 0;
+        $logs = $this->backupModel->getLogsForRetention();
+        $result = [
+            'local_deleted' => $this->pruneLocalBackups($logs, $localDays, $minKeep, $currentLogId),
+            'remote_deleted' => 0
+        ];
+
+        $logs = $this->backupModel->getLogsForRetention();
+        $result['remote_deleted'] = $this->pruneRemoteBackups($logs, $settings, $dailyDays, $weeklyWeeks, $monthlyMonths, $minKeep, $currentLogId);
+
+        return $result;
+    }
+
+    protected function pruneLocalBackups(array $logs, int $retentionDays, int $minKeep, ?int $currentLogId): int
+    {
         $expiryTime = time() - ($retentionDays * 86400);
+        $allowedDir = realpath($this->backupDir);
+        $deleted = 0;
 
-        $files = glob($this->backupDir . '/backup_*.zip');
-        if ($files) {
-            foreach ($files as $file) {
-                if (is_file($file) && filemtime($file) < $expiryTime) {
-                    if (@unlink($file)) {
-                        $deletedCount++;
-                    }
+        $files = glob($this->backupDir . '/backup_*.zip') ?: [];
+        usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+        $protected = array_map('basename', array_slice($files, 0, $minKeep));
+
+        foreach ($files as $file) {
+            if (is_file($file) && filemtime($file) < $expiryTime && !in_array(basename($file), $protected, true)) {
+                if (@unlink($file)) {
+                    $deleted++;
                 }
             }
         }
 
-        // DB loglarını da temizle
-        $this->backupModel->cleanOldLogs($retentionDays);
+        foreach ($logs as $log) {
+            if ((int)$log['id'] === (int)$currentLogId || $log['status'] === 'in_progress') {
+                continue;
+            }
+            if (strtotime($log['created_at']) >= $expiryTime || in_array($log['file_name'], $protected, true)) {
+                continue;
+            }
 
-        return $deletedCount;
+            $localPath = !empty($log['file_path']) ? realpath($this->rootDir . '/' . ltrim($log['file_path'], '/')) : false;
+            if ($localPath && $allowedDir && str_starts_with($localPath, $allowedDir) && is_file($localPath)) {
+                @unlink($localPath);
+            }
+
+            if ($log['remote_status'] !== 'uploaded') {
+                $this->backupModel->deleteLog((int)$log['id']);
+            }
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Harici depolamadaki yedekleri günlük / haftalık / aylık kademeli politikaya göre budar
+     */
+    protected function pruneRemoteBackups(array $logs, array $settings, int $dailyDays, int $weeklyWeeks, int $monthlyMonths, int $minKeep, ?int $currentLogId): int
+    {
+        $candidates = array_values(array_filter($logs, fn($l) =>
+            $l['status'] === 'success'
+            && $l['remote_status'] === 'uploaded'
+            && (int)$l['id'] !== (int)$currentLogId
+        ));
+
+        if (empty($candidates)) {
+            return 0;
+        }
+
+        $now = time();
+        $keep = [];
+        $seenWeeks = [];
+        $seenMonths = [];
+
+        foreach ($candidates as $i => $log) {
+            $ts = strtotime($log['created_at']);
+            $weekKey = date('o-W', $ts);
+            $monthKey = date('Y-m', $ts);
+
+            if ($i < $minKeep || $ts >= $now - $dailyDays * 86400) {
+                $keep[$log['id']] = true;
+            }
+            if ($weeklyWeeks > 0 && $ts >= $now - $weeklyWeeks * 7 * 86400 && !isset($seenWeeks[$weekKey])) {
+                $keep[$log['id']] = true;
+            }
+            if ($monthlyMonths > 0 && $ts >= strtotime("-{$monthlyMonths} months", $now) && !isset($seenMonths[$monthKey])) {
+                $keep[$log['id']] = true;
+            }
+            $seenWeeks[$weekKey] = true;
+            $seenMonths[$monthKey] = true;
+        }
+
+        $deleted = 0;
+        foreach ($candidates as $log) {
+            if (isset($keep[$log['id']])) {
+                continue;
+            }
+
+            $res = $this->deleteFromRemote($log, $settings);
+            if (empty($res['success']) || !empty($res['error'])) {
+                error_log('[BackupService] Saklama politikası: harici silme başarısız (' . $log['file_name'] . '): ' . ($res['error'] ?? ''));
+                continue;
+            }
+
+            $this->backupModel->deleteRemoteFilesByLog((int)$log['id']);
+            $this->backupModel->updateLog((int)$log['id'], ['remote_status' => 'expired', 'remote_file_id' => null]);
+
+            $localPath = !empty($log['file_path']) ? realpath($this->rootDir . '/' . ltrim($log['file_path'], '/')) : false;
+            if (!$localPath || !is_file($localPath)) {
+                $this->backupModel->deleteLog((int)$log['id']);
+            }
+
+            if (function_exists('audit_log')) {
+                audit_log("delete", "backup_retention", "Saklama politikası gereği harici yedek kaldırıldı: " . $log['file_name'], "backup_logs", (string)$log['id']);
+            }
+            $deleted++;
+        }
+
+        return $deleted;
     }
 
     /**

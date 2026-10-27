@@ -22,6 +22,21 @@ class DashboardLayoutModel extends BaseModel
     {
         $canViewLogs = in_array($userId, [1, 12]);
         $canViewOffers = (isset($_SESSION['lid']) && function_exists('permtrue')) ? permtrue('offerview') : true;
+        $isAdminUser = in_array($userId, [1, 12]) || in_array((int)($_SESSION['permission'] ?? 0), [1, 13], true);
+        $hasAny = static function (array $permissions) use ($isAdminUser): bool {
+            if ($isAdminUser || !isset($_SESSION['lid']) || !function_exists('permtrue')) {
+                return true;
+            }
+            foreach ($permissions as $permission) {
+                if (permtrue($permission)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        $servicePerms = ['serviceView', 'service_dashboard'];
+        $missionPerms = ['missionview', 'allmisview', 'missiontake', 'missionadd'];
+        $todoPerms = ['todoadd', 'todoedit', 'tododelete', 'reminderadd'];
 
         $catalog = [
             'widget_kpi_summary' => [
@@ -35,7 +50,7 @@ class DashboardLayoutModel extends BaseModel
                 'default_h' => 2,
                 'min_w' => 4,
                 'min_h' => 2,
-                'is_allowed' => true,
+                'is_allowed' => $hasAny(array_merge($servicePerms, ['offerview', 'offer_dashboard', 'customeradd', 'customeredit', 'customer_dashboard'])),
                 'default_order' => 1,
             ],
             'widget_service_board' => [
@@ -49,7 +64,7 @@ class DashboardLayoutModel extends BaseModel
                 'default_h' => 4,
                 'min_w' => 6,
                 'min_h' => 4,
-                'is_allowed' => true,
+                'is_allowed' => $hasAny($servicePerms),
                 'default_order' => 2,
             ],
             'widget_recent_offers' => [
@@ -77,7 +92,7 @@ class DashboardLayoutModel extends BaseModel
                 'default_h' => 6,
                 'min_w' => 4,
                 'min_h' => 6,
-                'is_allowed' => true,
+                'is_allowed' => $hasAny($servicePerms),
                 'default_order' => 4,
             ],
             'widget_team_status' => [
@@ -91,7 +106,7 @@ class DashboardLayoutModel extends BaseModel
                 'default_h' => 6,
                 'min_w' => 4,
                 'min_h' => 6,
-                'is_allowed' => true,
+                'is_allowed' => $hasAny($missionPerms),
                 'default_order' => 5,
             ],
             'widget_todo_list' => [
@@ -105,7 +120,7 @@ class DashboardLayoutModel extends BaseModel
                 'default_h' => 6,
                 'min_w' => 4,
                 'min_h' => 6,
-                'is_allowed' => true,
+                'is_allowed' => $hasAny($todoPerms),
                 'default_order' => 6,
             ],
             'widget_system_logs' => [

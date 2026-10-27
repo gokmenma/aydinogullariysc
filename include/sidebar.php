@@ -35,17 +35,17 @@ $menuDefinitions = [
             'offers/list_sablon' => [
                 'title' => 'Şablon Teklifler',
                 'link' => 'teklif-sablonlari',
-                'visible' => true
+                'visible' => permtrue("offerview")
             ],
             'offers/list' => [
                 'title' => 'Teklifleri Görüntüle',
                 'link' => 'teklifler',
-                'visible' => true
+                'visible' => permtrue("offerview")
             ],
             'offers/items-list' => [
                 'title' => 'Teklif Kalemleri Listesi',
                 'link' => 'teklif-kalemleri',
-                'visible' => true
+                'visible' => permtrue("offerview")
             ]
         ]
     ],
@@ -114,12 +114,12 @@ $menuDefinitions = [
             'purchases/price-request-list' => [
                 'title' => 'Fiyat Talepleri',
                 'link' => 'fiyat-talepleri',
-                'visible' => true
+                'visible' => (permtrue("purchase_dashboard") || permtrue("purchaseadd") || permtrue("purchaseedit") || permtrue("purchasedelete") || permtrue("purchase-demand-add") || permtrue("tum_fiyat_taleplerini_gor"))
             ],
             'purchases' => [
                 'title' => 'Tümünü Görüntüle',
                 'link' => 'satin-almalar',
-                'visible' => true
+                'visible' => (permtrue("purchase_dashboard") || permtrue("purchaseadd") || permtrue("purchaseedit") || permtrue("purchasedelete") || permtrue("purchase-demand-add") || permtrue("tum_fiyat_taleplerini_gor"))
             ]
         ]
     ],
@@ -142,7 +142,7 @@ $menuDefinitions = [
             'customers/list' => [
                 'title' => 'Firma Listesi',
                 'link' => 'firmalar',
-                'visible' => true
+                'visible' => (permtrue("customer_dashboard") || permtrue("customeradd") || permtrue("customeredit") || permtrue("customerdelete") || permtrue("customerexport"))
             ]
         ]
     ],
@@ -183,7 +183,7 @@ $menuDefinitions = [
             'stock-activity/list' => [
                 'title' => 'Stok Hareketleri',
                 'link' => 'stok-hareketleri',
-                'visible' => true
+                'visible' => permtrue("stock-activity")
             ],
             'stock-activity/order-list' => [
                 'title' => 'Sipariş Listesi',
@@ -308,7 +308,7 @@ $menuDefinitions = [
             'tasks' => [
                 'title' => 'Yapılacaklar Listesi',
                 'link' => 'yapilacaklar',
-                'visible' => true
+                'visible' => (permtrue("todoadd") || permtrue("todoedit") || permtrue("tododelete"))
             ]
         ]
     ],
@@ -359,7 +359,7 @@ $menuDefinitions = [
             'all-notes' => [
                 'title' => 'Tümünü Görüntüle',
                 'link' => 'notlar',
-                'visible' => true
+                'visible' => (permtrue("noteadd") || permtrue("noteedit"))
             ],
             'note-categories' => [
                 'title' => 'Not Kategorileri',
@@ -400,7 +400,7 @@ $menuDefinitions = [
             'users' => [
                 'title' => 'Ekip Üyeleri',
                 'link' => 'ekip-uyeleri',
-                'visible' => true
+                'visible' => (permtrue("userview") || permtrue("useradd") || permtrue("useredit") || permtrue("userdelete"))
             ],
             'permission-settings' => [
                 'title' => 'Pozisyon Ayarları',

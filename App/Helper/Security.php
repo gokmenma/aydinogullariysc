@@ -38,36 +38,68 @@ class Security
         return password_verify($password, $hash);
     }
 
-    //encrypt//encrypt
-//encrypt
-public static function encrypt($data)
-{
-    if (empty($data)) {
-        return ''; // veya uygun bir hata mesajı döndürebilirsiniz
+    public static function encrypt($data)
+    {
+        if (empty($data)) {
+            return '';
+        }
+
+        $method = "AES-256-GCM";
+        $key = hash('sha256', 'mysecretkey', true);
+        $iv = openssl_random_pseudo_bytes(12);
+        $tag = null;
+        $encrypted_data = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
+        $result = base64_encode($iv . $tag . $encrypted_data);
+        return rawurlencode($result);
     }
 
-    $method = "AES-256-GCM";
-    $key = hash('sha256', 'mysecretkey', true);
-    $iv = openssl_random_pseudo_bytes(12); // GCM için 12 byte IV kullanılır
-    $tag = null;
-    $encrypted_data = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
-    //içinde + varsa onu değiştir
-    $result = str_replace('+', '-', $encrypted_data);
-    $result = str_replace('/', '_', $encrypted_data);
-    $result = str_replace('=', '*', $encrypted_data);
-    $result = base64_encode($iv . $tag . $encrypted_data);
-    return rawurlencode($result); // URL kodlaması ekle
-}
+    public static function decrypt($data)
+    {
+        $method = "AES-256-GCM";
+        $key = hash('sha256', 'mysecretkey', true);
+        $data = rawurldecode($data);
+        $data = base64_decode($data);
+        $iv = substr($data, 0, 12);
+        $tag = substr($data, 12, 16);
+        $encrypted_data = substr($data, 28);
+        return openssl_decrypt($encrypted_data, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
+    }
 
-public static function decrypt($data)
-{
-    $method = "AES-256-GCM";
-    $key = hash('sha256', 'mysecretkey', true);
-    $data = rawurldecode($data); // URL kodlamasını çöz
-    $data = base64_decode($data); // base64 kodlamasını çöz
-    $iv = substr($data, 0, 12); // GCM için 12 byte IV kullanılır
-    $tag = substr($data, 12, 16); // 16 byte authentication tag
-    $encrypted_data = substr($data, 28); // IV (12 byte) + Tag (16 byte) sonrası şifreli veri
-    return openssl_decrypt($encrypted_data, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
-}
+    /**
+     * ISO 27001 Fiziksel Belge Şifreleme (AES-256-GCM)
+     */
+    public static function encryptFile(string $data): string
+    {
+        $keyString = getenv('APP_KEY') ?: (getenv('FILE_ENCRYPTION_KEY') ?: 'aydinogullari_file_secret_key_2026');
+        $key = hash('sha256', $keyString, true);
+        $method = "AES-256-GCM";
+        $iv = openssl_random_pseudo_bytes(12);
+        $tag = '';
+        $encrypted = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
+        return "ENCGCM:" . $iv . $tag . $encrypted;
+    }
+
+    /**
+     * ISO 27001 Fiziksel Belge Deşifreleme (AES-256-GCM)
+     * Şifreli değilse (eski sistem verileri) ham içeriği döner.
+     */
+    public static function decryptFile(string $data): string
+    {
+        if (str_starts_with($data, "ENCGCM:")) {
+            $data = substr($data, 7);
+            if (strlen($data) >= 28) {
+                $keyString = getenv('APP_KEY') ?: (getenv('FILE_ENCRYPTION_KEY') ?: 'aydinogullari_file_secret_key_2026');
+                $key = hash('sha256', $keyString, true);
+                $method = "AES-256-GCM";
+                $iv = substr($data, 0, 12);
+                $tag = substr($data, 12, 16);
+                $ciphertext = substr($data, 28);
+                $decrypted = openssl_decrypt($ciphertext, $method, $key, OPENSSL_RAW_DATA, $iv, $tag);
+                if ($decrypted !== false) {
+                    return $decrypted;
+                }
+            }
+        }
+        return $data;
+    }
 }

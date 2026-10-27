@@ -39,17 +39,31 @@ class ProductModel extends BaseModel
                 SUM(CASE WHEN SatisParaBirimi = 'EUR' THEN 1 ELSE 0 END) AS eur_count,
                 SUM(CASE WHEN SatisParaBirimi = 'USD' THEN 1 ELSE 0 END) AS usd_count,
                 SUM(CASE WHEN StokKodu IS NOT NULL AND TRIM(StokKodu) != '' THEN 1 ELSE 0 END) AS with_sku_count,
+                SUM(CASE WHEN SatisFiyati IS NOT NULL AND TRIM(SatisFiyati) != '' AND CAST(REPLACE(REPLACE(SatisFiyati, '.', ''), ',', '.') AS DECIMAL(12,2)) > 0 THEN 1 ELSE 0 END) AS with_price_count,
                 COUNT(DISTINCT Birimi) AS unit_types_count
             FROM {$this->table}
         ");
         $sql->execute();
         $res = $sql->fetch(PDO::FETCH_ASSOC);
-        return $res ?: [
+        if ($res) {
+            $res['total_count'] = (int)($res['total_count'] ?? 0);
+            $res['try_count'] = (int)($res['try_count'] ?? 0);
+            $res['eur_count'] = (int)($res['eur_count'] ?? 0);
+            $res['usd_count'] = (int)($res['usd_count'] ?? 0);
+            $res['foreign_count'] = $res['eur_count'] + $res['usd_count'];
+            $res['with_sku_count'] = (int)($res['with_sku_count'] ?? 0);
+            $res['with_price_count'] = (int)($res['with_price_count'] ?? 0);
+            $res['unit_types_count'] = (int)($res['unit_types_count'] ?? 0);
+            return $res;
+        }
+        return [
             'total_count' => 0,
             'try_count' => 0,
             'eur_count' => 0,
             'usd_count' => 0,
+            'foreign_count' => 0,
             'with_sku_count' => 0,
+            'with_price_count' => 0,
             'unit_types_count' => 0,
         ];
     }
@@ -360,5 +374,289 @@ class ProductModel extends BaseModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Mobil SPA için filtrelenmiş ve sayfalanmış ürün listesi
+     * @param array $filters
+     * @param int $page
+     * @param int $limit
+     * @return array
+     */
+    public function getMobileList(array $filters = [], int $page = 1, int $limit = 25): array
+    {
+        $page = max(1, $page);
+        $limit = min(100, max(5, $limit));
+        $offset = ($page - 1) * $limit;
+
+        $where = ["1=1"];
+        $params = [];
+
+        $search = trim((string)($filters['search'] ?? ''));
+        if ($search !== '') {
+            $where[] = "(p.Adi LIKE :search_name 
+                         OR p.StokKodu LIKE :search_sku 
+                         OR p.Aciklama LIKE :search_desc 
+                         OR p.Barkod LIKE :search_barcode 
+                         OR p.ID = :search_id)";
+            $params[':search_name'] = "%{$search}%";
+            $params[':search_sku'] = "%{$search}%";
+            $params[':search_desc'] = "%{$search}%";
+            $params[':search_barcode'] = "%{$search}%";
+            $params[':search_id'] = is_numeric($search) ? (int)$search : 0;
+        }
+
+        $tab = (string)($filters['tab'] ?? 'all');
+        if ($tab === 'with_stock') {
+            $where[] = "(p.StokKodu IS NOT NULL AND TRIM(p.StokKodu) != '')";
+        } elseif ($tab === 'with_price') {
+            $where[] = "(p.SatisFiyati IS NOT NULL AND TRIM(p.SatisFiyati) != '' AND CAST(REPLACE(REPLACE(p.SatisFiyati, '.', ''), ',', '.') AS DECIMAL(12,2)) > 0)";
+        } elseif ($tab === 'try') {
+            $where[] = "(p.SatisParaBirimi = 'TRY' OR p.SatisParaBirimi = 'TL' OR p.SatisParaBirimi = '' OR p.SatisParaBirimi IS NULL)";
+        } elseif ($tab === 'foreign') {
+            $where[] = "(p.SatisParaBirimi IN ('USD', 'EUR'))";
+        }
+
+        $unit = trim((string)($filters['unit'] ?? ''));
+        if ($unit !== '') {
+            $where[] = "(p.Birimi = :unit OR u.title = :unit_title)";
+            $params[':unit'] = $unit;
+            $params[':unit_title'] = $unit;
+        }
+
+        $whereSql = implode(' AND ', $where);
+
+        $countSql = "
+            SELECT COUNT(*) 
+            FROM {$this->table} p
+            LEFT JOIN units u ON (u.id = p.Birimi OR u.title = p.Birimi)
+            WHERE {$whereSql}
+        ";
+        $countStmt = $this->db->prepare($countSql);
+        foreach ($params as $k => $v) {
+            $countStmt->bindValue($k, $v);
+        }
+        $countStmt->execute();
+        $totalItems = (int)$countStmt->fetchColumn();
+
+        $dataSql = "
+            SELECT 
+                p.ID,
+                p.Adi,
+                p.StokKodu,
+                p.Birimi,
+                COALESCE(u.title, p.Birimi) AS birim_adi,
+                p.AlisFiyati,
+                p.AlisParaBirimi,
+                p.SatisFiyati,
+                p.SatisParaBirimi,
+                p.Aciklama,
+                p.Barkod,
+                p.RafKodu,
+                p.MinStok,
+                p.OlusturmaTarihi
+            FROM {$this->table} p
+            LEFT JOIN units u ON (u.id = p.Birimi OR u.title = p.Birimi)
+            WHERE {$whereSql}
+            ORDER BY p.ID DESC
+            LIMIT :limit OFFSET :offset
+        ";
+        $stmt = $this->db->prepare($dataSql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalPages = $totalItems > 0 ? (int)ceil($totalItems / $limit) : 1;
+
+        return [
+            'items' => $items,
+            'total_items' => $totalItems,
+            'page' => $page,
+            'limit' => $limit,
+            'total_pages' => $totalPages,
+            'has_more' => $page < $totalPages,
+        ];
+    }
+
+    /**
+     * Mobil SPA için ürün detay ve ilişkili veriler
+     * @param int $id
+     * @return array|null
+     */
+    public function getMobileDetail(int $id): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                p.*,
+                COALESCE(u.title, p.Birimi) AS birim_adi,
+                (SELECT COUNT(*) FROM offermatters om WHERE om.title = p.Adi OR (p.StokKodu IS NOT NULL AND p.StokKodu != '' AND om.stokKodu = p.StokKodu)) AS usage_count
+            FROM {$this->table} p
+            LEFT JOIN units u ON (u.id = p.Birimi OR u.title = p.Birimi)
+            WHERE p.ID = ?
+        ");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return null;
+        }
+
+        // İlişkili son teklifler
+        $stmtOffers = $this->db->prepare("
+            SELECT 
+                o.id,
+                o.offerNumber,
+                c.company,
+                om.amount,
+                om.saleprice AS unit_price,
+                om.salecur AS currency,
+                om.total_price,
+                o.created_at
+            FROM offermatters om
+            JOIN offers o ON o.id = om.oid
+            LEFT JOIN customers c ON c.id = o.cid
+            WHERE (om.title = ? OR (om.stokKodu = ? AND ? != ''))
+            ORDER BY o.id DESC
+            LIMIT 5
+        ");
+        $stmtOffers->execute([$row['Adi'], $row['StokKodu'] ?? '', $row['StokKodu'] ?? '']);
+        $recentOffers = $stmtOffers->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'product' => $row,
+            'recent_offers' => $recentOffers,
+        ];
+    }
+
+    /**
+     * Mobil SPA için ürün ekleme / güncelleme işlemi
+     * @param array $input
+     * @param int $userId
+     * @return array
+     */
+    public function saveMobileProduct(array $input, int $userId): array
+    {
+        $name = trim((string)($input['name'] ?? ($input['Adi'] ?? ($input['urunAdi'] ?? ''))));
+        if ($name === '') {
+            return ['success' => false, 'message' => 'Lütfen ürün veya hizmet adını belirtin.'];
+        }
+
+        $unit = trim((string)($input['unit'] ?? ($input['Birimi'] ?? '')));
+        if ($unit === '' || $unit === '0') {
+            return ['success' => false, 'message' => 'Lütfen geçerli bir ölçü birimi seçin.'];
+        }
+
+        $id = (int)($input['id'] ?? 0);
+        $existing = $id > 0 ? $this->find($id) : null;
+        if ($id > 0 && !$existing) {
+            return ['success' => false, 'message' => 'Güncellenecek ürün kaydı bulunamadı.'];
+        }
+
+        $stockCode = trim((string)($input['stock_code'] ?? ($input['StokKodu'] ?? '')));
+        if ($stockCode === '' && $id === 0) {
+            $stockCode = 'STK' . mt_rand(1000000, 9999999);
+        }
+
+        $alisFiyati = trim((string)($input['buy_price'] ?? ($input['AlisFiyati'] ?? '')));
+        if ($alisFiyati !== '') {
+            $alisFiyati = str_replace(',', '.', $alisFiyati);
+        }
+
+        $satisFiyati = trim((string)($input['sale_price'] ?? ($input['SatisFiyati'] ?? '')));
+        if ($satisFiyati !== '') {
+            $satisFiyati = str_replace(',', '.', $satisFiyati);
+        }
+
+        $alisParaBirimi = trim((string)($input['buy_currency'] ?? ($input['AlisParaBirimi'] ?? 'TRY')));
+        if (!in_array($alisParaBirimi, ['TRY', 'USD', 'EUR', 'TL'], true)) {
+            $alisParaBirimi = 'TRY';
+        }
+
+        $satisParaBirimi = trim((string)($input['sale_currency'] ?? ($input['SatisParaBirimi'] ?? 'TRY')));
+        if (!in_array($satisParaBirimi, ['TRY', 'USD', 'EUR', 'TL'], true)) {
+            $satisParaBirimi = 'TRY';
+        }
+
+        $aciklama = trim((string)($input['description'] ?? ($input['Aciklama'] ?? '')));
+        $barkod = trim((string)($input['barcode'] ?? ($input['Barkod'] ?? '')));
+        $rafKodu = trim((string)($input['shelf_code'] ?? ($input['RafKodu'] ?? '')));
+        $minStok = trim((string)($input['min_stock'] ?? ($input['MinStok'] ?? '')));
+
+        $data = [
+            'id' => $id,
+            'Adi' => $name,
+            'StokKodu' => $stockCode,
+            'Birimi' => $unit,
+            'AlisFiyati' => $alisFiyati,
+            'AlisParaBirimi' => $alisParaBirimi,
+            'SatisFiyati' => $satisFiyati,
+            'SatisParaBirimi' => $satisParaBirimi,
+            'Aciklama' => $aciklama,
+            'Barkod' => $barkod,
+            'RafKodu' => $rafKodu,
+            'MinStok' => $minStok,
+        ];
+
+        if ($id === 0) {
+            $data['OlusturmaTarihi'] = date('d.m.Y');
+            $data['PersonelID'] = $userId;
+        } else {
+            $data['Duzenleyen'] = (string)$userId;
+            $data['DuzenlemeTarihi'] = date('d.m.Y');
+        }
+
+        $savedId = (int)$this->save($data);
+        $finalId = $id > 0 ? $id : $savedId;
+
+        return [
+            'success' => true,
+            'id' => $finalId,
+            'message' => $id > 0 ? 'Ürün/hizmet başarıyla güncellendi.' : 'Yeni ürün/hizmet başarıyla eklendi.',
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * Mobil SPA için ürün silme işlemi
+     * @param int $id
+     * @param int $userId
+     * @return array
+     */
+    public function deleteMobileProduct(int $id, int $userId): array
+    {
+        $product = $this->find($id);
+        if (!$product) {
+            return ['success' => false, 'message' => 'Silinecek ürün bulunamadı.'];
+        }
+
+        // Tekliflerde kullanım durumu
+        $stmtCheck = $this->db->prepare("SELECT COUNT(*) FROM offermatters WHERE title = ? OR (stokKodu = ? AND ? != '')");
+        $stmtCheck->execute([$product->Adi, $product->StokKodu ?? '', $product->StokKodu ?? '']);
+        $usageCount = (int)$stmtCheck->fetchColumn();
+
+        $this->delete($id);
+
+        return [
+            'success' => true,
+            'message' => $usageCount > 0 
+                ? 'Ürün silindi (Daha önce tekliflerde geçmiş kaydı bulunuyordu).'
+                : 'Ürün başarıyla silindi.',
+            'product_name' => $product->Adi ?? ('#' . $id),
+            'usage_count' => $usageCount,
+        ];
+    }
+
+    /**
+     * Aktif ölçü birimlerini listeler
+     * @return array
+     */
+    public function getActiveUnits(): array
+    {
+        $stmt = $this->db->prepare("SELECT id, title FROM units WHERE statu = 1 ORDER BY title ASC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

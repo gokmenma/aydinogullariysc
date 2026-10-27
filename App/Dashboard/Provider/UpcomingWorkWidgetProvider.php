@@ -13,7 +13,7 @@ class UpcomingWorkWidgetProvider extends AbstractDashboardWidgetProvider
             'id' => 'widget_upcoming_work', 'title' => 'Geciken ve Yaklaşan İşler',
             'subtitle' => 'Aksiyon gerektiren tarih ve iş yükü', 'icon' => 'fa fa-exclamation-triangle',
             'badge' => 'Takip', 'badge_class' => 'soft-purple', 'default_w' => 4, 'default_h' => 5,
-            'min_w' => 4, 'min_h' => 5, 'is_allowed' => true, 'default_order' => 5,
+            'min_w' => 4, 'min_h' => 5, 'is_allowed' => $this->hasAnyPermission(['serviceView', 'service_dashboard', 'missionview', 'missiontake', 'allmisview']), 'default_order' => 5,
         ];
     }
 

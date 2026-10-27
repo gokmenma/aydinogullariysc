@@ -668,6 +668,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 		<div class="grid-stack crm-grid-preparing" id="crmDashboardGrid" aria-busy="true">
 
 			<!-- WIDGET 1: KPI SUMMARY CARDS -->
+			<?php if (!empty($widgetCatalog['widget_kpi_summary']['is_allowed'])) : ?>
 			<?php 
 			$wKpi = $layoutMap['widget_kpi_summary'] ?? ['w' => 12, 'h' => 2, 'x' => 0, 'y' => 0, 'visible' => true];
 			$isKpiVisible = !empty($wKpi['visible']);
@@ -779,7 +780,10 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 				</div>
 			</div>
 
+			<?php endif; ?>
+
 			<!-- WIDGET 2: SERVİS PLANLAMA PANOSU -->
+			<?php if (!empty($widgetCatalog['widget_service_board']['is_allowed'])) : ?>
 			<?php 
 			$wSvc = $layoutMap['widget_service_board'] ?? ['w' => 12, 'h' => 4, 'x' => 0, 'y' => 2, 'visible' => true];
 			$isSvcVisible = !empty($wSvc['visible']);
@@ -1011,6 +1015,8 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 				</div>
 			</div>
 
+			<?php endif; ?>
+
 			<!-- SAĞLAYICI TABANLI WIDGET'LAR -->
 			<?php
 			$providerWidgets = [
@@ -1127,6 +1133,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 			<?php endif; ?>
 
 			<!-- WIDGET 4: SON EKLENEN SERVİSLER -->
+			<?php if (!empty($widgetCatalog['widget_recent_services']['is_allowed'])) : ?>
 			<?php 
 			$wRecSvc = $layoutMap['widget_recent_services'] ?? ['w' => 6, 'h' => 6, 'x' => 6, 'y' => 6, 'visible' => true];
 			$isRecSvcVisible = !empty($wRecSvc['visible']);
@@ -1205,7 +1212,10 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 				</div>
 			</div>
 
+			<?php endif; ?>
+
 			<!-- WIDGET 5: EKİP VE OPERASYON DURUMU -->
+			<?php if (!empty($widgetCatalog['widget_team_status']['is_allowed'])) : ?>
 			<?php 
 			$wTeam = $layoutMap['widget_team_status'] ?? ['w' => 6, 'h' => 6, 'x' => 0, 'y' => 12, 'visible' => true];
 			$isTeamVisible = !empty($wTeam['visible']);
@@ -1297,7 +1307,10 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 				</div>
 			</div>
 
+			<?php endif; ?>
+
 			<!-- WIDGET 6: YAPILACAKLAR (TO-DO) LİSTESİ -->
+			<?php if (!empty($widgetCatalog['widget_todo_list']['is_allowed'])) : ?>
 			<?php 
 			$wTodo = $layoutMap['widget_todo_list'] ?? ['w' => 6, 'h' => 6, 'x' => 6, 'y' => 12, 'visible' => true];
 			$isTodoVisible = !empty($wTodo['visible']);
@@ -1368,7 +1381,10 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 				</div>
 			</div>
 
+			<?php endif; ?>
+
 			<!-- WIDGET 7: SİSTEM AKTİVİTELERİ & GİRİŞLER -->
+			<?php if (!empty($widgetCatalog['widget_system_logs']['is_allowed'])) : ?>
 			<?php 
 				$wLogs = $layoutMap['widget_system_logs'] ?? ['w' => 12, 'h' => 10, 'x' => 0, 'y' => 18, 'visible' => true];
 				$isLogsVisible = !empty($wLogs['visible']);
@@ -1522,6 +1538,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 						</div>
 					</div>
 				</div>
+			<?php endif; ?>
 
 		</div>
 	</div>

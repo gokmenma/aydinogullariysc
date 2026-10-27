@@ -17,11 +17,11 @@ return [
     ],
     'purchases' => [
         'satin-alma-paneli' => ['page' => 'purchases/dashboard', 'permissions' => ['purchase_dashboard', 'purchaseadd']],
-        'satin-almalar' => ['page' => 'purchases', 'permissions' => []],
+        'satin-almalar' => ['page' => 'purchases', 'permissions' => ['purchase_dashboard', 'purchaseadd', 'purchaseedit', 'purchasedelete', 'purchase-demand-add', 'tum_fiyat_taleplerini_gor']],
         'yeni-siparis' => ['page' => 'purchases/manage', 'permissions' => ['purchaseadd']],
         'siparis-duzenle' => ['page' => 'purchases/manage', 'permissions' => ['purchaseedit'], 'encrypted_id' => true],
         'yeni-satin-alma-talebi' => ['page' => 'purchase-demand-new', 'permissions' => ['purchase-demand-add']],
-        'fiyat-talepleri' => ['page' => 'purchases/price-request-list', 'permissions' => []],
+        'fiyat-talepleri' => ['page' => 'purchases/price-request-list', 'permissions' => ['purchase_dashboard', 'purchaseadd', 'purchaseedit', 'purchasedelete', 'purchase-demand-add', 'tum_fiyat_taleplerini_gor']],
         'yeni-fiyat-talebi' => ['page' => 'purchases/price-request-manage', 'permissions' => ['purchaseadd']],
         'fiyat-talebi-duzenle' => ['page' => 'purchases/price-request-manage', 'permissions' => ['purchaseedit'], 'encrypted_id' => true],
     ],
@@ -37,7 +37,7 @@ return [
     ],
     'customers' => [
         'firma-paneli' => ['page' => 'customers/dashboard', 'permissions' => ['customer_dashboard', 'customerview']],
-        'firmalar' => ['page' => 'customers/list', 'permissions' => []],
+        'firmalar' => ['page' => 'customers/list', 'permissions' => ['customer_dashboard', 'customeradd', 'customeredit', 'customerdelete', 'customerexport']],
         'yeni-firma' => ['page' => 'customers/manage', 'permissions' => ['customeradd']],
         'firma-duzenle' => ['page' => 'customers/manage', 'permissions' => ['customeredit'], 'encrypted_id' => true],
         'etiket-goster' => ['page' => 'customer-label', 'permissions' => [], 'encrypted_id' => true],
@@ -97,7 +97,7 @@ return [
     ],
     'team' => [
         'yeni-ekip-uyesi' => ['page' => 'user-new', 'permissions' => ['useradd']],
-        'ekip-uyeleri' => ['page' => 'users', 'permissions' => []],
+        'ekip-uyeleri' => ['page' => 'users', 'permissions' => ['userview', 'useradd', 'useredit', 'userdelete']],
         'pozisyon-ayarlari' => ['page' => 'permission-settings', 'permissions' => ['authdefine']],
     ],
     'definitions' => [

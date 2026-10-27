@@ -13,7 +13,7 @@ class TodayWorkWidgetProvider extends AbstractDashboardWidgetProvider
             'id' => 'widget_today_work', 'title' => 'Bugünkü İşlerim',
             'subtitle' => 'Bugüne planlanan görev ve servisler', 'icon' => 'fa fa-sun-o',
             'badge' => 'Bugün', 'badge_class' => 'soft-amber', 'default_w' => 4, 'default_h' => 5,
-            'min_w' => 4, 'min_h' => 5, 'is_allowed' => true, 'default_order' => 4,
+            'min_w' => 4, 'min_h' => 5, 'is_allowed' => $this->hasAnyPermission(['serviceView', 'service_dashboard', 'missionview', 'missiontake', 'allmisview']), 'default_order' => 4,
         ];
     }
 

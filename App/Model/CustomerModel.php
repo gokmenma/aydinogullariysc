@@ -922,6 +922,244 @@ class CustomerModel extends BaseModel
             'kesifler' => $kesifList
         ];
     }
+
+    /**
+     * Mobil SPA için sayfalanmış ve filtrelenmiş firma listesi
+     */
+    public function getMobileList(array $filters = [], int $page = 1, int $limit = 25): array
+    {
+        $page = max(1, $page);
+        $limit = min(100, max(5, $limit));
+        $offset = ($page - 1) * $limit;
+
+        $where = ["c.deleted_at IS NULL"];
+        $params = [];
+
+        // Arama (Firma adı, yetkili, telefon, e-posta, şehir, ilçe, temsilci)
+        $search = trim((string)($filters['search'] ?? ''));
+        if ($search !== '') {
+            $where[] = "(c.company LIKE :search_comp 
+                         OR c.yetkili LIKE :search_yetk 
+                         OR c.gsm LIKE :search_gsm 
+                         OR c.gsm2 LIKE :search_gsm2 
+                         OR c.email LIKE :search_email 
+                         OR c.city LIKE :search_city 
+                         OR c.ilce LIKE :search_ilce 
+                         OR c.represant LIKE :search_rep 
+                         OR c.id = :search_id)";
+            $params[':search_comp'] = "%{$search}%";
+            $params[':search_yetk'] = "%{$search}%";
+            $params[':search_gsm'] = "%{$search}%";
+            $params[':search_gsm2'] = "%{$search}%";
+            $params[':search_email'] = "%{$search}%";
+            $params[':search_city'] = "%{$search}%";
+            $params[':search_ilce'] = "%{$search}%";
+            $params[':search_rep'] = "%{$search}%";
+            $params[':search_id'] = is_numeric($search) ? (int)$search : 0;
+        }
+
+        // Tab Filtresi
+        $tab = (string)($filters['tab'] ?? 'all');
+        if ($tab === 'with_phone') {
+            $where[] = "(c.gsm IS NOT NULL AND TRIM(c.gsm) != '' AND TRIM(c.gsm) != '.')";
+        } elseif ($tab === 'with_email') {
+            $where[] = "(c.email IS NOT NULL AND TRIM(c.email) != '' AND TRIM(c.email) != '.' AND c.email LIKE '%@%')";
+        } elseif ($tab === 'recent') {
+            $where[] = "c.regdate >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        } elseif ($tab === 'trading') {
+            $where[] = "((SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) > 0 OR (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id AND p.deleted_at IS NULL) > 0)";
+        }
+
+        // Grup Filtresi
+        $groupId = (int)($filters['group_id'] ?? 0);
+        if ($groupId > 0) {
+            $where[] = "c.grp = :group_id";
+            $params[':group_id'] = $groupId;
+        }
+
+        $whereSql = implode(' AND ', $where);
+
+        // Toplam kayıt sayısı
+        $countSql = "SELECT COUNT(*) FROM customers c WHERE {$whereSql}";
+        $countStmt = $this->db->prepare($countSql);
+        foreach ($params as $k => $v) {
+            $countStmt->bindValue($k, $v);
+        }
+        $countStmt->execute();
+        $totalItems = (int)$countStmt->fetchColumn();
+
+        // Sayfalı veri sorgusu
+        $dataSql = "
+            SELECT 
+                c.id,
+                c.company,
+                c.yetkili,
+                c.sunvan,
+                c.gsm,
+                c.gsm2,
+                c.email,
+                c.address,
+                c.location,
+                c.city,
+                c.ilce,
+                c.grp,
+                c.OdemeVade,
+                c.region,
+                c.represant,
+                c.cdesc,
+                c.regdate,
+                cg.title as group_title,
+                (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) as offer_count,
+                (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id AND p.deleted_at IS NULL) as project_count,
+                (SELECT COUNT(*) FROM reports r WHERE r.customer_id = c.id) as report_count
+            FROM customers c
+            LEFT JOIN cgroups cg ON cg.id = c.grp
+            WHERE {$whereSql}
+            ORDER BY c.id DESC
+            LIMIT :offset, :limit
+        ";
+
+        $stmt = $this->db->prepare($dataSql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $totalPages = $totalItems > 0 ? (int)ceil($totalItems / $limit) : 1;
+        $hasMore = $page < $totalPages;
+
+        return [
+            'items' => $rows,
+            'total_items' => $totalItems,
+            'total_pages' => $totalPages,
+            'page' => $page,
+            'limit' => $limit,
+            'has_more' => $hasMore,
+        ];
+    }
+
+    /**
+     * Aktif Müşteri Grupları
+     */
+    public function getActiveGroups(): array
+    {
+        $stmt = $this->db->query("SELECT id, title FROM cgroups WHERE statu = 1 OR statu = 2 ORDER BY title ASC");
+        return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
+    }
+
+    /**
+     * Satış Temsilcileri / Kullanıcılar
+     */
+    public function getRepresentatives(): array
+    {
+        $stmt = $this->db->query("SELECT id, username, Unvan FROM users WHERE statu = 1 ORDER BY username ASC");
+        return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
+    }
+
+    /**
+     * Müşteri Kaydet / Güncelle (Mobil SPA ve API için)
+     */
+    public function saveMobileCustomer(array $data, int $userId): array
+    {
+        $id = (int)($data['id'] ?? 0);
+        $company = trim((string)($data['company'] ?? ''));
+
+        if ($company === '') {
+            return ['success' => false, 'message' => 'Firma adı boş bırakılamaz.'];
+        }
+
+        if ($id > 0) {
+            // Pasif kontrolü: Silinmiş firma güncellenemez
+            $existing = $this->find($id);
+            if (!$existing || !empty($existing->deleted_at)) {
+                return ['success' => false, 'message' => 'Silinmiş veya bulunamayan bir firma güncellenemez.'];
+            }
+        }
+
+        // Aynı isimde aktif firma kontrolü (büyük/küçük harften bağımsız)
+        if ($this->companyNameExists($company, $id)) {
+            return ['success' => false, 'message' => 'Bu firma adı ile kayıtlı aktif bir firma zaten mevcut.'];
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $email = trim((string)($data['email'] ?? ''));
+        $gsm = trim((string)($data['gsm'] ?? ''));
+        $gsm2 = trim((string)($data['gsm2'] ?? ''));
+        $yetkili = trim((string)($data['yetkili'] ?? ''));
+        $sunvan = trim((string)($data['sunvan'] ?? ''));
+        $address = trim((string)($data['address'] ?? ''));
+        $location = trim((string)($data['location'] ?? ''));
+        $city = trim((string)($data['city'] ?? ''));
+        $ilce = trim((string)($data['ilce'] ?? ''));
+        $cdesc = trim((string)($data['cdesc'] ?? ''));
+        $grp = (int)($data['grp'] ?? 1);
+        $odemeVade = trim((string)($data['OdemeVade'] ?? ''));
+        $region = trim((string)($data['region'] ?? ''));
+        $represant = trim((string)($data['represant'] ?? ''));
+
+        if ($id > 0) {
+            $sql = "UPDATE customers SET 
+                        company = ?, 
+                        email = ?, 
+                        address = ?, 
+                        location = ?, 
+                        city = ?, 
+                        ilce = ?, 
+                        cdesc = ?, 
+                        gsm = ?, 
+                        gsm2 = ?, 
+                        yetkili = ?, 
+                        sunvan = ?, 
+                        grp = ?, 
+                        OdemeVade = ?, 
+                        region = ?, 
+                        represant = ?, 
+                        updater = ?, 
+                        updated_at = ? 
+                    WHERE id = ? AND deleted_at IS NULL";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                $company, $email, $address, $location, $city, $ilce, $cdesc,
+                $gsm, $gsm2, $yetkili, $sunvan, $grp, $odemeVade, $region,
+                $represant, $userId, $now, $id
+            ]);
+
+            return [
+                'success' => true,
+                'id' => $id,
+                'message' => 'Firma bilgileri başarıyla güncellendi.'
+            ];
+        } else {
+            $sql = "INSERT INTO customers (
+                        company, email, address, location, city, ilce, cdesc,
+                        gsm, gsm2, yetkili, sunvan, grp, OdemeVade, region,
+                        represant, creativer, regdate, reg_date, updater, updated_at
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?, ?
+                    )";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                $company, $email, $address, $location, $city, $ilce, $cdesc,
+                $gsm, $gsm2, $yetkili, $sunvan, $grp, $odemeVade, $region,
+                $represant, $userId, $now, $now, $userId, $now
+            ]);
+
+            $newId = (int)$this->db->lastInsertId();
+
+            return [
+                'success' => true,
+                'id' => $newId,
+                'message' => 'Yeni firma başarıyla kaydedildi.'
+            ];
+        }
+    }
 }
 
 

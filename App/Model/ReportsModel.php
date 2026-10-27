@@ -504,5 +504,332 @@ class ReportsModel extends BaseModel
             ]
         ];
     }
+
+    /**
+     * Mobil SPA ve Sayfalı Rapor Listesi Sorgusu
+     *
+     * @param array $options
+     * @return array
+     */
+    public function getReportsPaginated(array $options = []): array
+    {
+        $page = max(1, (int)($options['page'] ?? 1));
+        $limit = max(1, min(100, (int)($options['limit'] ?? 20)));
+        $offset = ($page - 1) * $limit;
+
+        $type = $options['type'] ?? 'all';
+        $search = trim((string)($options['search'] ?? ''));
+        $startDate = $options['start_date'] ?? null;
+        $endDate = $options['end_date'] ?? null;
+        $sortField = $options['sort_field'] ?? 'r.id';
+        $sortDirection = strtoupper($options['sort_direction'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+
+        $allowedSorts = [
+            'id' => 'r.id',
+            'report_number' => 'r.report_number',
+            'create_time' => 'r.create_time',
+            'control_date' => 'r.control_date',
+            'validity_date' => 'r.validity_date',
+            'company' => 'c.company'
+        ];
+        $orderBy = $allowedSorts[$sortField] ?? 'r.id';
+
+        $where = ["1=1"];
+        $params = [];
+
+        if ($type !== 'all' && $type !== '' && $type !== null) {
+            $where[] = "r.report_type = :type";
+            $params[':type'] = (int)$type;
+        }
+
+        if (!empty($search)) {
+            $where[] = "(r.report_number LIKE :search OR c.company LIKE :search OR r.isemrino LIKE :search OR u.username LIKE :search)";
+            $params[':search'] = "%{$search}%";
+        }
+
+        if (!empty($startDate)) {
+            $where[] = "DATE(r.create_time) >= :start_date";
+            $params[':start_date'] = $startDate;
+        }
+
+        if (!empty($endDate)) {
+            $where[] = "DATE(r.create_time) <= :end_date";
+            $params[':end_date'] = $endDate;
+        }
+
+        $whereClause = implode(" AND ", $where);
+
+        // Toplam kayıt sayısı
+        $countSql = "SELECT COUNT(*) as total 
+                     FROM {$this->table} r 
+                     LEFT JOIN customers c ON r.customer_id = c.id 
+                     LEFT JOIN users u ON r.controller_id = u.id 
+                     WHERE {$whereClause}";
+        $countStmt = $this->db->prepare($countSql);
+        foreach ($params as $key => $val) {
+            $countStmt->bindValue($key, $val);
+        }
+        $countStmt->execute();
+        $totalItems = (int)($countStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
+        $totalPages = (int)ceil($totalItems / $limit);
+
+        // Sayfalı veri sorgusu
+        $dataSql = "SELECT 
+                        r.id,
+                        r.report_number,
+                        r.report_type,
+                        COALESCE(rt.reportName, 'Rapor') as report_name,
+                        COALESCE(rt.page_link, 'ysc') as page_link,
+                        rt.deviceType as device_type,
+                        r.isemrino,
+                        r.control_date,
+                        r.validity_date,
+                        r.create_time,
+                        r.customer_id,
+                        COALESCE(c.company, 'Bilinmeyen Firma') as company_name,
+                        c.city as customer_city,
+                        c.gsm as customer_phone,
+                        COALESCE(u.username, '-') as controller_name,
+                        u.Unvan as controller_title
+                    FROM {$this->table} r
+                    LEFT JOIN report_types rt ON r.report_type = rt.id
+                    LEFT JOIN customers c ON r.customer_id = c.id
+                    LEFT JOIN users u ON r.controller_id = u.id
+                    WHERE {$whereClause}
+                    ORDER BY {$orderBy} {$sortDirection}
+                    LIMIT :offset, :limit";
+
+        $dataStmt = $this->db->prepare($dataSql);
+        foreach ($params as $key => $val) {
+            $dataStmt->bindValue($key, $val);
+        }
+        $dataStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $dataStmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $dataStmt->execute();
+        $rows = $dataStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $currentDate = new \DateTime('today');
+
+        // Satır verilerini zenginleştir
+        foreach ($rows as &$row) {
+            $daysLeft = null;
+            $status = 'valid';
+
+            if (!empty($row['validity_date'])) {
+                // validity_date formatı DD.MM.YYYY veya DD-MM-YYYY olabilir
+                $vStr = trim((string)$row['validity_date']);
+                $vDate = \DateTime::createFromFormat('d.m.Y', $vStr) 
+                    ?: \DateTime::createFromFormat('d-m-Y', $vStr)
+                    ?: \DateTime::createFromFormat('Y-m-d', $vStr);
+
+                if ($vDate) {
+                    $diff = $currentDate->diff($vDate);
+                    $daysLeft = (int)$diff->format('%r%a');
+                    if ($daysLeft < 0) {
+                        $status = 'expired';
+                    } elseif ($daysLeft <= 30) {
+                        $status = 'expiring';
+                    } else {
+                        $status = 'valid';
+                    }
+                }
+            }
+
+            $row['days_left'] = $daysLeft;
+            $row['status'] = $status;
+        }
+        unset($row);
+
+        return [
+            'reports' => $rows,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total_items' => $totalItems,
+                'total_pages' => max(1, $totalPages),
+                'has_more' => $page < $totalPages
+            ]
+        ];
+    }
+
+    /**
+     * Rapor Detayını İlişkili Tablolarla Birlikte Eksiksiz Getirir
+     *
+     * @param int $reportId
+     * @return array|null
+     */
+    public function getReportFullDetail(int $reportId): ?array
+    {
+        $reportId = (int)$reportId;
+        if ($reportId <= 0) {
+            return null;
+        }
+
+        $sql = "SELECT 
+                    r.*,
+                    COALESCE(rt.reportName, 'Rapor') as report_name,
+                    COALESCE(rt.page_link, 'ysc') as page_link,
+                    rt.deviceType as device_type,
+                    COALESCE(c.company, 'Bilinmeyen Firma') as company_name,
+                    c.gsm as customer_phone,
+                    c.gsm2 as customer_phone2,
+                    c.email as customer_email,
+                    c.yetkili as customer_contact,
+                    c.address as customer_address,
+                    c.city as customer_city,
+                    c.ilce as customer_district,
+                    u_cr.username as creator_name,
+                    u_co.username as controller_name,
+                    u_co.Unvan as controller_title,
+                    u_of.username as company_official_name
+                FROM {$this->table} r
+                LEFT JOIN report_types rt ON r.report_type = rt.id
+                LEFT JOIN customers c ON r.customer_id = c.id
+                LEFT JOIN users u_cr ON r.creator = u_cr.id
+                LEFT JOIN users u_co ON r.controller_id = u_co.id
+                LEFT JOIN users u_of ON r.company_official = u_of.id
+                WHERE r.id = :id LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id', $reportId, PDO::PARAM_INT);
+        $stmt->execute();
+        $report = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$report) {
+            return null;
+        }
+
+        $pageLink = strtolower(trim((string)($report['page_link'] ?? 'ysc')));
+        $reportType = (int)($report['report_type'] ?? 1);
+        $items = [];
+
+        if ($pageLink === 'ysc' || $reportType === 1) {
+            $stmtYsc = $this->db->prepare("SELECT * FROM report_ysc_content WHERE report_id = ? ORDER BY id ASC");
+            $stmtYsc->execute([$reportId]);
+            $items = $stmtYsc->fetchAll(PDO::FETCH_ASSOC);
+        } elseif ($pageLink === 'hst' || $reportType === 2) {
+            $stmtHst = $this->db->prepare("SELECT * FROM report_hst_content WHERE report_id = ? ORDER BY id ASC");
+            $stmtHst->execute([$reportId]);
+            $items = $stmtHst->fetchAll(PDO::FETCH_ASSOC);
+        } elseif ($pageLink === 'met' || $reportType === 3) {
+            $stmtMet = $this->db->prepare("SELECT * FROM report_met_content WHERE report_id = ? ORDER BY id ASC");
+            $stmtMet->execute([$reportId]);
+            $items = $stmtMet->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $stmtGen = $this->db->prepare("SELECT * FROM report_contents WHERE report_id = ? ORDER BY id ASC");
+            $stmtGen->execute([$reportId]);
+            $items = $stmtGen->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        $report['items'] = $items;
+        $report['item_count'] = count($items);
+
+        // JSON decode edilecek alanlar
+        if (!empty($report['report_matters'])) {
+            $report['report_matters_data'] = json_decode((string)$report['report_matters'], true) ?: null;
+        }
+        if (!empty($report['bakim_bilgileri'])) {
+            $report['bakim_bilgileri_data'] = json_decode((string)$report['bakim_bilgileri'], true) ?: null;
+        }
+        if (!empty($report['dedektor_info'])) {
+            $report['dedektor_info_data'] = json_decode((string)$report['dedektor_info'], true) ?: null;
+        }
+
+        // Kalan gün hesabı
+        $daysLeft = null;
+        $status = 'valid';
+        if (!empty($report['validity_date'])) {
+            $currentDate = new \DateTime('today');
+            $vStr = trim((string)$report['validity_date']);
+            $vDate = \DateTime::createFromFormat('d.m.Y', $vStr) 
+                ?: \DateTime::createFromFormat('d-m-Y', $vStr)
+                ?: \DateTime::createFromFormat('Y-m-d', $vStr);
+
+            if ($vDate) {
+                $diff = $currentDate->diff($vDate);
+                $daysLeft = (int)$diff->format('%r%a');
+                $status = $daysLeft < 0 ? 'expired' : ($daysLeft <= 30 ? 'expiring' : 'valid');
+            }
+        }
+        $report['days_left'] = $daysLeft;
+        $report['status'] = $status;
+
+        return $report;
+    }
+
+    /**
+     * Rapor KPI ve İstatistik Özeti
+     *
+     * @param string|null $startDate
+     * @param string|null $endDate
+     * @return array
+     */
+    public function getReportsKpi(?string $startDate = null, ?string $endDate = null): array
+    {
+        $summary = $this->getDashboardSummary($startDate, $endDate);
+
+        // Yaklaşan veya dolmuş rapor sayısı
+        $expiringCount = 0;
+        try {
+            $expStmt = $this->db->query("SELECT COUNT(*) FROM reports WHERE validity_date IS NOT NULL AND validity_date != '' AND STR_TO_DATE(validity_date, '%d.%m.%Y') <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)");
+            if ($expStmt) {
+                $expiringCount = (int)$expStmt->fetchColumn();
+            }
+        } catch (\Throwable $e) {}
+
+        return [
+            'total_count' => (int)($summary->total_count ?? 0),
+            'this_month_count' => (int)($summary->this_month->count ?? 0),
+            'unique_customers' => (int)($summary->unique_customers ?? 0),
+            'ysc_count' => (int)($summary->ysc_count ?? 0),
+            'hst_count' => (int)($summary->hst_count ?? 0),
+            'met_count' => (int)($summary->met_count ?? 0),
+            'yas_count' => (int)($summary->yas_count ?? 0),
+            'oys_count' => (int)($summary->oys_count ?? 0),
+            'aas_count' => (int)($summary->aas_count ?? 0),
+            'other_count' => (int)($summary->other_count ?? 0),
+            'expiring_count' => $expiringCount,
+            'month_growth_rate' => $summary->month_growth_rate ?? 0,
+            'ysc_rate' => $summary->ysc_rate ?? 0,
+            'hst_rate' => $summary->hst_rate ?? 0,
+        ];
+    }
+
+    /**
+     * Raporu ve Bağlı Kalemlerini Güvenli Şekilde Siler
+     *
+     * @param int $reportId
+     * @return bool
+     */
+    public function deleteReportById(int $reportId): bool
+    {
+        $reportId = (int)$reportId;
+        if ($reportId <= 0) {
+            return false;
+        }
+
+        try {
+            $this->db->beginTransaction();
+
+            // Alt kalemleri temizle
+            $this->db->prepare("DELETE FROM report_ysc_content WHERE report_id = ?")->execute([$reportId]);
+            $this->db->prepare("DELETE FROM report_hst_content WHERE report_id = ?")->execute([$reportId]);
+            $this->db->prepare("DELETE FROM report_met_content WHERE report_id = ?")->execute([$reportId]);
+            $this->db->prepare("DELETE FROM report_contents WHERE report_id = ?")->execute([$reportId]);
+
+            // Ana rapor kaydını sil
+            $delStmt = $this->db->prepare("DELETE FROM {$this->table} WHERE id = ?");
+            $delStmt->execute([$reportId]);
+
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("deleteReportById error: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 
