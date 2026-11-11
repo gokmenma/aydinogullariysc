@@ -89,6 +89,32 @@
         return typeof w === 'number' && w >= MIN_WIDTH ? w : null;
     }
 
+    var measureCanvas = null;
+
+    function minWidthOf(th) {
+        var title = titleOf(th);
+        if (!title) return MIN_WIDTH;
+        if (!measureCanvas) measureCanvas = document.createElement('canvas');
+        var g = measureCanvas.getContext('2d');
+        var cs = window.getComputedStyle(th);
+        g.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+        var spacing = parseFloat(cs.letterSpacing) || 0;
+        var text = cs.textTransform === 'uppercase' ? title.toLocaleUpperCase('tr-TR') : title;
+        var longest = 0;
+        text.split(/\s+/).forEach(function (word) {
+            var w = g.measureText(word).width + spacing * word.length;
+            if (w > longest) longest = w;
+        });
+        var extra = $(th).children('.tf-trigger').length ? 26 : 0;
+        var total = Math.ceil(longest + (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) + extra + 4);
+        return Math.max(MIN_WIDTH, total);
+    }
+
+    function minOf(ctx, idx) {
+        var th = ctx.settings.aoColumns[idx].nTh;
+        return th ? minWidthOf(th) : MIN_WIDTH;
+    }
+
     function paintWidth(th, w) {
         th.style.setProperty('width', w + 'px', 'important');
         th.style.setProperty('min-width', w + 'px', 'important');
@@ -115,7 +141,7 @@
         var total = 0;
         ctx.settings.aoColumns.forEach(function (col, idx) {
             if (col.bVisible === false) return;
-            total += widthOf(ctx, idx) || 140;
+            total += Math.max(widthOf(ctx, idx) || 140, minOf(ctx, idx));
         });
 
         $(table).addClass('dt-resize-fixed');
@@ -125,7 +151,11 @@
     function paintAll(ctx) {
         ctx.settings.aoColumns.forEach(function (col, idx) {
             var w = widthOf(ctx, idx);
-            if (w && col.nTh) paintWidth(col.nTh, w);
+            if (w && col.nTh) {
+                w = Math.max(w, minOf(ctx, idx));
+                ctx.widths[idx] = w;
+                paintWidth(col.nTh, w);
+            }
         });
         syncTable(ctx);
     }
@@ -133,7 +163,7 @@
     function freeze(ctx) {
         ctx.settings.aoColumns.forEach(function (col, idx) {
             if (col.bVisible === false || !col.nTh || widthOf(ctx, idx)) return;
-            ctx.widths[idx] = Math.max(MIN_WIDTH, Math.round(col.nTh.getBoundingClientRect().width));
+            ctx.widths[idx] = Math.max(minOf(ctx, idx), Math.round(col.nTh.getBoundingClientRect().width));
         });
         paintAll(ctx);
     }
@@ -176,7 +206,7 @@
         function onMove(mv) {
             var p = mv.type === 'touchmove' ? mv.originalEvent.touches[0] : mv;
             if (Math.abs(p.pageX - startX) > 2) moved = true;
-            var w = Math.max(MIN_WIDTH, Math.round(startW + (p.pageX - startX)));
+            var w = Math.max(minOf(ctx, idx), Math.round(startW + (p.pageX - startX)));
             ctx.widths[idx] = w;
             paintWidth(th, w);
             syncTable(ctx);

@@ -13220,12 +13220,23 @@ body.dt-resizing * {
 }
 
 table.dataTable.dt-resize-fixed {
-    table-layout: fixed;
-    min-width: 100%;
+    table-layout: fixed !important;
+    max-width: none !important;
+}
+
+table.dataTable.dt-resize-fixed thead th {
+    white-space: normal !important;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-height: 1.25;
 }
 
 table.dataTable.dt-resize-fixed th,
 table.dataTable.dt-resize-fixed td {
     overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+table.dataTable.dt-resize-fixed td:not(.text-nowrap) {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
 }
