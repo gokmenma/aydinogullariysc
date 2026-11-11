@@ -208,6 +208,12 @@ final class Router
         }
 
         foreach ($permissions as $permission) {
+            if ($permission === '@super_admin') {
+                if (\App\Service\MailboxService::isSuperAdmin()) {
+                    return true;
+                }
+                continue;
+            }
             if (permtrue($permission)) {
                 return true;
             }

@@ -84,7 +84,7 @@ return [
         'sms-gonder' => ['page' => 'send-sms', 'permissions' => ['mailandsmssend']],
         'mail-kayitlari' => ['page' => 'mail-logs', 'permissions' => ['mail-logs-view', 'mailandsmssend']],
         'mail-hesaplari' => ['page' => 'send-mail-accounts', 'permissions' => ['mail-accounts-manage']],
-        'gelen-giden-mail' => ['page' => 'mailbox', 'permissions' => []],
+        'gelen-giden-mail' => ['page' => 'mailbox', 'permissions' => ['@super_admin']],
     ],
     'notes' => [
         'not-ekle' => ['page' => 'new-note', 'permissions' => ['noteadd']],

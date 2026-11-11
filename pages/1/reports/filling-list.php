@@ -1,6 +1,7 @@
 <?php
 
 use App\Model\ReportControlModel;
+use App\Model\ReportListDatatableModel;
 use App\Helper\Date;
 use App\Helper\Security;
 
@@ -8,11 +9,12 @@ $control = new ReportControlModel();
 
 $month = $_POST['control_month'] ?? ($_GET['month'] ?? Date::getThisMonth());
 $year = $_POST['control_year'] ?? ($_GET['year'] ?? Date::getThisYear());
-$controlList = $control->getReportFillingList($month, $year);
-
-$totalCount = count($controlList);
-$uniqueCompanies = count(array_unique(array_filter(array_map(function($item) { return $item->firma_adi ?? null; }, $controlList))));
-$uniqueReports = count(array_unique(array_filter(array_map(function($item) { return $item->report_number ?? null; }, $controlList))));
+$listModel = new ReportListDatatableModel();
+$listPeriod = ['month' => (string)$month, 'year' => (string)$year, 'date_from' => '', 'date_to' => ''];
+$summary = $listModel->getSummary('filling', $listPeriod);
+$totalCount = $summary['total'];
+$uniqueCompanies = $summary['companies'];
+$uniqueReports = $summary['reports'];
 
 $monthNames = [
     '01' => 'Ocak', '02' => 'Şubat', '03' => 'Mart', '04' => 'Nisan',
@@ -277,7 +279,7 @@ try {
         border: none !important;
     }
     .responsive {
-        overflow-x: hidden;
+        overflow-x: auto;
         overflow-y: visible;
         width: 100%;
         min-height: 280px;
@@ -580,128 +582,23 @@ try {
                             <th class="text-center" style="width: 80px;">İşlem</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php 
-                        $i = 1;
-                        foreach ($controlList as $list) : 
-                            $repId = (int)($list->report_id ?? 0);
-                            $repNum = htmlspecialchars($list->report_number ?? '-', ENT_QUOTES, 'UTF-8');
-                            $firmName = htmlspecialchars($list->firma_adi ?? '-', ENT_QUOTES, 'UTF-8');
-                            $cihazNo = htmlspecialchars($list->cihaz_no ?? '-', ENT_QUOTES, 'UTF-8');
-                            $bolge = htmlspecialchars($list->bulundugu_bolge ?? '-', ENT_QUOTES, 'UTF-8');
-                            $ay = htmlspecialchars($list->ay ?? '-', ENT_QUOTES, 'UTF-8');
-                            $yil = htmlspecialchars($list->yil ?? '-', ENT_QUOTES, 'UTF-8');
-                        ?>
-                            <tr>
-                                <td class="text-center font-weight-600 text-muted"><?= $i ?></td>
-                                <td><?= $firmName ?></td>
-                                <td class="text-center">
-                                    <?php if ($repId > 0) { ?>
-                                        <a href="index.php?p=reports/ysc/report-view-ysc&id=<?= $repId ?>" target="_blank" class="text-primary font-weight-bold" title="Raporu Görüntüle"><?= $repNum ?></a>
-                                    <?php } else { ?>
-                                        <?= $repNum ?>
-                                    <?php } ?>
-                                </td>
-                                <td class="text-center"><?= $cihazNo ?></td>
-                                <td><?= $bolge ?></td>
-                                <td class="text-center"><?= $ay ?></td>
-                                <td class="text-center"><?= $yil ?></td>
-                                <td class="text-center">
-                                    <?php if ($repId > 0) { ?>
-                                        <a href="index.php?p=reports/ysc/report-view-ysc&id=<?= $repId ?>" target="_blank" class="btn btn-sm btn-outline-primary" style="border-radius: 6px; padding: 3px 8px;" title="Rapor Detayını Görüntüle">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                    <?php } else { ?>
-                                        -
-                                    <?php } ?>
-                                </td>
-                            </tr>
-                        <?php 
-                            $i++; 
-                        endforeach; 
-                        ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
 
+<script src="include/js/report-list-table.js?v=<?= filemtime(__DIR__ . '/../../../include/js/report-list-table.js') ?>"></script>
 <script>
 $(document).ready(function () {
-    // DataTable Başlatma
-    if ($("#fillingTable").length) {
-        var fTable = $("#fillingTable").DataTable({
-            autoWidth: false,
-            responsive: true,
-            pageLength: 25,
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                [10, 25, 50, 100, "Tümü"]
-            ],
-            language: {
-                url: "include/js/tr.json"
-            },
-            stateSave: true,
-            order: [[0, "asc"]],
-            initComplete: function () {
-                var api = this.api();
-
-                // Arama kutusunu Form Card Header içine taşıma
-                var $filterContainer = $('.form-card-header .dt-header-filter-box');
-                var $searchBox = $('#fillingTable_filter');
-                if ($filterContainer.length && $searchBox.length) {
-                    $searchBox.detach().appendTo($filterContainer);
-                    $searchBox.find('label').css({
-                        'margin-bottom': '0',
-                        'display': 'flex',
-                        'align-items': 'center',
-                        'position': 'relative'
-                    });
-                    $searchBox.find('input').addClass('form-control form-control-sm').attr('placeholder', 'Arayın...').css({
-                        'border-radius': '8px',
-                        'height': '36px',
-                        'width': '220px',
-                        'padding': '6px 12px'
-                    });
-                }
-
-                if (window.App && window.App.TableFilter) {
-                    App.TableFilter.attachToTable(api.table().node());
-                }
-            }
-        });
-    }
-
-    // KPI Özet Bölümü Aç/Kapa
-    $('html').removeClass('kpi-filling-collapsed-early');
-    var isKpiCollapsed = localStorage.getItem('aydinogullari_kpi_filling_collapsed') === 'true';
-    if (isKpiCollapsed) {
-        $('#kpiSummarySection').addClass('is-collapsed');
-        $('#toggleKpiSummary i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-        $('#toggleKpiSummary').attr('title', 'Özet Kartlarını Göster');
-    } else {
-        $('#kpiSummarySection').removeClass('is-collapsed');
-        $('#toggleKpiSummary i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-        $('#toggleKpiSummary').attr('title', 'Özet Kartlarını Gizle');
-    }
-
-    $(document).on('click', '#toggleKpiSummary', function(){
-        var $kpi = $('#kpiSummarySection');
-        var willCollapse = !$kpi.hasClass('is-collapsed');
-        
-        if (willCollapse) {
-            $kpi.addClass('is-collapsed');
-            $(this).find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-            $(this).attr('title', 'Özet Kartlarını Göster');
-            localStorage.setItem('aydinogullari_kpi_filling_collapsed', 'true');
-        } else {
-            $kpi.removeClass('is-collapsed');
-            $(this).find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
-            $(this).attr('title', 'Özet Kartlarını Gizle');
-            localStorage.setItem('aydinogullari_kpi_filling_collapsed', 'false');
-        }
+    ReportListTable.init({
+        tableId: 'fillingTable',
+        list: 'filling',
+        period: <?= json_encode($listPeriod, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>
     });
+
+    ReportListTable.initKpiToggle('filling');
 
     // Excel Dışa Aktarma
     $(document).on('click', '#filling_list-toxls, #filling_list-toxls-top', function() {

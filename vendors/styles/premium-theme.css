@@ -13176,3 +13176,56 @@ body.dark-mode .left-side-bar .menu-block {
 
 
 
+
+table.dataTable thead th {
+    position: relative;
+}
+
+.dt-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 7px;
+    cursor: col-resize;
+    z-index: 5;
+    user-select: none;
+    touch-action: none;
+}
+
+.dt-resizer::after {
+    content: "";
+    position: absolute;
+    top: 25%;
+    bottom: 25%;
+    right: 2px;
+    width: 2px;
+    border-radius: 2px;
+    background: transparent;
+    transition: background-color 0.15s;
+}
+
+table.dataTable thead th:hover > .dt-resizer::after {
+    background: rgba(100, 116, 139, 0.35);
+}
+
+.dt-resizer:hover::after {
+    background: var(--theme-primary, #0284c7) !important;
+}
+
+body.dt-resizing,
+body.dt-resizing * {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+
+table.dataTable.dt-resize-fixed {
+    table-layout: fixed;
+    min-width: 100%;
+}
+
+table.dataTable.dt-resize-fixed th,
+table.dataTable.dt-resize-fixed td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -736,3 +736,23 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.79')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.80', 'Kontrol Listesine Son Geçerlilik Tarihi Filtresi', 'improvement', '- Cihaz Kontrol & Geçerlilik Listesi sayfasındaki filtre alanına son geçerlilik tarihi (başlangıç ve bitiş) seçimi eklendi; liste ve Excel çıktısı seçilen tarih aralığına göre filtreleniyor.', 'Claude Code', '2026-11-11 12:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.80');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.81', 'Kontrol ve Dolum Listelerinde Eksik Gelen Raporların Düzeltilmesi', 'bugfix', '- Cihaz Kontrol & Geçerlilik ve Dolum listelerinde güncel raporların (ör. YSC000887-YSC000890) listeye gelmemesi sorunu giderildi.', 'Claude Code', '2026-11-11 13:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.81');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.82', 'Kontrol Listesinde Geçerlilik Tarihi Formatı Standardizasyonu', 'improvement', '- Cihaz Kontrol & Geçerlilik Listesi ve Excel çıktısında geçerlilik tarihleri tek tip gg.aa.yyyy biçiminde gösteriliyor; tarih sütunu doğru kronolojik sıralanıyor.', 'Claude Code', '2026-11-11 18:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.82');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.83', 'Tablolarda Kolon Genişliği Ayarlama', 'feature', '- Listelerdeki tabloların kolon başlıklarının sağ kenarı sürükleyerek genişletilip daraltılabiliyor; ayar tarayıcıda saklanıyor, çift tıklayınca sıfırlanıyor.', 'Claude Code', '2026-11-11 19:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.83');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.84', 'Liste Tablolarında Arama ve Filtreleme Hızlandırması', 'improvement', '- Dolum Listesi başta olmak üzere tüm liste tablolarında arama, sayfa değiştirme ve sıralama işlemleri belirgin şekilde hızlandırıldı.', 'Claude Code', '2026-11-11 20:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.84');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.85', 'Dolum ve Kontrol Listelerinin Hızlandırılması', 'improvement', '- Dolum ve Kontrol listeleri artık kayıtları sayfa sayfa yüklüyor; sayfa çok daha hızlı açılıyor, arama, sıralama ve kolon filtreleri sunucuda çalışıyor. Ayrıca sayfa açılışı küçük iyileştirmelerle hızlandırıldı.', 'Claude Code', '2026-11-11 21:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.85');

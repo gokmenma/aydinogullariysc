@@ -175,12 +175,15 @@ App.TableFilter = {
         if ($.fn.dataTable.ext && $.fn.dataTable.ext.search) {
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData, counter) {
                 // If the DataTable is server-side driven, server already did the filtering
-                const isServer = Boolean(
-                    settings.bServerSide || 
-                    (settings.oFeatures && settings.oFeatures.bServerSide) || 
-                    (settings.oInit && (settings.oInit.serverSide || settings.oInit.bServerSide)) ||
-                    (settings.nTable && window.jQuery && $.fn.dataTable.isDataTable(settings.nTable) && $(settings.nTable).DataTable().init().serverSide)
-                );
+                if (settings._tfIsServer === undefined) {
+                    settings._tfIsServer = Boolean(
+                        settings.bServerSide || 
+                        (settings.oFeatures && settings.oFeatures.bServerSide) || 
+                        (settings.oInit && (settings.oInit.serverSide || settings.oInit.bServerSide)) ||
+                        (settings.nTable && window.jQuery && $.fn.dataTable.isDataTable(settings.nTable) && $(settings.nTable).DataTable().init().serverSide)
+                    );
+                }
+                const isServer = settings._tfIsServer;
                 if (isServer) {
                     return true;
                 }
@@ -272,9 +275,14 @@ App.TableFilter = {
                     App.TableFilter.relocateSearchInput(tableNode);
                     try {
                         const isServer = api.init().serverSide;
-                        const rows = isServer ? api.rows({ page: 'current' }).data().toArray() : api.rows().data().toArray();
-                        if (rows && rows.length) {
-                            App.TableFilter.harvestRowsFromData(tableNode, rows);
+                        const settings = api.settings()[0];
+                        const total = settings.fnRecordsTotal();
+                        if (isServer || settings._tfHarvestedTotal !== total) {
+                            const rows = isServer ? api.rows({ page: 'current' }).data().toArray() : api.rows().data().toArray();
+                            if (rows && rows.length) {
+                                App.TableFilter.harvestRowsFromData(tableNode, rows);
+                            }
+                            settings._tfHarvestedTotal = total;
                         }
                     } catch (e) {}
                 }

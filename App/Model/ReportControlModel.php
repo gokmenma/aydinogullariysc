@@ -112,7 +112,18 @@ class ReportControlModel extends BaseModel
 
         $sql = $this->db->prepare($query);
         $sql->execute($params);
-        return $sql->fetchAll(PDO::FETCH_OBJ);
+        $rows = $sql->fetchAll(PDO::FETCH_OBJ);
+
+        foreach ($rows as $row) {
+            $raw = trim((string)($row->validity_date ?? ''));
+            $row->validity_sort = '';
+            if (preg_match('/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/', $raw, $m)) {
+                $row->validity_date = sprintf('%02d.%02d.%04d', $m[1], $m[2], $m[3]);
+                $row->validity_sort = sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]);
+            }
+        }
+
+        return $rows;
     }
 
     /**

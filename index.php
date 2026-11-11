@@ -197,6 +197,7 @@ try {
         }
     </script>
     <script src="include/js/table-filter.js?v=<?php echo file_exists('include/js/table-filter.js') ? filemtime('include/js/table-filter.js') : time(); ?>"></script>
+    <script src="include/js/datatable-resize.js?v=<?php echo filemtime('include/js/datatable-resize.js'); ?>"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script src="include/js/apperance.js?v=<?php echo file_exists('include/js/apperance.js') ? filemtime('include/js/apperance.js') : time(); ?>"></script>
     <script src="include/js/global-search.js?v=<?php echo file_exists('include/js/global-search.js') ? filemtime('include/js/global-search.js') : time(); ?>"></script>
