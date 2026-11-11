@@ -732,3 +732,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.78')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.79', 'Mobil SPA Evrak Takip Başlık ve Güvenli Alan Hizalaması', 'improvement', '- Evrak Takip sayfasında üst başlığın ekran tepesine ve çentiğe yapışma sorunu çözüldü; sayfa kapsayıcısına ds-screen sınıfı, safe-area-inset-top ve standart gutter boşlukları tanımlanarak başlık çubuğu ve butonların konumu dengelendi.', 'Antigravity AI', '2026-10-27 13:28:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.79');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.80', 'Kontrol Listesine Son Geçerlilik Tarihi Filtresi', 'improvement', '- Cihaz Kontrol & Geçerlilik Listesi sayfasındaki filtre alanına son geçerlilik tarihi (başlangıç ve bitiş) seçimi eklendi; liste ve Excel çıktısı seçilen tarih aralığına göre filtreleniyor.', 'Claude Code', '2026-11-11 12:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.80');

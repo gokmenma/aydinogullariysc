@@ -76,7 +76,7 @@ class ReportControlModel extends BaseModel
         return $sql->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getReportControlList($month, $year)
+    public function getReportControlList($month, $year, $dateFrom = null, $dateTo = null)
     {
         $query = "SELECT report_id,report_number, firma_adi,validity_date, ay, yil FROM $this->validity_table";
         $conditions = [];
@@ -90,6 +90,18 @@ class ReportControlModel extends BaseModel
         if (!empty($month)) {
             $conditions[] = 'ay = ?';
             $params[] = Date::setMonth($month);
+        }
+
+        $normalizedDate = "STR_TO_DATE(REPLACE(REPLACE(validity_date, '.', '-'), '/', '-'), '%d-%m-%Y')";
+
+        if (!empty($dateFrom) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$dateFrom)) {
+            $conditions[] = $normalizedDate . ' >= ?';
+            $params[] = $dateFrom;
+        }
+
+        if (!empty($dateTo) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$dateTo)) {
+            $conditions[] = $normalizedDate . ' <= ?';
+            $params[] = $dateTo;
         }
 
         if (!empty($conditions)) {

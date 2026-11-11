@@ -8,7 +8,15 @@ $control = new ReportControlModel();
 
 $month = $_POST['control_month'] ?? ($_GET['month'] ?? Date::getThisMonth());
 $year = $_POST['control_year'] ?? ($_GET['year'] ?? Date::getThisYear());
-$controlList = $control->getReportControlList($month, $year);
+$dateFrom = trim((string)($_POST['date_from'] ?? ($_GET['date_from'] ?? '')));
+$dateTo = trim((string)($_POST['date_to'] ?? ($_GET['date_to'] ?? '')));
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
+    $dateFrom = '';
+}
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
+    $dateTo = '';
+}
+$controlList = $control->getReportControlList($month, $year, $dateFrom, $dateTo);
 
 $totalCount = count($controlList);
 $uniqueCompanies = count(array_unique(array_filter(array_map(function($item) { return $item->firma_adi ?? null; }, $controlList))));
@@ -29,6 +37,8 @@ try {
         'username' => $_SESSION['username'] ?? 'unknown',
         'month' => $month,
         'year' => $year,
+        'date_from' => $dateFrom,
+        'date_to' => $dateTo,
         'count' => $totalCount
     ]);
 } catch (\Throwable $e) {}
@@ -513,22 +523,30 @@ try {
                     </div>
                     <div>
                         <h5>Dönem ve Filtre Seçimi</h5>
-                        <p>İncelemek istediğiniz kontrol ve muayene periyoduna ait ay ve yılı belirleyin</p>
+                        <p>İncelemek istediğiniz kontrol ve muayene periyoduna ait ay, yıl ve son geçerlilik tarihi aralığını belirleyin</p>
                     </div>
                 </div>
             </div>
             <div class="form-card-body">
                 <form method="POST" action="index.php?p=reports/control-list" id="controlFilterForm">
                     <div class="row align-items-end">
-                        <div class="col-lg-4 col-md-5 col-sm-12 mb-3 mb-md-0">
+                        <div class="col-lg-2 col-md-4 col-sm-12 mb-3">
                             <label class="font-weight-600 font-12 text-muted mb-1 d-block"><i class="fa fa-calendar-o mr-1"></i> Kontrol Ayı</label>
                             <?= Date::getMonthSelect('control_month', $month) ?>
                         </div>
-                        <div class="col-lg-4 col-md-4 col-sm-12 mb-3 mb-md-0">
+                        <div class="col-lg-2 col-md-4 col-sm-12 mb-3">
                             <label class="font-weight-600 font-12 text-muted mb-1 d-block"><i class="fa fa-calendar mr-1"></i> Kontrol Yılı</label>
                             <?= Date::getYearSelect('control_year', $year) ?>
                         </div>
-                        <div class="col-lg-4 col-md-3 col-sm-12">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label class="font-weight-600 font-12 text-muted mb-1 d-block" for="date_from"><i class="fa fa-calendar-check-o mr-1"></i> Son Geçerlilik (Başlangıç)</label>
+                            <input type="text" name="date_from" id="date_from" class="form-control" autocomplete="off" placeholder="gg.aa.yyyy" value="<?= htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label class="font-weight-600 font-12 text-muted mb-1 d-block" for="date_to"><i class="fa fa-calendar-times-o mr-1"></i> Son Geçerlilik (Bitiş)</label>
+                            <input type="text" name="date_to" id="date_to" class="form-control" autocomplete="off" placeholder="gg.aa.yyyy" value="<?= htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8') ?>">
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
                             <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                                 <button type="submit" class="btn btn-action-primary flex-grow-1 justify-content-center">
                                     <i class="fa fa-search"></i> <span>Filtrele</span>
@@ -626,6 +644,18 @@ try {
 
 <script>
 $(document).ready(function () {
+    if (typeof flatpickr !== 'undefined') {
+        ['#date_from', '#date_to'].forEach(function (sel) {
+            flatpickr(sel, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d.m.Y",
+                allowInput: true,
+                locale: "tr"
+            });
+        });
+    }
+
     // DataTable Başlatma
     if ($("#controlTable").length) {
         var cTable = $("#controlTable").DataTable({
@@ -704,7 +734,9 @@ $(document).ready(function () {
     $(document).on('click', '#control_list-toxls, #control_list-toxls-top', function() {
         var month = $('#control_month').val() || '';
         var year = $('#control_year').val() || '';
-        var url = 'pages/1/reports/ysc/control-list-export-toxls.php?month=' + encodeURIComponent(month) + '&year=' + encodeURIComponent(year);
+        var dateFrom = $('#date_from').val() || '';
+        var dateTo = $('#date_to').val() || '';
+        var url = 'pages/1/reports/ysc/control-list-export-toxls.php?month=' + encodeURIComponent(month) + '&year=' + encodeURIComponent(year) + '&date_from=' + encodeURIComponent(dateFrom) + '&date_to=' + encodeURIComponent(dateTo);
         window.location.href = url;
     });
 });

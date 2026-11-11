@@ -26,7 +26,9 @@ use App\Model\ReportControlModel;
 $reportControlModel = new ReportControlModel();
 $month = $_GET['month'] ?? '';
 $year = $_GET['year'] ?? '';
-$control_list = $reportControlModel->getReportControlList($month, $year);
+$dateFrom = $_GET['date_from'] ?? '';
+$dateTo = $_GET['date_to'] ?? '';
+$control_list = $reportControlModel->getReportControlList($month, $year, $dateFrom, $dateTo);
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
