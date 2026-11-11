@@ -6992,6 +6992,18 @@ span.flatpickr-weekday,
     background: #f1f5f9 !important;
 }
 
+.flatpickr-months .flatpickr-prev-month {
+    top: 20px !important;
+    left: 10px !important;
+    right: auto !important;
+}
+
+.flatpickr-months .flatpickr-next-month {
+    top: 20px !important;
+    right: 10px !important;
+    left: auto !important;
+}
+
 .flatpickr-months .flatpickr-prev-month svg,
 .flatpickr-months .flatpickr-next-month svg {
     width: 13px !important;

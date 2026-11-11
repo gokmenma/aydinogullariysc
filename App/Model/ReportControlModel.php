@@ -82,14 +82,19 @@ class ReportControlModel extends BaseModel
         $conditions = [];
         $params = [];
 
-        if (!empty($year)) {
-            $conditions[] = 'yil = ?';
-            $params[] = $year;
-        }
+        $hasDateRange = (!empty($dateFrom) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$dateFrom))
+            || (!empty($dateTo) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$dateTo));
 
-        if (!empty($month)) {
-            $conditions[] = 'ay = ?';
-            $params[] = Date::setMonth($month);
+        if (!$hasDateRange) {
+            if (!empty($year)) {
+                $conditions[] = 'yil = ?';
+                $params[] = $year;
+            }
+
+            if (!empty($month)) {
+                $conditions[] = 'ay = ?';
+                $params[] = Date::setMonth($month);
+            }
         }
 
         $normalizedDate = "STR_TO_DATE(REPLACE(REPLACE(validity_date, '.', '-'), '/', '-'), '%d-%m-%Y')";

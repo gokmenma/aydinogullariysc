@@ -67,13 +67,18 @@ class ReportListDatatableModel
         $conditions = [];
         $params = [];
 
-        if (($period['year'] ?? '') !== '') {
-            $conditions[] = 'yil = ?';
-            $params[] = (string) $period['year'];
-        }
-        if (($period['month'] ?? '') !== '') {
-            $conditions[] = 'ay = ?';
-            $params[] = Date::setMonth((string) $period['month']);
+        $hasDateRange = $type === 'control'
+            && (($period['date_from'] ?? '') !== '' || ($period['date_to'] ?? '') !== '');
+
+        if (!$hasDateRange) {
+            if (($period['year'] ?? '') !== '') {
+                $conditions[] = 'yil = ?';
+                $params[] = (string) $period['year'];
+            }
+            if (($period['month'] ?? '') !== '') {
+                $conditions[] = 'ay = ?';
+                $params[] = Date::setMonth((string) $period['month']);
+            }
         }
 
         if ($type === 'control') {

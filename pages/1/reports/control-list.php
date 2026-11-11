@@ -17,6 +17,10 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
     $dateTo = '';
 }
+if ($dateFrom !== '' || $dateTo !== '') {
+    $month = '';
+    $year = '';
+}
 $listModel = new ReportListDatatableModel();
 $listPeriod = ['month' => (string)$month, 'year' => (string)$year, 'date_from' => $dateFrom, 'date_to' => $dateTo];
 $summary = $listModel->getSummary('control', $listPeriod);
@@ -32,6 +36,14 @@ $monthNames = [
 ];
 $selectedMonthName = $monthNames[$month] ?? ($month ? $month . '. Ay' : 'Tüm Aylar');
 $selectedYearName = $year ?: 'Tüm Yıllar';
+
+if ($dateFrom !== '' || $dateTo !== '') {
+    $formatIso = function ($iso) {
+        return $iso !== '' ? date('d.m.Y', strtotime($iso)) : '...';
+    };
+    $selectedMonthName = 'Tarih Aralığı';
+    $selectedYearName = $formatIso($dateFrom) . ' - ' . $formatIso($dateTo);
+}
 
 try {
     $logger = \getLogger("Raporlar");
@@ -58,6 +70,11 @@ try {
 </script>
 
 <style>
+    #controlFilterForm input.form-control:not([type="hidden"]) {
+        height: 40px;
+        font-size: 13.5px;
+        background-color: #fff;
+    }
     /* Premium Kontrol Listesi Sayfa Stilleri (reports.php ile tam uyumlu) */
     .control-list-wrapper {
         width: 100%;
@@ -553,6 +570,9 @@ try {
                                 <button type="submit" class="btn btn-action-primary flex-grow-1 justify-content-center">
                                     <i class="fa fa-search"></i> <span>Filtrele</span>
                                 </button>
+                                <button type="button" id="clearDateRange" class="btn btn-outline-secondary btn-action-outline" title="Son geçerlilik tarihlerini temizle">
+                                    <i class="fa fa-eraser"></i> <span>Tarihleri Temizle</span>
+                                </button>
                                 <a href="index.php?p=reports/control-list" class="btn btn-outline-secondary btn-action-outline" title="Bu Ay / Filtreyi Sıfırla">
                                     <i class="fa fa-undo"></i>
                                 </a>
@@ -609,17 +629,58 @@ try {
 <script src="include/js/report-list-table.js?v=<?= filemtime(__DIR__ . '/../../../include/js/report-list-table.js') ?>"></script>
 <script>
 $(document).ready(function () {
+    var datePickers = [];
+    var previousPeriod = null;
+    var defaultPeriod = <?= json_encode(['month' => Date::getThisMonth(), 'year' => Date::getThisYear()]) ?>;
+
+    function syncPeriodFields() {
+        var hasRange = ($('#date_from').val() || '') !== '' || ($('#date_to').val() || '') !== '';
+        var $periodFields = $('#control_month, #control_year');
+
+        if (hasRange) {
+            if (!previousPeriod) {
+                previousPeriod = {
+                    month: $('#control_month').val() || defaultPeriod.month,
+                    year: $('#control_year').val() || defaultPeriod.year
+                };
+            }
+            $periodFields.val('').prop('disabled', true);
+        } else {
+            $periodFields.prop('disabled', false);
+            if (previousPeriod) {
+                $('#control_month').val(previousPeriod.month);
+                $('#control_year').val(previousPeriod.year);
+                previousPeriod = null;
+            }
+        }
+
+        if ($.fn.selectpicker) {
+            $periodFields.selectpicker('refresh');
+        }
+    }
+
     if (typeof flatpickr !== 'undefined') {
         ['#date_from', '#date_to'].forEach(function (sel) {
-            flatpickr(sel, {
+            datePickers.push(flatpickr(sel, {
                 dateFormat: "Y-m-d",
                 altInput: true,
                 altFormat: "d.m.Y",
                 allowInput: true,
-                locale: "tr"
-            });
+                locale: "tr",
+                onChange: syncPeriodFields,
+                onClose: syncPeriodFields
+            }));
         });
     }
+
+    $('#clearDateRange').on('click', function () {
+        datePickers.forEach(function (picker) {
+            picker.clear();
+        });
+        syncPeriodFields();
+    });
+
+    syncPeriodFields();
 
     ReportListTable.init({
         tableId: 'controlTable',

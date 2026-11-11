@@ -756,3 +756,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.84')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.85', 'Dolum ve Kontrol Listelerinin Hızlandırılması', 'improvement', '- Dolum ve Kontrol listeleri artık kayıtları sayfa sayfa yüklüyor; sayfa çok daha hızlı açılıyor, arama, sıralama ve kolon filtreleri sunucuda çalışıyor. Ayrıca sayfa açılışı küçük iyileştirmelerle hızlandırıldı.', 'Claude Code', '2026-11-11 21:30:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.85');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.86', 'Kontrol Listesinde Tarih Aralığı Filtresi Düzenlemesi', 'improvement', '- Kontrol listesinde son geçerlilik tarihi aralığı seçildiğinde kontrol ayı ve yılı otomatik olarak Hepsi olup devre dışı kalıyor, liste ve Excel çıktısı yalnızca seçilen tarih aralığına göre geliyor; Tarihleri Temizle butonu eklendi ve tarih kutuları diğer filtre alanlarıyla aynı görünüme getirildi, takvim açılırken ay oklarının konumu düzeltildi.', 'Claude Code', '2026-11-11 22:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.86');
