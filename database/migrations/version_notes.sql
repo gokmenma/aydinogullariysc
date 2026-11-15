@@ -766,5 +766,5 @@ SELECT 'v2.8.87', 'Teklifler Excel Dışa Aktarma Oturum Doğrulaması Düzeltme
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.87');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.8.88', 'Firma Listesi Excel Dışa Aktarma Performans İyileştirmesi', 'improvement', '- Firma listesini Excel\'e aktarma işlemindeki yavaşlık giderildi; sorgu ve Excel oluşturma süresi 80 saniye civarından birkaç saniyeye düşürüldü.', 'Antigravity AI', '2026-11-15 19:22:00'
+SELECT 'v2.8.88', 'Firma Listesi Excel Dışa Aktarma Performans ve Filtre İyileştirmesi', 'improvement', '- Firma listesini Excel\'e aktarma işlemindeki yavaşlık giderildi ve kolon filtreleri uygulandığında Excel\'in boş gelmesi sorunu çözüldü.', 'Antigravity AI', '2026-11-15 19:22:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.88');

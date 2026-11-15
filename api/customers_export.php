@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__DIR__) . '/bootstrap.php';
 
+use App\Helper\DataTableFilter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -17,13 +18,13 @@ $orderDirection = strtolower($_GET['order'][0]['dir'] ?? 'desc') === 'asc' ? 'AS
 
 $orderColumns = ['c.id', 'c.company', 'cg.title', 'c.represant', 'c.id', 'c.email', 'c.gsm', 'c.regdate'];
 $orderBy = $orderColumns[$orderColumn] ?? 'c.id';
-$filterColumns = [
-    1 => 'c.company',
-    2 => 'cg.title',
-    3 => 'c.represant',
-    5 => 'c.email',
-    6 => 'c.gsm',
-    7 => 'c.regdate',
+$columnConfigs = [
+    1 => ['expr' => 'c.company', 'type' => 'text'],
+    2 => ['expr' => 'cg.title', 'type' => 'text'],
+    3 => ['expr' => 'c.represant', 'type' => 'text'],
+    5 => ['expr' => 'c.email', 'type' => 'text'],
+    6 => ['expr' => 'c.gsm', 'type' => 'text'],
+    7 => ['expr' => 'c.regdate', 'type' => 'date'],
 ];
 
 $conditions = ['c.deleted_at IS NULL'];
@@ -47,16 +48,19 @@ if ($searchValue !== '') {
 
 if (is_array($requestedColumns)) {
     foreach ($requestedColumns as $index => $column) {
-        $value = trim($column['search']['value'] ?? '');
+        $rawSearch = $column['search']['value'] ?? '';
         $index = (int) $index;
-        if ($value !== '' && isset($filterColumns[$index])) {
-            $key = ':col_' . $index;
-            if ($index === 7) {
-                $conditions[] = '(DATE_FORMAT(c.regdate, \'%d.%m.%Y\') LIKE ' . $key . ' OR c.regdate LIKE ' . $key . ')';
-            } else {
-                $conditions[] = $filterColumns[$index] . ' LIKE ' . $key;
+        $filter = DataTableFilter::parse($rawSearch);
+        if (!$filter) {
+            continue;
+        }
+        if (isset($columnConfigs[$index])) {
+            $cfg = $columnConfigs[$index];
+            $prefix = "col_{$index}_";
+            $cond = DataTableFilter::buildCondition($cfg['expr'], $filter, $params, $prefix, $cfg['type'] ?? 'text');
+            if (!empty($cond)) {
+                $conditions[] = $cond;
             }
-            $params[$key] = '%' . $value . '%';
         }
     }
 }
@@ -128,6 +132,10 @@ foreach (range(1, count($headers)) as $index) {
 }
 $sheet->setAutoFilter('A1:' . Coordinate::stringFromColumnIndex(count($headers)) . '1');
 $sheet->freezePane('A2');
+
+while (ob_get_level() > 0) {
+    ob_end_clean();
+}
 
 $filename = 'firmalar_' . date('Ymd_His') . '.xlsx';
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
