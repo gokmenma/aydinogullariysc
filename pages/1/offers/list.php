@@ -1409,6 +1409,10 @@ $(document).ready(function() {
             creator: sv('#filter_creator'),
             payment_period: sv('#filter_payment_period')
         };
+        var csrfToken = $('meta[name="csrf-token"]').attr('content') || '';
+        if (csrfToken) {
+            form.append($('<input>', { type: 'hidden', name: 'csrf_token', value: csrfToken }));
+        }
         form.append($('<input>', { type: 'hidden', name: 'filters', value: JSON.stringify(filters) }));
         $('body').append(form);
         form.submit();

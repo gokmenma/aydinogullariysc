@@ -63,12 +63,15 @@ if (is_array($requestedColumns)) {
 
 $sql = '
     SELECT c.id, c.company, cg.title AS group_title, c.represant,
-           (SELECT COUNT(*) FROM offers o WHERE o.cid = c.id) AS offer_count,
-           (SELECT COUNT(*) FROM projects p WHERE p.pcid = c.id AND p.deleted_at IS NULL) AS service_count,
-           (SELECT COUNT(*) FROM reports r WHERE r.customer_id = c.id) AS report_count,
+           COALESCE(o_cnt.cnt, 0) AS offer_count,
+           COALESCE(p_cnt.cnt, 0) AS service_count,
+           COALESCE(r_cnt.cnt, 0) AS report_count,
            c.email, c.gsm, c.regdate, c.yetkili, c.city, c.ilce, c.region, c.address
     FROM customers c
     LEFT JOIN cgroups cg ON cg.id = c.grp
+    LEFT JOIN (SELECT cid, COUNT(*) AS cnt FROM offers GROUP BY cid) o_cnt ON o_cnt.cid = c.id
+    LEFT JOIN (SELECT pcid, COUNT(*) AS cnt FROM projects WHERE deleted_at IS NULL GROUP BY pcid) p_cnt ON p_cnt.pcid = c.id
+    LEFT JOIN (SELECT customer_id, COUNT(*) AS cnt FROM reports GROUP BY customer_id) r_cnt ON r_cnt.customer_id = c.id
     WHERE ' . implode(' AND ', $conditions) . "
     ORDER BY {$orderBy} {$orderDirection}";
 
@@ -100,23 +103,24 @@ $fields = [
     'service_count', 'report_count', 'email', 'gsm', 'regdate', 'yetkili', 'city', 'ilce', 'region', 'address'
 ];
 
-foreach ($headers as $index => $header) {
-    $column = Coordinate::stringFromColumnIndex($index + 1);
-    $sheet->setCellValue($column . '1', $header);
-    $sheet->getStyle($column . '1')->getFont()->setBold(true);
-}
+$lastColumn = Coordinate::stringFromColumnIndex(count($headers));
+$sheet->fromArray($headers, null, 'A1');
+$sheet->getStyle('A1:' . $lastColumn . '1')->getFont()->setBold(true);
 
-$rowNumber = 2;
+$rowsData = [];
 foreach ($customers as $customer) {
-    foreach ($fields as $index => $field) {
-        $column = Coordinate::stringFromColumnIndex($index + 1);
+    $row = [];
+    foreach ($fields as $field) {
         $val = $customer[$field] ?? '';
         if ($field === 'regdate' && !empty($val) && $val !== '0000-00-00 00:00:00') {
             $val = date('d.m.Y', strtotime($val));
         }
-        $sheet->setCellValue($column . $rowNumber, $val);
+        $row[] = $val;
     }
-    $rowNumber++;
+    $rowsData[] = $row;
+}
+if (!empty($rowsData)) {
+    $sheet->fromArray($rowsData, null, 'A2', true);
 }
 
 foreach (range(1, count($headers)) as $index) {

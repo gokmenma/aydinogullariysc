@@ -760,3 +760,11 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.85')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.86', 'Kontrol Listesinde Tarih Aralığı Filtresi Düzenlemesi', 'improvement', '- Kontrol listesinde son geçerlilik tarihi aralığı seçildiğinde kontrol ayı ve yılı otomatik olarak Hepsi olup devre dışı kalıyor, liste ve Excel çıktısı yalnızca seçilen tarih aralığına göre geliyor; Tarihleri Temizle butonu eklendi ve tarih kutuları diğer filtre alanlarıyla aynı görünüme getirildi, takvim açılırken ay oklarının konumu düzeltildi.', 'Claude Code', '2026-11-11 22:30:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.86');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.87', 'Teklifler Excel Dışa Aktarma Oturum Doğrulaması Düzeltmesi', 'bugfix', '- Teklifler listesinde Excel\'e aktar butonuna basıldığında oluşan oturum doğrulaması hatası giderildi.', 'Antigravity AI', '2026-11-15 19:17:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.87');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.88', 'Firma Listesi Excel Dışa Aktarma Performans İyileştirmesi', 'improvement', '- Firma listesini Excel\'e aktarma işlemindeki yavaşlık giderildi; sorgu ve Excel oluşturma süresi 80 saniye civarından birkaç saniyeye düşürüldü.', 'Antigravity AI', '2026-11-15 19:22:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.88');
