@@ -370,7 +370,7 @@ $customerOffersSummary = $offerSummaryData['summary'] ?? [];
                                         <a href="index.php?p=offers/offer-manage&id=<?= $oid ?>" target="_blank" class="btn btn-outline-secondary btn-sm" title="Düzenle / Yönet">
                                             <i class="fa fa-pencil"></i>
                                         </a>
-                                        <a href="index.php?p=generate_pdf&id=<?= $oid ?>" target="_blank" class="btn btn-outline-danger btn-sm" title="PDF İndir">
+                                        <a href="index.php?p=offer-view&id=<?= $oid ?>" target="_blank" class="btn btn-outline-danger btn-sm" title="PDF Yazdır">
                                             <i class="fa fa-file-pdf-o"></i>
                                         </a>
                                     </div>
