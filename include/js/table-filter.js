@@ -198,7 +198,7 @@ App.TableFilter = {
                 for (let i = 0; i < colIndexes.length; i++) {
                     const colIdx = parseInt(colIndexes[i], 10);
                     const filterDef = tableFilters[colIdx];
-                    const cellValue = data[colIdx] || '';
+                    const cellValue = data[App.TableFilter.currentColIndex(settings, colIdx)] || '';
 
                     if (filterDef.type === 'select') {
                         const selectedVals = filterDef.values || [];
@@ -514,8 +514,9 @@ App.TableFilter = {
         const headers = table.querySelectorAll('thead th');
         if (!headers.length) return;
 
-        headers.forEach((th, index) => {
+        headers.forEach((th, domIndex) => {
             if (th.querySelector('.tf-trigger')) return;
+            const index = th.dataset.origCol !== undefined ? parseInt(th.dataset.origCol, 10) : domIndex;
 
             // Extract text ignoring any existing tags
             const rawTitle = th.childNodes.length > 0 ? (th.childNodes[0].textContent || th.textContent).trim() : th.textContent.trim();
@@ -740,12 +741,20 @@ App.TableFilter = {
         updateSelectedCount();
     },
 
+    currentColIndex: function (settings, origIndex) {
+        if (settings && settings._colReorder && typeof settings._colReorder.fnTranspose === 'function') {
+            const cur = settings._colReorder.fnTranspose(origIndex, 'toCurrent');
+            return cur >= 0 ? cur : origIndex;
+        }
+        return origIndex;
+    },
+
     getDistinctColumnValues: function (table, colIndex) {
         const counts = {}; // value -> count
         const tableId = table.id;
 
         // 0. Sütun başlığında (th) tanımlı dataset filterCounts var mı? (Server-side paginated PHP sayfaları için)
-        const th = table.querySelectorAll('thead th')[colIndex];
+        const th = table.querySelector('thead th[data-orig-col="' + colIndex + '"]') || table.querySelectorAll('thead th')[colIndex];
         if (th && th.dataset.filterCounts) {
             try {
                 const parsed = JSON.parse(th.dataset.filterCounts);
@@ -775,7 +784,7 @@ App.TableFilter = {
         if (Object.keys(counts).length === 0 && window.jQuery && $.fn.dataTable && $.fn.dataTable.isDataTable(table)) {
             try {
                 const dt = $(table).DataTable();
-                dt.column(colIndex).data().each(function (cellData) {
+                dt.column(App.TableFilter.currentColIndex(dt.settings()[0], colIndex)).data().each(function (cellData) {
                     const txt = App.TableFilter.extractCellTextFromRaw(cellData);
                     if (txt && txt !== 'Veriler Yükleniyor...' && txt !== 'Hiç kayıt bulunamadı!' && txt !== '-') {
                         counts[txt] = (counts[txt] || 0) + 1;
@@ -1231,7 +1240,7 @@ App.TableFilter = {
         colIndexes.forEach(colIdxStr => {
             const colIdx = parseInt(colIdxStr, 10);
             const filterDef = tableFilters[colIdx];
-            const th = headers[colIdx];
+            const th = table.querySelector('thead th[data-orig-col="' + colIdx + '"]') || headers[colIdx];
             let colTitle = 'Kolon ' + (colIdx + 1);
             if (th) {
                 const rawTitle = th.childNodes.length > 0 ? (th.childNodes[0].textContent || th.textContent).trim() : th.textContent.trim();
@@ -1413,13 +1422,19 @@ App.TableFilter = {
         const colIndexes = Object.keys(tableFilters);
         const matchingRows = [];
 
+        const cellIdxMap = {};
+        colIndexes.forEach(k => {
+            const trg = table.querySelector('.tf-trigger[data-col-index="' + k + '"]');
+            cellIdxMap[k] = trg && trg.parentElement ? trg.parentElement.cellIndex : parseInt(k, 10);
+        });
+
         allRows.forEach(row => {
             let matchRow = true;
 
             for (let i = 0; i < colIndexes.length; i++) {
                 const colIdx = parseInt(colIndexes[i], 10);
                 const filterDef = tableFilters[colIdx];
-                const cell = row.cells[colIdx];
+                const cell = row.cells[cellIdxMap[colIdx]];
                 const cellText = cell ? App.TableFilter.extractCellTextFromNode(cell) : '';
 
                 if (filterDef.type === 'select') {

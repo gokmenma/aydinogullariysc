@@ -60,9 +60,19 @@
         return $(th).clone().children().remove().end().text().replace(/\s+/g, ' ').trim();
     }
 
+    function origOf(settings, idx) {
+        var col = settings.aoColumns[idx];
+        return col && typeof col._ColReorder_iOrigCol === 'number' ? col._ColReorder_iOrigCol : idx;
+    }
+
+    function keyOf(ctx, idx) {
+        return origOf(ctx.settings, idx);
+    }
+
     function createContext(settings) {
-        var titles = settings.aoColumns.map(function (c) {
-            return titleOf(c.nTh);
+        var titles = [];
+        settings.aoColumns.forEach(function (c, i) {
+            titles[origOf(settings, i)] = titleOf(c.nTh);
         });
         var tableId = settings.sTableId || settings.nTable.id || 'table';
         var ctx = {
@@ -85,7 +95,7 @@
     }
 
     function widthOf(ctx, idx) {
-        var w = ctx.widths[idx];
+        var w = ctx.widths[keyOf(ctx, idx)];
         return typeof w === 'number' && w >= MIN_WIDTH ? w : null;
     }
 
@@ -153,7 +163,7 @@
             var w = widthOf(ctx, idx);
             if (w && col.nTh) {
                 w = Math.max(w, minOf(ctx, idx));
-                ctx.widths[idx] = w;
+                ctx.widths[keyOf(ctx, idx)] = w;
                 paintWidth(col.nTh, w);
             }
         });
@@ -163,7 +173,7 @@
     function freeze(ctx) {
         ctx.settings.aoColumns.forEach(function (col, idx) {
             if (col.bVisible === false || !col.nTh || widthOf(ctx, idx)) return;
-            ctx.widths[idx] = Math.max(minOf(ctx, idx), Math.round(col.nTh.getBoundingClientRect().width));
+            ctx.widths[keyOf(ctx, idx)] = Math.max(minOf(ctx, idx), Math.round(col.nTh.getBoundingClientRect().width));
         });
         paintAll(ctx);
     }
@@ -207,7 +217,7 @@
             var p = mv.type === 'touchmove' ? mv.originalEvent.touches[0] : mv;
             if (Math.abs(p.pageX - startX) > 2) moved = true;
             var w = Math.max(minOf(ctx, idx), Math.round(startW + (p.pageX - startX)));
-            ctx.widths[idx] = w;
+            ctx.widths[keyOf(ctx, idx)] = w;
             paintWidth(th, w);
             syncTable(ctx);
         }
@@ -230,10 +240,10 @@
         });
         if (idx < 0) return;
 
-        delete ctx.widths[idx];
+        delete ctx.widths[keyOf(ctx, idx)];
         clearWidth(th);
         if (hasWidths(ctx)) {
-            ctx.widths[idx] = 140;
+            ctx.widths[keyOf(ctx, idx)] = 140;
             paintWidth(th, 140);
         }
         syncTable(ctx);
@@ -273,6 +283,10 @@
 
         $(settings.nTable).on('draw.dt column-visibility.dt', function () {
             addResizers(ctx);
+        });
+        $(settings.nTable).on('column-reorder.dt dtc-change', function () {
+            addResizers(ctx);
+            if (hasWidths(ctx)) paintAll(ctx);
         });
     });
 })(window.jQuery);

@@ -768,3 +768,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.87')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.88', 'Firma Listesi Excel Dışa Aktarma Performans ve Filtre İyileştirmesi', 'improvement', '- Firma listesini Excel\'e aktarma işlemindeki yavaşlık giderildi ve kolon filtreleri uygulandığında Excel\'in boş gelmesi sorunu çözüldü.', 'Antigravity AI', '2026-11-15 19:22:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.88');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.89', 'Tablolarda Merkezi Kolon Sıralama ve Gizleme', 'feature', '- Tablo başlıkları sürükleyerek yeniden sıralanabilir, tablonun üzerine bırakılan kolon gizlenir ve başlığa sağ tıklanarak kolonlar gösterilip gizlenebilir; tercihler kaydedilir.', 'Antigravity AI', '2026-11-24 12:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.89');
