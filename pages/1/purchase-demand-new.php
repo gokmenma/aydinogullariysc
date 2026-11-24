@@ -20,6 +20,7 @@ if ($_POST) {
     $iskonto = @$_POST["iskonto"];
     $ToplamTL = @$_POST["altToplam"];
     $creator =  $_SESSION["lid"];
+    $projectId = validProjectId($_POST["project_id"] ?? null);
 
     // Ürün Bilgileri
     $urunAdi = $_POST['urunAdi'];
@@ -45,7 +46,7 @@ if ($_POST) {
         $insq = $ac->prepare("INSERT INTO purchases SET companyID = ? , siparisNo = ? , aciliyeti = ? ,
 													description1 = ? ,creator = ? , altToplam = ? ,
 													DolarTotal = ? ,EuroTotal = ? ,TLTotal = ? ,
-													state= ? , type= ? , emailState = '0' ");
+													state= ? , type= ? , project_id = ? , emailState = '0' ");
         $insq->execute(
             array(
                 $customer,
@@ -58,7 +59,8 @@ if ($_POST) {
                 $EuroTotal,
                 $TLTotal,
                 0,
-                $type
+                $type,
+                $projectId
             )
         );
         $lastid = $ac->lastInsertId();
@@ -100,7 +102,8 @@ if ($_POST) {
                 'order_number' => $siparisNo,
                 'customer_id' => (int) $customer,
                 'item_count' => is_array($urunAdi) ? count($urunAdi) : 0,
-                'type' => 1
+                'type' => 1,
+                'project_id' => $projectId
             ]
         );
 
@@ -190,6 +193,12 @@ if (@$_GET["st"] == "numericerror") {
                     <label for="customer">Firma</label>
                     <div style="width: 100%;">
                         <?php customers("customer", "", ""); ?>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="project_id">Proje / Servis</label>
+                    <div style="width: 100%;">
+                        <?php project_select("project_id", ""); ?>
                     </div>
                 </div>
                 <div class="form-field">

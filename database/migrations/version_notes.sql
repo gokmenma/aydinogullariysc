@@ -772,3 +772,15 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.88')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.89', 'Tablolarda Merkezi Kolon Sıralama ve Gizleme', 'feature', '- Tablo başlıkları sürükleyerek yeniden sıralanabilir, tablonun üzerine bırakılan kolon gizlenir ve başlığa sağ tıklanarak kolonlar gösterilip gizlenebilir; tercihler kaydedilir.', 'Antigravity AI', '2026-11-24 12:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.89');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.90', 'Fiyat Taleplerinden Siparişe Çevirme', 'feature', '- Fiyat talepleri listesinde sağ tık menüsüne "Siparişe Çevir" seçeneği eklendi; onaylandığında talep tek tıkla siparişe dönüşüyor. Ayrıca firma ve oluşturan adları tam görünüyor.', 'Antigravity AI', '2026-11-24 17:30:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.90');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.91', 'Satın Alma Talebine Proje / Servis Alanı', 'feature', '- Satın alma talebi oluşturma ve düzenleme sayfalarına aranabilir Proje / Servis alanı eklendi; servis listesi servis no, firma ve konu ile geliyor.', 'Antigravity AI', '2026-11-24 18:10:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.91');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.92', 'Satın Alma İşlem Tarihçesi', 'feature', '- Fiyat talepleri, satın alma talepleri ve siparişler için kim, ne zaman, neyi değiştirdi bilgisini gösteren işlem tarihçesi eklendi; eski/yeni değerler ve kalem değişiklikleri de görünüyor.', 'Antigravity AI', '2026-11-24 19:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.92');

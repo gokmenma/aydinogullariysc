@@ -38,6 +38,53 @@ class ServiceModel extends BaseModel
         }
     }
 
+    public function searchForSelect($term = '', $limit = 30)
+    {
+        $params = [];
+        $where = "p.deleted_at IS NULL";
+        if ($term !== '') {
+            $where .= " AND (p.service_number LIKE ? OR c.company LIKE ?)";
+            $params[] = '%' . $term . '%';
+            $params[] = '%' . $term . '%';
+        }
+        $sql = $this->db->prepare(
+            "SELECT p.id, p.service_number, c.company, u.title AS service_type
+             FROM {$this->table} p
+             LEFT JOIN customers c ON c.id = p.pcid
+             LEFT JOIN units u ON u.id = p.servicestype
+             WHERE {$where}
+             ORDER BY p.id DESC
+             LIMIT " . (int)$limit
+        );
+        $sql->execute($params);
+        return $sql->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getSelectLabel($id)
+    {
+        $sql = $this->db->prepare(
+            "SELECT p.id, p.service_number, c.company, u.title AS service_type
+             FROM {$this->table} p
+             LEFT JOIN customers c ON c.id = p.pcid
+             LEFT JOIN units u ON u.id = p.servicestype
+             WHERE p.id = ? AND p.deleted_at IS NULL"
+        );
+        $sql->execute([(int)$id]);
+        return $sql->fetch(\PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public static function formatSelectLabel($row)
+    {
+        $parts = [trim((string)($row['service_number'] ?? ''))];
+        if (!empty(trim((string)($row['company'] ?? '')))) {
+            $parts[] = trim($row['company']);
+        }
+        if (!empty($row['service_type'])) {
+            $parts[] = $row['service_type'];
+        }
+        return implode(' - ', array_filter($parts, 'strlen'));
+    }
+
     public function getServiceList()
     {
         $sql = $this->db->prepare("SELECT 

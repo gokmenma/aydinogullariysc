@@ -28,6 +28,7 @@ if ($_POST) {
     $buycur = $_POST["buycur"];
     $rowdescription = $_POST["rowdescription"];
     $type = 1;
+    $projectId = validProjectId($_POST["project_id"] ?? null);
 
 
     // if (
@@ -40,11 +41,14 @@ if ($_POST) {
 
 
     try {
+        $demandModel = new \App\Model\PurchaseModel();
+        $beforeRow = $demandModel->find((int) $pid);
+        $oldItems = array_map('get_object_vars', $demandModel->getPurchaseItems((int) $pid));
 
         $insq = $ac->prepare("UPDATE purchases SET  aciliyeti = ? ,
 													description1 = ? ,creator = ? , altToplam = ? ,
 													DolarTotal = ? ,EuroTotal = ? ,TLTotal = ? ,ToplamTL =? , 
-													state= ? , type= ? WHERE id = ? ");
+													state= ? , type= ? , project_id = ? WHERE id = ? ");
         $insq->execute(
             array(
                 $aciliyet,
@@ -57,6 +61,7 @@ if ($_POST) {
                 $ToplamTL,
                 $state,
                 $type,
+                $projectId,
                 $pid
             )
         );
@@ -87,6 +92,36 @@ if ($_POST) {
                 ));
             }
         }
+        $newItems = [];
+        foreach ((array) $urunAdi as $i => $name) {
+            $newItems[] = [
+                'stokKodu' => $stokKodu[$i] ?? '',
+                'product' => $name ?? '',
+                'amount' => $amounts[$i] ?? 0,
+                'unit' => $units[$i] ?? '',
+                'price' => $buyprices[$i] ?? 0,
+                'currency' => $buycur[$i] ?? '',
+                'rowdescription' => $rowdescription[$i] ?? '',
+            ];
+        }
+        audit_log(
+            "update",
+            "purchases",
+            "Satın alma talebi güncellendi: " . ($beforeRow->siparisNo ?? ('#' . $pid)),
+            "purchase",
+            (int) $pid,
+            [
+                'order_number' => $beforeRow->siparisNo ?? '',
+                'type' => 1,
+                'changed_fields' => audit_changes($beforeRow, [
+                    'aciliyeti' => $aciliyet, 'description1' => $description,
+                    'altToplam' => $altToplam, 'DolarTotal' => $DolarTotal,
+                    'EuroTotal' => $EuroTotal, 'TLTotal' => $TLTotal,
+                    'ToplamTL' => $ToplamTL, 'state' => $state, 'project_id' => $projectId,
+                ], ['aciliyeti', 'description1', 'altToplam', 'DolarTotal', 'EuroTotal', 'TLTotal', 'ToplamTL', 'state', 'project_id']),
+                'item_changes' => \App\Model\PurchaseHistoryModel::diffItems($oldItems, $newItems),
+            ]
+        );
         if ($insq) {
             header("Location: index.php?p=purchase-demand-edit&st=newsuccess&id=" . $pid);
             exit();
@@ -153,6 +188,7 @@ if (@$_GET["st"] == "numericerror") {
                     </div>
                 </div>
                 <div class="header-actions">
+                    <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $pid; ?>"><i class="fa fa-history"></i> Tarihçe</button>
                     <a href="index.php?p=purchases" class="btn-header btn-header-list mr-2">
                         <i class="fa fa-list"></i> Listeye Dön
                     </a>
@@ -179,6 +215,12 @@ if (@$_GET["st"] == "numericerror") {
                     <label for="customer">Firma</label>
                     <div style="width: 100%;">
                         <?php customers("customer", $result["companyID"], ""); ?>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="project_id">Proje / Servis</label>
+                    <div style="width: 100%;">
+                        <?php project_select("project_id", $result["project_id"] ?? ""); ?>
                     </div>
                 </div>
                 <div class="form-field">
@@ -423,3 +465,4 @@ if (@$_GET["st"] == "numericerror") {
     
     });
 </script>
+<?php include __DIR__ . '/purchases/history-modal.php'; ?>

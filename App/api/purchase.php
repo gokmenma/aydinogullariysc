@@ -4,17 +4,96 @@ require_once dirname(__DIR__, 2) . "/bootstrap.php";
 use App\Helper\Helper;
 use App\Helper\Security;
 use App\Model\PurchaseModel;
+use App\Model\PurchaseHistoryModel;
 
 $Purchase = new PurchaseModel();
+
+if (($_POST['action'] ?? '') == 'convertPriceRequestToOrder') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    if (!permtrue('purchaseadd')) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Bu işlem için yetkiniz yok.']);
+        exit;
+    }
+
+    $requestId = (int)($_POST['id'] ?? 0);
+    $own = permtrue('tum_fiyat_taleplerini_gor');
+    $result = null;
+
+    try {
+        if ($requestId <= 0) {
+            throw new \DomainException('Geçersiz fiyat talebi.');
+        }
+        if (!$own) {
+            $row = $Purchase->find($requestId);
+            if (!$row || (int)$row->creator !== (int)sesset('id')) {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Bu fiyat talebi için yetkiniz yok.']);
+                exit;
+            }
+        }
+        $result = $Purchase->convertPriceRequestToOrder($requestId, $_SESSION['lid']);
+        audit_log("create", "purchases", "Fiyat talebi siparişe çevrildi: " . $result['request_no'] . " -> " . $result['order_no'], "purchase", $result['order_id'], [
+            'request_id' => $requestId,
+            'request_number' => $result['request_no'],
+            'order_number' => $result['order_no'],
+            'item_count' => $result['item_count'],
+        ]);
+        audit_log("status_change", "purchases", "Siparişe çevrildi: " . $result['request_no'] . " -> " . $result['order_no'], "purchase", $requestId, [
+            'order_id' => $result['order_id'],
+            'order_number' => $result['order_no'],
+        ]);
+        echo json_encode([
+            'status' => 'success',
+            'message' => $result['request_no'] . ' talebi ' . $result['order_no'] . ' numaralı siparişe çevrildi.',
+        ]);
+    } catch (\DomainException $ex) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'message' => $ex->getMessage()]);
+    } catch (\Throwable $ex) {
+        error_log('Price request convert failed: ' . $ex->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Sipariş oluşturulurken bir hata oluştu.']);
+    }
+    exit;
+}
+
+if (($_POST['action'] ?? '') == 'getPurchaseHistory') {
+    header('Content-Type: application/json; charset=utf-8');
+    $historyId = (int) ($_POST['id'] ?? 0);
+    $canSeeAll = permtrue('purchaseedit') || permtrue('purchasedelete') || permtrue('purchase_dashboard') || permtrue('tum_fiyat_taleplerini_gor');
+    if ($historyId <= 0) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'message' => 'Geçersiz kayıt.']);
+        exit;
+    }
+    try {
+        $row = $Purchase->find($historyId);
+        if (!$row || (!$canSeeAll && (int) $row->creator !== (int) sesset('id'))) {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Bu kaydın tarihçesini görme yetkiniz yok.']);
+            exit;
+        }
+        $history = new PurchaseHistoryModel();
+        echo json_encode(['status' => 'success', 'items' => $history->getHistory($historyId)], JSON_UNESCAPED_UNICODE);
+    } catch (\Throwable $ex) {
+        error_log('Purchase history failed: ' . $ex->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Tarihçe alınırken bir hata oluştu.']);
+    }
+    exit;
+}
 
 if ($_POST['action'] == 'doneDemand') {
     $id = $_POST['id'];
 
     try {
+        $oldRow = $Purchase->find((int) $id);
         $sql = $ac->prepare('UPDATE purchases SET state = 2 WHERE id = ?');
         $sql->execute(array($id));
-        audit_log("status_change", "purchases", "Satın alma talebi tamamlandı", "purchase", $id, [
-            'new_status' => 2,
+        audit_log("status_change", "purchases", "Durum değişti: " . ($oldRow->siparisNo ?? ('#' . $id)), "purchase", $id, [
+            'changed_fields' => ['state' => ['old' => $oldRow->state ?? null, 'new' => 2]],
         ]);
 
         $status = 'success';
@@ -41,8 +120,8 @@ if ($_POST['action'] == 'deleteItemFile') {
         // Clear both image and excel_file fields as we merged them in the UI
         $sql = $ac->prepare('UPDATE purchase_items SET image = NULL, excel_file = NULL WHERE id = ?');
         $sql->execute(array($itemId));
-        audit_log("delete", "purchases", "Satın alma kaleminin dosyası silindi", "purchase_item", $itemId, [
-            'purchase_id' => (int) $purchaseId,
+        audit_log("delete", "purchases", "Satın alma kaleminin dosyası silindi", "purchase", (int) $purchaseId, [
+            'item_id' => (int) $itemId,
         ]);
 
         $status = 'success';
@@ -144,8 +223,12 @@ if ($_POST['action'] == 'savePurchases') {
         }
 
         $urunAdi = $_POST['urunAdi'] ?? [];
+        $oldItems = [];
+        $newItems = [];
         if (!empty($urunAdi) && is_array($urunAdi)) {
-            //Satın alma'nın ürünlerini siler
+            $oldItems = (int) $id > 0
+                ? array_map('get_object_vars', $Purchase->getPurchaseItems((int) $id))
+                : [];
             $Purchase->deletePurchaseItems($id);
 
             //Satın alma'nın ürünlerini ekler
@@ -226,6 +309,7 @@ if ($_POST['action'] == 'savePurchases') {
                     }
                 }
 
+                $newItems[] = $itemData;
                 $Purchase->savePurchaseItems($itemData);
             }
         }
@@ -265,6 +349,9 @@ if ($_POST['action'] == 'savePurchases') {
                             'invoice_number', 'type'
                         ]
                     )
+                    : [],
+                'item_changes' => !$wasNewPurchase && $newItems
+                    ? PurchaseHistoryModel::diffItems($oldItems, $newItems)
                     : [],
             ]
         );

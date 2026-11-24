@@ -787,6 +787,28 @@ $(document).ready(function() {
         });
     }
 
+    if ($.fn.select2) {
+        $('.ajax-project-select').each(function() {
+            $(this).select2({
+                placeholder: 'Proje / Servis Seçiniz',
+                allowClear: true,
+                ajax: {
+                    url: 'pages/1/ajax.php?action=search-projects',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { q: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 0
+            });
+        });
+    }
+
     // Sidebar toggle and persistence functionality (Desktop & Mobile)
     function syncMenuIconState() {
         if ($(window).width() > 1200) {

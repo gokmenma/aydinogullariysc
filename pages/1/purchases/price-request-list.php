@@ -285,6 +285,13 @@ try {
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    #priceRequestTable.dt-resize-fixed th.col-company,
+    #priceRequestTable.dt-resize-fixed td.company-name-cell {
+        max-width: none !important;
+        width: auto;
+        white-space: normal;
+        text-overflow: clip;
+    }
     .form-card .dataTables_wrapper {
         padding: 0 !important;
         width: 100% !important;
@@ -442,6 +449,11 @@ try {
     }
     #priceRequestTable thead th:not(.sorting):not(.sorting_asc):not(.sorting_desc) {
         padding-left: 4px !important;
+    }
+    #priceRequestTable thead th.sorting:not(.text-center):not(.text-right),
+    #priceRequestTable thead th.sorting_asc:not(.text-center):not(.text-right),
+    #priceRequestTable thead th.sorting_desc:not(.text-center):not(.text-right) {
+        padding-left: 24px !important;
     }
     #priceRequestTable tbody td {
         padding: 8px 4px !important;
@@ -789,6 +801,7 @@ try {
                             <tr data-id="<?php echo $pid; ?>"
                                 data-edit-url="<?php echo htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8'); ?>"
                                 data-siparis-no="<?php echo $siparisNo; ?>" 
+                                data-state="<?php echo $state; ?>"
                                 data-company="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>">
                                 
                                 <td class="text-center">
@@ -800,7 +813,7 @@ try {
                                 </td>
 
                                 <td class="company-name-cell">
-                                    <span class="font-weight-600 text-dark" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars(shorted($companyName, 24), ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="font-weight-600 text-dark" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8'); ?></span>
                                 </td>
 
                                 <td class="text-muted text-center" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $createTimeFormatted; ?></td>
@@ -815,9 +828,9 @@ try {
                                     <?php echo $statusBadge; ?>
                                 </td>
 
-                                <td>
+                                <td style="white-space: normal; text-overflow: clip;">
                                     <span data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($creator, ENT_QUOTES, 'UTF-8'); ?>">
-                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars(shorted($creator, 14), ENT_QUOTES, 'UTF-8'); ?>
+                                        <i class="fa fa-user-circle text-muted mr-1"></i><?php echo htmlspecialchars($creator, ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
 
@@ -908,6 +921,15 @@ try {
     <a href="#" class="ctx-item" id="ctxPdf" target="_blank">
         <i class="fa fa-file-pdf-o text-danger"></i> PDF İndir
     </a>
+    <a href="#" class="ctx-item" id="ctxHistory">
+        <i class="fa fa-history text-secondary"></i> Tarihçe
+    </a>
+    <?php if (permtrue('purchaseadd')) { ?>
+        <div class="ctx-divider"></div>
+        <a href="#" class="ctx-item" id="ctxCreateOrder">
+            <i class="fa fa-shopping-cart text-primary"></i> Siparişe Çevir
+        </a>
+    <?php } ?>
     <?php if (permtrue('tum_fiyat_taleplerini_gor')) { ?>
         <div class="ctx-divider"></div>
         <a href="#" class="ctx-item text-danger" id="ctxDelete">
@@ -1100,6 +1122,37 @@ $(document).ready(function() {
     // ==========================================
     var $contextMenu = $('#priceReqContextMenu');
 
+    function convertToOrder(pid, no) {
+        Swal.fire({
+            title: 'Siparişe Çevir',
+            text: no + ' nolu talep siparişe çevrilecek. Onaylıyor musunuz?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Evet, Çevir',
+            cancelButtonText: 'Vazgeç'
+        }).then(function(result) {
+            if (!result.isConfirmed) return;
+            var fd = new FormData();
+            fd.append('action', 'convertPriceRequestToOrder');
+            fd.append('id', pid);
+            fetch('App/api/purchase.php', { method: 'POST', body: fd })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        Swal.fire({ title: 'Başarılı!', text: data.message, icon: 'success', confirmButtonText: 'Tamam' })
+                            .then(function() { location.reload(); });
+                    } else {
+                        Swal.fire('Hata!', data.message || 'İşlem başarısız oldu.', 'error');
+                    }
+                })
+                .catch(function() {
+                    Swal.fire('Hata!', 'Sunucuyla iletişim kurulurken bir sorun oluştu.', 'error');
+                });
+        });
+    }
+
     $('#priceRequestTable tbody').on('contextmenu', 'tr', function(e) {
         var $row = $(this);
         if ($row.find('td').length <= 1) return;
@@ -1108,13 +1161,30 @@ $(document).ready(function() {
         var pid = $row.data('id');
         var editUrl = $row.attr('data-edit-url');
         var siparisNo = $row.data('siparis-no');
+        var rowState = parseInt($row.attr('data-state'), 10) || 0;
         activeDetailId = pid;
+
+        if (rowState === 0 || rowState === 1) {
+            $('#ctxCreateOrder').attr('href', '#').show().off('click').on('click', function(ev) {
+                ev.preventDefault();
+                $contextMenu.hide();
+                convertToOrder(pid, siparisNo);
+            });
+        } else {
+            $('#ctxCreateOrder').hide();
+        }
 
         // Aksiyon Linkleri
         $('#ctxView').off('click').on('click', function(ev) {
             ev.preventDefault();
             $contextMenu.hide();
             $('.view-detail[data-id="' + pid + '"]').trigger('click');
+        });
+
+        $('#ctxHistory').off('click').on('click', function(ev) {
+            ev.preventDefault();
+            $contextMenu.hide();
+            window.openPurchaseHistory(pid, siparisNo);
         });
 
         $('#ctxEdit').attr('href', editUrl || 'fiyat-talepleri');
@@ -1154,3 +1224,5 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<?php include __DIR__ . '/history-modal.php'; ?>

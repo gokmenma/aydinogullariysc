@@ -253,6 +253,14 @@ try {
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    #purchasesTable th.col-company,
+    #purchasesTable td.company-name-cell,
+    #purchasesTable td.creator-cell {
+        max-width: none !important;
+        width: auto !important;
+        white-space: normal !important;
+        text-overflow: clip !important;
+    }
     .form-card .dataTables_wrapper {
         padding: 0 !important;
         width: 100% !important;
@@ -807,6 +815,9 @@ try {
     <a href="#" class="ctx-item" id="ctxSendMail">
         <i class="fa fa-envelope text-secondary"></i> Mail Gönder
     </a>
+    <a href="#" class="ctx-item" id="ctxHistory">
+        <i class="fa fa-history text-secondary"></i> Tarihçe
+    </a>
     <div class="ctx-divider"></div>
     <a href="#" class="ctx-item text-danger" id="ctxDelete">
         <i class="fa fa-trash"></i> Sil
@@ -842,7 +853,7 @@ $(document).ready(function() {
             { data: 7, className: "text-center" },
             { data: 8, className: "text-center" },
             { data: 9, className: "text-center" },
-            { data: 10 },
+            { data: 10, className: "creator-cell" },
             { data: 11, className: "text-center" },
             { data: 12, orderable: false, searchable: false, className: "text-center" }
         ],
@@ -1113,6 +1124,12 @@ $(document).ready(function() {
             $('#ctxToggleDone').hide();
         }
 
+        $('#ctxHistory').off('click').on('click', function(ev) {
+            ev.preventDefault();
+            $contextMenu.hide();
+            window.openPurchaseHistory(pid, siparisNo);
+        });
+
         // Mail Gönder
         $('#ctxSendMail').attr('href', 'index.php?p=report-send-as-mail&type=purchase&id=' + pid);
 
@@ -1167,3 +1184,5 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<?php include __DIR__ . '/purchases/history-modal.php'; ?>

@@ -294,7 +294,7 @@ foreach ($results as $purc) {
         ],
         0 => '<span class="row-index-badge">' . $sira++ . '</span>',
         1 => '<span class="font-weight-bold text-dark">' . $siparisNo . '</span>',
-        2 => '<span class="font-weight-600 text-dark" data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(shorted($companyName, 20), ENT_QUOTES, 'UTF-8') . '</span>',
+        2 => '<span class="font-weight-600 text-dark" data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($companyName, ENT_QUOTES, 'UTF-8') . '</span>',
         3 => '<span class="text-muted text-center" data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($rawCreateTime, ENT_QUOTES, 'UTF-8') . '">' . $createTimeFormatted . '</span>',
         4 => '<span class="text-center">' . $deadlineFormatted . '</span>',
         5 => '<span class="text-right font-weight-bold text-dark">' . $altToplam . ' ₺</span>',
@@ -302,7 +302,7 @@ foreach ($results as $purc) {
         7 => $paymentPeriod ?: '-',
         8 => $invoiceNumber ?: '-',
         9 => $invoiceDateFormatted,
-        10 => '<span data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-user-circle text-muted mr-1"></i>' . htmlspecialchars(shorted($creator, 12), ENT_QUOTES, 'UTF-8') . '</span>',
+        10 => '<span data-toggle="tooltip" data-placement="top" title="' . htmlspecialchars($creatorTooltip, ENT_QUOTES, 'UTF-8') . '"><i class="fa fa-user-circle text-muted mr-1"></i>' . htmlspecialchars($creator, ENT_QUOTES, 'UTF-8') . '</span>',
         11 => $typeBadge,
         12 => $actions
     ];

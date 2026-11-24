@@ -514,8 +514,8 @@ if ($id && $_GET["mode"] == "delete" && $_GET["code"] == "04md177") {
                     $prodName = $recordData['Adi'] ?? ($recordData['name'] ?? '#' . $id);
                     $entitySummary = "Ürün/hizmet silindi: " . $prodName;
                 } elseif ($resolvedTable === 'purchases') {
-                    $pTitle = $recordData['title'] ?? ($recordData['company'] ?? '#' . $id);
-                    $entitySummary = "Satın alma kaydı silindi: " . $pTitle;
+                    $pTitle = $recordData['siparisNo'] ?? '#' . $id;
+                    $entitySummary = (((int) ($recordData['type'] ?? 0) === 2) ? "Fiyat talebi silindi: " : "Satın alma kaydı silindi: ") . $pTitle;
                 } elseif ($resolvedTable === 'users') {
                     $uName = $recordData['username'] ?? ($recordData['fullname'] ?? '#' . $id);
                     $entitySummary = "Kullanıcı silindi: " . $uName;
@@ -619,6 +619,32 @@ if (isset($_POST["customer_id"])) {
         echo json_encode($res);
         return false;
     }
+}
+
+if (isset($_GET["action"]) && $_GET["action"] == "search-projects") {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!permtrue("purchase-demand-add") && !permtrue("purchaseadd")) {
+        http_response_code(403);
+        echo json_encode(['results' => []]);
+        return false;
+    }
+    try {
+        $q = isset($_GET["q"]) ? trim($_GET["q"]) : '';
+        $serviceModel = new \App\Model\ServiceModel();
+        $results = [];
+        foreach ($serviceModel->searchForSelect($q) as $row) {
+            $results[] = [
+                'id' => $row['id'],
+                'text' => \App\Model\ServiceModel::formatSelectLabel($row)
+            ];
+        }
+        echo json_encode(['results' => $results]);
+    } catch (PDOException $ex) {
+        error_log('search-projects failed: ' . $ex->getMessage());
+        http_response_code(500);
+        echo json_encode(['results' => []]);
+    }
+    return false;
 }
 
 // Merkezi AJAX ile Firma/Müşteri Arama Endpoint'i

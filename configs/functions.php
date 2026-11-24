@@ -628,6 +628,32 @@ function customers($name, $val, $required = 'required')
 	</select>';
 }
 
+function project_select($name, $val = '')
+{
+	$selectedOption = '';
+	if (!empty($val)) {
+		$serviceModel = new \App\Model\ServiceModel();
+		$row = $serviceModel->getSelectLabel($val);
+		if ($row) {
+			$selectedOption = '<option value="' . (int)$row['id'] . '" selected>' . htmlspecialchars(\App\Model\ServiceModel::formatSelectLabel($row), ENT_QUOTES, 'UTF-8') . '</option>';
+		}
+	}
+
+	echo '<select id="' . $name . '" name="' . $name . '" class="form-control ajax-project-select">
+	<option value="">Proje / Servis Seçiniz</option>
+	' . $selectedOption . '
+	</select>';
+}
+
+function validProjectId($id)
+{
+	if (empty($id)) {
+		return null;
+	}
+	$serviceModel = new \App\Model\ServiceModel();
+	return $serviceModel->getSelectLabel($id) ? (int)$id : null;
+}
+
 function yangin_sondurme_sinifi($name, $val)
 {
 	echo '<select required name="' . $name . '" class="selectpicker form-control" 

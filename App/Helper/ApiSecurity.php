@@ -75,7 +75,8 @@ final class ApiSecurity
             'deleteOffer' => ['offerdelete'], 'convertToTry' => ['offeredit'],
         ],
         'App/api/purchase.php' => [
-            'doneDemand' => ['purchaseedit'], 'deleteItemFile' => ['purchaseedit'],
+            'doneDemand' => ['purchaseedit'],
+            'getPurchaseHistory' => ['purchase_dashboard', 'purchaseadd', 'purchaseedit', 'purchasedelete', 'purchase-demand-add', 'tum_fiyat_taleplerini_gor'], 'deleteItemFile' => ['purchaseedit'],
             'savePurchases' => ['purchaseadd', 'purchaseedit'],
         ],
         'App/api/service-save.php' => ['*' => ['serviceAdd', 'serviceEdit']],

@@ -476,6 +476,9 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                     </div>
                 </div>
                 <div class="header-actions">
+                    <?php if ((int) $id > 0): ?>
+                        <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $id; ?>"><i class="fa fa-history"></i> Tarihçe</button>
+                    <?php endif; ?>
                     <?php if ($id > 0): ?>
                         <a href="index.php?p=purchases/price-request-print&id=<?php echo $id; ?>" target="_blank" class="btn-header btn-header-print">
                             <i class="fa fa-print"></i> Yazdır / PDF
@@ -1176,3 +1179,5 @@ $genelToplam = $purchase->altToplam ?? "0.00";
         setTimeout(updateToplamPurchase, 300);
     });
 </script>
+
+<?php include __DIR__ . '/history-modal.php'; ?>

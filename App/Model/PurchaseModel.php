@@ -26,6 +26,87 @@ class PurchaseModel extends BaseModel
     }
 
     /**
+     * Fiyat talebini siparişe çevirir; yeni sipariş id'sini döndürür
+     */
+    public function convertPriceRequestToOrder($requestId, $userId)
+    {
+        $this->db->beginTransaction();
+        try {
+            $sql = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ? FOR UPDATE");
+            $sql->execute([$requestId]);
+            $request = $sql->fetch(PDO::FETCH_ASSOC);
+
+            if (!$request || strpos((string)$request['siparisNo'], 'FT') !== 0 || (int)$request['type'] !== 2) {
+                throw new \DomainException('Fiyat talebi bulunamadı.');
+            }
+            if (!in_array((int)$request['state'], [0, 1], true)) {
+                throw new \DomainException('Bu fiyat talebi siparişe çevrilemez.');
+            }
+
+            $check = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE talep_id = ? AND id <> ?");
+            $check->execute([$requestId, $requestId]);
+            if ((int)$check->fetchColumn() > 0) {
+                throw new \DomainException('Bu fiyat talebi daha önce siparişe çevrilmiş.');
+            }
+
+            $numSql = $this->db->prepare("SELECT purchase FROM define_numbers LIMIT 1 FOR UPDATE");
+            $numSql->execute();
+            $number = (int)$numSql->fetchColumn();
+            $orderNo = 'SA000' . $number;
+
+            $copy = ['companyID', 'currency', 'deadline', 'payment_period', 'description1', 'description2',
+                'altToplam', 'DolarTotal', 'EuroTotal', 'TLTotal', 'Kdv', 'iskonto', 'ToplamTL',
+                'vadeGun', 'payment_date', 'curDate', 'Dollar', 'Euro', 'aciliyeti'];
+            $data = [];
+            foreach ($copy as $col) {
+                $data[$col] = $request[$col];
+            }
+            $data['siparisNo'] = $orderNo;
+            $data['creator'] = $userId;
+            $data['state'] = 0;
+            $data['type'] = 0;
+            $data['talep_id'] = $requestId;
+
+            $orderId = (int)$this->insert($data);
+
+            $items = $this->getPurchaseItems($requestId);
+            foreach ($items as $item) {
+                $this->table = $this->item_table;
+                $this->insert([
+                    'purID' => $orderId,
+                    'stokKodu' => $item->stokKodu,
+                    'product' => $item->product,
+                    'amount' => $item->amount,
+                    'unit' => $item->unit,
+                    'price' => $item->price,
+                    'currency' => $item->currency,
+                    'rowdescription' => $item->rowdescription,
+                    'image' => $item->image,
+                    'excel_file' => $item->excel_file,
+                    'description' => $item->description,
+                ]);
+                $this->table = 'purchases';
+            }
+
+            $upd = $this->db->prepare("UPDATE {$this->table} SET state = 2 WHERE id = ?");
+            $upd->execute([$requestId]);
+
+            $inc = $this->db->prepare("UPDATE define_numbers SET purchase = ?");
+            $inc->execute([$number + 1]);
+
+            $this->db->commit();
+            return ['order_id' => $orderId, 'order_no' => $orderNo, 'request_no' => $request['siparisNo'],
+                'item_count' => count($items)];
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $this->table = 'purchases';
+            throw $e;
+        }
+    }
+
+    /**
      * Satın almanın ürünlerini siler
      */
     public function deletePurchaseItems($id)
