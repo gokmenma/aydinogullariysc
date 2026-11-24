@@ -22,7 +22,7 @@ class HistoryModel extends BaseModel
         }
         $limit = max(1, min(1000, $limit));
         $in = implode(',', array_fill(0, count($this->entityTypes), '?'));
-        $sql = "SELECT l.id, l.event_type, l.summary, l.details, l.ip_address, l.created_at,
+        $sql = "SELECT l.id, l.event_type, l.summary, l.details, l.ip_address, l.created_at, u.Unvan AS user_unvan,
                        COALESCE(NULLIF(u.username, ''), IF(COALESCE(NULLIF(l.user_id, 0), l.author) = 0, 'Sistem', CONCAT('Kullanıcı #', COALESCE(NULLIF(l.user_id, 0), l.author)))) AS username
                 FROM {$this->table} l
                 LEFT JOIN users u ON u.id = COALESCE(NULLIF(l.user_id, 0), l.author)
@@ -43,13 +43,15 @@ class HistoryModel extends BaseModel
                 'id' => (int) $row['id'],
                 'event_type' => $row['event_type'],
                 'event_label' => ActivityLogModel::getEventLabel($row['event_type']),
-                'badge' => ActivityLogModel::getEventBadgeClass($row['event_type']),
-                'icon' => ActivityLogModel::getEventIcon($row['event_type']),
+                'badge_class' => ActivityLogModel::getEventBadgeClass($row['event_type']),
+                'event_icon' => ActivityLogModel::getEventIcon($row['event_type']),
                 'summary' => $row['summary'],
-                'username' => $row['username'],
-                'ip_address' => $row['ip_address'],
-                'created_at' => $row['created_at'] ? date('d.m.Y H:i:s', strtotime($row['created_at'])) : '-',
-                'changes' => $this->formatChanges($context['changed_fields'] ?? []),
+                'user_name' => $row['username'],
+                'user_unvan' => $row['user_unvan'] ?: '',
+                'ip_address' => $row['ip_address'] ?: '-',
+                'created_at_formatted' => $row['created_at'] ? date('d.m.Y H:i:s', strtotime($row['created_at'])) : '-',
+                'relative_time' => ActivityLogModel::formatRelativeTime($row['created_at']),
+                'changed_fields' => $this->formatChanges($context['changed_fields'] ?? []),
                 'item_changes' => is_array($context['item_changes'] ?? null) ? $context['item_changes'] : [],
             ];
         }
@@ -67,7 +69,7 @@ class HistoryModel extends BaseModel
                 continue;
             }
             $out[] = [
-                'field' => $this->fieldLabels[$field] ?? (string) $field,
+                'label' => $this->fieldLabels[$field] ?? (string) $field,
                 'old' => $change['old'] ?? '',
                 'new' => $change['new'] ?? '',
             ];

@@ -32,6 +32,25 @@ class PurchaseHistoryModel extends HistoryModel
         'project_id' => 'Proje / Servis',
     ];
 
+    public function getSummary(int $purchaseId): array
+    {
+        $stmt = $this->db->prepare("SELECT p.id, p.siparisNo, p.type, p.state, p.ToplamTL, c.company
+                                    FROM purchases p LEFT JOIN customers c ON c.id = p.companyID
+                                    WHERE p.id = ? LIMIT 1");
+        $stmt->execute([$purchaseId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $states = [0 => ['Bekliyor', 'badge-warning'], 1 => ['Onaylandı', 'badge-info'], 2 => ['Tamamlandı', 'badge-success']];
+        $state = $states[(int) ($row['state'] ?? 0)] ?? ['-', 'badge-secondary'];
+        return [
+            'id' => (int) ($row['id'] ?? 0),
+            'number' => $row['siparisNo'] ?? '',
+            'company_name' => $row['company'] ?? '',
+            'total_price' => (float) ($row['ToplamTL'] ?? 0),
+            'statu_label' => $state[0],
+            'statu_badge_class' => $state[1],
+        ];
+    }
+
     public static function diffItems(array $before, array $after): array
     {
         $key = static fn($i) => mb_strtolower(trim((string) ($i['stokKodu'] ?? '')) . '|' . trim((string) ($i['product'] ?? '')));

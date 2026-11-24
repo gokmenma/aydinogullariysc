@@ -922,7 +922,7 @@ try {
         <i class="fa fa-file-pdf-o text-danger"></i> PDF İndir
     </a>
     <a href="#" class="ctx-item" id="ctxHistory">
-        <i class="fa fa-history text-secondary"></i> Tarihçe
+        <i class="fa fa-history text-secondary"></i> Log Kayıtları
     </a>
     <?php if (permtrue('purchaseadd')) { ?>
         <div class="ctx-divider"></div>

@@ -188,7 +188,7 @@ if (@$_GET["st"] == "numericerror") {
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $pid; ?>"><i class="fa fa-history"></i> Tarihçe</button>
+                    <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $pid; ?>"><i class="fa fa-history"></i> Log Kayıtları</button>
                     <a href="index.php?p=purchases" class="btn-header btn-header-list mr-2">
                         <i class="fa fa-list"></i> Listeye Dön
                     </a>

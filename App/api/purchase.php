@@ -72,15 +72,15 @@ if (($_POST['action'] ?? '') == 'getPurchaseHistory') {
         $row = $Purchase->find($historyId);
         if (!$row || (!$canSeeAll && (int) $row->creator !== (int) sesset('id'))) {
             http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'Bu kaydın tarihçesini görme yetkiniz yok.']);
+            echo json_encode(['status' => 'error', 'message' => 'Bu kaydın log kayıtlarını görme yetkiniz yok.']);
             exit;
         }
         $history = new PurchaseHistoryModel();
-        echo json_encode(['status' => 'success', 'items' => $history->getHistory($historyId)], JSON_UNESCAPED_UNICODE);
+        echo json_encode(['status' => 'success', 'purchase' => $history->getSummary($historyId), 'logs' => $history->getHistory($historyId)], JSON_UNESCAPED_UNICODE);
     } catch (\Throwable $ex) {
-        error_log('Purchase history failed: ' . $ex->getMessage());
+        error_log('Purchase logs failed: ' . $ex->getMessage());
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Tarihçe alınırken bir hata oluştu.']);
+        echo json_encode(['status' => 'error', 'message' => 'Log kayıtları alınırken bir hata oluştu.']);
     }
     exit;
 }

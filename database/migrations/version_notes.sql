@@ -782,5 +782,5 @@ SELECT 'v2.8.91', 'Satın Alma Talebine Proje / Servis Alanı', 'feature', '- Sa
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.91');
 
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
-SELECT 'v2.8.92', 'Satın Alma İşlem Tarihçesi', 'feature', '- Fiyat talepleri, satın alma talepleri ve siparişler için kim, ne zaman, neyi değiştirdi bilgisini gösteren işlem tarihçesi eklendi; eski/yeni değerler ve kalem değişiklikleri de görünüyor.', 'Antigravity AI', '2026-11-24 19:00:00'
+SELECT 'v2.8.92', 'Satın Alma Log Kayıtları', 'feature', '- Fiyat talepleri, satın alma talepleri ve siparişler için tekliflerdeki gibi Log Kayıtları penceresi eklendi; kim, ne zaman, neyi değiştirdi, eski/yeni değerler ve kalem değişiklikleri görünüyor.', 'Antigravity AI', '2026-11-24 19:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.92');

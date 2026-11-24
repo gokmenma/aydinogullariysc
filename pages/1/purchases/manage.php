@@ -69,7 +69,7 @@ if ($demand == true || $id == 0) {
                 </div>
                 <div class="header-actions">
                     <?php if ((int) $id > 0): ?>
-                        <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $id; ?>"><i class="fa fa-history"></i> Tarihçe</button>
+                        <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $id; ?>"><i class="fa fa-history"></i> Log Kayıtları</button>
                     <?php endif; ?>
                     <a href="satin-almalar" class="btn-header btn-header-list">
                         <i class="fa fa-list"></i> Listeye Dön

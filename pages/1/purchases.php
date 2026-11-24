@@ -816,7 +816,7 @@ try {
         <i class="fa fa-envelope text-secondary"></i> Mail Gönder
     </a>
     <a href="#" class="ctx-item" id="ctxHistory">
-        <i class="fa fa-history text-secondary"></i> Tarihçe
+        <i class="fa fa-history text-secondary"></i> Log Kayıtları
     </a>
     <div class="ctx-divider"></div>
     <a href="#" class="ctx-item text-danger" id="ctxDelete">

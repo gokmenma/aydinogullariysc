@@ -477,7 +477,7 @@ $genelToplam = $purchase->altToplam ?? "0.00";
                 </div>
                 <div class="header-actions">
                     <?php if ((int) $id > 0): ?>
-                        <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $id; ?>"><i class="fa fa-history"></i> Tarihçe</button>
+                        <button type="button" class="btn-header btn-header-list btn-purchase-history mr-2" data-id="<?php echo (int) $id; ?>"><i class="fa fa-history"></i> Log Kayıtları</button>
                     <?php endif; ?>
                     <?php if ($id > 0): ?>
                         <a href="index.php?p=purchases/price-request-print&id=<?php echo $id; ?>" target="_blank" class="btn-header btn-header-print">
