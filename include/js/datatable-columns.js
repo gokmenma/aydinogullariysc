@@ -88,7 +88,7 @@
         return {
             settings: settings,
             api: new $.fn.dataTable.Api(settings),
-            reorderable: !isServerSide(settings),
+            reorderable: true,
             titles: titles,
             key: STORE_PREFIX + pageKey() + '#' + tableId,
             sig: titles.length + ':' + titles.join('|')
@@ -460,10 +460,34 @@
         });
         settings._dtcTitles = titles;
 
-        if (!isServerSide(settings) && !settings._colReorder) {
+        if (!settings._colReorder) {
             new $.fn.dataTable.ColReorder(settings, {});
         }
         settings._dtcEligible = true;
+    });
+
+    function toOriginalRequest(settings, data) {
+        if (!data || !Array.isArray(data.columns)) return;
+        var cols = settings.aoColumns;
+        if (data.columns.length !== cols.length) return;
+
+        var restored = [];
+        cols.forEach(function (col, pos) {
+            restored[origOf(col)] = data.columns[pos];
+        });
+        data.columns = restored;
+
+        if (Array.isArray(data.order)) {
+            data.order.forEach(function (o) {
+                var col = cols[parseInt(o.column, 10)];
+                if (col) o.column = origOf(col);
+            });
+        }
+    }
+
+    $(document).on('preXhr.dt', function (e, settings, data) {
+        if (!settings || !settings._dtcEligible || !isServerSide(settings)) return;
+        toOriginalRequest(settings, data);
     });
 
     $(document).on('init.dt', function (e, settings) {

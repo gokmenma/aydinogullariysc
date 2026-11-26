@@ -1762,7 +1762,7 @@ $(document).ready(function() {
             var $row = $(this).closest('tr');
             offerId = $row.find('.teklif-sil, .offer-copy, .btn-offer-logs').first().data('id');
             if (!offerNo) {
-                offerNo = $row.find('td:nth-child(3)').text().trim();
+                offerNo = $row.find('.offer-no-badge').text().trim() || $row.find('td:nth-child(3)').text().trim();
             }
         }
 
