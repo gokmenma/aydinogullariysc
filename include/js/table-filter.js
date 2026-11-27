@@ -6,6 +6,7 @@
 window.App = window.App || {};
 
 App.TableFilter = {
+    stateRestored: {},
     activeFilters: {}, // tableId -> { colIndex -> { type: 'text'|'number'|'date'|'select', rules: [...], values: [...] } }
     columnOptionPool: {}, // tableId -> { colIndex -> { [val]: count } }
     originalPaginationState: {}, // tableId -> { infoEl, paginateEl, originalInfoHtml, originalPaginateHtml, originalTotal, pageSize }
@@ -655,6 +656,39 @@ App.TableFilter = {
                 }, 50);
             });
         });
+        App.TableFilter.restoreFromState(table);
+    },
+
+    restoreFromState: function (table) {
+        const tableId = table && table.id;
+        if (!tableId || !window.jQuery || !$.fn.dataTable || !$.fn.dataTable.isDataTable(table)) return;
+        if (App.TableFilter.stateRestored[tableId]) return;
+        App.TableFilter.stateRestored[tableId] = true;
+        try {
+            const dt = $(table).DataTable();
+            if (!dt.init().serverSide) return;
+            if (App.TableFilter.activeFilters[tableId] && Object.keys(App.TableFilter.activeFilters[tableId]).length) return;
+            const restored = {};
+            dt.columns().every(function (idx) {
+                const raw = this.search();
+                if (!raw || raw.charAt(0) !== '{') return;
+                try {
+                    const f = JSON.parse(raw);
+                    if (f && f.type && ((f.rules && f.rules.length) || (f.values && f.values.length))) {
+                        restored[idx] = f;
+                    }
+                } catch (e) {}
+            });
+            if (!Object.keys(restored).length) return;
+            App.TableFilter.activeFilters[tableId] = restored;
+            Object.keys(restored).forEach(function (idx) {
+                const trigger = table.querySelector('.tf-trigger[data-col-index="' + idx + '"]');
+                if (trigger) trigger.classList.add('active');
+            });
+            App.TableFilter.updateActiveSummary(tableId);
+        } catch (e) {
+            console.error(e);
+        }
     },
 
     bindSelectSearch: function (popover) {

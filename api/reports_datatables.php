@@ -137,6 +137,7 @@ $data_query = "
         r.isemrino,
         r.control_date,
         r.validity_date,
+        r.report_type,
         r.create_time,
         rt.reportName,
         rt.page_link,
@@ -223,7 +224,28 @@ foreach ($reports_list as $row_data) {
     $row[] = htmlspecialchars($row_data['control_date'] ?? '');
 
     // 6: Geçerlilik Tarihi
-    $row[] = htmlspecialchars($row_data['validity_date'] ?? '');
+    $validityRaw = trim((string)($row_data['validity_date'] ?? ''));
+    $validityDt = null;
+    if ($validityRaw !== '') {
+        $validityDt = DateTime::createFromFormat('!d.m.Y', str_replace(['-', '/'], '.', $validityRaw)) ?: null;
+    } elseif (in_array((string)($row_data['report_type'] ?? ''), ['3', '4'], true)) {
+        $controlRaw = trim((string)($row_data['control_date'] ?? ''));
+        $controlDt = $controlRaw !== '' ? DateTime::createFromFormat('!d.m.Y', str_replace(['-', '/'], '.', $controlRaw)) : false;
+        if ($controlDt) {
+            $validityDt = $controlDt->modify('+1 year');
+            $validityRaw = $validityDt->format('d.m.Y');
+        }
+    }
+    $validityCell = htmlspecialchars($validityRaw, ENT_QUOTES, 'UTF-8');
+    if ($validityDt) {
+        $daysLeft = (int)(new DateTime('today'))->diff($validityDt)->format('%r%a');
+        if ($daysLeft < 0) {
+            $validityCell .= ' <span class="badge badge-danger" data-toggle="tooltip" title="Bakım/kontrol süresi ' . abs($daysLeft) . ' gün önce doldu"><i class="fa fa-exclamation-triangle"></i> Süresi Doldu</span>';
+        } elseif ($daysLeft <= 30) {
+            $validityCell .= ' <span class="badge badge-warning" data-toggle="tooltip" title="Bakım/kontrol zamanına ' . $daysLeft . ' gün kaldı"><i class="fa fa-bell"></i> ' . $daysLeft . ' gün</span>';
+        }
+    }
+    $row[] = $validityCell;
 
     // 7: Kayıt Tarihi
     $createTimeRaw = $row_data['create_time'] ?? '';
