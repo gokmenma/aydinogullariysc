@@ -629,6 +629,24 @@ $reportTypeMeta = [
 
 <div class="pd-ltr-20 xs-pd-20-10">
     <div class="report-list-wrapper">
+        <?php include __DIR__ . '/report-alarm-banner.php'; ?>
+        <?php
+        $activeAlarmFilter = null;
+        $alarmFilterId = (int) ($_GET['alarm'] ?? 0);
+        if ($alarmFilterId > 0 && permtrue('report_alarm')) {
+            try {
+                $activeAlarmFilter = (new \App\Model\ReportAlarmModel($ac))->findForUser($alarmFilterId, (int) sesset('id'));
+            } catch (\Throwable $e) {
+                error_log('Rapor alarm filtresi hatası: ' . $e->getMessage());
+            }
+        }
+        if ($activeAlarmFilter) { ?>
+            <script>window.REPORT_ALARM_FILTER_ID = <?php echo (int) $activeAlarmFilter['id']; ?>;</script>
+            <div class="alert alert-warning d-flex align-items-center justify-content-between py-2 px-3 mb-3" style="border-radius:10px;">
+                <span><i class="fa fa-bell mr-1"></i> Alarm filtresi aktif: <strong><?php echo htmlspecialchars($activeAlarmFilter['name'], ENT_QUOTES, 'UTF-8'); ?></strong></span>
+                <a href="index.php?p=reports/reports" class="btn btn-sm btn-outline-secondary">Filtreyi Kaldır</a>
+            </div>
+        <?php } ?>
         <!-- Sayfa Üst Bölümü (Header + Quick Actions) -->
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap px-1" style="gap: 12px;">
             <div class="page-title-box">
@@ -645,6 +663,11 @@ $reportTypeMeta = [
                     <a href="index.php?p=reports/dashboard" class="btn btn-outline-primary btn-action-outline" title="Dashboard">
                         <i class="fa fa-dashboard"></i> <span class="d-none d-sm-inline">Dashboard</span>
                     </a>
+                <?php } ?>
+                <?php if (permtrue("report_alarm")) { ?>
+                    <button type="button" class="btn btn-outline-warning btn-action-outline" id="btnReportAlarms" title="Hatırlatma Alarmları">
+                        <i class="fa fa-bell"></i> <span class="d-none d-sm-inline">Alarmlar</span>
+                    </button>
                 <?php } ?>
                 <button type="button" class="btn btn-outline-secondary btn-action-outline" id="btnRefreshReports" title="Tabloyu Yenile">
                     <i class="fa fa-refresh"></i> <span class="d-none d-sm-inline">Yenile</span>
@@ -1057,7 +1080,12 @@ tr.context-menu-active {
                 responsive: false,
                 ajax: {
                     url: "api/reports_datatables.php",
-                    type: "GET"
+                    type: "GET",
+                    data: function (d) {
+                        if (window.REPORT_ALARM_FILTER_ID) {
+                            d.alarm_id = window.REPORT_ALARM_FILTER_ID;
+                        }
+                    }
                 },
                 columns: [
                     { data: 0, className: "text-center", width: "45px" }, // ID
@@ -1382,4 +1410,4 @@ tr.context-menu-active {
             }
         });
     });
-</script>
+</script><?php include __DIR__ . '/report-alarm-modal.php'; ?>

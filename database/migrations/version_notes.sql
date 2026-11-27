@@ -788,3 +788,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.92')
 INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
 SELECT 'v2.8.93', 'Mekanik Tesisat ve Algılama Raporları Kontrol Hatırlatması', 'improvement', '- Mekanik tesisat ve algılama raporları, kontrol tarihinden 1 yıl sonrası geçerlilik tarihi sayılarak kontrol/hatırlatma listesinde gösteriliyor; rapor listesinde süresi dolan veya 30 gün içinde dolacak raporlar küçük bir uyarı rozetiyle işaretleniyor.', 'Claude Code', '2026-11-27 12:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.93');
+
+INSERT INTO `version_notes` (`version_tag`, `title`, `category`, `description`, `author`, `created_at`)
+SELECT 'v2.8.94', 'Rapor Hatırlatma Alarmları', 'feature', '- Rapor listesinden firma, rapor türü ve gün sayısı seçilerek kişisel hatırlatma alarmları kurulabiliyor; tetiklenen alarmlar rapor listesinde ve ana sayfanın üstünde yetkili kullanıcılara banner olarak gösteriliyor.', 'Claude Code', '2026-11-27 14:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM `version_notes` WHERE `version_tag` = 'v2.8.94');

@@ -604,6 +604,7 @@ for ($d = 1; $d <= $daysInMonth; $d++) {
 
 <div class="main-container" id="content">
 	<div id="maincontainer" class="content crm-dashboard-wrapper animate-fade-in">
+		<?php include __DIR__ . '/reports/report-alarm-banner.php'; ?>
 		
 		<!-- 1. CRM HERO / KARŞILAMA VE HIZLI AKSİYON ÇUBUĞU -->
 		<div class="crm-hero-banner crm-dashboard-hero">

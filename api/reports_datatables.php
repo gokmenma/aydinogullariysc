@@ -59,6 +59,22 @@ $total_records = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 $where_conditions = [];
 $params = [];
 
+// Alarm filtresi
+$alarmIdFilter = intval($_GET['alarm_id'] ?? 0);
+if ($alarmIdFilter > 0) {
+    if (!permtrue('report_alarm')) {
+        http_response_code(403);
+        echo json_encode(['draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => [], 'error' => 'Forbidden']);
+        exit;
+    }
+    $alarmRow = (new \App\Model\ReportAlarmModel($ac))->findForUser($alarmIdFilter, (int) sesset('id'));
+    if ($alarmRow) {
+        $where_conditions[] = '(' . (new \App\Model\ReportAlarmModel($ac))->buildMatch($alarmRow, $params) . ')';
+    } else {
+        $where_conditions[] = '1 = 0';
+    }
+}
+
 // Global search
 if ($search_value !== '') {
     $where_conditions[] = "(

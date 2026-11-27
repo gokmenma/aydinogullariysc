@@ -47,6 +47,7 @@ final class ApiSecurity
         'api/purchases_datatables.php' => [],
         'api/reports_datatables.php' => ['reportview'],
         'api/report_lists_datatables.php' => ['reportview'],
+        'api/report_alarms.php' => ['report_alarm'],
         'api/search_customers.php' => [],
         'api/search_products.php' => [],
         'api/search_recipients.php' => ['mailandsmssend'],
